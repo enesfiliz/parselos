@@ -1,0 +1,92 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { NextResponse } from "next/server";
+
+const GEMINI_MODEL = "gemini-3.5-flash";
+
+const LISTING_PROMPT =
+  "Sen lüks gayrimenkul satışında uzmanlaşmış, üst düzey bir metin yazarısın. Sana verilen gayrimenkul özelliklerini kullanarak; SEO uyumlu, dikkat çekici bir başlığı olan, paragraf düzeni mükemmel, satışı hızlandıracak, profesyonel bir ilan metni yaz. Emojileri çok hafif ve sadece dikkat çekmek için kullan. Eski nesil emlakçı jargonundan uzak dur.";
+
+interface ListingRequestBody {
+  konum?: string;
+  odaSayisi?: string;
+  metrekare?: string;
+  fiyat?: string;
+  ekstraOzellikler?: string;
+}
+
+function getGeminiClient(): GoogleGenerativeAI {
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY ortam değişkeni tanımlı değil.");
+  }
+
+  return new GoogleGenerativeAI(apiKey);
+}
+
+function buildPropertyBrief(body: ListingRequestBody): string {
+  return [
+    `Konum: ${body.konum?.trim() || "Belirtilmedi"}`,
+    `Oda Sayısı: ${body.odaSayisi?.trim() || "Belirtilmedi"}`,
+    `Metrekare: ${body.metrekare?.trim() || "Belirtilmedi"}`,
+    `Fiyat: ${body.fiyat?.trim() || "Belirtilmedi"}`,
+    `Ekstra Özellikler: ${body.ekstraOzellikler?.trim() || "Belirtilmedi"}`,
+  ].join("\n");
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = (await request.json()) as ListingRequestBody;
+
+    const hasInput = [
+      body.konum,
+      body.odaSayisi,
+      body.metrekare,
+      body.fiyat,
+      body.ekstraOzellikler,
+    ].some((value) => typeof value === "string" && value.trim().length > 0);
+
+    if (!hasInput) {
+      return NextResponse.json(
+        { error: "En az bir gayrimenkul özelliği girilmelidir." },
+        { status: 400 },
+      );
+    }
+
+    const genAI = getGeminiClient();
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+
+    const result = await model.generateContent([
+      { text: LISTING_PROMPT },
+      {
+        text: `Aşağıdaki gayrimenkul özelliklerine göre ilan metnini yaz:\n\n${buildPropertyBrief(body)}`,
+      },
+    ]);
+
+    const listing = result.response.text()?.trim();
+
+    if (!listing) {
+      return NextResponse.json(
+        { error: "Gemini ilan metni üretemedi." },
+        { status: 502 },
+      );
+    }
+
+    return NextResponse.json({ listing });
+  } catch (error) {
+    console.error("[POST /api/listing]", error);
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : "İlan metni oluşturulurken beklenmeyen bir hata oluştu.";
+
+    const status = message.includes("GEMINI_API_KEY")
+      ? 500
+      : message.includes("Gemini")
+        ? 502
+        : 500;
+
+    return NextResponse.json({ error: message }, { status });
+  }
+}

@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Client {
+  id                 String            @id @default(uuid())
+  adSoyad            String
+  telefon            String?
+  email              String?
+  notlar             String?
+  olusturulmaTarihi  DateTime          @default(now())
+  guncellenmeTarihi  DateTime          @updatedAt
+  appraisals         AppraisalReport[]
+}
+
+model AppraisalReport {
+  id                String   @id @default(uuid())
+  baslik            String
+  ada               String
+  parsel            String
+  m2                String
+  jsonVerisi        String
+  clientId          String?
+  olusturulmaTarihi DateTime @default(now())
+  client            Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+}
+
+model ListingText {
+  id                String   @id @default(uuid())
+  baslik            String
+  icerik            String
+  olusturulmaTarihi DateTime @default(now())
+}
