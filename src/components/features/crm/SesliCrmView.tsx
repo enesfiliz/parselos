@@ -68,7 +68,7 @@ export function SesliCrmView({
   initialError = null,
 }: SesliCrmViewProps) {
   const [logs, setLogs] = useState<VoiceCrmLog[]>(initialLogs);
-  const [fetchError, setFetchError] = useState<string | null>(initialError);
+  const [fetchError] = useState<string | null>(initialError);
 
   function handleRecordSuccess(crmData: CrmVoicePayload) {
     setLogs((prev) => [

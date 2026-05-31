@@ -1,7 +1,7 @@
 "use client";
 
 import { Archive, Eye, FileText, MapPin } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -47,52 +47,61 @@ export function ArsivView() {
     null,
   );
 
-  const fetchReports = useCallback(async () => {
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/appraisals");
-      const payload: unknown = await response.json();
-
-      if (!response.ok) {
-        const apiError =
-          payload &&
-          typeof payload === "object" &&
-          "error" in payload &&
-          typeof payload.error === "string"
-            ? payload.error
-            : "Arşiv yüklenemedi";
-
-        const apiDetails =
-          payload &&
-          typeof payload === "object" &&
-          "details" in payload &&
-          typeof payload.details === "string"
-            ? payload.details
-            : null;
-
-        throw new Error(apiDetails ? `${apiError}: ${apiDetails}` : apiError);
-      }
-
-      if (
-        payload &&
-        typeof payload === "object" &&
-        "data" in payload &&
-        Array.isArray(payload.data)
-      ) {
-        setReports(payload.data as ArchivedAppraisal[]);
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Arşiv yüklenemedi";
-      toast.error("Arşiv yüklenemedi", { description: message });
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    void fetchReports();
-  }, [fetchReports]);
+    let cancelled = false;
+
+    async function loadReports() {
+      try {
+        const response = await fetch("/api/appraisals");
+        const payload: unknown = await response.json();
+
+        if (!response.ok) {
+          const apiError =
+            payload &&
+            typeof payload === "object" &&
+            "error" in payload &&
+            typeof payload.error === "string"
+              ? payload.error
+              : "Arşiv yüklenemedi";
+
+          const apiDetails =
+            payload &&
+            typeof payload === "object" &&
+            "details" in payload &&
+            typeof payload.details === "string"
+              ? payload.details
+              : null;
+
+          throw new Error(apiDetails ? `${apiError}: ${apiDetails}` : apiError);
+        }
+
+        if (
+          !cancelled &&
+          payload &&
+          typeof payload === "object" &&
+          "data" in payload &&
+          Array.isArray(payload.data)
+        ) {
+          setReports(payload.data as ArchivedAppraisal[]);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const message = err instanceof Error ? err.message : "Arşiv yüklenemedi";
+          toast.error("Arşiv yüklenemedi", { description: message });
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadReports();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const snapshot = selectedReport
     ? parseSnapshot(selectedReport.jsonVerisi)

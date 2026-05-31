@@ -1,7 +1,7 @@
 "use client";
 
 import { Pencil, Trash2, Users } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -60,44 +60,53 @@ export function MusterilerView() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [form, setForm] = useState<ClientFormState>(emptyForm);
 
-  const fetchClients = useCallback(async () => {
-    setIsLoading(true);
+  useEffect(() => {
+    let cancelled = false;
 
-    try {
-      const response = await fetch("/api/clients");
-      const payload: unknown = await response.json();
+    async function loadClients() {
+      try {
+        const response = await fetch("/api/clients");
+        const payload: unknown = await response.json();
 
-      if (!response.ok) {
-        const message =
+        if (!response.ok) {
+          const message =
+            payload &&
+            typeof payload === "object" &&
+            "error" in payload &&
+            typeof payload.error === "string"
+              ? payload.error
+              : "Müşteriler yüklenemedi.";
+          throw new Error(message);
+        }
+
+        if (
+          !cancelled &&
           payload &&
           typeof payload === "object" &&
-          "error" in payload &&
-          typeof payload.error === "string"
-            ? payload.error
-            : "Müşteriler yüklenemedi.";
-        throw new Error(message);
+          "data" in payload &&
+          Array.isArray(payload.data)
+        ) {
+          setClients(payload.data as Client[]);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const message =
+            err instanceof Error ? err.message : "Müşteriler yüklenemedi.";
+          toast.error(message);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
-
-      if (
-        payload &&
-        typeof payload === "object" &&
-        "data" in payload &&
-        Array.isArray(payload.data)
-      ) {
-        setClients(payload.data as Client[]);
-      }
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Müşteriler yüklenemedi.";
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
     }
-  }, []);
 
-  useEffect(() => {
-    void fetchClients();
-  }, [fetchClients]);
+    void loadClients();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function openCreateDialog() {
     setEditingClient(null);

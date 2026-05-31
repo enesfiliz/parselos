@@ -131,7 +131,7 @@ export function IlanAsistaniView() {
                   placeholder="Gölcük, Merkez"
                   value={konum}
                   onChange={(e) => setKonum(e.target.value)}
-                  className="h-11"
+                  className={inputClassName}
                 />
               </div>
 
@@ -143,7 +143,7 @@ export function IlanAsistaniView() {
                     placeholder="3+1"
                     value={odaSayisi}
                     onChange={(e) => setOdaSayisi(e.target.value)}
-                    className="h-11"
+                    className={inputClassName}
                   />
                 </div>
 
@@ -154,7 +154,7 @@ export function IlanAsistaniView() {
                     placeholder="145"
                     value={metrekare}
                     onChange={(e) => setMetrekare(e.target.value)}
-                    className="h-11"
+                    className={inputClassName}
                   />
                 </div>
               </div>
@@ -166,7 +166,7 @@ export function IlanAsistaniView() {
                   placeholder="4.250.000 TL"
                   value={fiyat}
                   onChange={(e) => setFiyat(e.target.value)}
-                  className="h-11"
+                  className={inputClassName}
                 />
               </div>
 
