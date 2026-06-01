@@ -7,18 +7,26 @@ const globalForPrisma = globalThis as unknown as {
   pgPool: Pool | undefined;
 };
 
-// 1. PostgreSQL Pool'unu oluşturuyoruz (DATABASE_URL'i Vercel'den alacak)
-const pool = globalForPrisma.pgPool ?? new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
+function createPrismaClient() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is not set");
+  }
 
-// 2. Prisma Client'ı oluşturuyoruz
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    adapter,
-  });
+  if (!globalForPrisma.pgPool) {
+    globalForPrisma.pgPool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl:
+        process.env.NODE_ENV === "production"
+          ? { rejectUnauthorized: false }
+          : undefined,
+    });
+  }
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-  globalForPrisma.pgPool = pool;
+  const adapter = new PrismaPg(globalForPrisma.pgPool);
+
+  return new PrismaClient({ adapter });
 }
+
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+
+globalForPrisma.prisma = prisma;
