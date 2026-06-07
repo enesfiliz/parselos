@@ -1,7 +1,7 @@
 /**
  * app-icon.svg → favicon / PWA / app/icon.png
  */
-import { mkdir } from "node:fs/promises";
+import { copyFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
@@ -33,3 +33,8 @@ async function render(size, outPath) {
 for (const { file, size } of outputs) {
   await render(size, path.join(ROOT, file));
 }
+
+const appFavicon = path.join(ROOT, "src/app/favicon.ico");
+const publicFavicon = path.join(ROOT, "public/favicon.ico");
+await copyFile(appFavicon, publicFavicon);
+console.log("✓", path.relative(ROOT, publicFavicon));

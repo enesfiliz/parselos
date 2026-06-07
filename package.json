@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "node --max-old-space-size=8192 ./node_modules/next/dist/bin/next dev --turbo",
-    "build": "prisma generate && next build",
-    "build:hostinger": "prisma generate && next build",
+    "build": "prisma generate && next build && node scripts/prepare-standalone.mjs",
+    "build:hostinger": "prisma generate && next build && node scripts/prepare-standalone.mjs",
     "deploy:db": "prisma migrate deploy",
     "postinstall": "prisma generate",
     "start": "node scripts/start-production.mjs",
