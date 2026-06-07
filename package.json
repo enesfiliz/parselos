@@ -9,10 +9,11 @@
   "scripts": {
     "dev": "node --max-old-space-size=8192 ./node_modules/next/dist/bin/next dev --turbo",
     "build": "prisma generate && next build",
-    "build:hostinger": "prisma generate && prisma migrate deploy && next build",
+    "build:hostinger": "prisma generate && next build",
+    "deploy:db": "prisma migrate deploy",
     "postinstall": "prisma generate",
     "start": "node scripts/start-production.mjs",
-    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:restart": "pm2 restart parselos",
     "pm2:stop": "pm2 stop parselos",
     "pm2:logs": "pm2 logs parselos",

@@ -14,6 +14,7 @@ const isPublicRoute = createRouteMatcher([
   "/api/billing/callback",
   "/api/bot-sync",
   "/api/cron/fsbo-sync",
+  "/api/health",
 ]);
 
 const isAuthPage = createRouteMatcher([
