@@ -47,7 +47,7 @@ export function AdminSidebarNav({ onNavigate, className }: AdminSidebarNavProps)
                 "group flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                 active
                   ? "border border-emerald-600/30 bg-emerald-50 font-semibold text-emerald-900 shadow-sm dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-100 dark:shadow-none"
-                  : "border border-transparent text-muted-foreground hover:border-emerald-500/15 hover:bg-emerald-50/80 hover:text-foreground dark:hover:bg-emerald-500/5",
+                  : "border border-transparent font-medium text-zinc-600 hover:border-emerald-500/15 hover:bg-emerald-50/80 hover:text-foreground dark:text-muted-foreground dark:hover:bg-emerald-500/5",
               )}
             >
               <Icon

@@ -70,9 +70,9 @@
   --secondary: #ebebea;
   --secondary-foreground: #111113;
   --muted: #e8e8e5;
-  --muted-foreground: #4b4b52;
-  --accent: #e4ede0;
-  --accent-foreground: #1f2e14;
+  --muted-foreground: #3f3f46;
+  --accent: #e8f0e2;
+  --accent-foreground: #1a2e10;
   --destructive: oklch(0.577 0.245 27.325);
   --border: #d8d8d4;
   --input: #cfcfc9;
@@ -197,16 +197,6 @@
   html:not(.dark) .rounded-2xl.border.bg-parsel-panel,
   html:not(.dark) .rounded-xl.border.bg-parsel-panel {
     box-shadow: var(--parsel-card-shadow);
-  }
-}
-
-@layer utilities {
-  .nav-item-active {
-    border-color: var(--parsel-nav-active-border);
-    background-color: var(--parsel-nav-active-bg);
-    color: var(--parsel-nav-active-text);
-    font-weight: 600;
-    box-shadow: inset 3px 0 0 0 var(--primary);
   }
 }
 

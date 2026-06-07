@@ -40,11 +40,12 @@ export function SidebarNav({ onNavigate, className }: SidebarNavProps) {
               key={href}
               href={href}
               onClick={onNavigate}
+              aria-current={active ? "page" : undefined}
               className={cn(
-                "group flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
+                "group flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-[13px] transition-all duration-200",
                 active
-                  ? "nav-item-active"
-                  : "border-transparent text-muted-foreground hover:border-border hover:bg-card/80 hover:text-foreground",
+                  ? "border-primary/30 bg-accent font-semibold text-accent-foreground shadow-[inset_3px_0_0_0_var(--primary)] dark:border-border dark:bg-zinc-800 dark:text-foreground"
+                  : "border-transparent font-medium text-zinc-600 hover:border-border hover:bg-muted/80 hover:text-foreground dark:text-muted-foreground dark:hover:bg-card/80",
               )}
             >
               <Icon
@@ -52,18 +53,18 @@ export function SidebarNav({ onNavigate, className }: SidebarNavProps) {
                   "size-[17px] shrink-0 transition-colors",
                   active
                     ? "text-primary"
-                    : "text-muted-foreground group-hover:text-foreground",
+                    : "text-zinc-500 group-hover:text-foreground dark:text-muted-foreground",
                 )}
-                strokeWidth={1.75}
+                strokeWidth={2}
               />
-              {label}
+              <span className="leading-snug">{label}</span>
             </Link>
           );
         })}
       </nav>
 
       <div className="shrink-0 border-t border-border px-5 py-4">
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
+        <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-muted-foreground">
           Gayrimenkul operasyonları · Parselos
         </p>
       </div>
