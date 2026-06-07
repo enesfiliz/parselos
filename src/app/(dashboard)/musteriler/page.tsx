@@ -1,5 +1,5 @@
-import { MusterilerView } from "@/components/features/clients/MusterilerView";
+import { redirect } from "next/navigation";
 
 export default function MusterilerPage() {
-  return <MusterilerView />;
+  redirect("/customers");
 }

@@ -1,295 +1,280 @@
-"use client";
-
-import {
-  Activity,
-  Database,
-  FileStack,
-  LineChart,
-  PenLine,
-  ScanText,
-  UserPlus,
-  Users,
-  Zap,
-} from "lucide-react";
 import Link from "next/link";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+  ArrowDownRight,
+  ArrowUpRight,
+  Eye,
+  FileStack,
+  LineChart,
+  Minus,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 
-import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { panelCardInteractive } from "@/lib/glass-panel";
 import { cn } from "@/lib/utils";
 
-export type DashboardRecentClient = {
+export type DashboardMetric = {
+  value: number;
+  current: number;
+  previous: number;
+};
+
+export type DashboardActivity = {
   id: string;
-  adSoyad: string;
-  telefon: string | null;
-  email: string | null;
+  type: "musteri" | "ekspertiz" | "ilan";
+  title: string;
+  detail: string;
+  href: string;
   olusturulmaTarihi: string;
 };
 
-const HAFTALIK_AKTIVITE = [
-  { gun: "Pzt", islem: 6 },
-  { gun: "Sal", islem: 9 },
-  { gun: "Çar", islem: 7 },
-  { gun: "Per", islem: 11 },
-  { gun: "Cum", islem: 14 },
-  { gun: "Cmt", islem: 5 },
-  { gun: "Paz", islem: 4 },
+export type DashboardUser = {
+  firstName: string | null;
+  fullName: string | null;
+};
+
+type DashboardViewProps = {
+  user: DashboardUser;
+  metrics: {
+    toplamMusteri: DashboardMetric;
+    aktifEkspertiz: DashboardMetric;
+    bekleyenRaporlar: DashboardMetric;
+    aylikGoruntulenme: DashboardMetric;
+  };
+  sonAktiviteler: DashboardActivity[];
+};
+
+const ACTIVITY_LABELS: Record<DashboardActivity["type"], string> = {
+  musteri: "Müşteri",
+  ekspertiz: "Ekspertiz",
+  ilan: "İlan",
+};
+
+const METRIC_CARDS: {
+  key: keyof DashboardViewProps["metrics"];
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { key: "toplamMusteri", label: "Toplam Müşteri", icon: Users },
+  { key: "aktifEkspertiz", label: "Aktif Ekspertiz", icon: LineChart },
+  { key: "bekleyenRaporlar", label: "Bekleyen Raporlar", icon: FileStack },
+  { key: "aylikGoruntulenme", label: "Aylık Görüntülenme", icon: Eye },
 ];
 
-const HIZLI_ISLEMLER = [
-  {
-    label: "Yeni Ekspertiz",
-    href: "/ekspertiz",
-    icon: LineChart,
-  },
-  {
-    label: "Sözleşme/Tapu Oku",
-    href: "/tapu-ai",
-    icon: ScanText,
-  },
-  {
-    label: "İlan Metni Yaz",
-    href: "/ilan-asistani",
-    icon: PenLine,
-  },
-  {
-    label: "Müşteri Ekle",
-    href: "/musteriler",
-    icon: UserPlus,
-  },
-] as const;
+const PANEL_CARD = panelCardInteractive;
 
-function formatDate(iso: string) {
+function formatToday() {
+  return new Intl.DateTimeFormat("tr-TR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+}
+
+function formatDateTime(iso: string) {
   return new Intl.DateTimeFormat("tr-TR", {
     day: "numeric",
     month: "short",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(new Date(iso));
 }
 
-function MetricCard({
+function getGreetingName(firstName?: string | null, fullName?: string | null) {
+  if (firstName?.trim()) return firstName.trim();
+  if (fullName?.trim()) return fullName.trim().split(/\s+/)[0];
+  return null;
+}
+
+function calcTrend(current: number, previous: number) {
+  if (previous === 0) {
+    if (current === 0) {
+      return { label: "Değişim yok", positive: true, flat: true };
+    }
+    return { label: "Bu ay yeni", positive: true, flat: false };
+  }
+
+  const pct = Math.round(((current - previous) / previous) * 100);
+
+  if (pct === 0) {
+    return { label: "Değişim yok", positive: true, flat: true };
+  }
+
+  return {
+    label: `${pct > 0 ? "+" : ""}${pct}% geçen aya göre`,
+    positive: pct > 0,
+    flat: false,
+  };
+}
+
+function TrendBadge({
+  current,
+  previous,
+}: {
+  current: number;
+  previous: number;
+}) {
+  const trend = calcTrend(current, previous);
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+        trend.flat
+          ? "bg-parsel-border/40 text-zinc-400"
+          : trend.positive
+            ? "bg-emerald-500/10 text-emerald-400"
+            : "bg-red-500/10 text-red-400",
+      )}
+    >
+      {trend.flat ? (
+        <Minus className="size-3" strokeWidth={2} />
+      ) : trend.positive ? (
+        <ArrowUpRight className="size-3" strokeWidth={2} />
+      ) : (
+        <ArrowDownRight className="size-3" strokeWidth={2} />
+      )}
+      {trend.label}
+    </span>
+  );
+}
+
+function StatCard({
   label,
   value,
   icon: Icon,
+  current,
+  previous,
 }: {
   label: string;
-  value: string | number;
-  icon: typeof Users;
+  value: number;
+  icon: LucideIcon;
+  current: number;
+  previous: number;
 }) {
   return (
-    <Card className="border-border/60 shadow-sm ring-1 ring-neutral-100/80">
-      <CardContent className="flex items-start justify-between gap-4 p-6">
-        <div className="space-y-3">
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            {label}
-          </p>
-          <p className="text-3xl font-semibold tabular-nums tracking-tight">
-            {value}
-          </p>
-        </div>
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-neutral-50 text-neutral-600">
-          <Icon className="size-[18px]" strokeWidth={1.5} />
-        </span>
-      </CardContent>
-    </Card>
+    <article className={cn(PANEL_CARD, "p-6")}>
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-sm font-light text-zinc-400">{label}</p>
+        <Icon
+          className="size-[18px] shrink-0 text-zinc-400"
+          strokeWidth={1.75}
+        />
+      </div>
+      <p className="mt-4 text-3xl font-medium tabular-nums tracking-tight text-zinc-100">
+        {value.toLocaleString("tr-TR")}
+      </p>
+      <div className="mt-4">
+        <TrendBadge current={current} previous={previous} />
+      </div>
+    </article>
   );
 }
 
 export function DashboardView({
-  toplamMusteri,
-  toplamRapor,
-  sonMusteriler,
-}: {
-  toplamMusteri: number;
-  toplamRapor: number;
-  sonMusteriler: DashboardRecentClient[];
-}) {
+  user,
+  metrics,
+  sonAktiviteler,
+}: DashboardViewProps) {
+  const greetingName = getGreetingName(user.firstName, user.fullName);
+
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8">
-      <header className="space-y-2">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Zap className="size-4" strokeWidth={1.5} />
-          <span className="text-[10px] font-medium uppercase tracking-[0.2em]">
-            Komuta Merkezi
-          </span>
-        </div>
-        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Operasyon özeti, hızlı erişim ve son kayıtlar tek ekranda.
-        </p>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
+      <header>
+        <h1 className="font-outfit text-2xl font-semibold tracking-tight text-zinc-100">
+          {greetingName ? `Hoş geldin, ${greetingName}` : "Hoş geldin"}
+        </h1>
+        <p className="mt-1.5 text-sm text-zinc-400">{formatToday()}</p>
       </header>
 
-      {/* Üst satır — özet metrikler */}
-      <section className="grid gap-4 md:grid-cols-3">
-        <MetricCard
-          label="Toplam Müşteri"
-          value={toplamMusteri}
-          icon={Users}
-        />
-        <MetricCard
-          label="Üretilen Rapor"
-          value={toplamRapor}
-          icon={FileStack}
-        />
-        <Card className="border-border/60 shadow-sm ring-1 ring-neutral-100/80">
-          <CardContent className="flex items-start justify-between gap-4 p-6">
-            <div className="space-y-3">
-              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                Sistem Durumu
-              </p>
-              <div className="flex items-center gap-2.5">
-                <span className="relative flex size-2.5">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                  <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.65)]" />
-                </span>
-                <p className="text-sm font-medium text-neutral-800">
-                  Tüm Servisler Aktif
-                </p>
-              </div>
-            </div>
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-neutral-50 text-neutral-600">
-              <Database className="size-[18px]" strokeWidth={1.5} />
-            </span>
-          </CardContent>
-        </Card>
+      <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {METRIC_CARDS.map(({ key, label, icon }) => {
+          const metric = metrics[key];
+          return (
+            <StatCard
+              key={key}
+              label={label}
+              value={metric.value}
+              icon={icon}
+              current={metric.current}
+              previous={metric.previous}
+            />
+          );
+        })}
       </section>
 
-      {/* Orta — hızlı işlemler */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {HIZLI_ISLEMLER.map(({ label, href, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className={cn(
-              buttonVariants({ variant: "outline" }),
-              "h-auto min-h-[4.5rem] flex-col gap-2 rounded-xl border-border/60 px-4 py-5 shadow-sm hover:bg-neutral-50/80",
-            )}
-          >
-            <Icon className="size-[18px] text-neutral-600" strokeWidth={1.5} />
-            <span className="text-center text-sm font-medium">{label}</span>
-          </Link>
-        ))}
-      </section>
+      <section className={cn(PANEL_CARD, "overflow-hidden")}>
+        <div className="border-b border-parsel-border/80 px-6 py-5 md:px-8 md:py-6">
+          <h2 className="text-base font-semibold text-zinc-100">
+            Son Aktiviteler
+          </h2>
+          <p className="mt-1 text-sm text-zinc-400">
+            Müşteri, ekspertiz ve ilan kayıtlarından güncel hareketler
+          </p>
+        </div>
 
-      {/* Alt satır — aktivite & son kayıtlar */}
-      <section className="grid gap-6 lg:grid-cols-2">
-        <Card className="border-border/60 shadow-sm ring-1 ring-neutral-100/80">
-          <CardHeader className="border-b border-border/50 pb-4">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
-              <Users className="size-4 text-neutral-500" strokeWidth={1.5} />
-              Son Eklenen Müşteriler
-            </CardTitle>
-            <CardDescription>Veritabanındaki en güncel 5 kayıt</CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            {sonMusteriler.length === 0 ? (
-              <p className="px-6 py-8 text-sm text-muted-foreground">
-                Henüz müşteri kaydı yok. Hızlı işlemlerden ekleyebilirsiniz.
-              </p>
-            ) : (
-              <ul className="divide-y divide-border/40">
-                {sonMusteriler.map((client) => (
-                  <li
-                    key={client.id}
-                    className="flex items-center justify-between gap-4 px-6 py-4 transition-colors hover:bg-neutral-50/60"
+        {sonAktiviteler.length === 0 ? (
+          <p className="px-6 py-16 text-center text-sm text-zinc-400 md:px-8">
+            Henüz aktivite yok. İlk müşterinizi veya ekspertiz raporunuzu
+            ekleyerek başlayın.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-parsel-border/80">
+                  <th className="px-6 py-4 text-xs font-medium uppercase tracking-wide text-zinc-400 md:px-8">
+                    Tür
+                  </th>
+                  <th className="px-6 py-4 text-xs font-medium uppercase tracking-wide text-zinc-400 md:px-8">
+                    Başlık
+                  </th>
+                  <th className="hidden px-6 py-4 text-xs font-medium uppercase tracking-wide text-zinc-400 sm:table-cell md:px-8">
+                    Detay
+                  </th>
+                  <th className="px-6 py-4 text-right text-xs font-medium uppercase tracking-wide text-zinc-400 md:px-8">
+                    Tarih
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {sonAktiviteler.map((activity) => (
+                  <tr
+                    key={`${activity.type}-${activity.id}`}
+                    className="border-b border-zinc-800/80 transition-colors last:border-0 hover:bg-zinc-900/50"
                   >
-                    <div className="min-w-0 space-y-0.5">
-                      <p className="truncate text-sm font-medium text-neutral-900">
-                        {client.adSoyad}
+                    <td className="px-6 py-5 md:px-8">
+                      <span className="inline-flex rounded-md border border-zinc-800 bg-zinc-800/30 px-2.5 py-1 text-xs font-medium text-zinc-400">
+                        {ACTIVITY_LABELS[activity.type]}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 md:px-8">
+                      <Link
+                        href={activity.href}
+                        className="font-medium text-zinc-100 transition-colors hover:text-parsel-primaryHover"
+                      >
+                        {activity.title}
+                      </Link>
+                      <p className="mt-1 text-xs text-zinc-400 sm:hidden">
+                        {activity.detail}
                       </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {client.telefon || client.email || "İletişim bilgisi yok"}
-                      </p>
-                    </div>
-                    <time
-                      dateTime={client.olusturulmaTarihi}
-                      className="shrink-0 text-xs tabular-nums text-muted-foreground"
-                    >
-                      {formatDate(client.olusturulmaTarihi)}
-                    </time>
-                  </li>
+                    </td>
+                    <td className="hidden px-6 py-5 text-zinc-400 sm:table-cell md:px-8">
+                      {activity.detail}
+                    </td>
+                    <td className="px-6 py-5 text-right text-xs tabular-nums text-zinc-400 md:px-8">
+                      <time dateTime={activity.olusturulmaTarihi}>
+                        {formatDateTime(activity.olusturulmaTarihi)}
+                      </time>
+                    </td>
+                  </tr>
                 ))}
-              </ul>
-            )}
-            {sonMusteriler.length > 0 && (
-              <div className="border-t border-border/40 px-6 py-3">
-                <Link
-                  href="/musteriler"
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" }),
-                    "h-8 px-2 text-muted-foreground",
-                  )}
-                >
-                  Tüm müşteriler →
-                </Link>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/60 shadow-sm ring-1 ring-neutral-100/80">
-          <CardHeader className="border-b border-border/50 pb-4">
-            <CardTitle className="flex items-center gap-2 text-base font-medium">
-              <Activity className="size-4 text-neutral-500" strokeWidth={1.5} />
-              Haftalık Aktivite
-            </CardTitle>
-            <CardDescription>Platform işlem yoğunluğu (örnek veri)</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="h-56 min-h-[14rem] w-full min-w-0">
-              <ResponsiveContainer width="100%" height={224}>
-                <BarChart data={HAFTALIK_AKTIVITE} barSize={28}>
-                  <CartesianGrid
-                    stroke="#e5e5e5"
-                    strokeDasharray="4 4"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="gun"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "#a3a3a3", fontSize: 11 }}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    width={28}
-                    tick={{ fill: "#a3a3a3", fontSize: 11 }}
-                    allowDecimals={false}
-                  />
-                  <Tooltip
-                    cursor={{ fill: "rgba(0,0,0,0.03)" }}
-                    formatter={(value) => [`${value ?? 0} işlem`, "Aktivite"]}
-                    contentStyle={{
-                      borderRadius: 10,
-                      border: "1px solid #e5e5e5",
-                      fontSize: 12,
-                    }}
-                  />
-                  <Bar
-                    dataKey="islem"
-                    fill="#171717"
-                    radius={[6, 6, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );

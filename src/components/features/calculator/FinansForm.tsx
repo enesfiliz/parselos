@@ -39,13 +39,13 @@ function KomisyonCard({
       </CardHeader>
       <CardContent className="space-y-4 pt-6">
         <div className="flex items-baseline justify-between gap-4">
-          <span className="text-sm text-muted-foreground">KDV Hariç (%2)</span>
+          <span className="text-sm text-zinc-400">KDV Hariç (%2)</span>
           <span className="text-lg font-semibold tracking-tight">
             {formatTL(detay.kdvHaric)}
           </span>
         </div>
         <div className="flex items-baseline justify-between gap-4">
-          <span className="text-sm text-muted-foreground">KDV (%20)</span>
+          <span className="text-sm text-zinc-400">KDV (%20)</span>
           <span className="text-base font-medium">{formatTL(detay.kdvTutari)}</span>
         </div>
         <div className="flex items-baseline justify-between gap-4 border-t border-border/50 pt-4">
@@ -110,13 +110,13 @@ export function FinansForm() {
             </CardHeader>
             <CardContent className="grid gap-6 pt-6 sm:grid-cols-3">
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Alıcı Payı (%2)</p>
+                <p className="text-sm text-zinc-400">Alıcı Payı (%2)</p>
                 <p className="text-2xl font-semibold tracking-tight">
                   {formatTL(sonuc.tapuHarci.aliciPayi)}
                 </p>
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Satıcı Payı (%2)</p>
+                <p className="text-sm text-zinc-400">Satıcı Payı (%2)</p>
                 <p className="text-2xl font-semibold tracking-tight">
                   {formatTL(sonuc.tapuHarci.saticiPayi)}
                 </p>
@@ -132,7 +132,7 @@ export function FinansForm() {
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-border/80 px-8 py-14 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-zinc-400">
             Hesaplama için geçerli bir satış bedeli girin.
           </p>
         </div>

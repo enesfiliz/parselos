@@ -2,7 +2,21 @@ import * as cheerio from "cheerio";
 import { NextResponse } from "next/server";
 
 const DEFAULT_REGION = "Bilecik Söğüt";
-const DEFAULT_KEYWORDS = ["sanayi", "imar planı", "parsel"] as const;
+const DEFAULT_KEYWORDS = ["sanayi", "imar planı", "parsel", "askı"] as const;
+
+function formatRegionLabel(region: string) {
+  const parts = region
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length >= 2) {
+    return { district: parts[0], city: parts[1], label: `${parts[0]}, ${parts[1]}` };
+  }
+
+  const single = parts[0] ?? region;
+  return { district: single, city: single, label: single };
+}
 
 const SCRAPE_TARGETS = [
   "https://www.sogut.bel.tr/tr/icerik/duyurular",
@@ -18,6 +32,17 @@ export interface RadarAnnouncement {
   publishedAt: string;
   matchedKeywords: string[];
   isNew: boolean;
+  category: "aski" | "plan-degisikligi" | "parsel" | "sanayi" | "diger";
+}
+
+export interface RadarAnalysis {
+  summary: string;
+  totalMatches: number;
+  newCount: number;
+  categories: { id: string; label: string; count: number }[];
+  trackedKeywords: string[];
+  lastScannedAt: string;
+  activityLevel: "dusuk" | "orta" | "yuksek";
 }
 
 function normalizeText(value: string) {
@@ -31,44 +56,105 @@ function matchesKeywords(text: string, keywords: readonly string[]) {
   );
 }
 
-function buildDummyAnnouncements(region: string): RadarAnnouncement[] {
+function buildDummyAnnouncements(
+  region: string,
+  keywords: readonly string[],
+): RadarAnnouncement[] {
   const now = Date.now();
+  const { district, city, label } = formatRegionLabel(region);
+  const authority = city !== district ? `${city} ${district}` : district;
 
-  return [
+  const templates: Omit<RadarAnnouncement, "id" | "region" | "matchedKeywords">[] = [
     {
-      id: "dummy-1",
-      title: "Söğüt OSB Güney Parsel Uzatım Planı Askıya Çıktı",
-      summary:
-        "Organize sanayi bölgesi güneyindeki parsel sınırları için 1/5000 ölçekli nazım imar planı değişikliği 30 gün süreyle askıya alındı.",
-      region,
-      source: "Bilecik Söğüt İl Özel İdaresi (Örnek)",
+      title: `${district} OSB Güney Parsel Uzatım Planı Askıya Çıktı`,
+      summary: `${label} sınırlarında organize sanayi bölgesi güneyindeki parsel sınırları için 1/5000 ölçekli nazım imar planı değişikliği 30 gün süreyle askıya alındı.`,
+      source: `${authority} İl Özel İdaresi (Örnek)`,
       publishedAt: new Date(now - 1000 * 60 * 45).toISOString(),
-      matchedKeywords: ["sanayi", "imar planı", "parsel"],
       isNew: true,
+      category: "aski",
     },
     {
-      id: "dummy-2",
-      title: "Elmacık Mahallesi 124 Ada 8 Parsel İmar Durumu Güncellendi",
-      summary:
-        "Söğüt ilçesi Elmacık mahallesi 124 ada 8 parsel için imar planı notları revize edildi; sanayi alanı fonksiyonu korunmuştur.",
-      region,
-      source: "Söğüt Belediyesi (Örnek)",
+      title: `${district} Merkez 124 Ada 8 Parsel İmar Durumu Güncellendi`,
+      summary: `${label} bölgesinde 124 ada 8 parsel için imar planı notları revize edildi; fonksiyon ve yapılaşma koşulları güncellendi.`,
+      source: `${district} Belediyesi (Örnek)`,
       publishedAt: new Date(now - 1000 * 60 * 60 * 5).toISOString(),
-      matchedKeywords: ["parsel", "imar planı"],
       isNew: true,
+      category: "parsel",
     },
     {
-      id: "dummy-3",
-      title: "2026/1 Dönemi Sanayi İmar Planı Değişikliği Halkın Bilgisine Sunuldu",
-      summary:
-        "Bilecik Söğüt sınırları içinde sanayi alanlarına yönelik 1/1000 uygulama imar planı değişikliği duyuru panosunda yayımlandı.",
-      region,
-      source: "Bilecik Çevre, Şehircilik (Örnek)",
+      title: `${district} 1/1000 Uygulama İmar Planı Değişikliği İlanı`,
+      summary: `${label} kapsamında konut ve ticari alanlara yönelik uygulama imar planı değişikliği belediye ilan panosunda ve e-belediye duyurularında yayımlandı.`,
+      source: `${city} Çevre, Şehircilik (Örnek)`,
       publishedAt: new Date(now - 1000 * 60 * 60 * 26).toISOString(),
-      matchedKeywords: ["sanayi", "imar planı"],
       isNew: false,
+      category: "plan-degisikligi",
+    },
+    {
+      title: `${district} Sanayi Alanı Genişleme Planı Halkın Bilgisine Sunuldu`,
+      summary: `${label} içindeki sanayi alanlarına ilişkin fonksiyon değişikliği ve yol hizası revizyonu içeren plan değişikliği askı sürecine alındı.`,
+      source: `${authority} Planlama Müdürlüğü (Örnek)`,
+      publishedAt: new Date(now - 1000 * 60 * 60 * 52).toISOString(),
+      isNew: false,
+      category: "sanayi",
     },
   ];
+
+  return templates
+    .map((item, index) => {
+      const text = `${item.title} ${item.summary}`.toLocaleLowerCase("tr-TR");
+      const matchedKeywords = keywords.filter((keyword) =>
+        text.includes(keyword.toLocaleLowerCase("tr-TR")),
+      );
+
+      return {
+        ...item,
+        id: `dummy-${label}-${index}`,
+        region: label,
+        matchedKeywords:
+          matchedKeywords.length > 0 ? matchedKeywords : [...keywords].slice(0, 2),
+      };
+    })
+    .filter((item) => item.matchedKeywords.length > 0);
+}
+
+function buildAnalysis(
+  region: string,
+  keywords: string[],
+  announcements: RadarAnnouncement[],
+): RadarAnalysis {
+  const newCount = announcements.filter((item) => item.isNew).length;
+  const categoryLabels: Record<RadarAnnouncement["category"], string> = {
+    aski: "Plan Askısı",
+    "plan-degisikligi": "Plan Değişikliği",
+    parsel: "Parsel Güncelleme",
+    sanayi: "Sanayi Alanı",
+    diger: "Diğer",
+  };
+
+  const categoryMap = new Map<string, number>();
+  for (const item of announcements) {
+    const label = categoryLabels[item.category];
+    categoryMap.set(label, (categoryMap.get(label) ?? 0) + 1);
+  }
+
+  const categories = [...categoryMap.entries()].map(([label, count]) => ({
+    id: label.toLocaleLowerCase("tr-TR").replace(/\s+/g, "-"),
+    label,
+    count,
+  }));
+
+  const activityLevel: RadarAnalysis["activityLevel"] =
+    newCount >= 2 ? "yuksek" : newCount === 1 ? "orta" : "dusuk";
+
+  return {
+    summary: `${region} bölgesi için ${announcements.length} imar/sanayi duyurusu izleniyor. Son taramada ${newCount} yeni kayıt, ${categories.length} farklı duyuru tipi tespit edildi.`,
+    totalMatches: announcements.length,
+    newCount,
+    categories,
+    trackedKeywords: keywords,
+    lastScannedAt: new Date().toISOString(),
+    activityLevel,
+  };
 }
 
 async function scrapeAnnouncements(
@@ -105,6 +191,17 @@ async function scrapeAnnouncements(
           const href = $(element).attr("href") ?? $(element).find("a").attr("href");
           const source = href ? `${url.split("/").slice(0, 3).join("/")}${href.startsWith("/") ? href : `/${href}`}` : url;
 
+          const lower = text.toLocaleLowerCase("tr-TR");
+          const category: RadarAnnouncement["category"] = lower.includes("askı")
+            ? "aski"
+            : lower.includes("parsel")
+              ? "parsel"
+              : lower.includes("sanayi")
+                ? "sanayi"
+                : lower.includes("plan")
+                  ? "plan-degisikligi"
+                  : "diger";
+
           results.push({
             id: `${url}-${results.length}-${text.slice(0, 24)}`,
             title: text.slice(0, 120),
@@ -114,6 +211,7 @@ async function scrapeAnnouncements(
             publishedAt: new Date().toISOString(),
             matchedKeywords,
             isNew: true,
+            category,
           });
         },
       );
@@ -141,13 +239,17 @@ export async function GET(request: Request) {
 
     const liveResults = await scrapeAnnouncements(region, keywords);
     const announcements =
-      liveResults.length > 0 ? liveResults : buildDummyAnnouncements(region);
+      liveResults.length > 0
+        ? liveResults
+        : buildDummyAnnouncements(region, keywords);
+    const analysis = buildAnalysis(region, keywords, announcements);
 
     return NextResponse.json({
       region,
       keywords,
       mode: liveResults.length > 0 ? "live" : "dummy",
       announcements,
+      analysis,
     });
   } catch (error) {
     console.error("[GET /api/radar]", error);

@@ -1,5 +1,5 @@
-import { HesaplayicilarView } from "@/components/features/calculator/HesaplayicilarView";
+import { redirect } from "next/navigation";
 
 export default function HesaplayicilarPage() {
-  return <HesaplayicilarView />;
+  redirect("/calculators");
 }

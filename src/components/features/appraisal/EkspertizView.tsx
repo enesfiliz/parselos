@@ -97,16 +97,16 @@ function buildAddressLabel(form: AppraisalForm) {
 }
 
 function farkTone(fark: string) {
-  if (fark.includes("+")) return "text-emerald-600";
+  if (fark.includes("+")) return "text-emerald-400";
   if (fark.includes("-")) return "text-red-500";
   return "text-neutral-500";
 }
 
 function KarlilikIcon({ baslik }: { baslik: string }) {
   if (baslik.toLowerCase().includes("kira")) {
-    return <Clock className="size-5 text-neutral-400" strokeWidth={1.5} />;
+    return <Clock className="size-5 text-zinc-500" strokeWidth={1.5} />;
   }
-  return <Percent className="size-5 text-neutral-400" strokeWidth={1.5} />;
+  return <Percent className="size-5 text-zinc-500" strokeWidth={1.5} />;
 }
 
 function splitParagraphs(text: string) {
@@ -891,10 +891,10 @@ export function EkspertizView() {
     <div className="mx-auto w-full max-w-[1600px] space-y-8">
       <style dangerouslySetInnerHTML={{ __html: PRINT_PAGE_STYLE }} />
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">
           Akıllı Değerleme
         </h1>
-        <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+        <p className="max-w-xl text-sm leading-relaxed text-zinc-400">
           Uzun formatlı editorial rapor, gerçek uydu haritası ve tutarlı emsal
           analizi ile profesyonel değerleme.
         </p>
@@ -965,7 +965,7 @@ export function EkspertizView() {
             <Button
               type="button"
               variant="outline"
-              className="h-10 w-full border-neutral-300 bg-white shadow-sm"
+              className="h-10 w-full border-parsel-border bg-parsel-card text-zinc-50 shadow-sm"
               onClick={() => void handleTkgmQuery()}
               disabled={
                 isTkgmLoading ||
@@ -1032,7 +1032,7 @@ export function EkspertizView() {
                 value={form.ozellikler}
                 onChange={(e) => updateField("ozellikler", e.target.value)}
                 rows={3}
-                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                className="border-input bg-background ring-offset-background placeholder:text-zinc-400 focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               />
             </div>
 
@@ -1051,7 +1051,7 @@ export function EkspertizView() {
               {isGenerating ? "Analiz ediliyor…" : "Değerleme Raporu Oluştur"}
             </Button>
             {!canGenerate && (
-              <p className="text-center text-xs text-muted-foreground">
+              <p className="text-center text-xs text-zinc-400">
                 Brüt ve net alan doldurulmadan rapor oluşturulamaz. TKGM sorgusu
                 veya manuel giriş yapın.
               </p>
@@ -1068,7 +1068,7 @@ export function EkspertizView() {
               size="sm"
               onClick={() => void handleSaveArchive()}
               disabled={!report || isSavingArchive}
-              className="border-neutral-300 bg-white shadow-sm"
+              className="border-parsel-border bg-parsel-card text-zinc-50 shadow-sm"
             >
               {isSavingArchive ? (
                 <>
@@ -1094,7 +1094,7 @@ export function EkspertizView() {
             </Button>
           </div>
 
-          <div className="flex-1 overflow-y-auto rounded-2xl bg-neutral-100/80 p-6 ring-1 ring-neutral-200/60 print:m-0 print:bg-white print:p-0 print:ring-0">
+          <div className="flex-1 overflow-y-auto rounded-2xl bg-parsel-card/40 p-6 ring-1 ring-parsel-border/60 print:m-0 print:bg-white print:p-0 print:ring-0">
             <div ref={printRef} className="print-container mx-auto w-full max-w-4xl">
               {report ? (
                 <>

@@ -8,10 +8,10 @@ export function HesaplayicilarView() {
   return (
     <div className="mx-auto w-full max-w-4xl space-y-12">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">
           Emlak & İmar Hesaplama
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
           İmar potansiyelini ve satış finansmanını anlık olarak modelleyin.
         </p>
       </header>

@@ -1,6 +1,14 @@
 "use client";
 
-import { UploadCloud } from "lucide-react";
+import {
+  AlertTriangle,
+  Brain,
+  CheckCircle2,
+  FileText,
+  RotateCcw,
+  Sparkles,
+  UploadCloud,
+} from "lucide-react";
 import {
   ChangeEvent,
   DragEvent,
@@ -9,32 +17,65 @@ import {
   useState,
 } from "react";
 
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-interface TapuVisionSonucu {
-  belge_turu: string;
-  sahip_bilgisi: string;
-  onemli_detaylar: string;
-  risk_analizi: string;
-}
+type DeedFields = {
+  il: string;
+  ilce: string;
+  mahalle: string;
+  ada: string;
+  parsel: string;
+  nitelik: string;
+  yuzolcumu: string;
+};
+
+type DeedAnalysis = {
+  extractedData: {
+    il: string;
+    ilçe: string;
+    mahalle: string;
+    ada: string;
+    parsel: string;
+    nitelik: string;
+    yuzolcumu: string;
+  };
+  riskAnalysis: string[];
+  advantages: string[];
+  aiSummary: string;
+};
+
+type AnalysisStatus = "idle" | "analyzing" | "done" | "error";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+const INITIAL_FIELDS: DeedFields = {
+  il: "",
+  ilce: "",
+  mahalle: "",
+  ada: "",
+  parsel: "",
+  nitelik: "",
+  yuzolcumu: "",
+};
 
 function isAcceptedFile(file: File) {
   return ACCEPTED_TYPES.includes(file.type.toLowerCase());
 }
 
-async function analyzeDocument(file: File): Promise<TapuVisionSonucu> {
+async function analyzeDeed(file: File): Promise<DeedAnalysis> {
   const formData = new FormData();
   formData.append("image", file);
 
-  const response = await fetch("/api/vision", {
+  const response = await fetch("/api/analyze-deed", {
     method: "POST",
     body: formData,
   });
@@ -48,7 +89,7 @@ async function analyzeDocument(file: File): Promise<TapuVisionSonucu> {
       "error" in payload &&
       typeof payload.error === "string"
         ? payload.error
-        : "Belge analizi sırasında bir hata oluştu.";
+        : "TapuAI analizi tamamlanamadı.";
     throw new Error(message);
   }
 
@@ -59,92 +100,176 @@ async function analyzeDocument(file: File): Promise<TapuVisionSonucu> {
     !payload.data ||
     typeof payload.data !== "object"
   ) {
-    throw new Error("API yanıtı geçerli bir analiz verisi içermiyor.");
+    throw new Error("TapuAI geçerli bir analiz verisi döndürmedi.");
   }
 
-  const data = payload.data as Record<string, unknown>;
-
-  return {
-    belge_turu: String(data.belge_turu ?? ""),
-    sahip_bilgisi: String(data.sahip_bilgisi ?? ""),
-    onemli_detaylar: String(data.onemli_detaylar ?? ""),
-    risk_analizi: String(data.risk_analizi ?? ""),
-  };
+  return payload.data as DeedAnalysis;
 }
 
-function ResultCard({
+function FieldInput({
+  id,
   label,
   value,
-  variant = "default",
+  placeholder,
+  onChange,
 }: {
+  id: keyof DeedFields;
   label: string;
   value: string;
-  variant?: "default" | "destructive";
+  placeholder: string;
+  onChange: (id: keyof DeedFields, value: string) => void;
 }) {
-  const isDestructive = variant === "destructive";
-
   return (
-    <Card
-      className={cn(
-        "border-border/60 shadow-sm ring-border/60",
-        isDestructive && "border-destructive/20 bg-destructive/5 ring-destructive/15",
+    <div className="space-y-2">
+      <Label htmlFor={id} className="text-xs text-zinc-400">
+        {label}
+      </Label>
+      <Input
+        id={id}
+        value={value}
+        placeholder={placeholder}
+        onChange={(event) => onChange(id, event.target.value)}
+        className="h-10 border-white/10 bg-[#09090b] text-zinc-100 placeholder:text-zinc-600"
+      />
+    </div>
+  );
+}
+
+function IntelligenceReport({ result }: { result: DeedAnalysis | null }) {
+  return (
+    <aside className="bg-[#151f23] border border-white/10 p-5 rounded-2xl">
+      <div className="mb-5 flex items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#b38c56]/25 bg-[#b38c56]/10 text-[#b38c56]">
+          <Brain className="size-5" strokeWidth={1.75} />
+        </span>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b38c56]">
+            TapuAI
+          </p>
+          <h2 className="font-outfit text-lg font-semibold text-zinc-50">
+            TapuAI İstihbarat Raporu
+          </h2>
+        </div>
+      </div>
+
+      {!result ? (
+        <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 text-sm leading-relaxed text-zinc-400">
+          Görsel yüklendiğinde Gemini belgeyi okuyacak, hisse/nitelik sinyallerini
+          yorumlayacak ve yatırım odaklı risk-avantaj raporunu burada açacak.
+        </div>
+      ) : (
+        <div className="space-y-5">
+          <div className="rounded-xl border border-white/[0.06] bg-[#09090b]/70 p-4">
+            <div className="mb-2 flex items-center gap-2 text-[#b38c56]">
+              <Sparkles className="size-4" strokeWidth={1.75} />
+              <h3 className="text-sm font-semibold">Jilet Özet</h3>
+            </div>
+            <p className="text-sm leading-relaxed text-zinc-300">
+              {result.aiSummary || "Özet üretilemedi."}
+            </p>
+          </div>
+
+          <div>
+            <div className="mb-3 flex items-center gap-2 text-red-300">
+              <AlertTriangle className="size-4" strokeWidth={1.75} />
+              <h3 className="text-sm font-semibold">Risk Analizi</h3>
+            </div>
+            <ul className="space-y-2">
+              {(result.riskAnalysis.length > 0
+                ? result.riskAnalysis
+                : ["Belirgin risk sinyali tespit edilemedi; resmi takyidat ve imar kontrolü yine de yapılmalı."]
+              ).map((item, index) => (
+                <li
+                  key={`${item}-${index}`}
+                  className="rounded-lg border border-red-500/15 bg-red-500/5 px-3 py-2 text-sm leading-relaxed text-zinc-300"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <div className="mb-3 flex items-center gap-2 text-emerald-300">
+              <CheckCircle2 className="size-4" strokeWidth={1.75} />
+              <h3 className="text-sm font-semibold">Avantajlar</h3>
+            </div>
+            <ul className="space-y-2">
+              {(result.advantages.length > 0
+                ? result.advantages
+                : ["Avantaj çıkarımı için görselde yeterli veri bulunamadı."]
+              ).map((item, index) => (
+                <li
+                  key={`${item}-${index}`}
+                  className="rounded-lg border border-emerald-500/15 bg-emerald-500/5 px-3 py-2 text-sm leading-relaxed text-zinc-300"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       )}
-    >
-      <CardHeader className="pb-2">
-        <CardTitle
-          className={cn(
-            "text-[11px] font-medium uppercase tracking-[0.16em]",
-            isDestructive ? "text-destructive/80" : "text-muted-foreground",
-          )}
-        >
-          {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p
-          className={cn(
-            "text-sm leading-relaxed",
-            isDestructive ? "font-medium text-destructive" : "text-foreground",
-          )}
-        >
-          {value || "—"}
-        </p>
-      </CardContent>
-    </Card>
+    </aside>
   );
 }
 
 export function TapuAiView() {
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [fields, setFields] = useState<DeedFields>(INITIAL_FIELDS);
   const [isDragging, setIsDragging] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [status, setStatus] = useState<AnalysisStatus>("idle");
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<TapuVisionSonucu | null>(null);
+  const [result, setResult] = useState<DeedAnalysis | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+
+  const updateField = useCallback((id: keyof DeedFields, value: string) => {
+    setFields((current) => ({ ...current, [id]: value }));
+  }, []);
+
+  const reset = useCallback(() => {
+    setFields(INITIAL_FIELDS);
+    setStatus("idle");
+    setError(null);
+    setResult(null);
+    setFileName(null);
+  }, []);
 
   const processFile = useCallback(async (file: File) => {
     if (!isAcceptedFile(file)) {
       setError("Yalnızca JPG, PNG veya WEBP dosyaları desteklenir.");
+      setStatus("error");
       return;
     }
 
     setError(null);
     setResult(null);
     setFileName(file.name);
-    setIsAnalyzing(true);
+    setStatus("analyzing");
 
     try {
-      const data = await analyzeDocument(file);
-      setResult(data);
+      const analysis = await analyzeDeed(file);
+      const extracted = analysis.extractedData;
+
+      setFields({
+        il: extracted.il ?? "",
+        ilce: extracted.ilçe ?? "",
+        mahalle: extracted.mahalle ?? "",
+        ada: extracted.ada ?? "",
+        parsel: extracted.parsel ?? "",
+        nitelik: extracted.nitelik ?? "",
+        yuzolcumu: extracted.yuzolcumu ?? "",
+      });
+      setResult(analysis);
+      setStatus("done");
     } catch (err) {
-      const message =
+      setStatus("error");
+      setError(
         err instanceof Error
           ? err.message
-          : "Belge analizi sırasında bir hata oluştu.";
-      setError(message);
-    } finally {
-      setIsAnalyzing(false);
+          : "TapuAI analizi sırasında beklenmeyen bir hata oluştu.",
+      );
     }
   }, []);
 
@@ -172,93 +297,134 @@ export function TapuAiView() {
     if (file) void processFile(file);
   }
 
+  const isAnalyzing = status === "analyzing";
+
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-14">
+    <div className="mx-auto w-full max-w-6xl space-y-8">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Tapu & Sözleşme AI
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">
+          TapuAI Analiz Sistemi
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Belge görselini yükleyin; yapay zeka tapu veya sözleşme içeriğini
-          yapılandırılmış biçimde analiz etsin.
+        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+          Tapu veya ekspertiz görselini yükleyin; Gemini belge verilerini çıkarıp
+          nitelik, hisse ve yatırım sinyallerini profesyonel rapora dönüştürsün.
         </p>
       </header>
 
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            inputRef.current?.click();
-          }
-        }}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={cn(
-          "flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-5 rounded-2xl border border-dashed px-8 py-14 text-center transition-colors outline-none",
-          "focus-visible:ring-3 focus-visible:ring-ring/50",
-          isDragging
-            ? "border-foreground/30 bg-muted/40"
-            : "border-border/80 bg-background hover:border-foreground/20 hover:bg-muted/20",
-          isAnalyzing && "pointer-events-none opacity-70",
-        )}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={handleFileChange}
-        />
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.78fr)]">
+        <div className="space-y-6">
+          <Card className="border-white/10 bg-[#0d0d10]">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <UploadCloud className="size-4 text-[#b38c56]" strokeWidth={1.75} />
+                Belge Yükleme
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => inputRef.current?.click()}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    inputRef.current?.click();
+                  }
+                }}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={cn(
+                  "flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-5 rounded-xl border border-dashed px-8 py-12 text-center transition-colors outline-none",
+                  "focus-visible:ring-3 focus-visible:ring-[#b38c56]/30",
+                  isDragging
+                    ? "border-[#b38c56] bg-[#b38c56]/10"
+                    : "border-white/15 bg-[#09090b] hover:border-[#b38c56]/60 hover:bg-[#111114]",
+                  isAnalyzing && "pointer-events-none opacity-70",
+                )}
+              >
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
 
-        <span className="flex size-12 items-center justify-center rounded-xl border border-border/60 bg-muted/30 text-muted-foreground">
-          <UploadCloud className="size-5" strokeWidth={1.75} />
-        </span>
+                <span className="flex size-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-[#b38c56]">
+                  {isAnalyzing ? (
+                    <Brain className="size-5 animate-pulse" strokeWidth={1.75} />
+                  ) : (
+                    <UploadCloud className="size-5" strokeWidth={1.75} />
+                  )}
+                </span>
 
-        <div className="space-y-2">
-          <p className="text-sm font-medium">
-            Görseli sürükleyip bırakın veya seçin
-          </p>
-          <p className="text-xs text-muted-foreground">
-            JPG, PNG, WEBP — tapu veya emlak sözleşmesi
-          </p>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">
+                    Tapu veya ekspertiz görselini sürükleyin ya da seçin
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    JPG, PNG, WEBP · analiz Gemini 1.5 Flash ile yapılır
+                  </p>
+                </div>
+              </div>
+
+              {fileName && (
+                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-zinc-100">{fileName}</p>
+                    <p className="text-xs text-zinc-500">
+                      {isAnalyzing
+                        ? "TapuAI belgeyi analiz ediyor"
+                        : status === "done"
+                          ? "Analiz tamamlandı"
+                          : status === "error"
+                            ? "Analiz tamamlanamadı"
+                            : "Hazır"}
+                    </p>
+                  </div>
+                  <FileText className="size-4 shrink-0 text-zinc-500" />
+                </div>
+              )}
+
+              {error && (
+                <div className="rounded-xl border border-red-500/25 bg-red-500/5 px-4 py-3 text-sm text-red-300">
+                  {error}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-white/10 bg-[#0d0d10]">
+            <CardHeader className="flex flex-row items-center justify-between gap-4">
+              <CardTitle className="text-base">Çıkarılan Tapu Verileri</CardTitle>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={reset}
+                aria-label="Formu temizle"
+                title="Formu temizle"
+              >
+                <RotateCcw className="size-4" strokeWidth={1.75} />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FieldInput id="il" label="İl" value={fields.il} placeholder="Bilecik" onChange={updateField} />
+                <FieldInput id="ilce" label="İlçe" value={fields.ilce} placeholder="Söğüt" onChange={updateField} />
+                <FieldInput id="mahalle" label="Mahalle / Köy" value={fields.mahalle} placeholder="Oluklu" onChange={updateField} />
+                <FieldInput id="ada" label="Ada" value={fields.ada} placeholder="126" onChange={updateField} />
+                <FieldInput id="parsel" label="Parsel" value={fields.parsel} placeholder="58" onChange={updateField} />
+                <FieldInput id="yuzolcumu" label="Yüzölçümü" value={fields.yuzolcumu} placeholder="1.250,00 m²" onChange={updateField} />
+                <FieldInput id="nitelik" label="Nitelik" value={fields.nitelik} placeholder="Arsa" onChange={updateField} />
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        <IntelligenceReport result={result} />
       </div>
-
-      {isAnalyzing && (
-        <div className="flex items-center justify-center gap-3 py-2">
-          <span className="size-4 animate-spin rounded-full border-2 border-muted-foreground/20 border-t-foreground" />
-          <p className="font-mono text-xs tracking-[0.18em] uppercase text-muted-foreground">
-            Yapay Zeka Analiz Ediyor...
-          </p>
-        </div>
-      )}
-
-      {fileName && !isAnalyzing && (
-        <p className="text-center text-xs text-muted-foreground">{fileName}</p>
-      )}
-
-      {error && (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-4 text-sm text-destructive">
-          {error}
-        </div>
-      )}
-
-      {result && !isAnalyzing && (
-        <div className="grid gap-5 pt-2">
-          <ResultCard label="Belge Türü" value={result.belge_turu} />
-          <ResultCard label="Sahip Bilgisi" value={result.sahip_bilgisi} />
-          <ResultCard label="Önemli Detaylar" value={result.onemli_detaylar} />
-          <ResultCard
-            label="Risk Analizi"
-            value={result.risk_analizi}
-            variant="destructive"
-          />
-        </div>
-      )}
     </div>
   );
 }

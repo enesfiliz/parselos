@@ -1,0 +1,355 @@
+"use client";
+
+import { useChat } from "@ai-sdk/react";
+import {
+  DefaultChatTransport,
+  getToolName,
+  isToolUIPart,
+  type UIMessage,
+} from "ai";
+import { ArrowUp } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
+import { createPortal } from "react-dom";
+
+import { CopilotMarkdown } from "@/components/copilot/CopilotMarkdown";
+import { ParselAiFab } from "@/components/copilot/ParselAiFab";
+import { ParselAiGlyph } from "@/components/copilot/ParselAiGlyph";
+import { PARSEL_COPILOT_OPEN_EVENT } from "@/lib/copilot/copilot-events";
+import { COPILOT_QUICK_PROMPTS } from "@/lib/copilot/quick-prompts";
+
+const PLACEHOLDER = "Komut yazın veya sorunuzu sorun...";
+const LOADING_PLACEHOLDER = "Parsel AI verileri analiz ediyor...";
+const ERROR_BANNER_TEXT =
+  "Bağlantı koptu veya zaman aşımı yaşandı. Lütfen tekrar deneyin.";
+
+const TOOL_STATUS_LABELS: Record<string, string> = {
+  getPortfolioSummary: "Portföy özeti",
+  manageSubscription: "Abonelik",
+  scheduleAppointment: "Randevu",
+  generateWhatsAppMessage: "WhatsApp",
+  analyzeProperty: "Mülk analizi",
+};
+
+function getMessageText(message: UIMessage): string {
+  return message.parts
+    .filter((part) => part.type === "text")
+    .map((part) => part.text)
+    .join("");
+}
+
+function ParselAiActivityIndicator() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <ParselAiGlyph size="sm" />
+      <span className="text-xs tracking-wide text-white/35">Yanıt hazırlanıyor</span>
+      <span className="flex gap-1" aria-hidden>
+        <span className="size-1 rounded-full bg-white/25 animate-pulse" />
+        <span className="size-1 rounded-full bg-white/20 animate-pulse [animation-delay:150ms]" />
+        <span className="size-1 rounded-full bg-white/15 animate-pulse [animation-delay:300ms]" />
+      </span>
+    </div>
+  );
+}
+
+function ToolDoneBadge({
+  part,
+}: {
+  part: Extract<UIMessage["parts"][number], { type: string }>;
+}) {
+  if (!isToolUIPart(part) || part.state !== "output-available") return null;
+
+  const label = TOOL_STATUS_LABELS[getToolName(part)] ?? "Tamamlandı";
+  return (
+    <span className="text-[10px] font-medium tracking-widest text-white/30 uppercase">
+      {label}
+    </span>
+  );
+}
+
+function UserMessage({ text }: { text: string }) {
+  return (
+    <div className="flex justify-end">
+      <p className="max-w-[75%] rounded-lg bg-[#111] px-4 py-2.5 text-right text-[15px] leading-relaxed text-white/80">
+        {text}
+      </p>
+    </div>
+  );
+}
+
+function AssistantMessage({
+  text,
+  toolParts,
+}: {
+  text: string;
+  toolParts: UIMessage["parts"];
+}) {
+  const doneTools = toolParts.filter(
+    (part) => isToolUIPart(part) && part.state === "output-available",
+  );
+
+  return (
+    <div className="flex w-full items-start gap-3">
+      <span className="mt-2 shrink-0">
+        <ParselAiGlyph size="sm" />
+      </span>
+      <div className="min-w-0 w-full flex-1 space-y-2">
+        {doneTools.length > 0 ? (
+          <div className="flex flex-wrap gap-3">
+            {doneTools.map((part, index) => (
+              <ToolDoneBadge key={index} part={part} />
+            ))}
+          </div>
+        ) : null}
+        {text ? <CopilotMarkdown content={text} /> : null}
+      </div>
+    </div>
+  );
+}
+
+export function ParselCopilot() {
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [input, setInput] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const outputRef = useRef<HTMLDivElement>(null);
+
+  const { messages, sendMessage, status, error } = useChat({
+    transport: new DefaultChatTransport({ api: "/api/chat" }),
+  });
+
+  const isLoading = status === "submitted" || status === "streaming";
+
+  const close = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  const toggle = useCallback(() => {
+    setOpen((current) => !current);
+  }, []);
+
+  const submitText = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || isLoading) return;
+
+      setInput("");
+      await sendMessage({ text: trimmed });
+    },
+    [isLoading, sendMessage],
+  );
+
+  const handleInputChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      if (isLoading) return;
+      setInput(event.target.value);
+    },
+    [isLoading],
+  );
+
+  const handleSubmit = useCallback(
+    (event?: FormEvent<HTMLFormElement>) => {
+      event?.preventDefault();
+      void submitText(input);
+    },
+    [input, submitText],
+  );
+
+  const handleInputKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Enter" && !isLoading) {
+        event.preventDefault();
+        void submitText(input);
+      }
+    },
+    [input, isLoading, submitText],
+  );
+
+  useEffect(() => {
+    queueMicrotask(() => setMounted(true));
+  }, []);
+
+  useEffect(() => {
+    function onOpen() {
+      setOpen(true);
+    }
+
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        toggle();
+      }
+      if (event.key === "Escape" && open) {
+        event.preventDefault();
+        close();
+      }
+    }
+
+    window.addEventListener(PARSEL_COPILOT_OPEN_EVENT, onOpen);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener(PARSEL_COPILOT_OPEN_EVENT, onOpen);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [close, open, toggle]);
+
+  useEffect(() => {
+    if (!open || isLoading) return;
+    const timer = window.setTimeout(() => inputRef.current?.focus(), 50);
+    return () => window.clearTimeout(timer);
+  }, [open, isLoading]);
+
+  useEffect(() => {
+    if (!outputRef.current) return;
+    outputRef.current.scrollTop = outputRef.current.scrollHeight;
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  if (!mounted) return null;
+
+  if (!open) {
+    return <ParselAiFab />;
+  }
+
+  const lastMessage = messages[messages.length - 1];
+  const lastMessageHasActiveTools =
+    lastMessage?.role === "assistant" &&
+    lastMessage.parts.some(
+      (part) =>
+        isToolUIPart(part) &&
+        (part.state === "input-streaming" || part.state === "input-available"),
+    );
+  const showActivity =
+    isLoading &&
+    (lastMessageHasActiveTools ||
+      !lastMessage ||
+      lastMessage.role !== "assistant" ||
+      getMessageText(lastMessage).length === 0);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 font-sans backdrop-blur-lg md:p-6"
+      role="presentation"
+      onClick={close}
+    >
+      <div
+        role="dialog"
+        aria-label="Parsel AI Workspace"
+        aria-modal="true"
+        className="relative flex h-[90vh] w-[95%] max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#050505] shadow-[0_0_80px_rgba(0,0,0,0.8)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="shrink-0 border-t-2 border-[#b38c56]" aria-hidden />
+
+        <header className="flex shrink-0 items-center gap-2.5 border-b border-white/[0.04] px-6 py-4">
+          <ParselAiGlyph size="md" />
+          <span className="text-xs font-medium tracking-widest text-white/40 uppercase">
+            Parsel AI Workspace
+          </span>
+        </header>
+
+        <div
+          ref={outputRef}
+          className="custom-scrollbar flex-1 overflow-y-auto px-6 py-6 md:px-8 md:py-8"
+        >
+          {messages.length === 0 && !isLoading ? (
+            <AssistantMessage
+              text="Randevu, portföy, ilan ve tapu süreçlerinde yardımcı olabilirim."
+              toolParts={[]}
+            />
+          ) : null}
+
+          <div className="space-y-10">
+            {messages.map((message) => {
+              const text = getMessageText(message);
+              const toolParts = message.parts.filter((part) => isToolUIPart(part));
+
+              if (message.role === "user") {
+                return <UserMessage key={message.id} text={text} />;
+              }
+
+              if (!text && toolParts.length === 0 && isLoading) return null;
+
+              return (
+                <AssistantMessage
+                  key={message.id}
+                  text={text}
+                  toolParts={toolParts}
+                />
+              );
+            })}
+
+            {showActivity ? <ParselAiActivityIndicator /> : null}
+          </div>
+        </div>
+
+        {error ? (
+          <div
+            role="alert"
+            className="shrink-0 border-t border-amber-500/25 bg-amber-500/[0.08] px-6 py-3 text-sm leading-relaxed text-amber-200/90"
+          >
+            <span className="mr-2" aria-hidden>
+              ⚠️
+            </span>
+            {ERROR_BANNER_TEXT}
+          </div>
+        ) : null}
+
+        <footer className="shrink-0 border-t border-white/10 bg-[#050505] p-5">
+          <div className="custom-scrollbar mb-4 flex gap-2 overflow-x-auto">
+            {COPILOT_QUICK_PROMPTS.map((chip) => (
+              <button
+                key={chip.label}
+                type="button"
+                disabled={isLoading}
+                onClick={() => void submitText(chip.prompt)}
+                className="shrink-0 cursor-pointer rounded-md border border-white/[0.06] px-2.5 py-1 text-[11px] tracking-wide text-white/40 uppercase transition-colors hover:border-white/15 hover:text-white/60 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-[#111] px-4 py-2 transition-colors focus-within:border-white/20">
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleInputKeyDown}
+                disabled={isLoading}
+                placeholder={isLoading ? LOADING_PLACEHOLDER : PLACEHOLDER}
+                className="w-full bg-transparent py-3 text-[15px] text-white placeholder:text-white/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Parsel AI mesajı"
+                aria-busy={isLoading}
+                autoComplete="off"
+              />
+              <button
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                className="shrink-0 rounded-lg bg-white/10 p-2 text-white transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-30"
+                aria-label="Gönder"
+              >
+                <ArrowUp className="size-4" strokeWidth={2} />
+              </button>
+            </div>
+          </form>
+        </footer>
+      </div>
+    </div>,
+    document.body,
+  );
+}

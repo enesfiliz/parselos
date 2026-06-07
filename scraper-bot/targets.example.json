@@ -1,0 +1,20 @@
+[
+  {
+    "region": "Gölcük",
+    "il": "Kocaeli",
+    "ilce": "Gölcük",
+    "source": "sahibinden",
+    "islemTipi": "SATILIK",
+    "kategori": "KONUT",
+    "searchUrl": "https://www.sahibinden.com/satilik/konut/kocaeli-golcuk"
+  },
+  {
+    "region": "Başiskele",
+    "il": "Kocaeli",
+    "ilce": "Başiskele",
+    "source": "sahibinden",
+    "islemTipi": "SATILIK",
+    "kategori": "KONUT",
+    "searchUrl": "https://www.sahibinden.com/satilik/konut/kocaeli-basiskele"
+  }
+]

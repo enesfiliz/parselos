@@ -44,10 +44,10 @@ function VoiceCrmLogCard({ log }: { log: VoiceCrmLog }) {
         {CRM_FIELDS.filter(({ key }) => key !== "musteri_adi").map(
           ({ key, label }) => (
             <div key={key} className="space-y-1.5">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-400">
                 {label}
               </p>
-              <p className="text-sm leading-relaxed text-foreground">
+              <p className="text-sm leading-relaxed text-zinc-100">
                 {data[key] || "—"}
               </p>
             </div>
@@ -84,8 +84,8 @@ export function SesliCrmView({
   return (
     <div className="mx-auto w-full max-w-6xl space-y-16">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Sesli CRM</h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">Sesli CRM</h1>
+        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
           Müşteri notunuzu kaydedin; Groq ile yapılandırılmış CRM verisine
           dönüştürülsün ve anında listeye eklensin.
         </p>
@@ -99,12 +99,12 @@ export function SesliCrmView({
         <div className="flex items-end justify-between gap-4">
           <div className="space-y-1">
             <h2 className="text-xl font-semibold tracking-tight">Kayıtlar</h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-zinc-400">
               En yeni sesli notlarınız
             </p>
           </div>
           {!fetchError && (
-            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-400">
               {logs.length} kayıt
             </p>
           )}
@@ -119,7 +119,7 @@ export function SesliCrmView({
         {!fetchError &&
           (logs.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border px-8 py-16 text-center">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-zinc-400">
                 Henüz kayıt yok. İlk sesli notunuzu yukarıdan ekleyin.
               </p>
             </div>

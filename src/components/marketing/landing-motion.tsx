@@ -111,7 +111,7 @@ export function SpotlightCard({
 }: {
   children: ReactNode;
   className?: string;
-  accent?: "gold" | "indigo";
+  accent?: "gold" | "primary";
 }) {
   const ref = useRef<HTMLElement>(null);
   const [spot, setSpot] = useState({ x: 0, y: 0, active: false });
@@ -133,8 +133,8 @@ export function SpotlightCard({
 
   const spotlightColor =
     accent === "gold"
-      ? "rgba(201, 184, 150, 0.11)"
-      : "rgba(129, 140, 248, 0.12)";
+      ? "rgba(197, 163, 110, 0.12)"
+      : "rgba(84, 114, 54, 0.14)";
 
   return (
     <article
@@ -142,11 +142,8 @@ export function SpotlightCard({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]",
-        "transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50",
-        accent === "gold"
-          ? "hover:border-[#C9B896]/35"
-          : "hover:border-indigo-400/35",
+        "group relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-[#18181b]",
+        "transition-colors duration-200 hover:border-zinc-700",
         className,
       )}
     >
@@ -176,7 +173,7 @@ export function ShineButton({
       href={href}
       className={cn(
         "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-lg px-10 text-sm font-semibold",
-        "bg-[#C9B896] text-[#09090b] transition-colors duration-500 hover:bg-[#D4C4A8]",
+        "bg-parsel-gold text-parsel-bg transition-colors duration-500 hover:bg-parsel-gold/90",
         className,
       )}
     >

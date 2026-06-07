@@ -1,5 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# ParselOS — gizli anahtarlar ve derleme çıktıları
+.env.local
+.next/
+node_modules/
+dist/
+
 # dependencies
 /node_modules
 /.pnp
@@ -32,17 +38,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-
-# vercel
-.vercel
+!.env.example
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
-/src/generated/prisma
-
 # clerk configuration (can include secrets)
 /.clerk/
-
-.vercel

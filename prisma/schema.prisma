@@ -1,5 +1,13 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ParselOS — Supabase PostgreSQL (Prisma ORM)
+// DATABASE_URL formatı (.env.local):
+//   postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres?sslmode=require
+//
+// Kavramsal eşleme (UI modülleri):
+//   User     → Agent   (Clerk kimlik doğrulama; passwordHash DB'de tutulmaz)
+//   Customer → Client  (CRM müşteri kaydı)
+//   Deal     → Deal    (Kanban fırsat kartı)
+//   Event    → Event   (Takvim / randevu)
+//   Document → Document (Fırsat evrakları)
 
 generator client {
   provider = "prisma-client-js"
@@ -9,15 +17,215 @@ datasource db {
   provider = "postgresql"
 }
 
+enum TenantPlanType {
+  FREE
+  PRO
+  PREMIUM
+}
+
+enum TenantStatus {
+  ACTIVE
+  PENDING
+  PAST_DUE
+  CANCELLED
+  TRIAL
+}
+
+/// SaaS kiracı — ofis / abonelik birimi
+model Tenant {
+  id                         String           @id @default(uuid())
+  name                       String
+  planType                   TenantPlanType   @default(FREE)
+  status                     TenantStatus     @default(ACTIVE)
+  iyzicoCustomerReference    String?
+  iyzicoSubscriptionReference String?
+  iyzicoPricingPlanReference String?
+  olusturulmaTarihi          DateTime         @default(now())
+  guncellenmeTarihi          DateTime         @updatedAt
+  agents                     Agent[]
+
+  @@index([planType, status])
+  @@index([iyzicoSubscriptionReference])
+}
+
+/// Clerk ile eşleşen danışman (giriş yapan kullanıcı)
+model Agent {
+  id                String     @id @default(uuid())
+  clerkUserId       String     @unique
+  email             String?
+  firstName         String?
+  lastName          String?
+  imageUrl          String?
+  tenantId          String?
+  lastActiveAt      DateTime   @default(now())
+  olusturulmaTarihi DateTime   @default(now())
+  guncellenmeTarihi DateTime   @updatedAt
+  tenant            Tenant?    @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  fsboLeads         FsboLead[]
+  deals             Deal[]
+
+  @@index([lastActiveAt])
+  @@index([tenantId])
+}
+
+/// Müşteri (Client) — portföy ve CRM kayıtları
 model Client {
   id                 String            @id @default(uuid())
   adSoyad            String
   telefon            String?
   email              String?
   notlar             String?
+  /// Müşteri kaynağı: Referans, Sahibinden, Sosyal Medya vb.
+  kaynak             String?
+  birthDate          DateTime?
+  butce              String?
+  mulkTipi           String?
   olusturulmaTarihi  DateTime          @default(now())
   guncellenmeTarihi  DateTime          @updatedAt
   appraisals         AppraisalReport[]
+  deals              Deal[]
+}
+
+/// Portföy / ilan kaydı
+model Property {
+  id                String                 @id @default(uuid())
+  ilanBasligi       String
+  fiyat             Decimal?               @db.Decimal(14, 2)
+  il                String
+  ilce              String
+  mahalle           String?
+  ada               String?
+  parsel            String?
+  metrekare         Int?
+  odaSayisi         String?
+  /// Portföy vitrin açıklaması
+  aciklama          String?
+  /// Bina yaşı — Sıfır, 8 yıl vb.
+  binaYasi          String?
+  /// Kapak fotoğrafı — Supabase public URL veya data URI
+  kapakGorseli      String?                @db.Text
+  durum             PropertyListingStatus
+  tur               PropertyOwnershipType
+  olusturulmaTarihi DateTime               @default(now())
+  guncellenmeTarihi DateTime               @updatedAt
+  deals             Deal[]
+}
+
+/// Fırsat — müşteri × portföy kanban kartı
+model Deal {
+  id                String    @id @default(uuid())
+  stage             DealStage @default(LEAD)
+  clientId          String
+  propertyId        String
+  notlar            String?
+  /// Pipeline etiketi — Acil, Krediye Uygun vb.
+  etiket            String?
+  /// İnsan okunur son temas — "2 gün önce"
+  sonIletisim       String?
+  /// Sütun hacmi hesabı için sayısal bütçe (TL)
+  budgetTL          Int?
+  /// Operasyonel görev listesi (JSON)
+  tasks             Json?
+  /// Dış ilan bağlantısı
+  listingUrl        String?
+  /// Kaynak FSBO lead (Fırsatlara Gönder köprüsü)
+  fsboLeadId        String?
+  /// Çekilmiş ilan istihbaratı (JSON)
+  listingIntel      Json?
+  /// Otomatik müşteri eşleştirme sonucu (adSoyad, score, telefon vb.)
+  buyerMatch        Json?
+  /// İlanı yöneten danışman (Clerk kullanıcısı)
+  agentId           String?
+  olusturulmaTarihi DateTime  @default(now())
+  guncellenmeTarihi DateTime  @updatedAt
+  client            Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  property          Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  agent             Agent?     @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  fsboLead          FsboLead?  @relation(fields: [fsboLeadId], references: [id], onDelete: SetNull)
+  dealNotes         DealNote[]
+  events            Event[]
+  documents         Document[]
+
+  @@index([stage])
+  @@index([fsboLeadId])
+  @@index([clientId])
+  @@index([propertyId])
+  @@index([agentId])
+}
+
+enum DealStage {
+  LEAD
+  SHOWING
+  OFFER
+  WON
+  LOST
+}
+
+/// Takvim randevu türü — Yer Gösterme, Tapu, Toplantı
+enum EventType {
+  YER_GOSTERME
+  TAPU
+  TOPLANTI
+}
+
+/// Fırsat evrak dosya türü
+enum DocumentType {
+  PDF
+  IMAGE
+}
+
+/// Takvim / randevu (Customer → Deal zinciri üzerinden bağlanır)
+model Event {
+  id                String    @id @default(uuid())
+  title             String
+  date              DateTime
+  type              EventType
+  dealId            String?
+  description       String?
+  olusturulmaTarihi DateTime  @default(now())
+  guncellenmeTarihi DateTime  @updatedAt
+  deal              Deal?     @relation(fields: [dealId], references: [id], onDelete: SetNull)
+
+  @@index([date])
+  @@index([dealId])
+  @@index([type])
+}
+
+/// Fırsata bağlı dijital evrak
+model Document {
+  id                String       @id @default(uuid())
+  dealId            String
+  name              String
+  fileUrl           String
+  type              DocumentType
+  size              Int
+  olusturulmaTarihi DateTime     @default(now())
+  guncellenmeTarihi DateTime     @updatedAt
+  deal              Deal         @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@index([dealId])
+  @@index([type])
+}
+
+/// Fırsata özel tarih damgalı notlar
+model DealNote {
+  id                String   @id @default(uuid())
+  dealId            String
+  content           String
+  olusturulmaTarihi DateTime @default(now())
+  deal              Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@index([dealId, olusturulmaTarihi])
+}
+
+enum PropertyListingStatus {
+  SATILIK
+  KIRALIK
+}
+
+enum PropertyOwnershipType {
+  FSBO
+  YETKILI
 }
 
 model AppraisalReport {
@@ -36,5 +244,114 @@ model ListingText {
   id                String   @id @default(uuid())
   baslik            String
   icerik            String
+  olusturulmaTarihi DateTime @default(now())
+}
+
+/// FSBO watch target for local opportunity hunting jobs.
+model FsboTrackedListing {
+  id                 String                  @id @default(uuid())
+  url                String                  @unique
+  externalId         String?
+  title              String?
+  location           String?
+  source             String                  @default("sahibinden")
+  currentPrice       Decimal?                @db.Decimal(14, 2)
+  firstSeenAt        DateTime                @default(now())
+  listedAt           DateTime?
+  lastCheckedAt      DateTime?
+  lastPriceDropAt    DateTime?
+  isActive           Boolean                 @default(true)
+  isUrgent           Boolean                 @default(false)
+  urgentReason       String?
+  snapshots          FsboPriceSnapshot[]
+  alerts             FsboOpportunityAlert[]
+  olusturulmaTarihi  DateTime                @default(now())
+  guncellenmeTarihi  DateTime                @updatedAt
+
+  @@index([source])
+  @@index([isActive, isUrgent])
+  @@index([lastCheckedAt])
+}
+
+model FsboPriceSnapshot {
+  id                String             @id @default(uuid())
+  listingId         String
+  price             Decimal?           @db.Decimal(14, 2)
+  title             String?
+  location          String?
+  rawHtmlHash       String?
+  checkedAt         DateTime           @default(now())
+  listing           FsboTrackedListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, checkedAt])
+}
+
+model FsboOpportunityAlert {
+  id                String             @id @default(uuid())
+  listingId         String
+  reason            FsboAlertReason
+  previousPrice     Decimal?           @db.Decimal(14, 2)
+  currentPrice      Decimal?           @db.Decimal(14, 2)
+  priceDropRate     Decimal?           @db.Decimal(6, 4)
+  daysOnMarket      Int?
+  isResolved        Boolean            @default(false)
+  olusturulmaTarihi DateTime           @default(now())
+  listing           FsboTrackedListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([reason, isResolved])
+  @@index([listingId, olusturulmaTarihi])
+}
+
+enum FsboAlertReason {
+  PRICE_DROP
+  STALE_LISTING
+}
+
+/// FSBO gelen kutusu — harici scraper-bot lead kaydı
+/// Model güncellemesi sonrası terminalde çalıştırın:
+///   npx prisma db push
+///   npx prisma generate
+model FsboLead {
+  id        String   @id @default(uuid())
+  title     String
+  price     Int
+  url       String   @unique
+  source    String   @default("sahibinden")
+  images    String[] @default([])
+  specs     Json?
+  region    String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  /// UI / pipeline genişletmeleri
+  location       String?
+  il             String?
+  ilce           String?
+  mahalle        String?
+  metrekare      Int?
+  odaSayisi      String?
+  islemTipi      String?
+  kategori       String?
+  listingNo      String?
+  description    String?
+  isDiscarded    Boolean  @default(false)
+  promotedDealId String?
+  listedAt       DateTime?
+  updatedAt      DateTime @updatedAt
+  /// İlanın atandığı danışman (Clerk kullanıcısı)
+  agentId        String?
+  agent          Agent?   @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  deals          Deal[]
+
+  @@index([region])
+  @@index([isRead, isDiscarded])
+  @@index([createdAt])
+  @@index([agentId])
+}
+
+/// FSBO takip bölgeleri
+model FsboWatchRegion {
+  id                String   @id @default(uuid())
+  label             String   @unique
   olusturulmaTarihi DateTime @default(now())
 }

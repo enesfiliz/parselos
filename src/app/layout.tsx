@@ -1,28 +1,25 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+
+import { parselClerkAppearance } from "@/lib/clerk-appearance";
 import { Toaster } from "@/components/ui/sonner";
+import "./clerk.css";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
 export const metadata: Metadata = {
-  title: "Parselos",
-  description: "Gayrimenkulde yapay zeka destekli operasyon platformu",
+  title: {
+    default: "ParselOS",
+    template: "%s · ParselOS",
+  },
+  description:
+    "Gayrimenkul CRM platformu — ekspertiz, müşteri yönetimi ve yapay zeka destekli operasyonlar.",
+  icons: {
+    icon: [
+      { url: "/brand/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/brand/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/brand/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({
@@ -31,16 +28,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html
-        lang="tr"
-        className={`${geistSans.variable} ${geistMono.variable} ${plusJakarta.variable} h-full antialiased`}
+    <html
+      lang="tr"
+      className="dark h-full antialiased"
+    >
+      <body
+        className="flex min-h-full flex-col bg-[#09090b] font-sans text-zinc-100 antialiased"
       >
-        <body className="min-h-full flex flex-col">
+        <ClerkProvider appearance={parselClerkAppearance}>
           {children}
           <Toaster position="bottom-right" richColors closeButton />
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

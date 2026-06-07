@@ -1,17 +1,11 @@
 "use client";
 
-import { Pencil, Trash2, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { ClientProfileCard } from "@/components/features/clients/ClientProfileCard";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -22,21 +16,17 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import type { Client } from "@/lib/types/client";
+import { cn } from "@/lib/utils";
 
 interface ClientFormState {
   adSoyad: string;
   telefon: string;
   email: string;
   notlar: string;
+  birthDate: string;
+  butce: string;
+  mulkTipi: string;
 }
 
 const emptyForm: ClientFormState = {
@@ -44,12 +34,92 @@ const emptyForm: ClientFormState = {
   telefon: "",
   email: "",
   notlar: "",
+  birthDate: "",
+  butce: "",
+  mulkTipi: "",
 };
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("tr-TR", {
-    dateStyle: "medium",
-  }).format(new Date(value));
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
+function toNullableString(value: unknown) {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function normalizeClient(value: unknown): Client | null {
+  if (!isRecord(value)) return null;
+
+  const id = value.id;
+  const adSoyad = value.adSoyad;
+  const olusturulmaTarihi = value.olusturulmaTarihi;
+  const guncellenmeTarihi = value.guncellenmeTarihi;
+
+  if (
+    typeof id !== "string" ||
+    typeof adSoyad !== "string" ||
+    typeof olusturulmaTarihi !== "string" ||
+    typeof guncellenmeTarihi !== "string"
+  ) {
+    return null;
+  }
+
+  const aktifFirsatSayisi =
+    typeof value.aktifFirsatSayisi === "number" ? value.aktifFirsatSayisi : 0;
+
+  return {
+    id,
+    adSoyad,
+    telefon: toNullableString(value.telefon),
+    email: toNullableString(value.email),
+    notlar: toNullableString(value.notlar),
+    kaynak: toNullableString(value.kaynak),
+    birthDate: toNullableString(value.birthDate),
+    butce: toNullableString(value.butce),
+    mulkTipi: toNullableString(value.mulkTipi),
+    olusturulmaTarihi,
+    guncellenmeTarihi,
+    aktifFirsatSayisi,
+  };
+}
+
+function getApiError(payload: unknown, fallback: string) {
+  if (!isRecord(payload)) return fallback;
+  return typeof payload.error === "string" ? payload.error : fallback;
+}
+
+function getApiDetails(payload: unknown) {
+  if (!isRecord(payload)) return null;
+  return typeof payload.details === "string" ? payload.details : null;
+}
+
+function toDateInputValue(iso: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
+}
+
+function ProfileCardSkeleton() {
+  return (
+    <div
+      className="animate-pulse rounded-xl border border-white/5 bg-[#151f23] p-6"
+      aria-hidden
+    >
+      <div className="flex gap-4">
+        <div className="size-14 rounded-2xl bg-zinc-800" />
+        <div className="flex-1 space-y-2">
+          <div className="h-5 w-2/3 rounded bg-zinc-800" />
+          <div className="h-3 w-1/2 rounded bg-zinc-800/80" />
+        </div>
+      </div>
+      <div className="mt-5 flex gap-2">
+        <div className="h-7 w-20 rounded-full bg-zinc-800" />
+        <div className="h-7 w-24 rounded-full bg-zinc-800" />
+      </div>
+      <div className="mt-6 h-3 w-full rounded bg-zinc-800/60" />
+    </div>
+  );
 }
 
 export function MusterilerView() {
@@ -65,28 +135,24 @@ export function MusterilerView() {
 
     async function loadClients() {
       try {
-        const response = await fetch("/api/clients");
+        const response = await fetch("/api/clients", { cache: "no-store" });
         const payload: unknown = await response.json();
 
         if (!response.ok) {
-          const message =
-            payload &&
-            typeof payload === "object" &&
-            "error" in payload &&
-            typeof payload.error === "string"
-              ? payload.error
-              : "Müşteriler yüklenemedi.";
-          throw new Error(message);
+          throw new Error(getApiError(payload, "Müşteriler yüklenemedi."));
         }
 
         if (
           !cancelled &&
-          payload &&
-          typeof payload === "object" &&
+          isRecord(payload) &&
           "data" in payload &&
           Array.isArray(payload.data)
         ) {
-          setClients(payload.data as Client[]);
+          setClients(
+            payload.data
+              .map(normalizeClient)
+              .filter((client): client is Client => Boolean(client)),
+          );
         }
       } catch (err) {
         if (!cancelled) {
@@ -121,6 +187,9 @@ export function MusterilerView() {
       telefon: client.telefon ?? "",
       email: client.email ?? "",
       notlar: client.notlar ?? "",
+      birthDate: toDateInputValue(client.birthDate),
+      butce: client.butce ?? "",
+      mulkTipi: client.mulkTipi ?? "",
     });
     setDialogOpen(true);
   }
@@ -132,9 +201,12 @@ export function MusterilerView() {
     try {
       const body = {
         adSoyad: form.adSoyad.trim(),
-        telefon: form.telefon.trim() || undefined,
-        email: form.email.trim() || undefined,
-        notlar: form.notlar.trim() || undefined,
+        telefon: form.telefon.trim() || null,
+        email: form.email.trim() || null,
+        notlar: form.notlar.trim() || null,
+        birthDate: form.birthDate.trim() || null,
+        butce: form.butce.trim() || null,
+        mulkTipi: form.mulkTipi.trim() || null,
       };
 
       const response = await fetch(
@@ -149,21 +221,8 @@ export function MusterilerView() {
       const payload: unknown = await response.json();
 
       if (!response.ok) {
-        const apiError =
-          payload &&
-          typeof payload === "object" &&
-          "error" in payload &&
-          typeof payload.error === "string"
-            ? payload.error
-            : "İşlem başarısız oldu.";
-
-        const apiDetails =
-          payload &&
-          typeof payload === "object" &&
-          "details" in payload &&
-          typeof payload.details === "string"
-            ? payload.details
-            : null;
+        const apiError = getApiError(payload, "İşlem başarısız oldu.");
+        const apiDetails = getApiDetails(payload);
 
         toast.error("Kayıt başarısız", {
           description: apiDetails ? `${apiError}: ${apiDetails}` : apiError,
@@ -172,12 +231,14 @@ export function MusterilerView() {
       }
 
       if (
-        payload &&
-        typeof payload === "object" &&
+        isRecord(payload) &&
         "data" in payload &&
         payload.data
       ) {
-        const saved = payload.data as Client;
+        const saved = normalizeClient(payload.data);
+        if (!saved) {
+          throw new Error("API yanıtı geçerli bir müşteri kaydı içermiyor.");
+        }
 
         if (editingClient) {
           setClients((prev) =>
@@ -214,14 +275,7 @@ export function MusterilerView() {
       const payload: unknown = await response.json();
 
       if (!response.ok) {
-        const message =
-          payload &&
-          typeof payload === "object" &&
-          "error" in payload &&
-          typeof payload.error === "string"
-            ? payload.error
-            : "Müşteri silinemedi.";
-        throw new Error(message);
+        throw new Error(getApiError(payload, "Müşteri silinemedi."));
       }
 
       setClients((prev) => prev.filter((item) => item.id !== client.id));
@@ -233,114 +287,88 @@ export function MusterilerView() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8">
+    <div className="mx-auto w-full max-w-7xl space-y-8">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <header className="space-y-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="flex items-center gap-2 text-zinc-400">
             <Users className="size-4" strokeWidth={1.5} />
             <span className="text-[10px] font-medium uppercase tracking-[0.2em]">
               Portföy Vitrini
             </span>
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight">Müşteriler</h1>
-          <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Müşteri portföyünüzü yönetin, yeni kayıtlar ekleyin ve iletişim
-            bilgilerine tek ekrandan ulaşın.
+          <h1 className="font-outfit text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
+            Müşteriler
+          </h1>
+          <p className="max-w-xl text-sm leading-relaxed text-zinc-400">
+            Profil kartlarıyla portföyünüzü yönetin; bütçe, mülk tipi ve doğum
+            günü hatırlatıcıları tek bakışta.
           </p>
         </header>
 
-        <Button className="h-10 px-5" onClick={openCreateDialog}>
+        <Button className="h-10 w-full px-5 sm:w-auto" onClick={openCreateDialog}>
           Yeni Müşteri Ekle
         </Button>
       </div>
 
-      <Card className="border-border/60 shadow-lg ring-border/60">
-        <CardHeader className="border-b border-border/50 pb-5">
-          <CardTitle className="text-base font-medium">Müşteri Listesi</CardTitle>
-          <CardDescription>
-            {isLoading
-              ? "Kayıtlar yükleniyor…"
-              : `${clients.length} kayıtlı müşteri`}
-          </CardDescription>
-        </CardHeader>
+      {!isLoading && clients.length > 0 ? (
+        <p className="text-sm text-zinc-500">
+          <span className="font-medium text-zinc-300">{clients.length}</span>{" "}
+          kayıtlı müşteri
+        </p>
+      ) : null}
 
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>Ad Soyad</TableHead>
-                <TableHead>Telefon</TableHead>
-                <TableHead>E-posta</TableHead>
-                <TableHead>Eklenme Tarihi</TableHead>
-                <TableHead className="text-right">İşlemler</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">
-                    Yükleniyor…
-                  </TableCell>
-                </TableRow>
-              ) : clients.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">
-                    Henüz müşteri kaydı yok. Sağ üstten yeni müşteri ekleyebilirsiniz.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                clients.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell className="font-medium text-neutral-900">
-                      {client.adSoyad}
-                    </TableCell>
-                    <TableCell>{client.telefon || "—"}</TableCell>
-                    <TableCell>{client.email || "—"}</TableCell>
-                    <TableCell>{formatDate(client.olusturulmaTarihi)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => openEditDialog(client)}
-                          aria-label="Düzenle"
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => void handleDelete(client)}
-                          aria-label="Sil"
-                        >
-                          <Trash2 className="size-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ProfileCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : clients.length === 0 ? (
+        <div
+          className={cn(
+            "flex flex-col items-center justify-center rounded-xl border border-dashed border-white/5",
+            "bg-[#151f23] px-6 py-16 text-center sm:px-8 sm:py-20",
+          )}
+        >
+          <Users className="mb-4 size-10 text-zinc-600" strokeWidth={1.25} />
+          <p className="font-outfit text-lg font-medium text-zinc-300">
+            Henüz müşteri yok
+          </p>
+          <p className="mt-2 max-w-sm text-sm text-zinc-500">
+            İlk profil kartınızı oluşturmak için &quot;Yeni Müşteri Ekle&quot;
+            düğmesine tıklayın.
+          </p>
+          <Button className="mt-6" onClick={openCreateDialog}>
+            Müşteri Ekle
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {clients.map((client) => (
+            <ClientProfileCard
+              key={client.id}
+              client={client}
+              onEdit={openEditDialog}
+              onDelete={(c) => void handleDelete(c)}
+            />
+          ))}
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <form onSubmit={(event) => void handleSubmit(event)}>
             <DialogHeader>
               <DialogTitle>
                 {editingClient ? "Müşteriyi Düzenle" : "Yeni Müşteri Ekle"}
               </DialogTitle>
               <DialogDescription>
-                Müşteri bilgilerini girin. Zorunlu alan yalnızca ad soyaddır.
+                Profil kartında görünecek bilgileri girin. Ad soyad zorunludur.
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
+            <div className="grid gap-4 py-4 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="ad-soyad">Ad Soyad</Label>
                 <Input
                   id="ad-soyad"
@@ -379,6 +407,42 @@ export function MusterilerView() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="birth-date">Doğum Tarihi</Label>
+                <Input
+                  id="birth-date"
+                  type="date"
+                  value={form.birthDate}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, birthDate: e.target.value }))
+                  }
+                  className="h-10"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="butce">Bütçe</Label>
+                <Input
+                  id="butce"
+                  value={form.butce}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, butce: e.target.value }))
+                  }
+                  placeholder="5–8 M ₺"
+                  className="h-10"
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="mulk-tipi">Aranan Mülk Tipi</Label>
+                <Input
+                  id="mulk-tipi"
+                  value={form.mulkTipi}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, mulkTipi: e.target.value }))
+                  }
+                  placeholder="Konut, Arsa, Ticari…"
+                  className="h-10"
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="notlar">Notlar</Label>
                 <textarea
                   id="notlar"
@@ -388,7 +452,7 @@ export function MusterilerView() {
                   }
                   rows={3}
                   placeholder="Portföy notları…"
-                  className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                  className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-parsel-bg/80 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-parsel-primary/30 focus-visible:outline-none"
                 />
               </div>
             </div>

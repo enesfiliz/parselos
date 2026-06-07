@@ -1,0 +1,219 @@
+/**
+ * Clerk UI — Tailwind elements shadow DOM'da güvenilir değil.
+ * Tüm metin/arka plan burada !important ile zorlanır.
+ */
+
+/* Kök değişkenler */
+.cl-rootBox,
+.cl-modalContent,
+.cl-cardBox,
+.cl-userButtonPopoverCard {
+  --cl-color-text: #fafafa !important;
+  --cl-color-text-secondary: #a1a1aa !important;
+  --cl-color-background: #09090b !important;
+  --cl-color-input-background: #18181b !important;
+  --cl-color-primary: #7a9f45 !important;
+  --cl-color-neutral: #fafafa !important;
+  --cl-color-muted: #a1a1aa !important;
+}
+
+/* Zemin */
+.cl-card,
+.cl-userButtonPopoverCard,
+.cl-profilePage,
+.cl-page,
+.cl-pageScrollBox,
+.cl-navbar,
+.cl-scrollBox {
+  background-color: #09090b !important;
+  color: #fafafa !important;
+}
+
+.cl-navbar {
+  border-right: 1px solid #27272a !important;
+}
+
+.cl-pageScrollBox {
+  background-color: #09090b !important;
+}
+
+/* Başlıklar */
+.cl-headerTitle,
+.cl-profileSectionTitle,
+.cl-profileSectionTitleText,
+.cl-formHeaderTitle,
+.cl-identityPreviewText {
+  color: #fafafa !important;
+}
+
+.cl-headerSubtitle,
+.cl-profileSectionSubtitle,
+.cl-dividerText,
+.cl-footerAction__text {
+  color: #a1a1aa !important;
+}
+
+/* UserButton popover — isim, e-posta, menü */
+.cl-userPreview,
+.cl-userPreviewTextContainer {
+  color: #fafafa !important;
+}
+
+.cl-userPreviewMainIdentifier,
+.cl-userPreview__mainIdentifier,
+.cl-userPreviewMainIdentifier__mainIdentifier,
+.cl-userPreviewMainIdentifier__identifier {
+  color: #fafafa !important;
+  font-weight: 600 !important;
+}
+
+.cl-userPreviewSecondaryIdentifier,
+.cl-userPreview__secondaryIdentifier,
+.cl-userPreviewSecondaryIdentifier__identifier {
+  color: #a1a1aa !important;
+}
+
+.cl-userButtonPopoverActionButton {
+  color: #fafafa !important;
+  background-color: transparent !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background-color: #18181b !important;
+  color: #fafafa !important;
+}
+
+.cl-userButtonPopoverActionButtonText,
+.cl-userButtonPopoverActionButtonIcon {
+  color: #fafafa !important;
+}
+
+.cl-userButtonPopoverActionButton svg {
+  color: #fafafa !important;
+  opacity: 0.85;
+}
+
+/* Profil sayfası — satırlar, e-posta, isim */
+.cl-profileSection,
+.cl-profileSectionContent,
+.cl-profileSectionItem,
+.cl-profileSectionItemList {
+  color: #fafafa !important;
+  border-color: #27272a !important;
+}
+
+.cl-profileSectionItem__title,
+.cl-profileSectionItem__content,
+.cl-profileSectionItemText,
+.cl-identityPreviewText {
+  color: #fafafa !important;
+}
+
+.cl-profileSectionItem__description {
+  color: #a1a1aa !important;
+}
+
+.cl-badge,
+.cl-badge__badge {
+  color: #a1a1aa !important;
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+}
+
+/* Navbar menü */
+.cl-navbarButton,
+.cl-navbarButtonText {
+  color: #a1a1aa !important;
+}
+
+.cl-navbarButton:hover,
+.cl-navbarButton[data-active="true"],
+.cl-navbarButton[data-active="true"] .cl-navbarButtonText {
+  color: #fafafa !important;
+  background-color: #18181b !important;
+}
+
+.cl-navbarButton svg {
+  color: currentColor !important;
+}
+
+/* Formlar */
+.cl-formFieldLabel,
+.cl-formFieldLabelRow label {
+  color: #d4d4d8 !important;
+}
+
+.cl-formFieldInput,
+.cl-formFieldInput input,
+.cl-input,
+.cl-otpCodeFieldInput {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  color: #fafafa !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: #71717a !important;
+}
+
+/* Birincil buton & profil linkleri */
+.cl-formButtonPrimary {
+  background-color: #7a9f45 !important;
+  color: #ffffff !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background-color: #6c8634 !important;
+}
+
+.cl-profileSectionPrimaryButton,
+.cl-button__profileSectionPrimaryButton,
+.cl-menuButton {
+  color: #7a9f45 !important;
+}
+
+.cl-profileSectionPrimaryButton:hover,
+.cl-menuButton:hover {
+  color: #8fb356 !important;
+}
+
+.cl-dividerLine {
+  background-color: #27272a !important;
+}
+
+.cl-footerActionLink,
+.cl-formFieldAction,
+.cl-identityPreviewEditButton,
+.cl-backLink {
+  color: #7a9f45 !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background-color: #18181b !important;
+  border: 1px solid #27272a !important;
+  color: #fafafa !important;
+}
+
+.cl-socialButtonsBlockButtonText {
+  color: #fafafa !important;
+}
+
+.cl-logoBox,
+.cl-logoImage {
+  display: none !important;
+}
+
+/* Son çare: koyu metin kalmışsa (siyah üzerine siyah) */
+.cl-userButtonPopoverCard [class*="cl-"]:not(.cl-badge):not(.cl-formButtonPrimary),
+.cl-profilePage [class*="cl-"]:not(.cl-badge):not(.cl-formButtonPrimary):not(
+    .cl-profileSectionPrimaryButton
+  ) {
+  --color: #fafafa;
+}
+
+.cl-userButtonPopoverCard span,
+.cl-userButtonPopoverCard p,
+.cl-profilePage span:not(.cl-badge__badge),
+.cl-profilePage p {
+  color: inherit;
+}

@@ -3,8 +3,16 @@ import { NextResponse } from "next/server";
 
 const GEMINI_MODEL = "gemini-3.5-flash";
 
-const LISTING_PROMPT =
-  "Sen lüks gayrimenkul satışında uzmanlaşmış, üst düzey bir metin yazarısın. Sana verilen gayrimenkul özelliklerini kullanarak; SEO uyumlu, dikkat çekici bir başlığı olan, paragraf düzeni mükemmel, satışı hızlandıracak, profesyonel bir ilan metni yaz. Emojileri çok hafif ve sadece dikkat çekmek için kullan. Eski nesil emlakçı jargonundan uzak dur.";
+const LISTING_PROMPT = `Sen ParselOS platformunun elit, keskin ve sonuç odaklı gayrimenkul metin yazarısın.
+
+Kesin Kurallar:
+1) Asla "Merhaba", "Size nasıl yardımcı olabilirim", "İşte ilanınız" gibi robotik giriş ve çıkış cümleleri KULLANMA.
+2) Cümlelerin çok kısa, vurucu ve ikna edici olsun.
+3) Uzun paragraflar yazma; özellikleri her zaman kısa madde işaretleriyle (bullet points) belirt.
+4) Çıktıların gayrimenkul diline hakim, profesyonel bir broker ağzından çıkmış gibi net olsun.
+5) Yalnızca doğrudan kullanılabilir, kopyala-yapıştır yapmaya hazır nihai metni ver.
+
+Çıktı formatı: Tek satır SEO başlığı, ardından yalnızca madde işaretli gövde. Açıklama, selamlama veya meta yorum ekleme.`;
 
 interface ListingRequestBody {
   konum?: string;
@@ -59,7 +67,7 @@ export async function POST(request: Request) {
     const result = await model.generateContent([
       { text: LISTING_PROMPT },
       {
-        text: `Aşağıdaki gayrimenkul özelliklerine göre ilan metnini yaz:\n\n${buildPropertyBrief(body)}`,
+        text: `Bu özelliklere göre yalnızca nihai ilan metnini üret (başlık + madde işaretleri):\n\n${buildPropertyBrief(body)}`,
       },
     ]);
 
