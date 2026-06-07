@@ -9,7 +9,7 @@ import {
 } from "react";
 import { ImagePlus, Loader2, Trash2, X } from "lucide-react";
 import Image from "next/image";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -94,15 +94,15 @@ export function PortfolioAddDrawer({
   const {
     register,
     handleSubmit,
+    control,
     reset,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<PortfolioFormValues>({
     defaultValues: EMPTY_PORTFOLIO_FORM,
   });
 
-  const coverImageUrl = watch("coverImageUrl");
+  const coverImageUrl = useWatch({ control, name: "coverImageUrl" });
 
   useEffect(() => {
     if (!open) return;
@@ -112,7 +112,7 @@ export function PortfolioAddDrawer({
         ? portfolioToFormValues(portfolio)
         : EMPTY_PORTFOLIO_FORM;
     reset(values);
-    setPreviewUrl(values.coverImageUrl || null);
+    queueMicrotask(() => setPreviewUrl(values.coverImageUrl || null));
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onOpenChange(false);

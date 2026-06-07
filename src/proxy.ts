@@ -89,14 +89,14 @@ async function resolvePlanTypeForUser(userId: string): Promise<TenantPlanType> {
 }
 
 export default clerkMiddleware(async (auth, request) => {
+  if (isPublicRoute(request) && !isAuthPage(request)) {
+    return;
+  }
+
   const { userId } = await auth();
 
   if (userId && isAuthPage(request)) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
-  if (isPublicRoute(request)) {
-    return;
   }
 
   if (!userId) {
@@ -124,7 +124,27 @@ export default clerkMiddleware(async (auth, request) => {
 
 export const config = {
   matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
+    "/admin(.*)",
+    "/arsiv(.*)",
+    "/billing(.*)",
+    "/calculators(.*)",
+    "/calendar(.*)",
+    "/customers(.*)",
+    "/dashboard(.*)",
+    "/deals(.*)",
+    "/ekspertiz(.*)",
+    "/finans(.*)",
+    "/fsbo-radar(.*)",
+    "/hesaplayicilar(.*)",
+    "/ilan-asistani(.*)",
+    "/imar-radari(.*)",
+    "/musteriler(.*)",
+    "/portfolios(.*)",
+    "/properties(.*)",
+    "/radar(.*)",
+    "/sesli-crm(.*)",
+    "/tapu-ai(.*)",
+    "/api/((?!health|webhook|webhooks|billing/callback|bot-sync|cron/fsbo-sync).*)",
+    "/trpc(.*)",
   ],
 };

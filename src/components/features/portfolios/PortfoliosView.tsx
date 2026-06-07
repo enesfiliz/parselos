@@ -103,7 +103,7 @@ export function PortfoliosView({
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    setItems(portfolios);
+    queueMicrotask(() => setItems(portfolios));
   }, [portfolios]);
 
   const openCreateSheet = useCallback(() => {
@@ -130,8 +130,10 @@ export function PortfoliosView({
 
   useEffect(() => {
     if (openSheetOnMount) {
-      openCreateSheet();
-      router.replace("/portfolios");
+      queueMicrotask(() => {
+        openCreateSheet();
+        router.replace("/portfolios");
+      });
     }
   }, [openSheetOnMount, openCreateSheet, router]);
 

@@ -12,7 +12,6 @@ import {
   useSensor,
   useSensors,
   type CollisionDetection,
-  type DragCancelEvent,
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
@@ -321,7 +320,7 @@ export function DealsKanbanBoard({
     })();
   }
 
-  function handleDragCancel(_event: DragCancelEvent) {
+  function handleDragCancel() {
     clearDragState();
   }
 

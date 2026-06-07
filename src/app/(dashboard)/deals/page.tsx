@@ -12,7 +12,6 @@ import {
   useSensor,
   useSensors,
   type CollisionDetection,
-  type DragCancelEvent,
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
@@ -1183,7 +1182,9 @@ export default function DealsPage() {
   }, [commit]);
 
   useEffect(() => {
-    reloadDeals().finally(() => setLoading(false));
+    queueMicrotask(() => {
+      reloadDeals().finally(() => setLoading(false));
+    });
   }, [reloadDeals]);
 
   const selected = deals.find((d) => d.id === selectedId) ?? null;
@@ -1362,7 +1363,7 @@ export default function DealsPage() {
     moveDealToStage(dealId, nextStage);
   }
 
-  function handleDragCancel(_event: DragCancelEvent) {
+  function handleDragCancel() {
     clearDragState();
   }
 
