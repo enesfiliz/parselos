@@ -41,17 +41,17 @@ export function SidebarNav({ onNavigate, className }: SidebarNavProps) {
               href={href}
               onClick={onNavigate}
               className={cn(
-                "group flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
-                  active
-                    ? "border border-border bg-zinc-900 text-foreground"
-                    : "border border-transparent text-muted-foreground hover:border-border hover:bg-card/50 hover:text-foreground",
+                "group flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
+                active
+                  ? "nav-item-active"
+                  : "border-transparent text-muted-foreground hover:border-border hover:bg-card/80 hover:text-foreground",
               )}
             >
               <Icon
                 className={cn(
                   "size-[17px] shrink-0 transition-colors",
                   active
-                    ? "text-parsel-primary"
+                    ? "text-primary"
                     : "text-muted-foreground group-hover:text-foreground",
                 )}
                 strokeWidth={1.75}

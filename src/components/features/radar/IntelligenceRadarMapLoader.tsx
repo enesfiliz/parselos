@@ -18,7 +18,7 @@ const IntelligenceRadarMap = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex min-h-[80vh] items-center justify-center rounded-3xl border border-border/60 bg-background">
-        <p className="text-sm text-foreground0">İstihbarat haritası yükleniyor…</p>
+        <p className="text-sm text-muted-foreground">İstihbarat haritası yükleniyor…</p>
       </div>
     ),
   },

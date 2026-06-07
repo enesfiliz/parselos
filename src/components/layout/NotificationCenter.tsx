@@ -122,7 +122,7 @@ export function NotificationCenter() {
                 Tümünü Okundu İşaretle
               </button>
             ) : (
-              <span className="text-[10px] text-foreground/25">Güncel</span>
+              <span className="text-[10px] text-muted-foreground">Güncel</span>
             )}
           </div>
 
@@ -154,7 +154,7 @@ export function NotificationCenter() {
                     </span>
 
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-xs leading-relaxed text-foreground/80">
+                      <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                         {notification.message}
                       </p>
                       <p className="mt-1 text-right text-[9px] text-muted-foreground">

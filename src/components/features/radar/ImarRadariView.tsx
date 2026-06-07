@@ -166,7 +166,7 @@ function AnalysisPanel({ analysis }: { analysis: RadarAnalysis }) {
 
       <CardContent className="grid gap-4 pt-5 sm:grid-cols-3">
         <div className="rounded-xl border border-border/50 bg-muted/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             Toplam eşleşme
           </p>
           <p className="mt-1 text-2xl font-semibold text-foreground">
@@ -174,7 +174,7 @@ function AnalysisPanel({ analysis }: { analysis: RadarAnalysis }) {
           </p>
         </div>
         <div className="rounded-xl border border-border/50 bg-muted/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             Yeni duyuru
           </p>
           <p className="mt-1 text-2xl font-semibold text-emerald-400">
@@ -182,7 +182,7 @@ function AnalysisPanel({ analysis }: { analysis: RadarAnalysis }) {
           </p>
         </div>
         <div className="rounded-xl border border-border/50 bg-muted/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
             Duyuru tipi
           </p>
           <p className="mt-1 text-2xl font-semibold text-foreground">
@@ -339,7 +339,7 @@ export function ImarRadariView() {
                           "rounded-full border px-3 py-1 text-xs transition-colors",
                           active
                             ? "border-[#b38c56]/40 bg-parsel-gold/15 text-[#d4b07a]"
-                            : "border-border/60 bg-muted/10 text-foreground0 hover:text-foreground/90",
+                            : "border-border/60 bg-muted/10 text-muted-foreground hover:text-foreground/90",
                         )}
                       >
                         {option.label}
@@ -350,7 +350,7 @@ export function ImarRadariView() {
                 <button
                   type="button"
                   onClick={() => setKeywords([...DEFAULT_IMAR_KEYWORDS])}
-                  className="text-[11px] text-foreground0 underline-offset-2 hover:text-foreground/90 hover:underline"
+                  className="text-[11px] text-muted-foreground underline-offset-2 hover:text-foreground/90 hover:underline"
                 >
                   Varsayılana sıfırla
                 </button>

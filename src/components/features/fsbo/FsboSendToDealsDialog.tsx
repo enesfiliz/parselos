@@ -156,7 +156,7 @@ export function FsboSendToDealsDialog({
             <Plus className="size-4 text-parsel-gold" />
             Fırsatlara Gönder
           </DialogTitle>
-          <DialogDescription className="text-foreground0">
+          <DialogDescription className="text-muted-foreground">
             {lead
               ? `"${lead.title}" ilanını gerçek bir müşteriye bağlayın. İlan başlığı müşteri olarak kaydedilmez.`
               : "İlan seçilmedi."}
@@ -171,7 +171,7 @@ export function FsboSendToDealsDialog({
               "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-300",
               mode === "existing"
                 ? "bg-parsel-panel text-foreground"
-                : "text-foreground0 hover:text-foreground/90",
+                : "text-muted-foreground hover:text-foreground/90",
             )}
           >
             <Search className="size-3.5" />
@@ -184,7 +184,7 @@ export function FsboSendToDealsDialog({
               "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-300",
               mode === "new"
                 ? "bg-parsel-panel text-foreground"
-                : "text-foreground0 hover:text-foreground/90",
+                : "text-muted-foreground hover:text-foreground/90",
             )}
           >
             <UserPlus className="size-3.5" />
@@ -207,10 +207,10 @@ export function FsboSendToDealsDialog({
             <div className="max-h-56 overflow-y-auto rounded-xl border border-border/50 bg-background">
               {loadingClients ? (
                 <div className="flex justify-center py-10">
-                  <Loader2 className="size-5 animate-spin text-foreground0" />
+                  <Loader2 className="size-5 animate-spin text-muted-foreground" />
                 </div>
               ) : filtered.length === 0 ? (
-                <p className="px-4 py-8 text-center text-xs text-foreground0">
+                <p className="px-4 py-8 text-center text-xs text-muted-foreground">
                   Eşleşen müşteri bulunamadı. Yeni müşteri sekmesinden ekleyin.
                 </p>
               ) : (
@@ -230,7 +230,7 @@ export function FsboSendToDealsDialog({
                         <span className="text-sm font-medium text-foreground">
                           {client.adSoyad}
                         </span>
-                        <span className="text-[11px] text-foreground0">
+                        <span className="text-[11px] text-muted-foreground">
                           {client.telefon ?? "Telefon yok"}
                           {client.butce ? ` · ${client.butce}` : ""}
                         </span>

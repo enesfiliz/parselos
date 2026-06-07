@@ -196,7 +196,7 @@ export function FsboRadarView({
           <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             İstihbarat Radarı — Medya Odaklı Inbox
           </h1>
-          <p className="mt-1 max-w-2xl text-sm text-foreground0">
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             Veritabanından gelen canlı FSBO ilanları; kapak fotoğrafı, kaynak
             rozeti ve fiyatlarla gelen kutusunda listelenir.
           </p>

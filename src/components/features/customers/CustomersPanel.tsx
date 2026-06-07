@@ -207,7 +207,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
                 {customers.length} müşteri
               </span>
             </div>
-            <p className="text-sm text-foreground0">
+            <p className="text-sm text-muted-foreground">
               Kanban fırsatlarıyla konuşan otonom müşteri portföyü — arama,
               WhatsApp ve profil inceleme tek ekranda.
             </p>
@@ -241,7 +241,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
             <p className="mt-4 text-sm font-medium text-foreground/90">
               Henüz müşteri eklenmedi
             </p>
-            <p className="mt-1 text-xs text-foreground0">
+            <p className="mt-1 text-xs text-muted-foreground">
               İlk yatırımcınızı ekleyin; fırsatlar paneliyle otomatik
               eşleşsin.
             </p>
@@ -310,7 +310,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
                   <h2 className="font-outfit text-lg font-semibold text-foreground">
                     {selected.adSoyad}
                   </h2>
-                  <p className="mt-0.5 text-xs text-foreground0">
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     Kayıt: {formatDate(selected.olusturulmaTarihi)}
                   </p>
                 </div>
@@ -361,7 +361,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
                   </p>
                 ) : null}
                 {selected.notlar ? (
-                  <p className="mt-2 text-xs leading-relaxed text-foreground0">
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                     {selected.notlar}
                   </p>
                 ) : null}
@@ -396,7 +396,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
         <DialogContent className="border-border bg-parsel-panel text-foreground">
           <DialogHeader>
             <DialogTitle>Yeni Müşteri</DialogTitle>
-            <DialogDescription className="text-foreground0">
+            <DialogDescription className="text-muted-foreground">
               Portföye yeni yatırımcı veya son kullanıcı ekleyin.
             </DialogDescription>
           </DialogHeader>
@@ -497,7 +497,7 @@ function CustomerRow({
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate font-medium text-foreground">{customer.adSoyad}</p>
-            <p className="mt-0.5 truncate text-xs text-foreground0">
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {customer.region}
             </p>
             <p className="truncate text-xs text-muted-foreground">

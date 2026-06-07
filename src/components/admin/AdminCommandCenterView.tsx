@@ -28,7 +28,7 @@ function eventBadgeClass(event: AdminSubscriberRow["event"]) {
     case "Kayıt":
       return "text-blue-400";
     default:
-      return "text-foreground0";
+      return "text-muted-foreground";
   }
 }
 
@@ -55,7 +55,7 @@ export function AdminCommandCenterView() {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
               Komuta Merkezi
             </h1>
-            <p className="mt-1 text-sm text-foreground0">
+            <p className="mt-1 text-sm text-muted-foreground">
               ParselOS SaaS Genel Bakış
             </p>
           </div>
@@ -75,7 +75,7 @@ export function AdminCommandCenterView() {
             key={metric.id}
             className="rounded-2xl border border-emerald-500/10 bg-parsel-elevated p-5 shadow-[0_0_40px_rgba(0,0,0,0.35)]"
           >
-            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-foreground0">
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
               {metric.label}
             </p>
             <div className="mt-3 flex items-end justify-between gap-3">
@@ -105,7 +105,7 @@ export function AdminCommandCenterView() {
                 <h2 className="text-sm font-semibold text-foreground">
                   Aktif Aboneler
                 </h2>
-                <p className="text-xs text-foreground0">
+                <p className="text-xs text-muted-foreground">
                   Son kayıt ve paket yükseltmeleri
                 </p>
               </div>
@@ -115,7 +115,7 @@ export function AdminCommandCenterView() {
 
           <div className="custom-scrollbar max-h-[420px] overflow-y-auto">
             <table className="w-full min-w-[320px] text-left text-sm">
-              <thead className="sticky top-0 bg-parsel-elevated text-[10px] uppercase tracking-[0.16em] text-foreground0">
+              <thead className="sticky top-0 bg-parsel-elevated text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                 <tr className="border-b border-border/40">
                   <th className="px-5 py-3 font-medium md:px-6">Ofis / Danışman</th>
                   <th className="px-3 py-3 font-medium">Paket</th>
@@ -150,7 +150,7 @@ export function AdminCommandCenterView() {
                     >
                       {row.event}
                     </td>
-                    <td className="px-5 py-3.5 text-foreground0 md:px-6">
+                    <td className="px-5 py-3.5 text-muted-foreground md:px-6">
                       {row.lastLogin}
                     </td>
                   </tr>
@@ -168,7 +168,7 @@ export function AdminCommandCenterView() {
                 <h2 className="text-sm font-semibold text-foreground">
                   Parsel AI Canlı Akış
                 </h2>
-                <p className="text-xs text-foreground0">
+                <p className="text-xs text-muted-foreground">
                   Son araç çağrıları ve oturum olayları
                 </p>
               </div>
@@ -196,10 +196,10 @@ export function AdminCommandCenterView() {
                     <span className="font-medium text-emerald-200/90">
                       {log.actor}
                     </span>
-                    <span className="text-foreground0"> — </span>
+                    <span className="text-muted-foreground"> — </span>
                     {log.action}
                   </p>
-                  <p className="mt-1 text-xs text-foreground0">{log.timestamp}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{log.timestamp}</p>
                 </div>
               </li>
             ))}

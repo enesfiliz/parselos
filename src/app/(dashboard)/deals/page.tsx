@@ -529,7 +529,7 @@ function ClientPicker({
 
   return (
     <div ref={containerRef} className="relative">
-      <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+      <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Müşteri Kartı
       </p>
       <div className="flex items-start gap-3">
@@ -543,7 +543,7 @@ function ClientPicker({
           <p className="truncate font-outfit text-base font-semibold text-foreground">
             {selectedClient.adSoyad}
           </p>
-          <div className="mt-1 space-y-0.5 text-xs text-foreground0">
+          <div className="mt-1 space-y-0.5 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5 truncate">
               <Phone className="size-3 shrink-0" strokeWidth={1.75} />
               {selectedClient.telefon ?? "Telefon kayıtlı değil"}
@@ -575,7 +575,7 @@ function ClientPicker({
         </div>
         <ChevronDown
           className={cn(
-            "size-4 text-foreground0 transition-transform",
+            "size-4 text-muted-foreground transition-transform",
             open && "rotate-180",
           )}
         />
@@ -594,7 +594,7 @@ function ClientPicker({
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-6">
-              <Loader2 className="size-4 animate-spin text-foreground0" />
+              <Loader2 className="size-4 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <ul className="max-h-48 overflow-y-auto">
@@ -613,7 +613,7 @@ function ClientPicker({
                       <Phone className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
                       <div className="min-w-0">
                         <p className="text-sm text-foreground">{client.adSoyad}</p>
-                        <p className="text-[11px] text-foreground0">
+                        <p className="text-[11px] text-muted-foreground">
                           {client.telefon ?? "—"}
                           {client.mulkTipi ? ` · ${client.mulkTipi}` : ""}
                         </p>
@@ -672,7 +672,7 @@ function DealNotesPanel({
     <section className={PANEL_CARD_COMPACT}>
       <div className="mb-2 flex items-center gap-2">
         <StickyNote className="size-3.5 text-parsel-gold" strokeWidth={1.5} />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           Danışman Notları
         </p>
         {safeNotes.length > 0 ? (
@@ -684,7 +684,7 @@ function DealNotesPanel({
 
       {loading ? (
         <div className="flex justify-center py-6">
-          <Loader2 className="size-4 animate-spin text-foreground0" />
+          <Loader2 className="size-4 animate-spin text-muted-foreground" />
         </div>
       ) : safeNotes.length > 0 ? (
         <ul className="relative max-h-44 space-y-0 overflow-y-auto pl-3 pr-1">
@@ -792,7 +792,7 @@ function DealTasksPanel({
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <CheckSquare className="size-4 text-parsel-gold" strokeWidth={1.5} />
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
             Dinamik Görev Checklist
           </p>
         </div>
@@ -1541,7 +1541,7 @@ export default function DealsPage() {
           <h1 className="font-outfit text-xl font-semibold tracking-tight text-foreground md:text-2xl lg:text-3xl">
             Fırsat Pipeline
           </h1>
-          <p className="mt-1 max-w-xl text-sm font-light text-foreground0">
+          <p className="mt-1 max-w-xl text-sm font-normal text-muted-foreground">
             Canlı müşteri ve FSBO Radarı entegrasyonu — veritabanından gerçek
             zamanlı pipeline.
           </p>
@@ -1636,13 +1636,13 @@ export default function DealsPage() {
           {selected ? (
             <>
               <div className="border-b border-border/50 pb-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                   Fırsat Kontrol Kokpiti
                 </p>
                 <h2 className="mt-2 font-outfit text-xl font-semibold text-foreground">
                   {selected.client.adSoyad}
                 </h2>
-                <p className="mt-1 text-sm text-foreground0">
+                <p className="mt-1 text-sm text-muted-foreground">
                   {resolveDealLocation(selected)} ·{" "}
                   {formatFullTRY(resolveDealBudgetTL(selected))}
                   {taskProgress(selected)
@@ -1668,7 +1668,7 @@ export default function DealsPage() {
                   </section>
 
                   <section className={PANEL_CARD}>
-                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                       WhatsApp Hızlı Şablonları
                     </p>
                     <div className="flex flex-col gap-2">
@@ -1702,7 +1702,7 @@ export default function DealsPage() {
                                 {t.label}
                               </p>
                             </div>
-                            <p className="mt-1.5 line-clamp-2 pl-6 text-[11px] leading-relaxed text-foreground0">
+                            <p className="mt-1.5 line-clamp-2 pl-6 text-[11px] leading-relaxed text-muted-foreground">
                               {t.subtitle}
                             </p>
                           </a>
@@ -1722,7 +1722,7 @@ export default function DealsPage() {
                 {/* ── SAĞ SÜTUN: Mülk, İstihbarat & Finans ── */}
                 <div className="flex flex-col gap-3 lg:col-span-7">
                   <section className={PANEL_CARD_COMPACT}>
-                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                       Fırsat / Mülk Künyesi
                     </p>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -1830,7 +1830,7 @@ export default function DealsPage() {
                   <section className={PANEL_CARD_COMPACT}>
                     <div className="mb-2 flex items-center gap-2">
                       <Radar className="size-3.5 text-parsel-gold" strokeWidth={1.5} />
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                         Yapay Zeka Eşleşmeleri
                       </p>
                       {!fsboLoading && fsboMatches.length > 0 ? (
@@ -1841,7 +1841,7 @@ export default function DealsPage() {
                     </div>
                     {fsboLoading ? (
                       <div className="flex justify-center py-5">
-                        <Loader2 className="size-4 animate-spin text-foreground0" />
+                        <Loader2 className="size-4 animate-spin text-muted-foreground" />
                       </div>
                     ) : fsboMatches.length > 0 ? (
                       <div className="space-y-1.5">
@@ -1943,7 +1943,7 @@ export default function DealsPage() {
                         className="size-4 text-parsel-gold"
                         strokeWidth={1.5}
                       />
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                         Tarih Damgalı Zaman Tüneli
                       </p>
                     </div>

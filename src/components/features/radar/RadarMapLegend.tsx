@@ -12,7 +12,7 @@ export function RadarMapLegend() {
   return (
     <aside className="pointer-events-auto absolute right-4 bottom-4 z-10 origin-bottom-right scale-90">
       <div className="w-52 rounded-xl border border-border bg-parsel-panel/75 p-3 shadow-xl backdrop-blur-md">
-        <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-foreground0">
+        <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           WMS Lejant
         </p>
         <ul className="space-y-2">

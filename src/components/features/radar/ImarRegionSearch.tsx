@@ -120,7 +120,7 @@ export function ImarRegionSearch({
     <div ref={containerRef} className="space-y-3">
       <div className="relative">
         <Search
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-foreground0"
+          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
           strokeWidth={1.5}
         />
         <Input
@@ -133,7 +133,7 @@ export function ImarRegionSearch({
           autoComplete="off"
         />
         {isLoading ? (
-          <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-foreground0" />
+          <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
         ) : query ? (
           <button
             type="button"
@@ -142,7 +142,7 @@ export function ImarRegionSearch({
               setResults([]);
               setIsOpen(false);
             }}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-foreground0 hover:text-foreground/90"
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground/90"
             aria-label="Aramayı temizle"
           >
             <X className="size-3.5" />
@@ -179,9 +179,9 @@ export function ImarRegionSearch({
       {isOpen ? (
         <ul className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-lg">
           {error ? (
-            <li className="px-3 py-2.5 text-xs text-foreground0">{error}</li>
+            <li className="px-3 py-2.5 text-xs text-muted-foreground">{error}</li>
           ) : results.length === 0 && !isLoading ? (
-            <li className="px-3 py-2.5 text-xs text-foreground0">Sonuç bulunamadı.</li>
+            <li className="px-3 py-2.5 text-xs text-muted-foreground">Sonuç bulunamadı.</li>
           ) : (
             results.map((result, index) => (
               <li key={`${result.label}-${index}`}>

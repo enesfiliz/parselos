@@ -82,7 +82,7 @@ export function ExternalListingSection({
     <section className="space-y-3">
       <div className="flex items-center gap-2">
         <ExternalLink className="size-4 text-parsel-gold" strokeWidth={1.5} />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground0">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           Dış Bağlantılar & İstihbarat
         </p>
       </div>

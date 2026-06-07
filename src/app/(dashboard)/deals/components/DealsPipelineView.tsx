@@ -45,7 +45,7 @@ export function DealsPipelineView({
           <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             Fırsat Pipeline
           </h1>
-          <p className="mt-1 max-w-2xl text-sm font-light text-foreground0">
+          <p className="mt-1 max-w-2xl text-sm font-normal text-muted-foreground">
             Premium kanban — kartlara tıklayarak kontrol panelini açın, alanları
             anlık düzenleyin.
           </p>
@@ -55,7 +55,7 @@ export function DealsPipelineView({
           <div className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-parsel-sunken px-4 py-2.5">
             <TrendingUp className="size-4 text-parsel-gold" strokeWidth={1.5} />
             <div>
-              <p className="text-[10px] uppercase tracking-[0.12em] text-foreground0">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                 Toplam Hacim
               </p>
               <p className="text-sm font-semibold text-foreground">

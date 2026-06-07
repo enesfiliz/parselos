@@ -61,7 +61,7 @@ export function AdminAiSettingsView() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
             Parsel AI Motor Kontrolü
           </h1>
-          <p className="text-sm text-foreground0">
+          <p className="text-sm text-muted-foreground">
             Model, prompt ve yetenekleri kod değiştirmeden yönetin.
           </p>
         </div>
@@ -91,7 +91,7 @@ export function AdminAiSettingsView() {
             <div className="space-y-2">
               <label
                 htmlFor="active-model"
-                className="text-xs font-medium uppercase tracking-[0.14em] text-foreground0"
+                className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground"
               >
                 Aktif Model
               </label>
@@ -117,7 +117,7 @@ export function AdminAiSettingsView() {
             <div className="space-y-2">
               <label
                 htmlFor="api-key"
-                className="text-xs font-medium uppercase tracking-[0.14em] text-foreground0"
+                className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground"
               >
                 API Key
               </label>
@@ -194,7 +194,7 @@ export function AdminAiSettingsView() {
       <section className="rounded-2xl border border-border/50 bg-parsel-elevated p-6">
         <div className="mb-5">
           <h2 className="text-sm font-semibold text-foreground">Yetenek Yönetimi</h2>
-          <p className="mt-1 text-xs text-foreground0">
+          <p className="mt-1 text-xs text-muted-foreground">
             Copilot araçlarını ofis genelinde açıp kapatın.
           </p>
         </div>
@@ -226,14 +226,14 @@ export function AdminAiSettingsView() {
                         "rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
                         tool.enabled
                           ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300"
-                          : "border-zinc-600/40 bg-border/40 text-foreground0",
+                          : "border-zinc-600/40 bg-border/40 text-muted-foreground",
                       )}
                     >
                       {tool.enabled ? "Aktif" : "Pasif"}
                     </span>
                   )}
                 </p>
-                <p className="mt-1 text-xs text-foreground0">{tool.description}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{tool.description}</p>
               </div>
 
               <AdminAiToggle
@@ -252,7 +252,7 @@ export function AdminAiSettingsView() {
           <h2 className="text-sm font-semibold text-foreground">
             Maliyet ve Token Monitörü
           </h2>
-          <p className="mt-1 text-xs text-foreground0">
+          <p className="mt-1 text-xs text-muted-foreground">
             Mayıs 2026 dönemi · tüm kiracılar
           </p>
         </div>
@@ -263,7 +263,7 @@ export function AdminAiSettingsView() {
               key={metric.id}
               className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-4"
             >
-              <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground0">
+              <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
                 {metric.label}
               </p>
               <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">

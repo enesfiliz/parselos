@@ -21,7 +21,7 @@ export function DealAppointmentTimeline({
 
   return (
     <section className={cn("rounded-2xl border border-border/50 bg-parsel-panel p-4", className)}>
-      <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+      <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Yaklaşan Randevular
       </p>
 

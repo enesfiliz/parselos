@@ -89,7 +89,7 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
       </p>
 
       <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-        <MapPin className="size-3.5 shrink-0 text-foreground0" strokeWidth={1.75} />
+        <MapPin className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
         <span className="truncate">{location}</span>
       </div>
 
@@ -100,7 +100,7 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
           className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
           strokeWidth={1.75}
         />
-        <p className="line-clamp-2 text-[11px] leading-relaxed text-foreground0">
+        <p className="line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
           {sonNot}
         </p>
       </footer>

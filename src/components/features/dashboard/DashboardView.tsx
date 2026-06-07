@@ -157,7 +157,7 @@ function StatCard({
   return (
     <article className={cn(PANEL_CARD, "p-6")}>
       <div className="flex items-start justify-between gap-4">
-        <p className="text-sm font-light text-muted-foreground">{label}</p>
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
         <Icon
           className="size-[18px] shrink-0 text-muted-foreground"
           strokeWidth={1.75}

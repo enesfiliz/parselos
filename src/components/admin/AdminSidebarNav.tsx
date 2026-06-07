@@ -46,16 +46,16 @@ export function AdminSidebarNav({ onNavigate, className }: AdminSidebarNavProps)
               className={cn(
                 "group flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                 active
-                  ? "border border-emerald-500/25 bg-emerald-500/10 text-emerald-100"
-                  : "border border-transparent text-muted-foreground hover:border-emerald-500/10 hover:bg-emerald-500/5 hover:text-foreground",
+                  ? "border border-emerald-600/30 bg-emerald-50 font-semibold text-emerald-900 shadow-sm dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-100 dark:shadow-none"
+                  : "border border-transparent text-muted-foreground hover:border-emerald-500/15 hover:bg-emerald-50/80 hover:text-foreground dark:hover:bg-emerald-500/5",
               )}
             >
               <Icon
                 className={cn(
                   "size-[17px] shrink-0 transition-colors",
                   active
-                    ? "text-emerald-400"
-                    : "text-foreground0 group-hover:text-emerald-300/80",
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-muted-foreground group-hover:text-emerald-700 dark:group-hover:text-emerald-300/80",
                 )}
                 strokeWidth={1.75}
               />
@@ -66,7 +66,7 @@ export function AdminSidebarNav({ onNavigate, className }: AdminSidebarNavProps)
       </nav>
 
       <div className="shrink-0 border-t border-emerald-500/10 px-5 py-4">
-        <p className="text-[11px] leading-relaxed text-foreground0">
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
           God Mode · Kurucu komuta katmanı
         </p>
         <Link

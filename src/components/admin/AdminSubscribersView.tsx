@@ -122,7 +122,7 @@ export function AdminSubscribersView() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           Aboneler ve Lisans Yönetimi
         </h1>
-        <p className="text-sm text-foreground0">
+        <p className="text-sm text-muted-foreground">
           {filteredRows.length} kayıt listeleniyor
         </p>
       </header>
@@ -131,7 +131,7 @@ export function AdminSubscribersView() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="relative block w-full sm:w-80">
             <Search
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-foreground0"
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
               strokeWidth={1.75}
             />
             <input
@@ -139,7 +139,7 @@ export function AdminSubscribersView() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Ofis veya e-posta ara..."
-              className="w-full rounded-lg border border-border bg-white/[0.02] py-2 pr-4 pl-10 text-sm text-foreground placeholder:text-foreground0 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+              className="w-full rounded-lg border border-border bg-white/[0.02] py-2 pr-4 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
             />
           </label>
 
@@ -179,7 +179,7 @@ export function AdminSubscribersView() {
         <div className="custom-scrollbar overflow-x-auto">
           <table className="w-full min-w-[980px] text-left text-sm">
             <thead>
-              <tr className="border-b border-border/40 text-[10px] uppercase tracking-[0.16em] text-foreground0">
+              <tr className="border-b border-border/40 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                 <th className="px-5 py-4 font-medium md:px-6">Müşteri / Ofis</th>
                 <th className="px-4 py-4 font-medium">Plan & Lisans</th>
                 <th className="px-4 py-4 font-medium">Tüketim / Metrik</th>
@@ -206,7 +206,7 @@ export function AdminSubscribersView() {
                           <p className="truncate font-medium text-foreground">
                             {row.name}
                           </p>
-                          <p className="truncate text-xs text-foreground0">
+                          <p className="truncate text-xs text-muted-foreground">
                             {row.email}
                           </p>
                         </div>
@@ -226,7 +226,7 @@ export function AdminSubscribersView() {
                       <p className="text-sm text-foreground">
                         {formatTokenCount(row.aiTokensUsed)} token
                       </p>
-                      <p className="mt-0.5 text-xs text-foreground0">
+                      <p className="mt-0.5 text-xs text-muted-foreground">
                         {row.dealCount} aktif fırsat
                       </p>
                     </td>
@@ -258,7 +258,7 @@ export function AdminSubscribersView() {
         </div>
 
         {filteredRows.length === 0 ? (
-          <div className="px-6 py-12 text-center text-sm text-foreground0">
+          <div className="px-6 py-12 text-center text-sm text-muted-foreground">
             Filtrelere uygun abone bulunamadı.
           </div>
         ) : null}

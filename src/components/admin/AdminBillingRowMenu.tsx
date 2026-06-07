@@ -84,7 +84,7 @@ export function AdminBillingRowMenu({
         type="button"
         variant="ghost"
         size="icon-sm"
-        className="text-foreground0 hover:bg-foreground/[0.04] hover:text-foreground"
+        className="text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground"
         aria-label={`${subscriber.name} fatura işlemleri`}
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}

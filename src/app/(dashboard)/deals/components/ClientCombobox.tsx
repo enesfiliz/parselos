@@ -176,11 +176,11 @@ export function ClientCombobox({
           <UserRound className="size-5 text-parsel-gold" strokeWidth={1.5} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Müşteri
           </p>
           <p className="truncate font-medium text-foreground">{client.adSoyad}</p>
-          <div className="mt-0.5 flex items-center gap-2 text-xs text-foreground0">
+          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
             {client.telefon ? (
               <span className="inline-flex items-center gap-1">
                 <Phone className="size-3" />
@@ -194,7 +194,7 @@ export function ClientCombobox({
         </div>
         <ChevronDown
           className={cn(
-            "size-4 shrink-0 text-foreground0 transition-transform",
+            "size-4 shrink-0 text-muted-foreground transition-transform",
             open && "rotate-180",
           )}
         />

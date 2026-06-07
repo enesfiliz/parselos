@@ -59,24 +59,24 @@
 :root {
   --font-inter: Inter, ui-sans-serif, system-ui, sans-serif;
   --font-outfit: Outfit, ui-sans-serif, system-ui, sans-serif;
-  --background: #f8f8f6;
-  --foreground: #18181b;
+  --background: #f3f3f0;
+  --foreground: #111113;
   --card: #ffffff;
-  --card-foreground: #18181b;
+  --card-foreground: #111113;
   --popover: #ffffff;
-  --popover-foreground: #18181b;
-  --primary: #547236;
-  --primary-foreground: #fafafa;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f0f0ee;
-  --muted-foreground: #71717a;
-  --accent: #ececea;
-  --accent-foreground: #18181b;
+  --popover-foreground: #111113;
+  --primary: #4a6b2f;
+  --primary-foreground: #ffffff;
+  --secondary: #ebebea;
+  --secondary-foreground: #111113;
+  --muted: #e8e8e5;
+  --muted-foreground: #4b4b52;
+  --accent: #e4ede0;
+  --accent-foreground: #1f2e14;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #e4e4e7;
-  --input: #d4d4d8;
-  --ring: #547236;
+  --border: #d8d8d4;
+  --input: #cfcfc9;
+  --ring: #4a6b2f;
   --chart-1: #6c8634;
   --chart-2: #547236;
   --chart-3: #9a7340;
@@ -91,15 +91,19 @@
   --sidebar-accent-foreground: #18181b;
   --sidebar-border: #e4e4e7;
   --sidebar-ring: #547236;
-  --parsel-canvas: #f8f8f6;
+  --parsel-canvas: #f3f3f0;
   --parsel-panel: #ffffff;
-  --parsel-sunken: #f0efec;
-  --parsel-elevated: #f4f4f2;
-  --parsel-gold: #9a7340;
-  --parsel-gold-muted: #b38c56;
-  --parsel-admin-canvas: #f0fdf4;
-  --parsel-scrollbar: rgb(154 115 64 / 0.35);
-  --parsel-scrollbar-hover: rgb(154 115 64 / 0.55);
+  --parsel-sunken: #eaeae6;
+  --parsel-elevated: #f8f8f6;
+  --parsel-gold: #8a6428;
+  --parsel-gold-muted: #a67c32;
+  --parsel-admin-canvas: #ecfdf3;
+  --parsel-nav-active-bg: #e8f0e2;
+  --parsel-nav-active-border: #b8cfaa;
+  --parsel-nav-active-text: #1f3312;
+  --parsel-card-shadow: 0 1px 2px rgb(17 17 19 / 0.05), 0 4px 16px rgb(17 17 19 / 0.04);
+  --parsel-scrollbar: rgb(138 100 40 / 0.4);
+  --parsel-scrollbar-hover: rgb(138 100 40 / 0.6);
 }
 
 .dark {
@@ -141,6 +145,10 @@
   --parsel-gold: #b38c56;
   --parsel-gold-muted: #c5a36e;
   --parsel-admin-canvas: #050505;
+  --parsel-nav-active-bg: #1c1c1f;
+  --parsel-nav-active-border: #3f3f46;
+  --parsel-nav-active-text: #f4f4f5;
+  --parsel-card-shadow: none;
   --parsel-scrollbar: rgb(179 140 86 / 0.35);
   --parsel-scrollbar-hover: rgb(179 140 86 / 0.55);
 }
@@ -155,13 +163,19 @@
   html {
     @apply font-sans;
   }
+  html:not(.dark) body {
+    font-weight: 500;
+  }
+  html:not(.dark) .text-muted-foreground {
+    font-weight: 500;
+  }
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @apply font-outfit text-foreground;
+    @apply font-outfit font-semibold text-foreground;
   }
   label,
   [data-slot="label"] {
@@ -175,6 +189,24 @@
   input::placeholder,
   textarea::placeholder {
     @apply text-muted-foreground;
+  }
+}
+
+@layer components {
+  html:not(.dark) [data-slot="card"],
+  html:not(.dark) .rounded-2xl.border.bg-parsel-panel,
+  html:not(.dark) .rounded-xl.border.bg-parsel-panel {
+    box-shadow: var(--parsel-card-shadow);
+  }
+}
+
+@layer utilities {
+  .nav-item-active {
+    border-color: var(--parsel-nav-active-border);
+    background-color: var(--parsel-nav-active-bg);
+    color: var(--parsel-nav-active-text);
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 0 var(--primary);
   }
 }
 

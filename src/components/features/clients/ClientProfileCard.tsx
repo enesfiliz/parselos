@@ -96,7 +96,7 @@ export function ClientProfileCard({
               </span>
             ) : null}
           </div>
-          <div className="flex flex-col gap-0.5 text-xs text-foreground0">
+          <div className="flex flex-col gap-0.5 text-xs text-muted-foreground">
             {client.telefon ? (
               <span className="inline-flex items-center gap-1.5 truncate">
                 <Phone className="size-3 shrink-0" strokeWidth={1.75} />
@@ -149,7 +149,7 @@ export function ClientProfileCard({
       <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4">
         <Badge
           variant="outline"
-          className="border-border/80 bg-transparent text-foreground0"
+          className="border-border/80 bg-transparent text-muted-foreground"
         >
           {new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(
             new Date(client.olusturulmaTarihi),

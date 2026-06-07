@@ -39,7 +39,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       className={cn(
-        "h-10 px-4 text-left align-middle text-[10px] font-medium uppercase tracking-[0.14em] text-foreground0",
+        "h-10 px-4 text-left align-middle text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground",
         className,
       )}
       {...props}

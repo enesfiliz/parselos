@@ -85,7 +85,7 @@ export function FsboInboxCard({
               </span>
             ) : null}
 
-            <p className="mt-1 text-[11px] text-foreground0">
+            <p className="mt-1 text-[11px] text-muted-foreground">
               {metaParts.join(" · ")}
             </p>
 

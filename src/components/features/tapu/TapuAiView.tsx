@@ -363,7 +363,7 @@ export function TapuAiView() {
                   <p className="text-sm font-medium">
                     Tapu veya ekspertiz görselini sürükleyin ya da seçin
                   </p>
-                  <p className="text-xs text-foreground0">
+                  <p className="text-xs text-muted-foreground">
                     JPG, PNG, WEBP · analiz Gemini 1.5 Flash ile yapılır
                   </p>
                 </div>
@@ -373,7 +373,7 @@ export function TapuAiView() {
                 <div className="flex items-center justify-between rounded-xl border border-border bg-white/[0.03] px-4 py-3">
                   <div className="min-w-0">
                     <p className="truncate text-sm text-foreground">{fileName}</p>
-                    <p className="text-xs text-foreground0">
+                    <p className="text-xs text-muted-foreground">
                       {isAnalyzing
                         ? "TapuAI belgeyi analiz ediyor"
                         : status === "done"
@@ -383,7 +383,7 @@ export function TapuAiView() {
                             : "Hazır"}
                     </p>
                   </div>
-                  <FileText className="size-4 shrink-0 text-foreground0" />
+                  <FileText className="size-4 shrink-0 text-muted-foreground" />
                 </div>
               )}
 

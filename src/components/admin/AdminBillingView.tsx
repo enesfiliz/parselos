@@ -90,7 +90,7 @@ export function AdminBillingView() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           Fatura & Gelir Kontrol Merkezi
         </h1>
-        <p className="text-sm text-foreground0">
+        <p className="text-sm text-muted-foreground">
           Iyzico abonelikleri, MRR ve kurucu müdahale paneli
         </p>
       </header>
@@ -100,13 +100,13 @@ export function AdminBillingView() {
           <div className="flex flex-col gap-4 border-b border-border/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6">
             <div>
               <h2 className="text-sm font-semibold text-foreground">Aktif Aboneler</h2>
-              <p className="mt-0.5 text-xs text-foreground0">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 {filtered.length} kayıt listeleniyor
               </p>
             </div>
             <label className="relative block w-full sm:w-72">
               <Search
-                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-foreground0"
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
                 strokeWidth={1.75}
               />
               <input
@@ -114,7 +114,7 @@ export function AdminBillingView() {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Ofis veya e-posta ara..."
-                className="w-full rounded-lg border border-border bg-white/[0.02] py-2 pr-4 pl-10 text-sm text-foreground placeholder:text-foreground0 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                className="w-full rounded-lg border border-border bg-white/[0.02] py-2 pr-4 pl-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
               />
             </label>
           </div>
@@ -122,7 +122,7 @@ export function AdminBillingView() {
           <div className="custom-scrollbar overflow-x-auto">
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead>
-                <tr className="border-b border-border/40 text-[10px] uppercase tracking-[0.16em] text-foreground0">
+                <tr className="border-b border-border/40 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                   <th className="px-5 py-4 font-medium md:px-6">İsim</th>
                   <th className="px-4 py-4 font-medium">Başlangıç</th>
                   <th className="px-4 py-4 font-medium">Sonraki Ödeme</th>
@@ -153,7 +153,7 @@ export function AdminBillingView() {
                               {row.plan}
                             </span>
                           </div>
-                          <p className="mt-0.5 truncate text-xs text-foreground0">
+                          <p className="mt-0.5 truncate text-xs text-muted-foreground">
                             {row.email}
                           </p>
                         </div>
@@ -193,7 +193,7 @@ export function AdminBillingView() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="px-6 py-12 text-center text-sm text-foreground0">
+            <div className="px-6 py-12 text-center text-sm text-muted-foreground">
               Aramaya uygun abone bulunamadı.
             </div>
           ) : null}
@@ -210,7 +210,7 @@ export function AdminBillingView() {
 
             <div className="space-y-3">
               <div className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-4">
-                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground0">
+                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
                   Bu Ayın Cirosu
                 </p>
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
@@ -223,7 +223,7 @@ export function AdminBillingView() {
               </div>
 
               <div className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-4">
-                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground0">
+                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
                   İptal Oranı
                 </p>
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
@@ -243,7 +243,7 @@ export function AdminBillingView() {
                 <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
                   {metrics.pendingPayments}
                 </p>
-                <p className="mt-1 text-xs text-foreground0">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {metrics.pendingCount} abonelik tahsilat bekliyor
                 </p>
               </div>
@@ -251,7 +251,7 @@ export function AdminBillingView() {
           </div>
 
           <div className="rounded-2xl border border-border/50 bg-parsel-elevated p-5">
-            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground0">
+            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               Iyzico Senkron
             </p>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

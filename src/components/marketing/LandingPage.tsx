@@ -278,7 +278,7 @@ function HeroSection() {
           </RevealOnMount>
 
           <RevealOnMount delay={160}>
-            <p className="mt-6 max-w-xl text-base font-light leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-6 max-w-xl text-base font-normal leading-relaxed text-muted-foreground sm:text-lg">
               SPK uyumlu ekspertiz, müşteri radarı ve TKGM entegrasyonu — tek
               panelde, profesyonel operasyon akışı.
             </p>
@@ -313,7 +313,7 @@ function TapuScannerVisual() {
         </div>
       </div>
       <div className="landing-tapu-scan-line absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-[#547236] to-transparent" />
-      <div className="absolute bottom-2 right-3 flex items-center gap-1.5 text-[10px] font-medium text-foreground0">
+      <div className="absolute bottom-2 right-3 flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
         <FileScan className="size-3 text-[#547236]" strokeWidth={1.5} />
         Taranıyor
       </div>
@@ -350,7 +350,7 @@ function FsboCrmVisual() {
           <span className="landing-fsbo-ping absolute inline-flex size-full rounded-full bg-[#547236] opacity-75" />
           <span className="relative inline-flex size-2 rounded-full bg-[#547236]" />
         </span>
-        <span className="text-[10px] font-medium text-foreground0">
+        <span className="text-[10px] font-medium text-muted-foreground">
           Yeni FSBO ilanı
         </span>
       </div>
@@ -517,7 +517,7 @@ function FeatureCard({
         <h3 className="font-outfit mt-5 text-lg font-semibold tracking-tight text-foreground">
           {title}
         </h3>
-        <p className="mt-2 flex-1 text-sm font-light leading-relaxed text-muted-foreground">
+        <p className="mt-2 flex-1 text-sm font-normal leading-relaxed text-muted-foreground">
           {description}
         </p>
         <FeatureCardVisual anim={anim} />
@@ -541,7 +541,7 @@ function FeaturesSection() {
             <h2 className="font-outfit mt-5 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               Operasyonunuzun Her Adımı İçin AI
             </h2>
-            <p className="mt-5 text-lg font-light leading-relaxed text-muted-foreground">
+            <p className="mt-5 text-lg font-normal leading-relaxed text-muted-foreground">
               Tapu taramadan müşteri eşleştirmeye — tek platformda, sektör
               standartlarında akış.
             </p>
@@ -586,14 +586,14 @@ function PricingCard({
       ) : null}
 
       <div className="border-b border-border/50 p-8 pt-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground0">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           {plan.name}
         </p>
         <p className="font-outfit mt-4 text-4xl font-semibold tracking-tight text-foreground">
           {plan.price}
         </p>
-        <p className="mt-1 text-sm font-light text-foreground0">{plan.period}</p>
-        <p className="mt-4 text-sm font-light leading-relaxed text-muted-foreground">
+        <p className="mt-1 text-sm font-normal text-muted-foreground">{plan.period}</p>
+        <p className="mt-4 text-sm font-normal leading-relaxed text-muted-foreground">
           {plan.description}
         </p>
       </div>
@@ -604,11 +604,11 @@ function PricingCard({
             <Check
               className={cn(
                 "mt-0.5 size-4 shrink-0",
-                plan.highlighted ? "text-[#547236]" : "text-foreground0",
+                plan.highlighted ? "text-[#547236]" : "text-muted-foreground",
               )}
               strokeWidth={1.5}
             />
-            <span className="font-light leading-relaxed">{feature}</span>
+            <span className="font-normal leading-relaxed">{feature}</span>
           </li>
         ))}
       </ul>
@@ -664,7 +664,7 @@ function PricingSection() {
             <h2 className="font-outfit mt-5 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               Her Ölçekteki Gayrimenkul Profesyoneli İçin
             </h2>
-            <p className="mt-5 text-lg font-light leading-relaxed text-muted-foreground">
+            <p className="mt-5 text-lg font-normal leading-relaxed text-muted-foreground">
               Başlangıç paketiyle deneyin; portföyünüz büyüdükçe Profesyonel veya
               Ofis planına geçin.
             </p>
@@ -727,7 +727,7 @@ export function LandingPage() {
             <h3 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
               Portföyünüzü bir üst seviyeye taşıyın
             </h3>
-            <p className="mx-auto mt-4 max-w-md text-base font-light text-muted-foreground">
+            <p className="mx-auto mt-4 max-w-md text-base font-normal text-muted-foreground">
               Dakikalar içinde hesap oluşturun; ilk ekspertiz raporunuzu üretin.
             </p>
             <LandingCtaAuth />
@@ -737,11 +737,11 @@ export function LandingPage() {
 
       <footer className="border-t border-border/50 px-8 py-12 lg:px-12">
         <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-4 sm:flex-row">
-          <span className="flex items-center gap-2.5 text-sm text-foreground0">
+          <span className="flex items-center gap-2.5 text-sm text-muted-foreground">
             <AppIcon className="h-5 w-5" />
             ParselOS © {new Date().getFullYear()}
           </span>
-          <span className="text-sm font-light text-foreground0">
+          <span className="text-sm font-normal text-muted-foreground">
             Yapay zeka destekli gayrimenkul operasyonları
           </span>
         </div>

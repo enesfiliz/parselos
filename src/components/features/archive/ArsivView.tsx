@@ -145,7 +145,7 @@ export function ArsivView() {
       ) : reports.length === 0 ? (
         <Card className="border-border/60 shadow-lg ring-border/60">
           <CardContent className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-            <FileText className="size-8 text-foreground0" strokeWidth={1.5} />
+            <FileText className="size-8 text-muted-foreground" strokeWidth={1.5} />
             <p className="text-sm text-muted-foreground">
               Henüz arşivlenmiş rapor yok. Ekspertiz modülünden rapor oluşturup
               &quot;Raporu Arşive Kaydet&quot; ile ekleyebilirsiniz.
@@ -210,7 +210,7 @@ export function ArsivView() {
               <div className="space-y-4 text-sm">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                       Alan
                     </p>
                     <p className="mt-1 font-medium text-foreground">
@@ -219,7 +219,7 @@ export function ArsivView() {
                   </div>
                   {snapshot?.report?.genel_skor !== undefined && (
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                         Yatırım Skoru
                       </p>
                       <p className="mt-1 font-medium text-foreground">
@@ -231,7 +231,7 @@ export function ArsivView() {
 
                 {snapshot?.report?.fiyat_analizi?.tahmini_deger && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                       Tahmini Değer
                     </p>
                     <p className="mt-1 text-lg font-semibold tracking-tight">
@@ -242,7 +242,7 @@ export function ArsivView() {
 
                 {snapshot?.report?.uzman_gorusu && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                       Uzman Görüşü
                     </p>
                     <p className="mt-2 leading-relaxed text-muted-foreground">

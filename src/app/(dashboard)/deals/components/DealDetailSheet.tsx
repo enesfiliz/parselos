@@ -174,7 +174,7 @@ export function DealDetailSheet({
               ? localDeal.property.ilanBasligi
               : localDeal.client.adSoyad}
           </h2>
-          <p className="mt-1 text-sm text-foreground0">
+          <p className="mt-1 text-sm text-muted-foreground">
             {resolveLocation(localDeal)}
           </p>
         </header>
@@ -187,7 +187,7 @@ export function DealDetailSheet({
           />
 
           <section className="rounded-xl border border-border/50 bg-parsel-panel p-4">
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               İlişkisel Düzenleme
             </p>
             <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
@@ -259,7 +259,7 @@ export function DealDetailSheet({
           </section>
 
           <section className="rounded-xl border border-border/50 bg-parsel-panel p-4">
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               Yapılacak İşler
             </p>
             <DealTasksPanel

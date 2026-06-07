@@ -31,7 +31,7 @@ export function DealWhatsAppTemplates({ deal }: DealWhatsAppTemplatesProps) {
     <section className="space-y-3">
       <div className="flex items-center gap-2">
         <MessageCircle className="size-4 text-parsel-gold" strokeWidth={1.5} />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground0">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           Hızlı İletişim & WhatsApp
         </p>
       </div>
@@ -64,7 +64,7 @@ export function DealWhatsAppTemplates({ deal }: DealWhatsAppTemplatesProps) {
                   {template.label}
                 </span>
               </div>
-              <p className="line-clamp-2 text-[11px] leading-relaxed text-foreground0 transition-colors group-hover:text-muted-foreground">
+              <p className="line-clamp-2 text-[11px] leading-relaxed text-muted-foreground transition-colors group-hover:text-muted-foreground">
                 {template.preview}
               </p>
             </button>

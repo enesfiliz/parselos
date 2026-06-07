@@ -117,7 +117,7 @@ function KanbanColumn({
         </div>
         <div className="mt-1 flex items-center justify-between gap-2">
           <p className="text-[11px] text-muted-foreground md:text-[10px]">{description}</p>
-          <p className="text-[11px] font-medium text-foreground0 md:text-[10px]">
+          <p className="text-[11px] font-medium text-muted-foreground md:text-[10px]">
             {formatCompactTRY(columnVolume)}
           </p>
         </div>

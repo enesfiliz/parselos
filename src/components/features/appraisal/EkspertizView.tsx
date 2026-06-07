@@ -104,9 +104,9 @@ function farkTone(fark: string) {
 
 function KarlilikIcon({ baslik }: { baslik: string }) {
   if (baslik.toLowerCase().includes("kira")) {
-    return <Clock className="size-5 text-foreground0" strokeWidth={1.5} />;
+    return <Clock className="size-5 text-muted-foreground" strokeWidth={1.5} />;
   }
-  return <Percent className="size-5 text-foreground0" strokeWidth={1.5} />;
+  return <Percent className="size-5 text-muted-foreground" strokeWidth={1.5} />;
 }
 
 function splitParagraphs(text: string) {
@@ -230,7 +230,7 @@ function ReportCoverPage({ form }: { form: AppraisalForm }) {
           Gayrimenkul Değerleme ve Bölge Analiz Raporu
         </h1>
         <div className="space-y-2 border-l border-white/20 pl-5">
-          <p className="text-sm font-light text-foreground/80">{konum}</p>
+          <p className="text-sm font-normal text-muted-foreground">{konum}</p>
           <p className="text-lg font-medium tracking-tight text-foreground">{adaParsel}</p>
           {form.mahalle.trim() && (
             <p className="text-sm text-muted-foreground">{form.mahalle} Mahallesi</p>
@@ -245,7 +245,7 @@ function ReportCoverPage({ form }: { form: AppraisalForm }) {
             Hazırlayan
           </p>
           <p className="text-xl font-medium tracking-tight">Enes Filiz</p>
-          <p className="text-sm font-light text-foreground/65">
+          <p className="text-sm font-normal text-muted-foreground">
             Gayrimenkul Değerleme Danışmanı
           </p>
           <p className="text-sm text-muted-foreground">enes@parselos.com · +90 532 000 00 00</p>
@@ -254,7 +254,7 @@ function ReportCoverPage({ form }: { form: AppraisalForm }) {
           <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-foreground/45">
             Rapor Tarihi
           </p>
-          <p className="mt-1 text-sm font-light text-foreground/80">{formatReportDate()}</p>
+          <p className="mt-1 text-sm font-normal text-muted-foreground">{formatReportDate()}</p>
         </div>
       </div>
     </div>

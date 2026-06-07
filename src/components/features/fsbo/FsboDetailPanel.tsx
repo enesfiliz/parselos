@@ -40,7 +40,7 @@ export function FsboDetailPanel({
         )}
       >
         <Radar className="mb-3 size-8 text-zinc-700" strokeWidth={1.25} />
-        <p className="text-sm text-foreground0">
+        <p className="text-sm text-muted-foreground">
           Detay görmek için soldan bir FSBO sinyali seçin.
         </p>
       </div>
@@ -74,7 +74,7 @@ export function FsboDetailPanel({
           <div className="flex items-center gap-2">
             <FsboSourceBadge source={lead.source} className="size-7 text-xs" />
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 {lead.islemTipi === "KIRALIK" ? "Kiralık" : "Satılık"} ·{" "}
                 {lead.kategori}
               </p>

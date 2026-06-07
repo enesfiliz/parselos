@@ -110,7 +110,7 @@ export function RadarGeocodeSearch({ onSelect }: RadarGeocodeSearchProps) {
             strokeWidth={1.5}
           />
         ) : (
-          <Search className="size-4 shrink-0 text-foreground0" strokeWidth={1.25} />
+          <Search className="size-4 shrink-0 text-muted-foreground" strokeWidth={1.25} />
         )}
         <input
           type="search"
@@ -118,7 +118,7 @@ export function RadarGeocodeSearch({ onSelect }: RadarGeocodeSearchProps) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => (results.length > 0 || error) && setIsOpen(true)}
           placeholder="İl, İlçe, Mahalle veya Ada/Parsel ara..."
-          className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground0"
+          className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           autoComplete="off"
         />
         {query ? (
@@ -130,7 +130,7 @@ export function RadarGeocodeSearch({ onSelect }: RadarGeocodeSearchProps) {
               setIsOpen(false);
               setError(null);
             }}
-            className="text-foreground0 transition-colors hover:text-foreground/90"
+            className="text-muted-foreground transition-colors hover:text-foreground/90"
             aria-label="Aramayı temizle"
           >
             <X className="size-3.5" />
@@ -141,9 +141,9 @@ export function RadarGeocodeSearch({ onSelect }: RadarGeocodeSearchProps) {
       {isOpen ? (
         <ul className="mt-2 overflow-hidden rounded-2xl border border-border bg-parsel-panel/95 shadow-2xl backdrop-blur-xl">
           {error ? (
-            <li className="px-4 py-3 text-xs text-foreground0">{error}</li>
+            <li className="px-4 py-3 text-xs text-muted-foreground">{error}</li>
           ) : results.length === 0 && !isLoading ? (
-            <li className="px-4 py-3 text-xs text-foreground0">Sonuç bulunamadı.</li>
+            <li className="px-4 py-3 text-xs text-muted-foreground">Sonuç bulunamadı.</li>
           ) : (
             results.map((result, index) => (
               <li key={`${result.lat}-${result.lng}-${index}`}>

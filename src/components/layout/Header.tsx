@@ -24,7 +24,7 @@ export function Header({ onMenuClick }: HeaderProps) {
   const clerkAppearance = getClerkAppearance(resolvedTheme);
 
   return (
-    <header className="shrink-0 border-b border-border bg-background">
+    <header className="shrink-0 border-b border-border bg-card dark:bg-background">
       <div className="flex h-14 items-center justify-between gap-3 px-3 sm:h-16 sm:gap-4 md:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Button
@@ -54,7 +54,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               strokeWidth={1.75}
               aria-hidden
             />
-            <span className="truncate font-medium text-foreground">
+            <span className="truncate font-semibold text-foreground">
               {pageTitle}
             </span>
           </nav>

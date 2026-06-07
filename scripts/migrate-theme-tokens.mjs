@@ -67,6 +67,9 @@ const REPLACEMENTS = [
   ["border-white/[0.05]", "border-border/50"],
   ["text-white ", "text-foreground "],
   [" text-white", " text-foreground"],
+  ["text-white/50", "text-muted-foreground"],
+  ["text-white/40", "text-muted-foreground"],
+  ["text-white/30", "text-muted-foreground"],
 ];
 
 const EXTENSIONS = new Set([".tsx", ".ts", ".css"]);

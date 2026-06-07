@@ -78,7 +78,7 @@ export function InlineEditField({
             variant="ghost"
             size="icon-sm"
             onClick={cancel}
-            className="text-foreground0"
+            className="text-muted-foreground"
           >
             <X className="size-3.5" />
           </Button>

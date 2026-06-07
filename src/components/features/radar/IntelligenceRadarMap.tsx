@@ -47,7 +47,7 @@ function LayerSwitch({
             "flex size-6 shrink-0 items-center justify-center rounded-md border transition-colors",
             enabled
               ? "border-[#b38c56]/30 bg-parsel-gold/12 text-parsel-gold"
-              : "border-border bg-card/50 text-foreground0",
+              : "border-border bg-card/50 text-muted-foreground",
           )}
         >
           <Icon className="size-3" strokeWidth={1.5} />
@@ -55,7 +55,7 @@ function LayerSwitch({
         <span
           className={cn(
             "truncate text-xs font-medium",
-            enabled ? "text-foreground" : "text-foreground0",
+            enabled ? "text-foreground" : "text-muted-foreground",
           )}
         >
           {layer.label}
@@ -187,7 +187,7 @@ export function IntelligenceRadarMap({
         <p className="text-sm font-medium text-foreground">
           Mapbox token bulunamadı
         </p>
-        <p className="max-w-md text-xs text-foreground0">
+        <p className="max-w-md text-xs text-muted-foreground">
           `.env.local` dosyasına{" "}
           <code className="text-parsel-gold">NEXT_PUBLIC_MAPBOX_TOKEN</code>{" "}
           ekleyin ve sunucuyu yeniden başlatın.

@@ -86,7 +86,7 @@ export function DealTasksPanel({
                 <button
                   type="button"
                   onClick={() => toggleTask(task.id)}
-                  className="shrink-0 text-foreground0 transition-colors hover:text-parsel-gold"
+                  className="shrink-0 text-muted-foreground transition-colors hover:text-parsel-gold"
                 >
                   {task.completed ? (
                     <CheckSquare className="size-4 text-parsel-gold" />

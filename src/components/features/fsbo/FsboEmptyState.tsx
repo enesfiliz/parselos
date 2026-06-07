@@ -28,7 +28,7 @@ export function FsboEmptyState({ variant = "listening" }: FsboEmptyStateProps) {
           ? "Henüz yeni ilan düşmedi"
           : "Filtrelere uygun sinyal yok"}
       </h3>
-      <p className="mt-2 max-w-sm text-sm leading-relaxed text-foreground0">
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
         {isListening
           ? "Scraper-bot yeni FSBO ilanları gönderdiğinde gelen kutusu otomatik dolacak. Geliştirme modunda önizleme kartları yüklendi."
           : "Filtreleri gevşetin veya radarı yeniden çalıştırın."}

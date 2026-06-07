@@ -26,7 +26,7 @@ const PDFViewer = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex h-[58vh] items-center justify-center rounded-xl border border-border bg-parsel-sunken">
-        <p className="text-sm text-foreground0">PDF önizlemesi hazırlanıyor…</p>
+        <p className="text-sm text-muted-foreground">PDF önizlemesi hazırlanıyor…</p>
       </div>
     ),
   },
@@ -107,7 +107,7 @@ export function DocumentGenerator({ deal }: DocumentGeneratorProps) {
   return (
     <section className="space-y-3">
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground0">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           Resmi Evraklar
         </h3>
         <p className="mt-1 text-[11px] text-muted-foreground">
@@ -146,7 +146,7 @@ export function DocumentGenerator({ deal }: DocumentGeneratorProps) {
             <DialogTitle className="font-outfit text-lg text-foreground">
               {previewMeta?.title} — Önizleme
             </DialogTitle>
-            <p className="text-xs text-foreground0">
+            <p className="text-xs text-muted-foreground">
               {deal.client.adSoyad} · {deal.property.ilanBasligi}
             </p>
           </DialogHeader>

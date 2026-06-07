@@ -37,7 +37,7 @@ export function FsboFilterBar({
     <section className="rounded-2xl border border-border/50 bg-parsel-panel p-4">
       <div className="mb-3 flex items-center gap-2">
         <Radar className="size-4 text-parsel-gold" strokeWidth={1.5} />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           İstihbarat Filtreleri
         </p>
       </div>

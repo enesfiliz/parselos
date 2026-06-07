@@ -311,7 +311,7 @@ export function MusterilerView() {
       </div>
 
       {!isLoading && clients.length > 0 ? (
-        <p className="text-sm text-foreground0">
+        <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground/90">{clients.length}</span>{" "}
           kayıtlı müşteri
         </p>
@@ -334,7 +334,7 @@ export function MusterilerView() {
           <p className="font-outfit text-lg font-medium text-foreground/90">
             Henüz müşteri yok
           </p>
-          <p className="mt-2 max-w-sm text-sm text-foreground0">
+          <p className="mt-2 max-w-sm text-sm text-muted-foreground">
             İlk profil kartınızı oluşturmak için &quot;Yeni Müşteri Ekle&quot;
             düğmesine tıklayın.
           </p>
@@ -452,7 +452,7 @@ export function MusterilerView() {
                   }
                   rows={3}
                   placeholder="Portföy notları…"
-                  className="flex min-h-[80px] w-full rounded-md border border-border bg-parsel-bg/80 px-3 py-2 text-sm text-foreground placeholder:text-foreground0 focus-visible:ring-2 focus-visible:ring-parsel-primary/30 focus-visible:outline-none"
+                  className="flex min-h-[80px] w-full rounded-md border border-border bg-background/80 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-parsel-primary/30 focus-visible:outline-none"
                 />
               </div>
             </div>

@@ -44,7 +44,7 @@ function MetricBlock({
 }) {
   return (
     <div className="space-y-1.5 rounded-xl border border-border bg-parsel-card/50 px-4 py-3">
-      <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-foreground0">
+      <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
         {label}
       </p>
       <p
@@ -178,7 +178,7 @@ export function FinansView() {
                 <Separator />
 
                 <div className="h-56 w-full">
-                  <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-foreground0">
+                  <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
                     Anapara & Faiz Erimesi
                   </p>
                   <ResponsiveContainer width="100%" height="100%">
@@ -254,7 +254,7 @@ export function FinansView() {
         <Card className="border-border/60 shadow-lg ring-1 ring-parsel-border/80">
           <CardHeader className="border-b border-border/50 pb-5">
             <div className="flex items-center gap-2">
-              <TrendingUp className="size-4 text-foreground0" strokeWidth={1.5} />
+              <TrendingUp className="size-4 text-muted-foreground" strokeWidth={1.5} />
               <div>
                 <CardTitle className="text-base font-medium">
                   ROI & Amortisman Motoru
@@ -305,7 +305,7 @@ export function FinansView() {
             {roi ? (
               <>
                 <div className="rounded-2xl border border-border bg-parsel-card/50 p-6">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-foreground0">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
                     Amortisman Süresi
                   </p>
                   <div className="mt-4 flex flex-wrap items-end gap-4">
@@ -313,7 +313,7 @@ export function FinansView() {
                       <span className="text-5xl font-semibold tabular-nums tracking-tighter text-foreground">
                         {formatNumber(roi.amortismanAy, 0)}
                       </span>
-                      <span className="ml-2 text-lg text-foreground0">ay</span>
+                      <span className="ml-2 text-lg text-muted-foreground">ay</span>
                     </div>
                     <Badge variant="secondary" className="text-sm font-normal tabular-nums">
                       ≈ {formatNumber(roi.amortismanYil, 1)} yıl

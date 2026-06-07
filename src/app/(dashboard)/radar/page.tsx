@@ -15,7 +15,7 @@ export default function RadarPage() {
         <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           İstihbarat Radarı
         </h1>
-        <p className="mt-1 max-w-2xl text-sm font-light text-foreground0">
+        <p className="mt-1 max-w-2xl text-sm font-normal text-muted-foreground">
           Mapbox dark-v11 üzerinde TUCBS ve MTA WMS katmanları — veri doğrudan
           devlet servislerinden proxy üzerinden yüklenir.
         </p>
