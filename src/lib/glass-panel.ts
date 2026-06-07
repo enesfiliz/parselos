@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 
-/** Minimal panel — keskin, profesyonel yüzey */
+/** Minimal panel — tema uyumlu yüzey */
 export const panelCard = cn(
-  "rounded-xl border border-zinc-800/80 bg-[#18181b]",
+  "rounded-xl border border-border bg-parsel-panel",
 );
 
 export const panelCardHover = cn(
-  "transition-colors duration-200 hover:border-zinc-700",
+  "transition-colors duration-200 hover:border-border/80",
 );
 
 export const panelCardInteractive = cn(panelCard, panelCardHover);

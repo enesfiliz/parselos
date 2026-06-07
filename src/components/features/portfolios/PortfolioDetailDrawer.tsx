@@ -79,7 +79,7 @@ export function PortfolioDetailDrawer({
       <aside
         aria-hidden={!open}
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-white/10 bg-[#0A0A0A] shadow-[-24px_0_80px_rgba(0,0,0,0.5)] transition-transform duration-300",
+          "fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-border bg-parsel-elevated shadow-[-24px_0_80px_rgba(0,0,0,0.5)] transition-transform duration-300",
           open ? "translate-x-0" : "translate-x-full",
         )}
       >
@@ -95,7 +95,7 @@ export function PortfolioDetailDrawer({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="absolute right-4 top-4 inline-flex size-9 items-center justify-center rounded-lg border border-white/10 bg-black/30 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white"
+            className="absolute right-4 top-4 inline-flex size-9 items-center justify-center rounded-lg border border-border bg-black/30 text-foreground/70 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-foreground"
             aria-label="Detayı kapat"
           >
             <X className="size-4" strokeWidth={1.75} />
@@ -103,30 +103,30 @@ export function PortfolioDetailDrawer({
 
           <div className="absolute bottom-4 left-5 right-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-br-xl bg-[#b38c56] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-black">
+              <span className="rounded-br-xl bg-parsel-gold px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-black">
                 {portfolio.listingType}
               </span>
-              <span className="rounded-full border border-white/15 bg-black/30 px-2.5 py-0.5 text-[10px] font-medium text-white/70 backdrop-blur-sm">
+              <span className="rounded-full border border-white/15 bg-black/30 px-2.5 py-0.5 text-[10px] font-medium text-foreground/70 backdrop-blur-sm">
                 {propertyKindLabel(portfolio.propertyKind)}
               </span>
             </div>
-            <p className="mt-3 font-inter text-3xl font-medium tracking-tight text-white">
+            <p className="mt-3 font-inter text-3xl font-medium tracking-tight text-foreground">
               {portfolio.priceFormatted}
             </p>
           </div>
         </div>
 
         <div className="custom-scrollbar flex-1 overflow-y-auto px-6 py-5">
-          <h2 className="text-lg font-medium tracking-tight text-white/90">
+          <h2 className="text-lg font-medium tracking-tight text-foreground/90">
             {portfolio.title}
           </h2>
-          <p className="mt-1.5 flex items-center gap-1.5 text-sm text-white/50">
+          <p className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="size-3.5 shrink-0" strokeWidth={1.5} />
             {portfolio.location}
           </p>
 
           {portfolio.description ? (
-            <p className="mt-4 text-sm leading-relaxed text-white/55">
+            <p className="mt-4 text-sm leading-relaxed text-foreground/55">
               {portfolio.description}
             </p>
           ) : null}
@@ -140,40 +140,40 @@ export function PortfolioDetailDrawer({
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3 text-center"
+                className="rounded-xl border border-border/50 bg-white/[0.02] px-3 py-3 text-center"
               >
-                <p className="text-[10px] uppercase tracking-[0.12em] text-white/35">
+                <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/35">
                   {stat.label}
                 </p>
-                <p className="mt-1 text-sm text-white/75">{stat.value}</p>
+                <p className="mt-1 text-sm text-foreground/75">{stat.value}</p>
               </div>
             ))}
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-              <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-white/35">
+            <div className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-3">
+              <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-foreground/35">
                 <Eye className="size-3" strokeWidth={1.5} />
                 Gösterim
               </p>
-              <p className="mt-2 text-xl font-medium tabular-nums text-white/85">
+              <p className="mt-2 text-xl font-medium tabular-nums text-foreground/85">
                 {portfolio.showingsCount}
               </p>
             </div>
-            <div className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-              <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-white/35">
+            <div className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-3">
+              <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-foreground/35">
                 <FileText className="size-3" strokeWidth={1.5} />
                 Teklif
               </p>
-              <p className="mt-2 text-xl font-medium tabular-nums text-white/85">
+              <p className="mt-2 text-xl font-medium tabular-nums text-foreground/85">
                 {portfolio.offersCount}
               </p>
             </div>
           </div>
 
-          <div className="mt-6 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+          <div className="mt-6 rounded-xl border border-border/50 bg-white/[0.02] p-4">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <p className="flex items-center gap-1.5 text-xs text-white/45">
+              <p className="flex items-center gap-1.5 text-xs text-foreground/45">
                 <Calendar className="size-3.5" strokeWidth={1.5} />
                 Yetki Belgesi Süresi
               </p>
@@ -186,32 +186,32 @@ export function PortfolioDetailDrawer({
                 {portfolio.yetkiRemainingDays} gün kaldı
               </span>
             </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-[#050505]">
+            <div className="h-1.5 overflow-hidden rounded-full bg-parsel-admin">
               <div
                 className={cn(
                   "h-full rounded-full transition-all",
-                  isUrgent ? "bg-red-500/70" : "bg-[#b38c56]/60",
+                  isUrgent ? "bg-red-500/70" : "bg-parsel-gold/60",
                 )}
                 style={{ width: `${progressPct}%` }}
               />
             </div>
           </div>
 
-          <div className="mt-6 rounded-xl border border-white/5 bg-white/[0.02] p-4">
-            <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-white/35">
+          <div className="mt-6 rounded-xl border border-border/50 bg-white/[0.02] p-4">
+            <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-foreground/35">
               <User className="size-3" strokeWidth={1.5} />
               Mal Sahibi
             </p>
-            <p className="mt-2 text-sm font-medium text-white/85">
+            <p className="mt-2 text-sm font-medium text-foreground/85">
               {portfolio.ownerName}
             </p>
             {portfolio.ownerPhone ? (
-              <p className="mt-0.5 text-xs text-white/45">{portfolio.ownerPhone}</p>
+              <p className="mt-0.5 text-xs text-foreground/45">{portfolio.ownerPhone}</p>
             ) : null}
           </div>
         </div>
 
-        <div className="shrink-0 space-y-2 border-t border-white/5 px-6 py-5">
+        <div className="shrink-0 space-y-2 border-t border-border/50 px-6 py-5">
           <a
             href={whatsAppUrl}
             target="_blank"
@@ -224,7 +224,7 @@ export function PortfolioDetailDrawer({
             <Button
               type="button"
               variant="outline"
-              className="h-10 border-white/10 bg-transparent text-white/75 hover:bg-white/5"
+              className="h-10 border-border bg-transparent text-foreground/75 hover:bg-foreground/5"
               onClick={() => {
                 onOpenChange(false);
                 onEdit(portfolio);

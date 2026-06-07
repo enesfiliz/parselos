@@ -76,16 +76,16 @@ export function BillingView({ currentPlan, currentStatus }: BillingViewProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <header className="space-y-2">
-        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#b38c56]/70">
+        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-parsel-gold/70">
           Abonelik
         </p>
-        <h1 className="font-outfit text-2xl font-semibold tracking-tight text-white/90 md:text-3xl">
+        <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground/90 md:text-3xl">
           Paketi Yükselt
         </h1>
-        <p className="text-sm text-white/45">
+        <p className="text-sm text-foreground/45">
           Mevcut plan:{" "}
-          <span className="font-medium text-white/75">{currentPlan}</span> · Durum:{" "}
-          <span className="font-medium text-white/75">{currentStatus}</span>
+          <span className="font-medium text-foreground/75">{currentPlan}</span> · Durum:{" "}
+          <span className="font-medium text-foreground/75">{currentStatus}</span>
         </p>
       </header>
 
@@ -98,23 +98,23 @@ export function BillingView({ currentPlan, currentStatus }: BillingViewProps) {
             <article
               key={planKey}
               className={cn(
-                "rounded-2xl border bg-[#050505] p-6 transition-colors",
+                "rounded-2xl border bg-parsel-admin p-6 transition-colors",
                 planKey === "PREMIUM"
                   ? "border-[#b38c56]/30 shadow-[0_0_40px_rgba(179,140,86,0.08)]"
-                  : "border-white/[0.06]",
+                  : "border-border/60",
               )}
             >
               <div className="mb-4 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-medium text-white/90">{plan.label}</h2>
-                  <p className="mt-1 text-sm text-white/45">{plan.description}</p>
+                  <h2 className="text-lg font-medium text-foreground/90">{plan.label}</h2>
+                  <p className="mt-1 text-sm text-foreground/45">{plan.description}</p>
                 </div>
                 {planKey === "PREMIUM" ? (
-                  <Sparkles className="size-5 text-[#b38c56]" strokeWidth={1.5} />
+                  <Sparkles className="size-5 text-parsel-gold" strokeWidth={1.5} />
                 ) : null}
               </div>
 
-              <p className="font-inter text-3xl font-medium tracking-tight text-white">
+              <p className="font-inter text-3xl font-medium tracking-tight text-foreground">
                 {plan.priceLabel}
               </p>
 
@@ -122,9 +122,9 @@ export function BillingView({ currentPlan, currentStatus }: BillingViewProps) {
                 {plan.features.map((feature) => (
                   <li
                     key={feature}
-                    className="flex items-center gap-2 text-sm text-white/60"
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
                   >
-                    <Check className="size-3.5 shrink-0 text-[#b38c56]" strokeWidth={2} />
+                    <Check className="size-3.5 shrink-0 text-parsel-gold" strokeWidth={2} />
                     {feature}
                   </li>
                 ))}
@@ -136,8 +136,8 @@ export function BillingView({ currentPlan, currentStatus }: BillingViewProps) {
                 className={cn(
                   "mt-6 h-11 w-full",
                   planKey === "PREMIUM"
-                    ? "bg-[#b38c56] text-black hover:bg-[#c49a62]"
-                    : "bg-white/10 text-white hover:bg-white/15",
+                    ? "bg-parsel-gold text-black hover:bg-[#c49a62]"
+                    : "bg-foreground/10 text-foreground hover:bg-white/15",
                 )}
                 onClick={() => startSubscription(planKey)}
               >

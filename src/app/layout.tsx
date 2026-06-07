@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
 
-import { parselClerkAppearance } from "@/lib/clerk-appearance";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./clerk.css";
 import "./globals.css";
@@ -28,17 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="tr"
-      className="dark h-full antialiased"
-    >
-      <body
-        className="flex min-h-full flex-col bg-[#09090b] font-sans text-zinc-100 antialiased"
-      >
-        <ClerkProvider appearance={parselClerkAppearance}>
+    <html lang="tr" className="h-full antialiased" suppressHydrationWarning>
+      <body className="flex min-h-full flex-col bg-background font-sans text-foreground antialiased">
+        <ThemeProvider>
           {children}
           <Toaster position="bottom-right" richColors closeButton />
-        </ClerkProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

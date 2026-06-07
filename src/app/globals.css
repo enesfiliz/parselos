@@ -40,6 +40,13 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-parsel-canvas: var(--parsel-canvas);
+  --color-parsel-panel: var(--parsel-panel);
+  --color-parsel-sunken: var(--parsel-sunken);
+  --color-parsel-elevated: var(--parsel-elevated);
+  --color-parsel-gold: var(--parsel-gold);
+  --color-parsel-gold-muted: var(--parsel-gold-muted);
+  --color-parsel-admin: var(--parsel-admin-canvas);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,10 +56,53 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root,
-.dark {
+:root {
   --font-inter: Inter, ui-sans-serif, system-ui, sans-serif;
   --font-outfit: Outfit, ui-sans-serif, system-ui, sans-serif;
+  --background: #f8f8f6;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #547236;
+  --primary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f0f0ee;
+  --muted-foreground: #71717a;
+  --accent: #ececea;
+  --accent-foreground: #18181b;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #e4e4e7;
+  --input: #d4d4d8;
+  --ring: #547236;
+  --chart-1: #6c8634;
+  --chart-2: #547236;
+  --chart-3: #9a7340;
+  --chart-4: #7a9f45;
+  --chart-5: #4d6b35;
+  --radius: 0.625rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #547236;
+  --sidebar-primary-foreground: #fafafa;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #547236;
+  --parsel-canvas: #f8f8f6;
+  --parsel-panel: #ffffff;
+  --parsel-sunken: #f0efec;
+  --parsel-elevated: #f4f4f2;
+  --parsel-gold: #9a7340;
+  --parsel-gold-muted: #b38c56;
+  --parsel-admin-canvas: #f0fdf4;
+  --parsel-scrollbar: rgb(154 115 64 / 0.35);
+  --parsel-scrollbar-hover: rgb(154 115 64 / 0.55);
+}
+
+.dark {
   --background: #09090b;
   --foreground: #f4f4f5;
   --card: #18181b;
@@ -76,7 +126,6 @@
   --chart-3: #c5a36e;
   --chart-4: #7a9f45;
   --chart-5: #4d6b35;
-  --radius: 0.625rem;
   --sidebar: #18181b;
   --sidebar-foreground: #f4f4f5;
   --sidebar-primary: #547236;
@@ -85,6 +134,15 @@
   --sidebar-accent-foreground: #f4f4f5;
   --sidebar-border: #27272a;
   --sidebar-ring: #547236;
+  --parsel-canvas: #09090b;
+  --parsel-panel: #151f23;
+  --parsel-sunken: #0f1417;
+  --parsel-elevated: #18181b;
+  --parsel-gold: #b38c56;
+  --parsel-gold-muted: #c5a36e;
+  --parsel-admin-canvas: #050505;
+  --parsel-scrollbar: rgb(179 140 86 / 0.35);
+  --parsel-scrollbar-hover: rgb(179 140 86 / 0.55);
 }
 
 @layer base {
@@ -92,7 +150,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-[#09090b] font-sans text-zinc-100 antialiased;
+    @apply bg-background font-sans text-foreground antialiased;
   }
   html {
     @apply font-sans;
@@ -103,27 +161,27 @@
   h4,
   h5,
   h6 {
-    @apply font-outfit text-zinc-100;
+    @apply font-outfit text-foreground;
   }
   label,
   [data-slot="label"] {
-    @apply text-zinc-100;
+    @apply text-foreground;
   }
   input:not([type="checkbox"]):not([type="radio"]),
   textarea,
   select {
-    @apply text-zinc-100;
+    @apply text-foreground;
   }
   input::placeholder,
   textarea::placeholder {
-    @apply text-zinc-500;
+    @apply text-muted-foreground;
   }
 }
 
 @layer utilities {
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgb(179 140 86 / 0.35) transparent;
+    scrollbar-color: var(--parsel-scrollbar) transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -136,11 +194,11 @@
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
     border-radius: 9999px;
-    background: rgb(179 140 86 / 0.35);
+    background: var(--parsel-scrollbar);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgb(179 140 86 / 0.55);
+    background: var(--parsel-scrollbar-hover);
   }
 }
 
@@ -258,13 +316,13 @@
 }
 
 .intelligence-radar-map.leaflet-container {
-  background: #09090b;
+  background: var(--parsel-canvas);
   font-family: inherit;
 }
 
 .intelligence-radar-map .leaflet-control-attribution {
-  background: rgba(9, 9, 11, 0.85);
-  color: #71717a;
+  background: color-mix(in srgb, var(--parsel-panel) 92%, transparent);
+  color: var(--muted-foreground);
   border-radius: 8px;
   margin: 8px;
   padding: 2px 8px;
@@ -272,22 +330,22 @@
 }
 
 .intelligence-radar-map .leaflet-control-attribution a {
-  color: #a1a1aa;
+  color: var(--muted-foreground);
 }
 
 .radar-parcel-tooltip.leaflet-tooltip {
-  background: rgba(21, 31, 35, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e4e4e7;
+  background: color-mix(in srgb, var(--parsel-panel) 95%, transparent);
+  border: 1px solid var(--border);
+  color: var(--foreground);
   border-radius: 8px;
   padding: 6px 10px;
   font-size: 11px;
   font-weight: 500;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--foreground) 12%, transparent);
 }
 
 .radar-parcel-tooltip.leaflet-tooltip-top::before {
-  border-top-color: rgba(21, 31, 35, 0.95);
+  border-top-color: color-mix(in srgb, var(--parsel-panel) 95%, transparent);
 }
 
 .landing-doc-scan-line {

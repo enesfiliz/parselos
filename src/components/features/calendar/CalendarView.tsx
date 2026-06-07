@@ -32,13 +32,13 @@ import {
 } from "@/lib/calendar/appointments";
 import { cn } from "@/lib/utils";
 
-const FIELD_LABEL = "mb-1.5 block text-xs font-medium text-white/60";
+const FIELD_LABEL = "mb-1.5 block text-xs font-medium text-muted-foreground";
 const FIELD_INPUT =
-  "w-full rounded-lg border border-white/10 bg-[#09090b] px-3 py-2.5 text-sm text-white transition-all focus:border-[#b38c56] focus:outline-none focus:ring-1 focus:ring-[#b38c56]";
+  "w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground transition-all focus:border-[#b38c56] focus:outline-none focus:ring-1 focus:ring-[#b38c56]";
 
 function dotColorForTypes(types: AppointmentType[]) {
   if (types.includes("deed")) return "bg-emerald-400";
-  if (types.includes("showing")) return "bg-[#b38c56]";
+  if (types.includes("showing")) return "bg-parsel-gold";
   if (types.includes("meeting")) return "bg-sky-400";
   return "bg-white/30";
 }
@@ -47,13 +47,13 @@ function EventCard({ event }: { event: CalendarAppointment }) {
   const meta = APPOINTMENT_TYPE_META[event.type];
 
   return (
-    <article className="group flex flex-col gap-3 rounded-xl border border-white/5 bg-[#151f23] p-3 transition-all hover:border-white/10 hover:shadow-lg md:flex-row md:items-center md:justify-between md:p-4">
+    <article className="group flex flex-col gap-3 rounded-xl border border-border/50 bg-parsel-panel p-3 transition-all hover:border-border hover:shadow-lg md:flex-row md:items-center md:justify-between md:p-4">
       <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <div className="flex shrink-0 items-center gap-3">
-          <span className="text-xl font-bold tabular-nums tracking-tight text-white/90 md:text-2xl">
+          <span className="text-xl font-bold tabular-nums tracking-tight text-foreground/90 md:text-2xl">
             {event.time}
           </span>
-          <span className="hidden h-10 w-px bg-white/10 sm:block" />
+          <span className="hidden h-10 w-px bg-foreground/10 sm:block" />
           <span
             className={cn(
               "rounded-md px-2 py-1 text-[11px] font-medium md:text-[10px]",
@@ -65,10 +65,10 @@ function EventCard({ event }: { event: CalendarAppointment }) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-white/90">
+          <p className="truncate text-sm font-semibold text-foreground/90">
             {event.clientName}
           </p>
-          <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-white/50">
+          <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
             <MapPin className="h-3 w-3 shrink-0" strokeWidth={1.75} />
             {event.propertyTitle}
           </p>
@@ -80,7 +80,7 @@ function EventCard({ event }: { event: CalendarAppointment }) {
         target="_blank"
         rel="noopener noreferrer"
         title="Müşteriye Hatırlat"
-        className="flex h-9 w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-white/10 text-xs text-emerald-400/80 transition-colors hover:bg-white/5 md:ml-3 md:w-9 md:opacity-0 md:group-hover:opacity-100"
+        className="flex h-9 w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-border text-xs text-emerald-400/80 transition-colors hover:bg-foreground/5 md:ml-3 md:w-9 md:opacity-0 md:group-hover:opacity-100"
       >
         <span className="md:hidden">Hatırlat</span>
         <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
@@ -133,9 +133,9 @@ function NewAppointmentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-white/10 bg-[#151f23] text-white sm:max-w-md">
+      <DialogContent className="border-border bg-parsel-panel text-foreground sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white/90">Yeni Randevu</DialogTitle>
+          <DialogTitle className="text-foreground/90">Yeni Randevu</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -222,7 +222,7 @@ function NewAppointmentModal({
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-[#b38c56] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#9a784a]"
+            className="w-full rounded-lg bg-parsel-gold px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-[#9a784a]"
           >
             Randevuyu Kaydet
           </button>
@@ -275,16 +275,16 @@ export function CalendarView() {
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b]">
-      <header className="mb-4 flex flex-col gap-4 border-b border-white/5 pb-4 md:mb-6 md:pb-5 lg:flex-row lg:items-center lg:justify-between">
+    <div className="min-h-screen bg-background">
+      <header className="mb-4 flex flex-col gap-4 border-b border-border/50 pb-4 md:mb-6 md:pb-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <div className="mb-2 flex items-center gap-2 text-[#b38c56]">
+          <div className="mb-2 flex items-center gap-2 text-parsel-gold">
             <CalendarDays className="h-4 w-4" strokeWidth={1.75} />
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] md:text-[10px]">
               Saha Operasyonları
             </span>
           </div>
-          <h1 className="font-outfit text-xl font-semibold tracking-tight text-white/90 md:text-2xl">
+          <h1 className="font-outfit text-xl font-semibold tracking-tight text-foreground/90 md:text-2xl">
             Saha Operasyonları ve Ajanda
           </h1>
         </div>
@@ -292,7 +292,7 @@ export function CalendarView() {
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#b38c56] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#9a784a] lg:w-auto lg:self-auto"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-parsel-gold px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-[#9a784a] lg:w-auto lg:self-auto"
         >
           <Plus className="h-4 w-4" strokeWidth={2} />
           Yeni Randevu
@@ -300,16 +300,16 @@ export function CalendarView() {
       </header>
 
       <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-12">
-        <aside className="h-fit rounded-2xl border border-white/5 bg-[#151f23] p-4 md:p-6 lg:col-span-4">
+        <aside className="h-fit rounded-2xl border border-border/50 bg-parsel-panel p-4 md:p-6 lg:col-span-4">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold capitalize text-white/90">
+            <h2 className="text-sm font-semibold capitalize text-foreground/90">
               {formatMonthYear(viewYear, viewMonth)}
             </h2>
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => shiftMonth(-1)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-white/50 transition-colors hover:border-white/20 hover:text-white/80"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground/80"
                 aria-label="Önceki ay"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -317,7 +317,7 @@ export function CalendarView() {
               <button
                 type="button"
                 onClick={() => shiftMonth(1)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-white/50 transition-colors hover:border-white/20 hover:text-white/80"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground/80"
                 aria-label="Sonraki ay"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -329,7 +329,7 @@ export function CalendarView() {
             {grid.weekdays.map((day) => (
               <div
                 key={day}
-                className="pb-1 text-center text-[11px] font-medium uppercase tracking-wider text-white/35 md:text-[10px]"
+                className="pb-1 text-center text-[11px] font-medium uppercase tracking-wider text-foreground/35 md:text-[10px]"
               >
                 {day}
               </div>
@@ -359,8 +359,8 @@ export function CalendarView() {
                   className={cn(
                     "relative flex aspect-square flex-col items-center justify-center rounded-lg border text-sm transition-all",
                     isSelected
-                      ? "border-[#b38c56]/50 bg-[#b38c56]/10 text-[#d4b07a]"
-                      : "border-transparent bg-[#09090b] text-white/70 hover:border-white/10",
+                      ? "border-[#b38c56]/50 bg-parsel-gold/10 text-[#d4b07a]"
+                      : "border-transparent bg-background text-foreground/70 hover:border-border",
                     isToday && !isSelected && "ring-1 ring-white/15",
                   )}
                 >
@@ -389,31 +389,31 @@ export function CalendarView() {
             })}
           </div>
 
-          <p className="mt-5 rounded-xl border border-white/5 bg-[#09090b] px-4 py-3 text-center text-xs text-white/50">
+          <p className="mt-5 rounded-xl border border-border/50 bg-background px-4 py-3 text-center text-xs text-muted-foreground">
             Bu Haftaki Toplam Randevu:{" "}
-            <span className="font-semibold text-[#b38c56]">{weekTotal}</span>
+            <span className="font-semibold text-parsel-gold">{weekTotal}</span>
           </p>
         </aside>
 
         <section className="flex flex-col gap-4 lg:col-span-8">
-          <div className="rounded-xl border border-white/5 bg-[#151f23] px-5 py-4">
-            <h2 className="text-sm font-semibold text-white/90">
+          <div className="rounded-xl border border-border/50 bg-parsel-panel px-5 py-4">
+            <h2 className="text-sm font-semibold text-foreground/90">
               {formatSelectedDayLabel(selectedDate)}
             </h2>
-            <p className="mt-1 text-xs text-white/40">
+            <p className="mt-1 text-xs text-muted-foreground">
               {selectedEvents.length} randevu planlandı
             </p>
           </div>
 
           {selectedEvents.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-white/10 bg-[#151f23] px-6 py-16 text-center">
-              <p className="text-sm text-white/45">
+            <div className="rounded-2xl border border-dashed border-border bg-parsel-panel px-6 py-16 text-center">
+              <p className="text-sm text-foreground/45">
                 Bu gün için planlanmış randevu yok.
               </p>
               <button
                 type="button"
                 onClick={() => setModalOpen(true)}
-                className="mt-4 text-xs font-medium text-[#b38c56] hover:text-[#d4b07a]"
+                className="mt-4 text-xs font-medium text-parsel-gold hover:text-[#d4b07a]"
               >
                 + Yeni randevu ekle
               </button>

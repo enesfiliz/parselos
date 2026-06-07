@@ -43,13 +43,13 @@ function MetricBlock({
   highlight?: boolean;
 }) {
   return (
-    <div className="space-y-1.5 rounded-xl border border-parsel-border bg-parsel-card/50 px-4 py-3">
-      <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-zinc-500">
+    <div className="space-y-1.5 rounded-xl border border-border bg-parsel-card/50 px-4 py-3">
+      <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-foreground0">
         {label}
       </p>
       <p
         className={cn(
-          "font-semibold tabular-nums tracking-tight text-zinc-50",
+          "font-semibold tabular-nums tracking-tight text-foreground",
           highlight ? "text-2xl" : "text-lg",
         )}
       >
@@ -96,16 +96,16 @@ export function FinansView() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8">
       <header className="space-y-2">
-        <div className="flex items-center gap-2 text-zinc-400">
+        <div className="flex items-center gap-2 text-muted-foreground">
           <Landmark className="size-4" strokeWidth={1.5} />
           <span className="text-[10px] font-medium uppercase tracking-[0.2em]">
             Finans & Kredi
           </span>
         </div>
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
           Finansal Hesaplayıcılar
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Kredi yükünü ve yatırım geri dönüşünü modern FinTech arayüzüyle
           modelleyin. Tüm rakamlar anlık güncellenir.
         </p>
@@ -178,7 +178,7 @@ export function FinansView() {
                 <Separator />
 
                 <div className="h-56 w-full">
-                  <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-zinc-500">
+                  <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-foreground0">
                     Anapara & Faiz Erimesi
                   </p>
                   <ResponsiveContainer width="100%" height="100%">
@@ -243,7 +243,7 @@ export function FinansView() {
                 </div>
               </>
             ) : (
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 Geçerli kredi tutarı, faiz ve vade girin.
               </p>
             )}
@@ -254,7 +254,7 @@ export function FinansView() {
         <Card className="border-border/60 shadow-lg ring-1 ring-parsel-border/80">
           <CardHeader className="border-b border-border/50 pb-5">
             <div className="flex items-center gap-2">
-              <TrendingUp className="size-4 text-zinc-500" strokeWidth={1.5} />
+              <TrendingUp className="size-4 text-foreground0" strokeWidth={1.5} />
               <div>
                 <CardTitle className="text-base font-medium">
                   ROI & Amortisman Motoru
@@ -304,36 +304,36 @@ export function FinansView() {
 
             {roi ? (
               <>
-                <div className="rounded-2xl border border-parsel-border bg-parsel-card/50 p-6">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-500">
+                <div className="rounded-2xl border border-border bg-parsel-card/50 p-6">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-foreground0">
                     Amortisman Süresi
                   </p>
                   <div className="mt-4 flex flex-wrap items-end gap-4">
                     <div>
-                      <span className="text-5xl font-semibold tabular-nums tracking-tighter text-zinc-50">
+                      <span className="text-5xl font-semibold tabular-nums tracking-tighter text-foreground">
                         {formatNumber(roi.amortismanAy, 0)}
                       </span>
-                      <span className="ml-2 text-lg text-zinc-500">ay</span>
+                      <span className="ml-2 text-lg text-foreground0">ay</span>
                     </div>
                     <Badge variant="secondary" className="text-sm font-normal tabular-nums">
                       ≈ {formatNumber(roi.amortismanYil, 1)} yıl
                     </Badge>
                   </div>
-                  <p className="mt-3 text-xs leading-relaxed text-zinc-400">
+                  <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                     Sadece kira geliri ile yatırımın kendini amorti etme süresi (basit
                     geri dönüş modeli).
                   </p>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-neutral-900/10 bg-neutral-900 px-5 py-6 text-white">
-                    <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/50">
+                  <div className="rounded-2xl border border-neutral-900/10 bg-neutral-900 px-5 py-6 text-foreground">
+                    <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                       Kira Çarpanı
                     </p>
                     <p className="mt-2 text-4xl font-semibold tabular-nums tracking-tight">
                       {formatNumber(roi.kiraCarpani, 1)}
                     </p>
-                    <p className="mt-1 text-xs text-white/60">yıl (brüt)</p>
+                    <p className="mt-1 text-xs text-muted-foreground">yıl (brüt)</p>
                   </div>
 
                   <div className="space-y-3">
@@ -349,7 +349,7 @@ export function FinansView() {
                 </div>
               </>
             ) : (
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 Geçerli satış fiyatı ve aylık kira girin.
               </p>
             )}

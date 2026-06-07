@@ -184,19 +184,19 @@ export function FsboRadarView({
   }
 
   return (
-    <div className="min-h-full bg-[#09090b]">
+    <div className="min-h-full bg-background">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6">
         <header>
-          <div className="mb-2 flex items-center gap-2 text-[#b38c56]">
+          <div className="mb-2 flex items-center gap-2 text-parsel-gold">
             <Radar className="size-4" strokeWidth={1.5} />
             <span className="text-[10px] font-semibold uppercase tracking-[0.2em]">
               FSBO Komuta Merkezi
             </span>
           </div>
-          <h1 className="font-outfit text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
+          <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             İstihbarat Radarı — Medya Odaklı Inbox
           </h1>
-          <p className="mt-1 max-w-2xl text-sm text-zinc-500">
+          <p className="mt-1 max-w-2xl text-sm text-foreground0">
             Veritabanından gelen canlı FSBO ilanları; kapak fotoğrafı, kaynak
             rozeti ve fiyatlarla gelen kutusunda listelenir.
           </p>
@@ -209,7 +209,7 @@ export function FsboRadarView({
         ) : null}
 
         {showListeningBanner ? (
-          <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#151f23]">
+          <div className="overflow-hidden rounded-2xl border border-border/50 bg-parsel-panel">
             <FsboEmptyState variant="listening" />
           </div>
         ) : null}
@@ -222,19 +222,19 @@ export function FsboRadarView({
         />
 
         {useMock ? (
-          <p className="text-[11px] text-zinc-600">
+          <p className="text-[11px] text-muted-foreground">
             Önizleme modu: {allLeads.length} mock kart yüklü (veritabanında{" "}
             {dbLeadCount} kayıt).
           </p>
         ) : null}
 
         <section className="grid min-h-0 grid-cols-1 gap-4 lg:min-h-[600px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
-          <div className="min-w-0 overflow-hidden rounded-2xl border border-white/5 bg-[#151f23]">
-            <div className="border-b border-white/5 px-4 py-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+          <div className="min-w-0 overflow-hidden rounded-2xl border border-border/50 bg-parsel-panel">
+            <div className="border-b border-border/50 px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 Gelen Kutusu
               </p>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 {filteredLeads.length} aktif sinyal
                 {useMock ? " (önizleme)" : ""}
               </p>

@@ -24,7 +24,7 @@ function planBadgeClass(plan: AdminBillingSubscriber["plan"]) {
     case "Pro":
       return "border-blue-400/30 bg-blue-500/10 text-blue-200";
     default:
-      return "border-zinc-600/40 bg-zinc-800/40 text-zinc-400";
+      return "border-zinc-600/40 bg-border/40 text-muted-foreground";
   }
 }
 
@@ -87,26 +87,26 @@ export function AdminBillingView() {
         <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-emerald-400/80">
           God Mode · Finans
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-50 md:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           Fatura & Gelir Kontrol Merkezi
         </h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-foreground0">
           Iyzico abonelikleri, MRR ve kurucu müdahale paneli
         </p>
       </header>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <section className="overflow-hidden rounded-2xl border border-emerald-500/10 bg-[#0A0A0A] xl:col-span-2">
-          <div className="flex flex-col gap-4 border-b border-white/[0.04] px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6">
+        <section className="overflow-hidden rounded-2xl border border-emerald-500/10 bg-parsel-elevated xl:col-span-2">
+          <div className="flex flex-col gap-4 border-b border-border/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6">
             <div>
-              <h2 className="text-sm font-semibold text-zinc-100">Aktif Aboneler</h2>
-              <p className="mt-0.5 text-xs text-zinc-500">
+              <h2 className="text-sm font-semibold text-foreground">Aktif Aboneler</h2>
+              <p className="mt-0.5 text-xs text-foreground0">
                 {filtered.length} kayıt listeleniyor
               </p>
             </div>
             <label className="relative block w-full sm:w-72">
               <Search
-                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-500"
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-foreground0"
                 strokeWidth={1.75}
               />
               <input
@@ -114,7 +114,7 @@ export function AdminBillingView() {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Ofis veya e-posta ara..."
-                className="w-full rounded-lg border border-white/10 bg-white/[0.02] py-2 pr-4 pl-10 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                className="w-full rounded-lg border border-border bg-white/[0.02] py-2 pr-4 pl-10 text-sm text-foreground placeholder:text-foreground0 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
               />
             </label>
           </div>
@@ -122,7 +122,7 @@ export function AdminBillingView() {
           <div className="custom-scrollbar overflow-x-auto">
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead>
-                <tr className="border-b border-white/[0.04] text-[10px] uppercase tracking-[0.16em] text-zinc-500">
+                <tr className="border-b border-border/40 text-[10px] uppercase tracking-[0.16em] text-foreground0">
                   <th className="px-5 py-4 font-medium md:px-6">İsim</th>
                   <th className="px-4 py-4 font-medium">Başlangıç</th>
                   <th className="px-4 py-4 font-medium">Sonraki Ödeme</th>
@@ -136,12 +136,12 @@ export function AdminBillingView() {
                   return (
                     <tr
                       key={row.id}
-                      className="border-b border-white/[0.03] transition-colors hover:bg-white/[0.02]"
+                      className="border-b border-white/[0.03] transition-colors hover:bg-foreground/[0.02]"
                     >
                       <td className="px-5 py-4 md:px-6">
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="truncate font-medium text-zinc-100">
+                            <p className="truncate font-medium text-foreground">
                               {row.name}
                             </p>
                             <span
@@ -153,15 +153,15 @@ export function AdminBillingView() {
                               {row.plan}
                             </span>
                           </div>
-                          <p className="mt-0.5 truncate text-xs text-zinc-500">
+                          <p className="mt-0.5 truncate text-xs text-foreground0">
                             {row.email}
                           </p>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-zinc-300">
+                      <td className="px-4 py-4 text-sm text-foreground/90">
                         {row.startDate}
                       </td>
-                      <td className="px-4 py-4 text-sm text-zinc-300">
+                      <td className="px-4 py-4 text-sm text-foreground/90">
                         {row.nextPaymentDate}
                       </td>
                       <td className="px-4 py-4">
@@ -193,27 +193,27 @@ export function AdminBillingView() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="px-6 py-12 text-center text-sm text-zinc-500">
+            <div className="px-6 py-12 text-center text-sm text-foreground0">
               Aramaya uygun abone bulunamadı.
             </div>
           ) : null}
         </section>
 
         <aside className="space-y-4">
-          <div className="rounded-2xl border border-emerald-500/10 bg-[#0A0A0A] p-5">
+          <div className="rounded-2xl border border-emerald-500/10 bg-parsel-elevated p-5">
             <div className="mb-4 flex items-center gap-2">
               <Wallet className="size-4 text-emerald-400" strokeWidth={1.75} />
-              <h2 className="text-sm font-semibold text-zinc-100">
+              <h2 className="text-sm font-semibold text-foreground">
                 Finansal Metrikler
               </h2>
             </div>
 
             <div className="space-y-3">
-              <div className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-4">
-                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+              <div className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-4">
+                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground0">
                   Bu Ayın Cirosu
                 </p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-zinc-50">
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
                   {metrics.monthlyRevenue}
                 </p>
                 <p className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
@@ -222,11 +222,11 @@ export function AdminBillingView() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-4">
-                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+              <div className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-4">
+                <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground0">
                   İptal Oranı
                 </p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-zinc-50">
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
                   {metrics.cancellationRate}
                 </p>
                 <p className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
@@ -240,21 +240,21 @@ export function AdminBillingView() {
                   <AlertCircle className="size-3" strokeWidth={1.75} />
                   Bekleyen Ödemeler
                 </p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-zinc-50">
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
                   {metrics.pendingPayments}
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">
+                <p className="mt-1 text-xs text-foreground0">
                   {metrics.pendingCount} abonelik tahsilat bekliyor
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-5">
-            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+          <div className="rounded-2xl border border-border/50 bg-parsel-elevated p-5">
+            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground0">
               Iyzico Senkron
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Webhook ve callback entegrasyonu hazır. Canlı anahtarlar tanımlandığında
               bu panel gerçek tenant verisine bağlanacak.
             </p>

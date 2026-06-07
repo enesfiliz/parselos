@@ -11,8 +11,8 @@ const LEGEND_COLORS: Record<string, { stroke: string; fill: string }> = {
 export function RadarMapLegend() {
   return (
     <aside className="pointer-events-auto absolute right-4 bottom-4 z-10 origin-bottom-right scale-90">
-      <div className="w-52 rounded-xl border border-white/10 bg-[#151f23]/75 p-3 shadow-xl backdrop-blur-md">
-        <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+      <div className="w-52 rounded-xl border border-border bg-parsel-panel/75 p-3 shadow-xl backdrop-blur-md">
+        <p className="mb-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-foreground0">
           WMS Lejant
         </p>
         <ul className="space-y-2">
@@ -33,7 +33,7 @@ export function RadarMapLegend() {
                   }}
                   aria-hidden
                 />
-                <span className="text-[11px] text-zinc-400">{layer.label}</span>
+                <span className="text-[11px] text-muted-foreground">{layer.label}</span>
               </li>
             );
           })}

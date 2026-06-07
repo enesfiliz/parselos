@@ -81,8 +81,8 @@ export function ExternalListingSection({
   return (
     <section className="space-y-3">
       <div className="flex items-center gap-2">
-        <ExternalLink className="size-4 text-[#b38c56]" strokeWidth={1.5} />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+        <ExternalLink className="size-4 text-parsel-gold" strokeWidth={1.5} />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground0">
           Dış Bağlantılar & İstihbarat
         </p>
       </div>
@@ -94,7 +94,7 @@ export function ExternalListingSection({
           onKeyDown={(e) => e.key === "Enter" && !fetching && handleFetch()}
           placeholder="İlan linkini yapıştır..."
           disabled={fetching}
-          className="h-9 flex-1 border-white/10 bg-[#0f1417] text-sm"
+          className="h-9 flex-1 border-border bg-parsel-sunken text-sm"
         />
         <Button
           type="button"
@@ -102,7 +102,7 @@ export function ExternalListingSection({
           size="sm"
           disabled={fetching || !url.trim()}
           onClick={handleFetch}
-          className="shrink-0 border-[#b38c56]/30 text-[#b38c56] hover:bg-[#b38c56]/10"
+          className="shrink-0 border-[#b38c56]/30 text-parsel-gold hover:bg-parsel-gold/10"
         >
           {fetching ? (
             <>
@@ -119,14 +119,14 @@ export function ExternalListingSection({
       </div>
 
       {listingIntel ? (
-        <div className="rounded-lg bg-[#151f23] p-3">
+        <div className="rounded-lg bg-parsel-panel p-3">
           {listingIntel.source ? (
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#b38c56]">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-parsel-gold">
               {listingIntel.source}
             </p>
           ) : null}
           {listingIntel.title ? (
-            <p className="mb-3 text-sm font-medium leading-snug text-zinc-200">
+            <p className="mb-3 text-sm font-medium leading-snug text-foreground">
               {listingIntel.title}
             </p>
           ) : null}
@@ -150,7 +150,7 @@ export function ExternalListingSection({
           </div>
         </div>
       ) : (
-        <p className="rounded-lg border border-dashed border-white/[0.06] bg-[#151f23]/50 px-3 py-4 text-center text-xs text-zinc-600">
+        <p className="rounded-lg border border-dashed border-border/60 bg-parsel-panel/50 px-3 py-4 text-center text-xs text-muted-foreground">
           Sahibinden, Emlakjet veya Hepsiemlak linki yapıştırıp verileri çekin.
         </p>
       )}
@@ -169,11 +169,11 @@ function IntelItem({
 }) {
   return (
     <div>
-      <div className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-[0.1em] text-zinc-600">
+      <div className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
         <Icon className="size-3" />
         {label}
       </div>
-      <p className="text-sm font-medium text-zinc-300">{value}</p>
+      <p className="text-sm font-medium text-foreground/90">{value}</p>
     </div>
   );
 }

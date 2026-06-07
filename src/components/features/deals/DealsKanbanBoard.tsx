@@ -110,14 +110,14 @@ function KanbanColumn({
     <div className="flex w-[min(82vw,280px)] shrink-0 snap-start flex-col md:w-[min(100%,292px)]">
       <div className="mb-3 px-1">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-zinc-200">{label}</h2>
-          <span className="inline-flex min-w-[1.5rem] items-center justify-center rounded-full border border-white/10 bg-[#151f23] px-2 py-0.5 font-mono text-[11px] font-medium text-zinc-400">
+          <h2 className="text-sm font-semibold text-foreground">{label}</h2>
+          <span className="inline-flex min-w-[1.5rem] items-center justify-center rounded-full border border-border bg-parsel-panel px-2 py-0.5 font-mono text-[11px] font-medium text-muted-foreground">
             {deals.length}
           </span>
         </div>
         <div className="mt-1 flex items-center justify-between gap-2">
-          <p className="text-[11px] text-zinc-600 md:text-[10px]">{description}</p>
-          <p className="text-[11px] font-medium text-zinc-500 md:text-[10px]">
+          <p className="text-[11px] text-muted-foreground md:text-[10px]">{description}</p>
+          <p className="text-[11px] font-medium text-foreground0 md:text-[10px]">
             {formatCompactTRY(columnVolume)}
           </p>
         </div>
@@ -126,8 +126,8 @@ function KanbanColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          "min-h-[280px] flex-1 rounded-2xl border border-white/5 bg-[#0f1417] p-2.5 md:min-h-[520px]",
-          isOver && "border-[#b38c56]/30 bg-[#111a1f]",
+          "min-h-[280px] flex-1 rounded-2xl border border-border/50 bg-parsel-sunken p-2.5 md:min-h-[520px]",
+          isOver && "border-[#b38c56]/30 bg-parsel-sunken",
         )}
       >
         <div className="flex flex-col gap-3">

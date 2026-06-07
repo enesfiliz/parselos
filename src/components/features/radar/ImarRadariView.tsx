@@ -73,7 +73,7 @@ const ACTIVITY_STYLES: Record<
 > = {
   dusuk: {
     label: "Düşük aktivite",
-    className: "border-zinc-700/60 bg-zinc-800/40 text-zinc-400",
+    className: "border-border/60 bg-border/40 text-muted-foreground",
   },
   orta: {
     label: "Orta aktivite",
@@ -132,7 +132,7 @@ function AnnouncementCard({ item }: { item: RadarAnnouncement }) {
       </CardHeader>
 
       <CardContent className="space-y-4 pt-5">
-        <p className="text-sm leading-relaxed text-zinc-400">{item.summary}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">{item.summary}</p>
 
         <div className="flex flex-wrap gap-2">
           {item.matchedKeywords.map((keyword) => (
@@ -150,11 +150,11 @@ function AnalysisPanel({ analysis }: { analysis: RadarAnalysis }) {
   const activity = ACTIVITY_STYLES[analysis.activityLevel];
 
   return (
-    <Card className="border-[#b38c56]/20 bg-[#b38c56]/[0.04] shadow-sm">
+    <Card className="border-[#b38c56]/20 bg-parsel-gold/[0.04] shadow-sm">
       <CardHeader className="gap-3 border-b border-border/40 pb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-2">
-            <BarChart3 className="size-4 text-[#b38c56]" strokeWidth={1.75} />
+            <BarChart3 className="size-4 text-parsel-gold" strokeWidth={1.75} />
             <CardTitle className="text-base font-medium">Bölge Analizi</CardTitle>
           </div>
           <Badge className={cn("font-normal", activity.className)}>
@@ -166,15 +166,15 @@ function AnalysisPanel({ analysis }: { analysis: RadarAnalysis }) {
 
       <CardContent className="grid gap-4 pt-5 sm:grid-cols-3">
         <div className="rounded-xl border border-border/50 bg-muted/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
             Toplam eşleşme
           </p>
-          <p className="mt-1 text-2xl font-semibold text-zinc-100">
+          <p className="mt-1 text-2xl font-semibold text-foreground">
             {analysis.totalMatches}
           </p>
         </div>
         <div className="rounded-xl border border-border/50 bg-muted/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
             Yeni duyuru
           </p>
           <p className="mt-1 text-2xl font-semibold text-emerald-400">
@@ -182,10 +182,10 @@ function AnalysisPanel({ analysis }: { analysis: RadarAnalysis }) {
           </p>
         </div>
         <div className="rounded-xl border border-border/50 bg-muted/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
             Duyuru tipi
           </p>
-          <p className="mt-1 text-2xl font-semibold text-zinc-100">
+          <p className="mt-1 text-2xl font-semibold text-foreground">
             {analysis.categories.length}
           </p>
         </div>
@@ -286,10 +286,10 @@ export function ImarRadariView() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-10">
       <header className="space-y-2">
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
           İmar Radarı
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Bölge seçin; askı ilanları, plan değişiklikleri ve parsel duyuruları
           otomatik taranır, analiz edilir ve takip edilir.
         </p>
@@ -300,7 +300,7 @@ export function ImarRadariView() {
           <Card className="border-border/60 shadow-sm ring-border/60">
             <CardHeader className="border-b border-border/50 pb-5">
               <div className="flex items-center gap-2">
-                <Radar className="size-4 text-zinc-400" strokeWidth={1.75} />
+                <Radar className="size-4 text-muted-foreground" strokeWidth={1.75} />
                 <CardTitle className="text-base font-medium">
                   Radar Konfigürasyonu
                 </CardTitle>
@@ -312,7 +312,7 @@ export function ImarRadariView() {
 
             <CardContent className="space-y-6 pt-6">
               <div className="space-y-3">
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-400">
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
                   Bölge Seçimi
                 </p>
                 <ImarRegionSearch
@@ -323,7 +323,7 @@ export function ImarRadariView() {
               </div>
 
               <div className="space-y-3">
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-400">
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
                   Takip Edilen Kelimeler
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -338,8 +338,8 @@ export function ImarRadariView() {
                         className={cn(
                           "rounded-full border px-3 py-1 text-xs transition-colors",
                           active
-                            ? "border-[#b38c56]/40 bg-[#b38c56]/15 text-[#d4b07a]"
-                            : "border-border/60 bg-muted/10 text-zinc-500 hover:text-zinc-300",
+                            ? "border-[#b38c56]/40 bg-parsel-gold/15 text-[#d4b07a]"
+                            : "border-border/60 bg-muted/10 text-foreground0 hover:text-foreground/90",
                         )}
                       >
                         {option.label}
@@ -350,7 +350,7 @@ export function ImarRadariView() {
                 <button
                   type="button"
                   onClick={() => setKeywords([...DEFAULT_IMAR_KEYWORDS])}
-                  className="text-[11px] text-zinc-500 underline-offset-2 hover:text-zinc-300 hover:underline"
+                  className="text-[11px] text-foreground0 underline-offset-2 hover:text-foreground/90 hover:underline"
                 >
                   Varsayılana sıfırla
                 </button>
@@ -385,14 +385,14 @@ export function ImarRadariView() {
                   className={cn(
                     "size-4",
                     isLoading
-                      ? "animate-pulse text-zinc-400"
+                      ? "animate-pulse text-muted-foreground"
                       : isTracking
                         ? "text-emerald-400"
                         : "text-amber-400",
                   )}
                   strokeWidth={1.75}
                 />
-                <span className="font-mono text-xs tracking-[0.14em] uppercase text-zinc-400">
+                <span className="font-mono text-xs tracking-[0.14em] uppercase text-muted-foreground">
                   {isLoading
                     ? "Tarama sürüyor"
                     : isTracking
@@ -404,8 +404,8 @@ export function ImarRadariView() {
               {isTracking ? (
                 <div className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2.5">
                   <ShieldAlert className="mt-0.5 size-3.5 shrink-0 text-emerald-400" />
-                  <p className="text-[11px] leading-relaxed text-zinc-400">
-                    <span className="font-medium text-zinc-300">{region}</span>{" "}
+                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                    <span className="font-medium text-foreground/90">{region}</span>{" "}
                     için imar askısı ve plan değişikliği duyuruları izleniyor.
                   </p>
                 </div>
@@ -420,12 +420,12 @@ export function ImarRadariView() {
               <h2 className="text-xl font-semibold tracking-tight">
                 {region} · Canlı Akış
               </h2>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 Askı, plan değişikliği ve parsel duyuruları
               </p>
             </div>
             {data && (
-              <p className="font-mono text-xs tracking-[0.14em] uppercase text-zinc-400">
+              <p className="font-mono text-xs tracking-[0.14em] uppercase text-muted-foreground">
                 {data.mode === "live" ? "Canlı kaynak" : "Örnek akış"}
               </p>
             )}
@@ -442,10 +442,10 @@ export function ImarRadariView() {
           ) : null}
 
           {isLoading ? (
-            <p className="text-sm text-zinc-400">Duyurular taranıyor…</p>
+            <p className="text-sm text-muted-foreground">Duyurular taranıyor…</p>
           ) : data && data.announcements.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border px-8 py-16 text-center">
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 Seçili bölge ve kelimelere uygun duyuru bulunamadı. Bölge veya
                 anahtar kelime seçimini genişletin.
               </p>

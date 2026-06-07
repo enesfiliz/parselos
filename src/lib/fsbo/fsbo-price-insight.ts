@@ -21,7 +21,7 @@ export function getFsboLeadBadge(insight: FsboPriceInsight) {
   if (insight.kind === "at") {
     return {
       label: "Piyasa Fiyatı",
-      className: "border-white/10 bg-white/[0.03] text-white/45",
+      className: "border-border bg-white/[0.03] text-foreground/45",
     };
   }
   return null;

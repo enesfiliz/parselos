@@ -17,7 +17,7 @@ function planBadgeClass(plan: AdminSubscriberRow["plan"]) {
     case "Pro":
       return "border-blue-500/25 bg-blue-500/10 text-blue-300";
     default:
-      return "border-zinc-600/40 bg-zinc-800/50 text-zinc-400";
+      return "border-zinc-600/40 bg-border/50 text-muted-foreground";
   }
 }
 
@@ -28,7 +28,7 @@ function eventBadgeClass(event: AdminSubscriberRow["event"]) {
     case "Kayıt":
       return "text-blue-400";
     default:
-      return "text-zinc-500";
+      return "text-foreground0";
   }
 }
 
@@ -52,10 +52,10 @@ export function AdminCommandCenterView() {
             <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-emerald-400/80">
               God Mode
             </p>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-50 md:text-3xl">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
               Komuta Merkezi
             </h1>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-foreground0">
               ParselOS SaaS Genel Bakış
             </p>
           </div>
@@ -73,13 +73,13 @@ export function AdminCommandCenterView() {
         {ADMIN_METRICS.map((metric) => (
           <article
             key={metric.id}
-            className="rounded-2xl border border-emerald-500/10 bg-[#0A0A0A] p-5 shadow-[0_0_40px_rgba(0,0,0,0.35)]"
+            className="rounded-2xl border border-emerald-500/10 bg-parsel-elevated p-5 shadow-[0_0_40px_rgba(0,0,0,0.35)]"
           >
-            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-foreground0">
               {metric.label}
             </p>
             <div className="mt-3 flex items-end justify-between gap-3">
-              <p className="text-2xl font-semibold tracking-tight text-zinc-50 md:text-[1.65rem]">
+              <p className="text-2xl font-semibold tracking-tight text-foreground md:text-[1.65rem]">
                 {metric.value}
               </p>
               <AdminSparkline data={metric.sparkline} />
@@ -97,26 +97,26 @@ export function AdminCommandCenterView() {
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <article className="overflow-hidden rounded-2xl border border-emerald-500/10 bg-[#0A0A0A]">
+        <article className="overflow-hidden rounded-2xl border border-emerald-500/10 bg-parsel-elevated">
           <div className="flex items-center justify-between border-b border-emerald-500/10 px-5 py-4 md:px-6">
             <div className="flex items-center gap-2.5">
               <Users className="size-4 text-emerald-400" strokeWidth={1.75} />
               <div>
-                <h2 className="text-sm font-semibold text-zinc-100">
+                <h2 className="text-sm font-semibold text-foreground">
                   Aktif Aboneler
                 </h2>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-foreground0">
                   Son kayıt ve paket yükseltmeleri
                 </p>
               </div>
             </div>
-            <ArrowUpRight className="size-4 text-zinc-600" strokeWidth={1.75} />
+            <ArrowUpRight className="size-4 text-muted-foreground" strokeWidth={1.75} />
           </div>
 
           <div className="custom-scrollbar max-h-[420px] overflow-y-auto">
             <table className="w-full min-w-[320px] text-left text-sm">
-              <thead className="sticky top-0 bg-[#0A0A0A] text-[10px] uppercase tracking-[0.16em] text-zinc-500">
-                <tr className="border-b border-white/[0.04]">
+              <thead className="sticky top-0 bg-parsel-elevated text-[10px] uppercase tracking-[0.16em] text-foreground0">
+                <tr className="border-b border-border/40">
                   <th className="px-5 py-3 font-medium md:px-6">Ofis / Danışman</th>
                   <th className="px-3 py-3 font-medium">Paket</th>
                   <th className="px-3 py-3 font-medium">Durum</th>
@@ -129,7 +129,7 @@ export function AdminCommandCenterView() {
                     key={row.id}
                     className="border-b border-white/[0.03] transition-colors hover:bg-emerald-500/[0.03]"
                   >
-                    <td className="px-5 py-3.5 font-medium text-zinc-200 md:px-6">
+                    <td className="px-5 py-3.5 font-medium text-foreground md:px-6">
                       {row.name}
                     </td>
                     <td className="px-3 py-3.5">
@@ -150,7 +150,7 @@ export function AdminCommandCenterView() {
                     >
                       {row.event}
                     </td>
-                    <td className="px-5 py-3.5 text-zinc-500 md:px-6">
+                    <td className="px-5 py-3.5 text-foreground0 md:px-6">
                       {row.lastLogin}
                     </td>
                   </tr>
@@ -160,15 +160,15 @@ export function AdminCommandCenterView() {
           </div>
         </article>
 
-        <article className="overflow-hidden rounded-2xl border border-emerald-500/10 bg-[#0A0A0A]">
+        <article className="overflow-hidden rounded-2xl border border-emerald-500/10 bg-parsel-elevated">
           <div className="flex items-center justify-between border-b border-emerald-500/10 px-5 py-4 md:px-6">
             <div className="flex items-center gap-2.5">
               <Activity className="size-4 text-emerald-400" strokeWidth={1.75} />
               <div>
-                <h2 className="text-sm font-semibold text-zinc-100">
+                <h2 className="text-sm font-semibold text-foreground">
                   Parsel AI Canlı Akış
                 </h2>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-foreground0">
                   Son araç çağrıları ve oturum olayları
                 </p>
               </div>
@@ -192,14 +192,14 @@ export function AdminCommandCenterView() {
                   aria-hidden
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-zinc-200">
+                  <p className="text-sm text-foreground">
                     <span className="font-medium text-emerald-200/90">
                       {log.actor}
                     </span>
-                    <span className="text-zinc-500"> — </span>
+                    <span className="text-foreground0"> — </span>
                     {log.action}
                   </p>
-                  <p className="mt-1 text-xs text-zinc-500">{log.timestamp}</p>
+                  <p className="mt-1 text-xs text-foreground0">{log.timestamp}</p>
                 </div>
               </li>
             ))}

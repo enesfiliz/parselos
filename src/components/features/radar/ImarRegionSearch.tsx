@@ -120,7 +120,7 @@ export function ImarRegionSearch({
     <div ref={containerRef} className="space-y-3">
       <div className="relative">
         <Search
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-500"
+          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-foreground0"
           strokeWidth={1.5}
         />
         <Input
@@ -133,7 +133,7 @@ export function ImarRegionSearch({
           autoComplete="off"
         />
         {isLoading ? (
-          <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-zinc-500" />
+          <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-foreground0" />
         ) : query ? (
           <button
             type="button"
@@ -142,7 +142,7 @@ export function ImarRegionSearch({
               setResults([]);
               setIsOpen(false);
             }}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-foreground0 hover:text-foreground/90"
             aria-label="Aramayı temizle"
           >
             <X className="size-3.5" />
@@ -150,9 +150,9 @@ export function ImarRegionSearch({
         ) : null}
       </div>
 
-      <div className="flex items-center gap-2 rounded-xl border border-[#b38c56]/20 bg-[#b38c56]/5 px-3 py-2.5">
-        <MapPin className="size-4 shrink-0 text-[#b38c56]" strokeWidth={1.75} />
-        <span className="min-w-0 truncate text-sm font-medium text-zinc-100">
+      <div className="flex items-center gap-2 rounded-xl border border-[#b38c56]/20 bg-parsel-gold/5 px-3 py-2.5">
+        <MapPin className="size-4 shrink-0 text-parsel-gold" strokeWidth={1.75} />
+        <span className="min-w-0 truncate text-sm font-medium text-foreground">
           {value}
         </span>
       </div>
@@ -168,7 +168,7 @@ export function ImarRegionSearch({
             onClick={() => handleSelect({ label: region.label })}
             className={cn(
               "h-7 rounded-full px-2.5 text-[11px]",
-              value === region.label && "border-[#b38c56]/40 bg-[#b38c56]/10",
+              value === region.label && "border-[#b38c56]/40 bg-parsel-gold/10",
             )}
           >
             {region.label}
@@ -179,9 +179,9 @@ export function ImarRegionSearch({
       {isOpen ? (
         <ul className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-lg">
           {error ? (
-            <li className="px-3 py-2.5 text-xs text-zinc-500">{error}</li>
+            <li className="px-3 py-2.5 text-xs text-foreground0">{error}</li>
           ) : results.length === 0 && !isLoading ? (
-            <li className="px-3 py-2.5 text-xs text-zinc-500">Sonuç bulunamadı.</li>
+            <li className="px-3 py-2.5 text-xs text-foreground0">Sonuç bulunamadı.</li>
           ) : (
             results.map((result, index) => (
               <li key={`${result.label}-${index}`}>
@@ -189,11 +189,11 @@ export function ImarRegionSearch({
                   type="button"
                   onClick={() => handleSelect(result)}
                   className={cn(
-                    "flex w-full items-start gap-2 px-3 py-2.5 text-left text-xs text-zinc-300 transition-colors hover:bg-muted/40",
+                    "flex w-full items-start gap-2 px-3 py-2.5 text-left text-xs text-foreground/90 transition-colors hover:bg-muted/40",
                     index > 0 && "border-t border-border/40",
                   )}
                 >
-                  <MapPin className="mt-0.5 size-3.5 shrink-0 text-[#b38c56]" />
+                  <MapPin className="mt-0.5 size-3.5 shrink-0 text-parsel-gold" />
                   <span className="line-clamp-2">{result.label}</span>
                 </button>
               </li>

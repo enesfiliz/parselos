@@ -95,10 +95,10 @@ import { getInitials } from "@/lib/client-birthday";
 import { cn } from "@/lib/utils";
 
 const PANEL_CARD =
-  "rounded-2xl border border-white/5 bg-[#151f23] p-4";
+  "rounded-2xl border border-border/50 bg-parsel-panel p-4";
 
 const PANEL_CARD_COMPACT =
-  "rounded-2xl border border-white/5 bg-[#151f23] p-3";
+  "rounded-2xl border border-border/50 bg-parsel-panel p-3";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -264,7 +264,7 @@ function buildTimeline(deal: DealCardData, notes: DealNoteData[] = []) {
     {
       date: formatTimelineDate(deal.olusturulmaTarihi),
       label: "Fırsat oluşturuldu",
-      dot: "bg-[#b38c56]",
+      dot: "bg-parsel-gold",
       sortAt: new Date(deal.olusturulmaTarihi).getTime(),
     },
   ];
@@ -296,7 +296,7 @@ function buildTimeline(deal: DealCardData, notes: DealNoteData[] = []) {
     events.push({
       date: formatTimelineDate(deal.guncellenmeTarihi),
       label: "Sözleşme imzalandı",
-      dot: "bg-[#b38c56]",
+      dot: "bg-parsel-gold",
       sortAt: new Date(deal.guncellenmeTarihi).getTime() + 4,
     });
   }
@@ -331,7 +331,7 @@ function timelineEventIcon(label: string) {
 function platformBrand(source: string) {
   const s = source.toLocaleLowerCase("tr-TR");
   if (s.includes("emlakjet")) {
-    return { letter: "E", name: "Emlakjet", box: "bg-red-600 text-white" };
+    return { letter: "E", name: "Emlakjet", box: "bg-red-600 text-foreground" };
   }
   return { letter: "S", name: "Sahibinden", box: "bg-yellow-400 text-black" };
 }
@@ -343,7 +343,7 @@ function priceInsightBadgeClass(kind: FsboPriceInsightKind) {
   if (kind === "above") {
     return "border-amber-500/25 bg-amber-500/10 text-amber-300/90";
   }
-  return "border-white/10 bg-white/[0.03] text-white/45";
+  return "border-border bg-white/[0.03] text-foreground/45";
 }
 
 function formatNoteDate(iso: string | null | undefined) {
@@ -417,10 +417,10 @@ function InlineEdit({
 
   if (editing) {
     const cls =
-      "w-full rounded-lg border border-white/10 bg-[#09090b] px-3 py-2 text-sm text-zinc-100 outline-none focus:border-[#b38c56]/40";
+      "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-[#b38c56]/40";
     return (
       <div>
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           {label}
         </p>
         {multiline ? (
@@ -453,17 +453,17 @@ function InlineEdit({
     <button
       type="button"
       onClick={() => setEditing(true)}
-      className="group w-full rounded-lg border border-transparent px-2 py-1.5 text-left transition-colors hover:border-white/5 hover:bg-white/[0.02]"
+      className="group w-full rounded-lg border border-transparent px-2 py-1.5 text-left transition-colors hover:border-border/50 hover:bg-foreground/[0.02]"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {label}
       </p>
       <div className="flex items-center justify-between gap-2">
         <p
           className={cn(
-            "text-sm text-zinc-200",
-            accent && "font-semibold text-[#b38c56]",
-            !value && "text-zinc-600",
+            "text-sm text-foreground",
+            accent && "font-semibold text-parsel-gold",
+            !value && "text-muted-foreground",
           )}
         >
           {value || "—"}
@@ -529,21 +529,21 @@ function ClientPicker({
 
   return (
     <div ref={containerRef} className="relative">
-      <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+      <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
         Müşteri Kartı
       </p>
       <div className="flex items-start gap-3">
         <div
-          className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-white/5 bg-gradient-to-br from-zinc-800 to-zinc-900 text-sm font-semibold text-zinc-100"
+          className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-gradient-to-br from-zinc-800 to-zinc-900 text-sm font-semibold text-foreground"
           aria-hidden
         >
           {getInitials(selectedClient.adSoyad)}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-outfit text-base font-semibold text-zinc-50">
+          <p className="truncate font-outfit text-base font-semibold text-foreground">
             {selectedClient.adSoyad}
           </p>
-          <div className="mt-1 space-y-0.5 text-xs text-zinc-500">
+          <div className="mt-1 space-y-0.5 text-xs text-foreground0">
             <span className="flex items-center gap-1.5 truncate">
               <Phone className="size-3 shrink-0" strokeWidth={1.75} />
               {selectedClient.telefon ?? "Telefon kayıtlı değil"}
@@ -555,7 +555,7 @@ function ClientPicker({
               </span>
             ) : null}
             {selectedClient.kaynak ? (
-              <span className="text-[11px] text-zinc-600">
+              <span className="text-[11px] text-muted-foreground">
                 Kaynak: {selectedClient.kaynak}
               </span>
             ) : null}
@@ -565,36 +565,36 @@ function ClientPicker({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="mt-3 flex w-full items-center justify-between rounded-xl border border-white/5 bg-[#09090b] px-3 py-2.5 text-left transition-colors hover:border-[#b38c56]/30"
+        className="mt-3 flex w-full items-center justify-between rounded-xl border border-border/50 bg-background px-3 py-2.5 text-left transition-colors hover:border-parsel-gold/30"
       >
         <div className="flex items-center gap-2">
-          <Search className="size-3.5 text-[#b38c56]" />
-          <span className="text-xs font-medium text-zinc-300">
+          <Search className="size-3.5 text-parsel-gold" />
+          <span className="text-xs font-medium text-foreground/90">
             Müşteri değiştir veya ara
           </span>
         </div>
         <ChevronDown
           className={cn(
-            "size-4 text-zinc-500 transition-transform",
+            "size-4 text-foreground0 transition-transform",
             open && "rotate-180",
           )}
         />
       </button>
 
       {open ? (
-        <div className="absolute left-0 right-0 z-20 mt-2 rounded-xl border border-white/5 bg-[#151f23] p-2 shadow-lg">
+        <div className="absolute left-0 right-0 z-20 mt-2 rounded-xl border border-border/50 bg-parsel-panel p-2 shadow-lg">
           <div className="relative mb-2">
-            <Search className="absolute left-2.5 top-2.5 size-3.5 text-zinc-600" />
+            <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Müşteri ara (ad, telefon, lokasyon)..."
-              className="w-full rounded-lg border border-white/5 bg-[#09090b] py-2 pl-8 pr-3 text-sm text-zinc-200 outline-none focus:border-[#b38c56]/40"
+              className="w-full rounded-lg border border-border/50 bg-background py-2 pl-8 pr-3 text-sm text-foreground outline-none focus:border-[#b38c56]/40"
             />
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-6">
-              <Loader2 className="size-4 animate-spin text-zinc-500" />
+              <Loader2 className="size-4 animate-spin text-foreground0" />
             </div>
           ) : (
             <ul className="max-h-48 overflow-y-auto">
@@ -608,17 +608,17 @@ function ClientPicker({
                         setOpen(false);
                         setQuery("");
                       }}
-                      className="flex w-full items-start gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/5"
+                      className="flex w-full items-start gap-2 rounded-lg px-2 py-2 text-left transition-colors hover:bg-foreground/5"
                     >
-                      <Phone className="mt-0.5 size-3.5 shrink-0 text-zinc-600" />
+                      <Phone className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
                       <div className="min-w-0">
-                        <p className="text-sm text-zinc-200">{client.adSoyad}</p>
-                        <p className="text-[11px] text-zinc-500">
+                        <p className="text-sm text-foreground">{client.adSoyad}</p>
+                        <p className="text-[11px] text-foreground0">
                           {client.telefon ?? "—"}
                           {client.mulkTipi ? ` · ${client.mulkTipi}` : ""}
                         </p>
                         {client.butce ? (
-                          <p className="text-[11px] text-[#b38c56]">
+                          <p className="text-[11px] text-parsel-gold">
                             {client.butce}
                           </p>
                         ) : null}
@@ -627,7 +627,7 @@ function ClientPicker({
                   </li>
                 ))
               ) : (
-                <li className="px-2 py-4 text-center text-xs text-zinc-600">
+                <li className="px-2 py-4 text-center text-xs text-muted-foreground">
                   Kayıtlı müşteri bulunamadı.
                 </li>
               )}
@@ -671,12 +671,12 @@ function DealNotesPanel({
   return (
     <section className={PANEL_CARD_COMPACT}>
       <div className="mb-2 flex items-center gap-2">
-        <StickyNote className="size-3.5 text-[#b38c56]" strokeWidth={1.5} />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+        <StickyNote className="size-3.5 text-parsel-gold" strokeWidth={1.5} />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
           Danışman Notları
         </p>
         {safeNotes.length > 0 ? (
-          <span className="ml-auto text-[10px] text-white/30">
+          <span className="ml-auto text-[10px] text-muted-foreground">
             {safeNotes.length} kayıt
           </span>
         ) : null}
@@ -684,23 +684,23 @@ function DealNotesPanel({
 
       {loading ? (
         <div className="flex justify-center py-6">
-          <Loader2 className="size-4 animate-spin text-zinc-500" />
+          <Loader2 className="size-4 animate-spin text-foreground0" />
         </div>
       ) : safeNotes.length > 0 ? (
         <ul className="relative max-h-44 space-y-0 overflow-y-auto pl-3 pr-1">
           <span
             aria-hidden
-            className="pointer-events-none absolute bottom-1 left-[5px] top-1 w-px bg-white/10"
+            className="pointer-events-none absolute bottom-1 left-[5px] top-1 w-px bg-foreground/10"
           />
           {safeNotes.map((note) => (
             <li key={note.id} className="group relative flex gap-2.5 pb-2.5 last:pb-0">
               <span
                 aria-hidden
-                className="relative z-10 mt-2 size-1.5 shrink-0 rounded-full bg-[#b38c56]/60"
+                className="relative z-10 mt-2 size-1.5 shrink-0 rounded-full bg-parsel-gold/60"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-[10px] text-white/40">
+                  <p className="text-[10px] text-muted-foreground">
                     {formatNoteDate(note.olusturulmaTarihi)}
                   </p>
                   <button
@@ -712,7 +712,7 @@ function DealNotesPanel({
                     <Trash2 className="size-3" />
                   </button>
                 </div>
-                <p className="mt-0.5 rounded-xl rounded-tl-sm border border-white/5 bg-[#09090b] px-2.5 py-1.5 text-xs leading-relaxed text-white/80">
+                <p className="mt-0.5 rounded-xl rounded-tl-sm border border-border/50 bg-background px-2.5 py-1.5 text-xs leading-relaxed text-foreground/80">
                   {note.content}
                 </p>
               </div>
@@ -720,13 +720,13 @@ function DealNotesPanel({
           ))}
         </ul>
       ) : (
-        <p className="py-4 text-center text-[11px] text-white/25">
+        <p className="py-4 text-center text-[11px] text-foreground/25">
           Bu fırsat hakkında henüz not girilmedi.
         </p>
       )}
 
       <form
-        className="mt-2 flex items-center gap-1.5 border-t border-white/5 pt-2"
+        className="mt-2 flex items-center gap-1.5 border-t border-border/50 pt-2"
         onSubmit={(e) => {
           e.preventDefault();
           void handleAdd();
@@ -736,13 +736,13 @@ function DealNotesPanel({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Kısa not yazın..."
-          className="h-8 min-w-0 flex-1 rounded-xl border border-white/5 bg-[#09090b] px-3 text-xs text-white/80 outline-none placeholder:text-white/25 focus:border-[#b38c56]/35"
+          className="h-8 min-w-0 flex-1 rounded-xl border border-border/50 bg-background px-3 text-xs text-foreground/80 outline-none placeholder:text-white/25 focus:border-[#b38c56]/35"
         />
         <button
           type="submit"
           disabled={saving || !draft.trim()}
           aria-label="Not gönder"
-          className="inline-flex size-8 shrink-0 items-center justify-center rounded-xl border border-white/5 bg-[#09090b] text-[#b38c56] transition-colors hover:border-[#b38c56]/30 hover:bg-[#b38c56]/10 disabled:opacity-35"
+          className="inline-flex size-8 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-background text-parsel-gold transition-colors hover:border-parsel-gold/30 hover:bg-parsel-gold/10 disabled:opacity-35"
         >
           {saving ? (
             <Loader2 className="size-3.5 animate-spin" />
@@ -791,13 +791,13 @@ function DealTasksPanel({
     <section className={PANEL_CARD}>
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <CheckSquare className="size-4 text-[#b38c56]" strokeWidth={1.5} />
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          <CheckSquare className="size-4 text-parsel-gold" strokeWidth={1.5} />
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
             Dinamik Görev Checklist
           </p>
         </div>
         {tasks.length > 0 ? (
-          <span className="rounded-full border border-white/5 bg-[#09090b] px-2 py-0.5 text-[10px] font-medium text-zinc-400">
+          <span className="rounded-full border border-border/50 bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
             📝 {done}/{tasks.length}
           </span>
         ) : null}
@@ -806,12 +806,12 @@ function DealTasksPanel({
         {tasks.map((task) => (
           <li
             key={task.id}
-            className="flex items-center gap-2 rounded-lg border border-white/5 bg-[#09090b] px-2 py-2"
+            className="flex items-center gap-2 rounded-lg border border-border/50 bg-background px-2 py-2"
           >
             <button
               type="button"
               onClick={() => toggle(task.id)}
-              className="shrink-0 text-zinc-400 hover:text-[#b38c56]"
+              className="shrink-0 text-muted-foreground hover:text-parsel-gold"
             >
               {task.completed ? (
                 <CheckSquare className="size-4 text-emerald-500" />
@@ -823,8 +823,8 @@ function DealTasksPanel({
               className={cn(
                 "flex-1 text-sm",
                 task.completed
-                  ? "text-zinc-600 line-through"
-                  : "text-zinc-200",
+                  ? "text-muted-foreground line-through"
+                  : "text-foreground",
               )}
             >
               {task.label}
@@ -832,7 +832,7 @@ function DealTasksPanel({
             <button
               type="button"
               onClick={() => remove(task.id)}
-              className="text-zinc-600 hover:text-red-400"
+              className="text-muted-foreground hover:text-red-400"
             >
               <Trash2 className="size-3.5" />
             </button>
@@ -847,12 +847,12 @@ function DealTasksPanel({
             if (e.key === "Enter") add();
           }}
           placeholder="Yeni görev..."
-          className="flex-1 rounded-lg border border-white/5 bg-[#09090b] px-3 py-2 text-sm text-zinc-200 outline-none focus:border-[#b38c56]/40"
+          className="flex-1 rounded-lg border border-border/50 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-[#b38c56]/40"
         />
         <button
           type="button"
           onClick={add}
-          className="rounded-lg border border-white/5 px-3 py-2 text-xs font-medium text-zinc-300 hover:border-white/10"
+          className="rounded-lg border border-border/50 px-3 py-2 text-xs font-medium text-foreground/90 hover:border-border"
         >
           <Plus className="size-4" />
         </button>
@@ -899,13 +899,13 @@ const KanbanCard = memo(function KanbanCard({
         }
       }}
       className={cn(
-        "group relative flex w-full min-w-0 flex-col gap-3.5 rounded-2xl border border-white/5 bg-[#151f23] p-4 text-left hover:border-white/10 hover:shadow-xl",
+        "group relative flex w-full min-w-0 flex-col gap-3.5 rounded-2xl border border-border/50 bg-parsel-panel p-4 text-left hover:border-border hover:shadow-xl",
         !showStageSelect && "cursor-grab active:cursor-grabbing",
         isDragging && "shadow-2xl ring-1 ring-[#b38c56]/35",
       )}
     >
       {deal.etiket ? (
-        <span className="inline-flex w-fit truncate rounded-md border border-white/5 bg-[#09090b] px-2 py-0.5 text-[11px] font-medium text-white/40 md:text-[10px]">
+        <span className="inline-flex w-fit truncate rounded-md border border-border/50 bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground md:text-[10px]">
           {deal.etiket}
         </span>
       ) : null}
@@ -913,12 +913,12 @@ const KanbanCard = memo(function KanbanCard({
       <div className="flex w-full items-center justify-between">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <span
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-[#09090b] text-[11px] font-semibold leading-none text-white/70 md:text-[9px]"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border bg-background text-[11px] font-semibold leading-none text-foreground/70 md:text-[9px]"
             aria-hidden
           >
             {getInitials(name)}
           </span>
-          <h3 className="min-w-0 truncate text-sm font-medium tracking-tight text-white/90">
+          <h3 className="min-w-0 truncate text-sm font-medium tracking-tight text-foreground/90">
             {name}
           </h3>
         </div>
@@ -933,27 +933,27 @@ const KanbanCard = memo(function KanbanCard({
           className="ml-2 flex h-6 w-6 shrink-0 items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100"
         >
           <Trash2
-            className="h-4 w-4 text-white/20 transition-colors hover:text-red-400"
+            className="h-4 w-4 text-muted-foreground transition-colors hover:text-red-400"
             strokeWidth={1.75}
           />
         </button>
       </div>
 
       <div className="flex flex-col gap-1">
-        <p className="m-0 truncate text-lg font-semibold tracking-tight text-[#b38c56]">
+        <p className="m-0 truncate text-lg font-semibold tracking-tight text-parsel-gold">
           {budget}
         </p>
-        <div className="flex min-w-0 items-center gap-2 text-[11px] text-white/40">
+        <div className="flex min-w-0 items-center gap-2 text-[11px] text-muted-foreground">
           <Home className="h-3 w-3 shrink-0" strokeWidth={1.75} />
           <span className="min-w-0 truncate">{propertyType}</span>
-          <span className="shrink-0 text-white/20">•</span>
+          <span className="shrink-0 text-muted-foreground">•</span>
           <MapPin className="h-3 w-3 shrink-0" strokeWidth={1.75} />
           <span className="min-w-0 flex-1 truncate">{location}</span>
         </div>
       </div>
 
       <div className="flex w-full min-w-0 flex-col">
-        <div className="my-0.5 h-px w-full bg-white/5" />
+        <div className="my-0.5 h-px w-full bg-foreground/5" />
 
         <DealIntelligenceNote
           deal={deal}
@@ -964,7 +964,7 @@ const KanbanCard = memo(function KanbanCard({
 
         <div className="mt-1 flex w-full items-center justify-between gap-2">
           {progress ? (
-            <p className="flex min-w-0 items-center gap-1.5 truncate text-xs font-medium text-white/50">
+            <p className="flex min-w-0 items-center gap-1.5 truncate text-xs font-medium text-muted-foreground">
               <StickyNote className="h-3 w-3 shrink-0" strokeWidth={1.75} />
               <span className="truncate">
                 {progress.done}/{progress.total} Görev
@@ -987,7 +987,7 @@ const KanbanCard = memo(function KanbanCard({
             }}
             onPointerDown={(e) => e.stopPropagation()}
             className={cn(
-              "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white shadow-sm transition-colors hover:bg-[#20ba5a]",
+              "flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-foreground shadow-sm transition-colors hover:bg-[#20ba5a]",
               !waHref && "cursor-not-allowed opacity-40",
             )}
           >
@@ -1002,7 +1002,7 @@ const KanbanCard = memo(function KanbanCard({
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-600 md:text-[10px]">
+          <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground md:text-[10px]">
             Aşama Değiştir
           </label>
           <select
@@ -1010,7 +1010,7 @@ const KanbanCard = memo(function KanbanCard({
             onChange={(e) =>
               onStageChange(e.target.value as DealStageId)
             }
-            className="w-full rounded-lg border border-white/5 bg-[#09090b] px-3 py-2 text-sm text-zinc-100 outline-none focus:border-[#b38c56]/40"
+            className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-[#b38c56]/40"
           >
             {DEAL_STAGES.map((s) => (
               <option key={s.id} value={s.id}>
@@ -1102,21 +1102,21 @@ function KanbanColumn({
   return (
     <div className="flex w-[min(82vw,280px)] shrink-0 snap-start flex-col md:w-[min(100%,292px)]">
       <div className="mb-3 px-1">
-        <h2 className="text-sm font-semibold text-zinc-200">{label}</h2>
-        <p className="mt-0.5 text-[11px] font-medium text-zinc-600 md:text-[10px]">
+        <h2 className="text-sm font-semibold text-foreground">{label}</h2>
+        <p className="mt-0.5 text-[11px] font-medium text-muted-foreground md:text-[10px]">
           {deals.length} Aktif · {formatCompactTRY(vol)}
         </p>
       </div>
       <div
         ref={setNodeRef}
         className={cn(
-          "min-h-[120px] flex-1 rounded-2xl border border-white/5 bg-[#0f1417] p-2.5 transition-colors md:min-h-[520px]",
-          isOver && "border-white/10 bg-[#12181c]",
+          "min-h-[120px] flex-1 rounded-2xl border border-border/50 bg-parsel-sunken p-2.5 transition-colors md:min-h-[520px]",
+          isOver && "border-border bg-parsel-sunken",
         )}
       >
         <div className="flex flex-col gap-3">
           {deals.length === 0 ? (
-            <p className="px-2 py-6 text-center text-[11px] text-zinc-600">
+            <p className="px-2 py-6 text-center text-[11px] text-muted-foreground">
               Bu aşamada fırsat yok
             </p>
           ) : (
@@ -1522,26 +1522,26 @@ export default function DealsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center bg-[#09090b]">
-        <Loader2 className="size-6 animate-spin text-[#b38c56]" />
+      <div className="flex min-h-[50vh] items-center justify-center bg-background">
+        <Loader2 className="size-6 animate-spin text-parsel-gold" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-full space-y-4 bg-[#09090b] md:space-y-6">
+    <div className="min-h-full space-y-4 bg-background md:space-y-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <div className="mb-2 flex items-center gap-2 text-[#b38c56]">
+          <div className="mb-2 flex items-center gap-2 text-parsel-gold">
             <Kanban className="size-4" strokeWidth={1.5} />
             <span className="text-xs font-semibold uppercase tracking-[0.22em]">
               Fırsat Yönetimi
             </span>
           </div>
-          <h1 className="font-outfit text-xl font-semibold tracking-tight text-zinc-100 md:text-2xl lg:text-3xl">
+          <h1 className="font-outfit text-xl font-semibold tracking-tight text-foreground md:text-2xl lg:text-3xl">
             Fırsat Pipeline
           </h1>
-          <p className="mt-1 max-w-xl text-sm font-light text-zinc-500">
+          <p className="mt-1 max-w-xl text-sm font-light text-foreground0">
             Canlı müşteri ve FSBO Radarı entegrasyonu — veritabanından gerçek
             zamanlı pipeline.
           </p>
@@ -1551,19 +1551,19 @@ export default function DealsPage() {
           <button
             type="button"
             onClick={handleAddDeal}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#b38c56] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[#c2985e] sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-parsel-gold px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:brightness-110 sm:w-auto"
           >
             <Plus className="size-4" strokeWidth={2} />
             Fırsat Ekle
           </button>
 
-          <div className="inline-flex w-full items-center gap-2 rounded-xl border border-white/5 bg-[#151f23] px-4 py-2.5 sm:w-auto">
-            <TrendingUp className="size-4 text-[#b38c56]" strokeWidth={1.5} />
+          <div className="inline-flex w-full items-center gap-2 rounded-xl border border-border/50 bg-parsel-panel px-4 py-2.5 sm:w-auto">
+            <TrendingUp className="size-4 text-parsel-gold" strokeWidth={1.5} />
             <div>
-              <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-600 md:text-[10px]">
+              <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground md:text-[10px]">
                 Toplam Hacim
               </p>
-              <p className="text-lg font-bold text-[#b38c56] md:text-xl">
+              <p className="text-lg font-bold text-parsel-gold md:text-xl">
                 {formatFullTRY(totalVolume)}
               </p>
             </div>
@@ -1572,13 +1572,13 @@ export default function DealsPage() {
       </header>
 
       {deals.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/5 bg-[#151f23] px-6 py-12 text-center">
-          <p className="text-sm text-zinc-400">
+        <div className="rounded-2xl border border-dashed border-border/50 bg-parsel-panel px-6 py-12 text-center">
+          <p className="text-sm text-muted-foreground">
             Henüz fırsat yok.{" "}
             <button
               type="button"
               onClick={handleAddDeal}
-              className="font-semibold text-[#b38c56] hover:underline"
+              className="font-semibold text-parsel-gold hover:underline"
             >
               İlk fırsatı ekleyin
             </button>{" "}
@@ -1631,18 +1631,18 @@ export default function DealsPage() {
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent
           showCloseButton
-          className="!left-auto !right-0 h-full w-full overflow-y-auto border-l border-white/10 bg-[#09090b] p-6 data-open:slide-in-from-right data-closed:slide-out-to-right sm:max-w-[900px]"
+          className="!left-auto !right-0 h-full w-full overflow-y-auto border-l border-border bg-background p-6 data-open:slide-in-from-right data-closed:slide-out-to-right sm:max-w-[900px]"
         >
           {selected ? (
             <>
-              <div className="border-b border-white/5 pb-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+              <div className="border-b border-border/50 pb-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-foreground0">
                   Fırsat Kontrol Kokpiti
                 </p>
-                <h2 className="mt-2 font-outfit text-xl font-semibold text-zinc-50">
+                <h2 className="mt-2 font-outfit text-xl font-semibold text-foreground">
                   {selected.client.adSoyad}
                 </h2>
-                <p className="mt-1 text-sm text-zinc-500">
+                <p className="mt-1 text-sm text-foreground0">
                   {resolveDealLocation(selected)} ·{" "}
                   {formatFullTRY(resolveDealBudgetTL(selected))}
                   {taskProgress(selected)
@@ -1668,7 +1668,7 @@ export default function DealsPage() {
                   </section>
 
                   <section className={PANEL_CARD}>
-                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
                       WhatsApp Hızlı Şablonları
                     </p>
                     <div className="flex flex-col gap-2">
@@ -1687,7 +1687,7 @@ export default function DealsPage() {
                               }
                             }}
                             className={cn(
-                              "flex w-full flex-col rounded-xl border border-white/5 bg-[#09090b] px-4 py-3 transition-colors",
+                              "flex w-full flex-col rounded-xl border border-border/50 bg-background px-4 py-3 transition-colors",
                               href
                                 ? "hover:border-[#25D366]/40 hover:bg-[#25D366]/5"
                                 : "cursor-not-allowed opacity-50",
@@ -1698,11 +1698,11 @@ export default function DealsPage() {
                                 className="size-4 shrink-0 text-[#25D366]"
                                 strokeWidth={2}
                               />
-                              <p className="text-sm font-semibold text-zinc-100">
+                              <p className="text-sm font-semibold text-foreground">
                                 {t.label}
                               </p>
                             </div>
-                            <p className="mt-1.5 line-clamp-2 pl-6 text-[11px] leading-relaxed text-zinc-500">
+                            <p className="mt-1.5 line-clamp-2 pl-6 text-[11px] leading-relaxed text-foreground0">
                               {t.subtitle}
                             </p>
                           </a>
@@ -1722,7 +1722,7 @@ export default function DealsPage() {
                 {/* ── SAĞ SÜTUN: Mülk, İstihbarat & Finans ── */}
                 <div className="flex flex-col gap-3 lg:col-span-7">
                   <section className={PANEL_CARD_COMPACT}>
-                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
                       Fırsat / Mülk Künyesi
                     </p>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -1775,7 +1775,7 @@ export default function DealsPage() {
                         }
                       />
                       <div>
-                        <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+                        <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                           Pipeline Aşaması
                         </p>
                         <select
@@ -1785,7 +1785,7 @@ export default function DealsPage() {
                               stage: e.target.value as DealStageId,
                             })
                           }
-                          className="w-full rounded-lg border border-white/5 bg-[#09090b] px-3 py-2 text-sm text-zinc-100 outline-none focus:border-[#b38c56]/40"
+                          className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-[#b38c56]/40"
                         >
                           {DEAL_STAGES.map((s) => (
                             <option key={s.id} value={s.id}>
@@ -1804,18 +1804,18 @@ export default function DealsPage() {
                         }
                       />
                     </div>
-                    <div className="mt-3 flex gap-2 border-t border-white/5 pt-3">
+                    <div className="mt-3 flex gap-2 border-t border-border/50 pt-3">
                       <input
                         value={scrapeUrl}
                         onChange={(e) => setScrapeUrl(e.target.value)}
                         placeholder="Sahibinden / Emlakjet ilan linki..."
-                        className="h-9 min-w-0 flex-1 rounded-lg border border-white/5 bg-[#09090b] px-3 text-sm text-zinc-200 outline-none focus:border-[#b38c56]/40"
+                        className="h-9 min-w-0 flex-1 rounded-lg border border-border/50 bg-background px-3 text-sm text-foreground outline-none focus:border-[#b38c56]/40"
                       />
                       <button
                         type="button"
                         disabled={scraping || !scrapeUrl.trim()}
                         onClick={handleScrape}
-                        className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#b38c56]/30 bg-[#b38c56]/10 px-3 text-sm font-medium text-[#d4b07a] transition-colors hover:bg-[#b38c56]/15 disabled:opacity-40"
+                        className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#b38c56]/30 bg-parsel-gold/10 px-3 text-sm font-medium text-[#d4b07a] transition-colors hover:bg-parsel-gold/15 disabled:opacity-40"
                       >
                         {scraping ? (
                           <Loader2 className="size-4 animate-spin" />
@@ -1829,19 +1829,19 @@ export default function DealsPage() {
 
                   <section className={PANEL_CARD_COMPACT}>
                     <div className="mb-2 flex items-center gap-2">
-                      <Radar className="size-3.5 text-[#b38c56]" strokeWidth={1.5} />
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                      <Radar className="size-3.5 text-parsel-gold" strokeWidth={1.5} />
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
                         Yapay Zeka Eşleşmeleri
                       </p>
                       {!fsboLoading && fsboMatches.length > 0 ? (
-                        <span className="ml-auto text-[10px] text-white/30">
+                        <span className="ml-auto text-[10px] text-muted-foreground">
                           {fsboMatches.length} ilan
                         </span>
                       ) : null}
                     </div>
                     {fsboLoading ? (
                       <div className="flex justify-center py-5">
-                        <Loader2 className="size-4 animate-spin text-zinc-500" />
+                        <Loader2 className="size-4 animate-spin text-foreground0" />
                       </div>
                     ) : fsboMatches.length > 0 ? (
                       <div className="space-y-1.5">
@@ -1859,9 +1859,9 @@ export default function DealsPage() {
                           return (
                             <div
                               key={lead.id}
-                              className="flex items-center justify-between gap-2 rounded-xl border border-white/5 bg-[#09090b] p-2 transition-all duration-300 hover:border-emerald-500/15"
+                              className="flex items-center justify-between gap-2 rounded-xl border border-border/50 bg-background p-2 transition-all duration-300 hover:border-emerald-500/15"
                             >
-                              <div className="relative size-10 shrink-0 overflow-hidden rounded-lg border border-white/5">
+                              <div className="relative size-10 shrink-0 overflow-hidden rounded-lg border border-border/50">
                                 <Image
                                   src={lead.coverImage}
                                   alt={lead.title}
@@ -1871,13 +1871,13 @@ export default function DealsPage() {
                                 />
                               </div>
                               <div className="min-w-0 flex-1 px-1">
-                                <p className="truncate text-xs font-medium text-zinc-200">
+                                <p className="truncate text-xs font-medium text-foreground">
                                   {lead.title}
                                 </p>
-                                <p className="text-[11px] font-semibold text-[#b38c56]">
+                                <p className="text-[11px] font-semibold text-parsel-gold">
                                   {lead.priceFormatted}
                                 </p>
-                                <p className="truncate text-[10px] text-white/30">
+                                <p className="truncate text-[10px] text-muted-foreground">
                                   {locationLabel} · {propertyTypeLabel}
                                 </p>
                                 <span
@@ -1920,7 +1920,7 @@ export default function DealsPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleAttachFsbo(lead.id)}
-                                  className="rounded-lg bg-[#b38c56] px-2 py-0.5 text-[10px] font-semibold text-black transition-colors hover:bg-[#c2985e]"
+                                  className="rounded-lg bg-parsel-gold px-2 py-0.5 text-[10px] font-semibold text-black transition-colors hover:brightness-110"
                                 >
                                   Eşleştir
                                 </button>
@@ -1930,7 +1930,7 @@ export default function DealsPage() {
                         })}
                       </div>
                     ) : (
-                      <p className="rounded-xl border border-dashed border-white/5 px-3 py-4 text-center text-[11px] text-white/25">
+                      <p className="rounded-xl border border-dashed border-border/50 px-3 py-4 text-center text-[11px] text-foreground/25">
                         Bütçe ve lokasyon kriterlerine uyan aktif FSBO ilanı
                         bulunamadı.
                       </p>
@@ -1940,10 +1940,10 @@ export default function DealsPage() {
                   <section className={PANEL_CARD_COMPACT}>
                     <div className="mb-2 flex items-center gap-2">
                       <History
-                        className="size-4 text-[#b38c56]"
+                        className="size-4 text-parsel-gold"
                         strokeWidth={1.5}
                       />
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
                         Tarih Damgalı Zaman Tüneli
                       </p>
                     </div>
@@ -1957,11 +1957,11 @@ export default function DealsPage() {
                               className="relative flex gap-2.5 pb-3 last:pb-0"
                             >
                               {i < timeline.length - 1 ? (
-                                <span className="absolute left-[11px] top-6 h-[calc(100%-8px)] w-px bg-white/10" />
+                                <span className="absolute left-[11px] top-6 h-[calc(100%-8px)] w-px bg-foreground/10" />
                               ) : null}
                               <span
                                 className={cn(
-                                  "relative z-10 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-[#09090b]",
+                                  "relative z-10 mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border border-border bg-background",
                                 )}
                               >
                                 <Icon
@@ -1975,16 +1975,16 @@ export default function DealsPage() {
                                           ? "text-sky-400"
                                           : event.dot.includes("violet")
                                             ? "text-violet-400"
-                                            : "text-[#b38c56]",
+                                            : "text-parsel-gold",
                                   )}
                                   strokeWidth={1.75}
                                 />
                               </span>
                               <div className="min-w-0 pt-0.5">
-                                <p className="font-mono text-[10px] text-white/40">
+                                <p className="font-mono text-[10px] text-muted-foreground">
                                   {event.date}
                                 </p>
-                                <p className="mt-0.5 text-xs leading-relaxed text-white/75">
+                                <p className="mt-0.5 text-xs leading-relaxed text-foreground/75">
                                   {event.label}
                                 </p>
                               </div>
@@ -1993,7 +1993,7 @@ export default function DealsPage() {
                         })}
                       </ol>
                     ) : (
-                      <p className="py-3 text-center text-[11px] text-white/25">
+                      <p className="py-3 text-center text-[11px] text-foreground/25">
                         Henüz aktivite kaydı yok.
                       </p>
                     )}

@@ -12,7 +12,7 @@ export function Sidebar({ mobileOpen, onMobileOpenChange }: SidebarProps) {
   return (
     <>
       <aside
-        className="hidden h-full w-64 shrink-0 flex-col border-r border-zinc-800/80 bg-[#09090b] md:flex"
+        className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-background md:flex"
         aria-label="Ana menü"
       >
         <SidebarNav />
@@ -21,7 +21,7 @@ export function Sidebar({ mobileOpen, onMobileOpenChange }: SidebarProps) {
       <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
         <SheetContent
           showCloseButton
-          className="border-zinc-800/80 bg-[#09090b] p-0 md:hidden"
+          className="border-border bg-background p-0 md:hidden"
         >
           <SidebarNav onNavigate={() => onMobileOpenChange(false)} />
         </SheetContent>

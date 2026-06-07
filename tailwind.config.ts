@@ -1,26 +1,26 @@
 import type { Config } from "tailwindcss";
 
-import { parselTheme } from "./src/lib/parsel-theme";
+import { parselBrand } from "./src/lib/parsel-theme";
 
 const config = {
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
         parsel: {
-          bg: parselTheme.bg,
-          card: parselTheme.card,
-          elevated: parselTheme.cardElevated,
-          primary: parselTheme.primary,
-          primaryHover: parselTheme.primaryHover,
-          gold: parselTheme.gold,
-          border: parselTheme.border,
-          textMain: parselTheme.textMain,
-          textMuted: parselTheme.textMuted,
-          subtle: parselTheme.textSubtle,
-          darkest: "#2B4522",
-          mid: "#4D6B35",
-          light: "#7A9F45",
-          brown: "#B38C56",
+          canvas: "var(--parsel-canvas)",
+          panel: "var(--parsel-panel)",
+          sunken: "var(--parsel-sunken)",
+          elevated: "var(--parsel-elevated)",
+          gold: "var(--parsel-gold)",
+          "gold-muted": "var(--parsel-gold-muted)",
+          admin: "var(--parsel-admin-canvas)",
+          primary: parselBrand.primary,
+          primaryHover: parselBrand.primaryHover,
+          darkest: parselBrand.greenDark,
+          mid: parselBrand.greenMid,
+          light: parselBrand.greenLight,
+          brown: parselBrand.gold,
         },
       },
       fontFamily: {

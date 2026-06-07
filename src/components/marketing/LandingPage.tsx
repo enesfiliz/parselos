@@ -20,6 +20,7 @@ import {
   LandingNavAuth,
   SignUpShineButton,
 } from "@/components/marketing/LandingAuthButtons";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { Logo } from "@/components/ui/Logo";
 import { RevealOnMount, RevealOnScroll } from "@/components/marketing/landing-motion";
@@ -100,7 +101,7 @@ const PRICING_PLANS = [
     ],
     cta: "Ücretsiz Başla",
     ctaClass:
-      "bg-white/5 text-white hover:bg-white/10 border border-white/[0.08]",
+      "bg-foreground/5 text-foreground hover:bg-foreground/10 border border-border/60",
   },
   {
     id: "pro",
@@ -136,7 +137,7 @@ const PRICING_PLANS = [
     ],
     cta: "Satış ile Görüşün",
     ctaClass:
-      "bg-white/5 text-white hover:bg-white/10 border border-white/[0.08]",
+      "bg-foreground/5 text-foreground hover:bg-foreground/10 border border-border/60",
   },
 ] as const;
 
@@ -144,14 +145,14 @@ const HERO_LIVE_FEED = [
   {
     id: "imar",
     icon: Radar,
-    iconColor: "text-[#b38c56]",
-    iconBg: "bg-[#b38c56]/10 border-[#b38c56]/20",
+    iconColor: "text-parsel-gold",
+    iconBg: "bg-parsel-gold/10 border-[#b38c56]/20",
     float: "landing-capsule-float",
     stagger: "justify-start",
     content: (
       <>
         İmar Radarı:{" "}
-        <strong className="font-medium text-white">
+        <strong className="font-medium text-foreground">
           Oluklu Köyü 126 Ada 58 Parsel
         </strong>{" "}
         güncellendi.
@@ -168,21 +169,21 @@ const HERO_LIVE_FEED = [
     content: (
       <>
         Yeni FSBO Eşleşmesi:{" "}
-        <strong className="font-medium text-white">Konut (Bütçe: 6M ₺)</strong>
+        <strong className="font-medium text-foreground">Konut (Bütçe: 6M ₺)</strong>
       </>
     ),
   },
   {
     id: "portfolio",
     icon: TrendingUp,
-    iconColor: "text-zinc-400",
-    iconBg: "bg-white/[0.04] border-white/10",
+    iconColor: "text-muted-foreground",
+    iconBg: "bg-white/[0.04] border-border",
     float: "landing-capsule-float-3",
     stagger: "justify-end",
     content: (
       <>
         Portföy Analizi:{" "}
-        <strong className="font-medium text-white">+14% Değer Artışı</strong>
+        <strong className="font-medium text-foreground">+14% Değer Artışı</strong>
       </>
     ),
   },
@@ -205,7 +206,7 @@ function HeroLiveFeedPill({
     <div
       className={cn(
         float,
-        "flex w-full max-w-[min(100%,22rem)] items-center gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.04] px-5 py-3.5 text-sm shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-2xl",
+        "flex w-full max-w-[min(100%,22rem)] items-center gap-4 rounded-2xl border border-border/60 bg-white/[0.04] px-5 py-3.5 text-sm shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-2xl",
       )}
     >
       <span
@@ -216,7 +217,7 @@ function HeroLiveFeedPill({
       >
         <Icon className={cn("size-[18px]", iconColor)} strokeWidth={1.5} />
       </span>
-      <p className="min-w-0 flex-1 text-left leading-snug text-zinc-400">
+      <p className="min-w-0 flex-1 text-left leading-snug text-muted-foreground">
         {children}
       </p>
     </div>
@@ -252,24 +253,24 @@ function HeroLiveFeed() {
 
 function HeroSection() {
   return (
-    <section className="relative isolate min-h-[90vh] overflow-hidden bg-[#09090b] pb-24 pt-28 lg:pb-32 lg:pt-36">
+    <section className="relative isolate min-h-[90vh] overflow-hidden bg-background pb-24 pt-28 lg:pb-32 lg:pt-36">
       <div className="pointer-events-none absolute top-0 left-1/2 -z-10 h-[400px] w-[80%] max-w-4xl -translate-x-1/2 bg-gradient-to-b from-[#4d6b35]/20 to-transparent blur-[120px]" />
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
         <div className="landing-aurora-blob absolute -left-32 -top-40 size-[min(560px,70vw)] rounded-full bg-[#4d6b35]/20 blur-[120px] sm:blur-[160px]" />
-        <div className="landing-aurora-blob-gold absolute -bottom-48 -right-24 size-[min(520px,65vw)] rounded-full bg-[#b38c56]/15 blur-[120px] sm:blur-[160px]" />
+        <div className="landing-aurora-blob-gold absolute -bottom-48 -right-24 size-[min(520px,65vw)] rounded-full bg-parsel-gold/15 blur-[120px] sm:blur-[160px]" />
         <div className="absolute left-1/2 top-0 h-px w-[min(640px,90vw)] -translate-x-1/2 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
       </div>
 
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 lg:min-h-[calc(90vh-10rem)] lg:grid-cols-2">
         <div className="flex flex-col items-start text-left">
           <RevealOnMount delay={0}>
-            <span className="inline-flex items-center rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 text-xs font-medium tracking-wide text-zinc-400">
+            <span className="inline-flex items-center rounded-full border border-border/60 bg-white/[0.03] px-4 py-1.5 text-xs font-medium tracking-wide text-muted-foreground">
               ✨ ParselOS v1.0 Yayında
             </span>
           </RevealOnMount>
 
           <RevealOnMount delay={80}>
-            <h1 className="font-outfit mt-6 text-[2.75rem] font-semibold leading-[1.05] tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-zinc-500 sm:text-5xl lg:text-[3.5rem] xl:text-[4rem]">
+            <h1 className="font-outfit mt-6 text-[2.75rem] font-semibold leading-[1.05] tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground via-foreground to-muted-foreground sm:text-5xl lg:text-[3.5rem] xl:text-[4rem]">
               Gayrimenkulde
               <br />
               Yapay Zeka Devrimi
@@ -277,7 +278,7 @@ function HeroSection() {
           </RevealOnMount>
 
           <RevealOnMount delay={160}>
-            <p className="mt-6 max-w-xl text-base font-light leading-relaxed text-zinc-400 sm:text-lg">
+            <p className="mt-6 max-w-xl text-base font-light leading-relaxed text-muted-foreground sm:text-lg">
               SPK uyumlu ekspertiz, müşteri radarı ve TKGM entegrasyonu — tek
               panelde, profesyonel operasyon akışı.
             </p>
@@ -297,7 +298,7 @@ function HeroSection() {
 function TapuScannerVisual() {
   return (
     <div
-      className="relative mt-6 h-28 overflow-hidden rounded-xl border border-white/[0.06] bg-zinc-950/60"
+      className="relative mt-6 h-28 overflow-hidden rounded-xl border border-border/60 bg-parsel-sunken/80"
       aria-hidden
     >
       <div className="absolute inset-0 p-4">
@@ -305,14 +306,14 @@ function TapuScannerVisual() {
           {[92, 78, 85, 70, 88].map((w, i) => (
             <div
               key={i}
-              className="h-1.5 rounded-full bg-zinc-800/80"
+              className="h-1.5 rounded-full bg-border/80"
               style={{ width: `${w}%` }}
             />
           ))}
         </div>
       </div>
       <div className="landing-tapu-scan-line absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-[#547236] to-transparent" />
-      <div className="absolute bottom-2 right-3 flex items-center gap-1.5 text-[10px] font-medium text-zinc-500">
+      <div className="absolute bottom-2 right-3 flex items-center gap-1.5 text-[10px] font-medium text-foreground0">
         <FileScan className="size-3 text-[#547236]" strokeWidth={1.5} />
         Taranıyor
       </div>
@@ -326,7 +327,7 @@ function ImarRadarVisual() {
       className="relative mt-6 flex h-20 items-center justify-center"
       aria-hidden
     >
-      <div className="relative size-16 rounded-full border border-white/[0.06] bg-zinc-950/50">
+      <div className="relative size-16 rounded-full border border-border/60 bg-parsel-sunken/70">
         <div
           className="landing-radar-sweep absolute inset-0 rounded-full opacity-70"
           style={{
@@ -334,7 +335,7 @@ function ImarRadarVisual() {
               "conic-gradient(from 0deg, transparent 0deg, rgba(84,114,54,0.55) 42deg, transparent 72deg)",
           }}
         />
-        <div className="absolute inset-[22%] rounded-full border border-[#547236]/20 bg-zinc-900/80" />
+        <div className="absolute inset-[22%] rounded-full border border-[#547236]/20 bg-card/80" />
         <div className="absolute left-1/2 top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#547236]" />
       </div>
     </div>
@@ -344,12 +345,12 @@ function ImarRadarVisual() {
 function FsboCrmVisual() {
   return (
     <div className="relative mt-6 space-y-2" aria-hidden>
-      <div className="flex items-center gap-2 rounded-lg border border-white/[0.05] bg-zinc-950/50 px-3 py-2">
+      <div className="flex items-center gap-2 rounded-lg border border-border/50 bg-parsel-sunken/70 px-3 py-2">
         <span className="relative flex size-2">
           <span className="landing-fsbo-ping absolute inline-flex size-full rounded-full bg-[#547236] opacity-75" />
           <span className="relative inline-flex size-2 rounded-full bg-[#547236]" />
         </span>
-        <span className="text-[10px] font-medium text-zinc-500">
+        <span className="text-[10px] font-medium text-foreground0">
           Yeni FSBO ilanı
         </span>
       </div>
@@ -418,7 +419,7 @@ function IlanAssistantVisual() {
       {[88, 72, 95, 60].map((w, i) => (
         <div
           key={i}
-          className="h-1.5 rounded-full bg-zinc-800/80 transition-opacity duration-500"
+          className="h-1.5 rounded-full bg-border/80 transition-opacity duration-500"
           style={{ width: `${w}%`, opacity: 0.4 + i * 0.15 }}
         />
       ))}
@@ -430,8 +431,8 @@ function IlanAssistantVisual() {
 function EkspertizVisual() {
   return (
     <div className="mt-6 flex gap-2" aria-hidden>
-      <div className="h-14 flex-1 rounded-lg border border-white/[0.05] bg-zinc-950/50 p-2">
-        <div className="h-1.5 w-2/3 rounded-full bg-zinc-800" />
+      <div className="h-14 flex-1 rounded-lg border border-border/50 bg-parsel-sunken/70 p-2">
+        <div className="h-1.5 w-2/3 rounded-full bg-border" />
         <div className="mt-3 h-6 rounded bg-[#547236]/15" />
       </div>
       <div className="h-14 w-16 rounded-lg border border-[#547236]/20 bg-[#547236]/10" />
@@ -467,7 +468,7 @@ function FeatureIconWrap({
 }) {
   if (anim === "imar") {
     return (
-      <span className="relative inline-flex size-11 items-center justify-center rounded-xl border border-white/[0.08] bg-zinc-950/60 text-[#547236]">
+      <span className="relative inline-flex size-11 items-center justify-center rounded-xl border border-border/60 bg-parsel-sunken/80 text-[#547236]">
         <span
           className="landing-radar-sweep pointer-events-none absolute inset-0 rounded-xl opacity-40"
           style={{
@@ -482,7 +483,7 @@ function FeatureIconWrap({
   }
 
   return (
-    <span className="inline-flex size-11 items-center justify-center rounded-xl border border-white/[0.08] bg-zinc-950/60 text-[#547236] transition-colors group-hover:border-[#547236]/30 group-hover:bg-[#547236]/10">
+    <span className="inline-flex size-11 items-center justify-center rounded-xl border border-border/60 bg-parsel-sunken/80 text-[#547236] transition-colors group-hover:border-[#547236]/30 group-hover:bg-[#547236]/10">
       <Icon className="size-5" strokeWidth={1.25} />
     </span>
   );
@@ -507,16 +508,16 @@ function FeatureCard({
     <RevealOnScroll delay={delay}>
       <article
         className={cn(
-          "group landing-card-anim-fast flex h-full flex-col rounded-3xl border border-white/[0.05] bg-white/[0.02] p-8",
+          "group landing-card-anim-fast flex h-full flex-col rounded-3xl border border-border/50 bg-white/[0.02] p-8",
           "transition-all duration-500 hover:border-white/15 hover:shadow-[0_0_40px_rgba(84,114,54,0.08)]",
           className,
         )}
       >
         <FeatureIconWrap anim={anim} icon={icon} />
-        <h3 className="font-outfit mt-5 text-lg font-semibold tracking-tight text-zinc-100">
+        <h3 className="font-outfit mt-5 text-lg font-semibold tracking-tight text-foreground">
           {title}
         </h3>
-        <p className="mt-2 flex-1 text-sm font-light leading-relaxed text-zinc-400">
+        <p className="mt-2 flex-1 text-sm font-light leading-relaxed text-muted-foreground">
           {description}
         </p>
         <FeatureCardVisual anim={anim} />
@@ -537,10 +538,10 @@ function FeaturesSection() {
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#547236]/90">
               Özellikler
             </p>
-            <h2 className="font-outfit mt-5 text-3xl font-semibold tracking-tight text-zinc-100 sm:text-4xl lg:text-5xl">
+            <h2 className="font-outfit mt-5 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               Operasyonunuzun Her Adımı İçin AI
             </h2>
-            <p className="mt-5 text-lg font-light leading-relaxed text-zinc-400">
+            <p className="mt-5 text-lg font-light leading-relaxed text-muted-foreground">
               Tapu taramadan müşteri eşleştirmeye — tek platformda, sektör
               standartlarında akış.
             </p>
@@ -573,8 +574,8 @@ function PricingCard({
   return (
     <article
       className={cn(
-        "relative flex flex-col overflow-hidden rounded-[2rem] border border-white/[0.05]",
-        "bg-gradient-to-b from-white/[0.03] to-[#09090b]",
+        "relative flex flex-col overflow-hidden rounded-[2rem] border border-border/50",
+        "bg-gradient-to-b from-white/[0.03] to-background",
         plan.highlighted && "ring-1 ring-[#547236]",
       )}
     >
@@ -584,26 +585,26 @@ function PricingCard({
         </span>
       ) : null}
 
-      <div className="border-b border-white/[0.05] p-8 pt-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+      <div className="border-b border-border/50 p-8 pt-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground0">
           {plan.name}
         </p>
-        <p className="font-outfit mt-4 text-4xl font-semibold tracking-tight text-zinc-100">
+        <p className="font-outfit mt-4 text-4xl font-semibold tracking-tight text-foreground">
           {plan.price}
         </p>
-        <p className="mt-1 text-sm font-light text-zinc-500">{plan.period}</p>
-        <p className="mt-4 text-sm font-light leading-relaxed text-zinc-400">
+        <p className="mt-1 text-sm font-light text-foreground0">{plan.period}</p>
+        <p className="mt-4 text-sm font-light leading-relaxed text-muted-foreground">
           {plan.description}
         </p>
       </div>
 
       <ul className="flex flex-1 flex-col gap-3 p-8">
         {plan.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-3 text-sm text-zinc-300">
+          <li key={feature} className="flex items-start gap-3 text-sm text-foreground/90">
             <Check
               className={cn(
                 "mt-0.5 size-4 shrink-0",
-                plan.highlighted ? "text-[#547236]" : "text-zinc-500",
+                plan.highlighted ? "text-[#547236]" : "text-foreground0",
               )}
               strokeWidth={1.5}
             />
@@ -652,7 +653,7 @@ function PricingSection() {
   return (
     <section
       id="pricing"
-      className="relative scroll-mt-28 border-t border-white/[0.05] bg-zinc-950/50 px-8 py-24 lg:px-12 lg:py-32"
+      className="relative scroll-mt-28 border-t border-border/50 bg-parsel-sunken/70 px-8 py-24 lg:px-12 lg:py-32"
     >
       <div className="mx-auto max-w-[1400px]">
         <RevealOnScroll>
@@ -660,10 +661,10 @@ function PricingSection() {
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#B38C56]/80">
               Fiyatlandırma
             </p>
-            <h2 className="font-outfit mt-5 text-3xl font-semibold tracking-tight text-zinc-100 sm:text-4xl lg:text-5xl">
+            <h2 className="font-outfit mt-5 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               Her Ölçekteki Gayrimenkul Profesyoneli İçin
             </h2>
-            <p className="mt-5 text-lg font-light leading-relaxed text-zinc-400">
+            <p className="mt-5 text-lg font-light leading-relaxed text-muted-foreground">
               Başlangıç paketiyle deneyin; portföyünüz büyüdükçe Profesyonel veya
               Ofis planına geçin.
             </p>
@@ -684,31 +685,34 @@ function PricingSection() {
 
 export function LandingPage() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#09090b] font-sans text-zinc-100">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.05] bg-[#09090b]/90 backdrop-blur-md">
+    <div className="relative min-h-screen overflow-x-hidden bg-background font-sans text-foreground">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-8 py-4 lg:px-12 lg:py-5">
           <Link
             href="/"
-            className="inline-flex text-zinc-100 transition-opacity hover:opacity-90"
+            className="inline-flex text-foreground transition-opacity hover:opacity-90"
             aria-label="ParselOS"
           >
-            <Logo className="h-14 w-auto max-w-[min(100%,360px)] text-zinc-100" />
+            <Logo className="h-14 w-auto max-w-[min(100%,360px)] text-foreground" />
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             <a
               href="#features"
-              className="text-sm font-medium text-zinc-400 transition-colors hover:text-zinc-100"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               Özellikler
             </a>
             <a
               href="#pricing"
-              className="text-sm font-medium text-zinc-400 transition-colors hover:text-zinc-100"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               Fiyatlandırma
             </a>
           </nav>
-          <LandingNavAuth />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeToggle />
+            <LandingNavAuth />
+          </div>
         </div>
       </header>
 
@@ -719,11 +723,11 @@ export function LandingPage() {
 
       <section className="px-8 pb-20 lg:px-12 lg:pb-28">
         <RevealOnScroll>
-          <div className="mx-auto max-w-[1400px] rounded-[2rem] border border-white/[0.05] bg-white/[0.02] px-10 py-16 text-center lg:py-20">
-            <h3 className="font-outfit text-2xl font-semibold tracking-tight text-zinc-100 sm:text-3xl">
+          <div className="mx-auto max-w-[1400px] rounded-[2rem] border border-border/50 bg-white/[0.02] px-10 py-16 text-center lg:py-20">
+            <h3 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
               Portföyünüzü bir üst seviyeye taşıyın
             </h3>
-            <p className="mx-auto mt-4 max-w-md text-base font-light text-zinc-400">
+            <p className="mx-auto mt-4 max-w-md text-base font-light text-muted-foreground">
               Dakikalar içinde hesap oluşturun; ilk ekspertiz raporunuzu üretin.
             </p>
             <LandingCtaAuth />
@@ -731,13 +735,13 @@ export function LandingPage() {
         </RevealOnScroll>
       </section>
 
-      <footer className="border-t border-white/[0.05] px-8 py-12 lg:px-12">
+      <footer className="border-t border-border/50 px-8 py-12 lg:px-12">
         <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-4 sm:flex-row">
-          <span className="flex items-center gap-2.5 text-sm text-zinc-500">
+          <span className="flex items-center gap-2.5 text-sm text-foreground0">
             <AppIcon className="h-5 w-5" />
             ParselOS © {new Date().getFullYear()}
           </span>
-          <span className="text-sm font-light text-zinc-500">
+          <span className="text-sm font-light text-foreground0">
             Yapay zeka destekli gayrimenkul operasyonları
           </span>
         </div>

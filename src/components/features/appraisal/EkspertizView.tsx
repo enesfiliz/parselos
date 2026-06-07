@@ -104,9 +104,9 @@ function farkTone(fark: string) {
 
 function KarlilikIcon({ baslik }: { baslik: string }) {
   if (baslik.toLowerCase().includes("kira")) {
-    return <Clock className="size-5 text-zinc-500" strokeWidth={1.5} />;
+    return <Clock className="size-5 text-foreground0" strokeWidth={1.5} />;
   }
-  return <Percent className="size-5 text-zinc-500" strokeWidth={1.5} />;
+  return <Percent className="size-5 text-foreground0" strokeWidth={1.5} />;
 }
 
 function splitParagraphs(text: string) {
@@ -186,7 +186,7 @@ function ReportCoverPage({ form }: { form: AppraisalForm }) {
   return (
     <div
       className={cn(
-        "report-cover relative mb-6 flex min-h-[297mm] w-full flex-col justify-between overflow-hidden rounded-2xl bg-slate-900 p-16 text-white shadow-xl",
+        "report-cover relative mb-6 flex min-h-[297mm] w-full flex-col justify-between overflow-hidden rounded-2xl bg-slate-900 p-16 text-foreground shadow-xl",
         "print:mb-0 print:min-h-[297mm] print:w-full print:rounded-none print:p-12 print:shadow-none print:break-after-page",
       )}
     >
@@ -195,11 +195,11 @@ function ReportCoverPage({ form }: { form: AppraisalForm }) {
       {/* Üst — Logolar */}
       <div className="relative flex items-start justify-between gap-6 print:break-inside-avoid">
         <div className="flex items-center gap-3">
-          <div className="flex size-14 items-center justify-center rounded-xl border border-white/15 bg-white/5">
-            <Sparkles className="size-6 text-white/90" strokeWidth={1.5} />
+          <div className="flex size-14 items-center justify-center rounded-xl border border-white/15 bg-foreground/5">
+            <Sparkles className="size-6 text-foreground/90" strokeWidth={1.5} />
           </div>
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/50">
+            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
               Platform
             </p>
             <p className="text-lg font-semibold tracking-tight">Parselos</p>
@@ -208,13 +208,13 @@ function ReportCoverPage({ form }: { form: AppraisalForm }) {
 
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/50">
+            <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
               Abone / Firma
             </p>
-            <p className="text-sm text-white/70">Logo Alanı</p>
+            <p className="text-sm text-foreground/70">Logo Alanı</p>
           </div>
-          <div className="flex size-14 items-center justify-center rounded-xl border border-dashed border-white/20 bg-white/5">
-            <span className="text-[9px] uppercase tracking-widest text-white/40">
+          <div className="flex size-14 items-center justify-center rounded-xl border border-dashed border-white/20 bg-foreground/5">
+            <span className="text-[9px] uppercase tracking-widest text-muted-foreground">
               Logo
             </span>
           </div>
@@ -223,38 +223,38 @@ function ReportCoverPage({ form }: { form: AppraisalForm }) {
 
       {/* Orta — Başlık */}
       <div className="relative space-y-6 py-8 print:break-inside-avoid">
-        <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-white/45">
+        <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-foreground/45">
           Resmi Değerleme Dosyası
         </p>
-        <h1 className="max-w-2xl text-4xl font-extralight leading-tight tracking-tight text-white md:text-5xl">
+        <h1 className="max-w-2xl text-4xl font-extralight leading-tight tracking-tight text-foreground md:text-5xl">
           Gayrimenkul Değerleme ve Bölge Analiz Raporu
         </h1>
         <div className="space-y-2 border-l border-white/20 pl-5">
-          <p className="text-sm font-light text-white/80">{konum}</p>
-          <p className="text-lg font-medium tracking-tight text-white">{adaParsel}</p>
+          <p className="text-sm font-light text-foreground/80">{konum}</p>
+          <p className="text-lg font-medium tracking-tight text-foreground">{adaParsel}</p>
           {form.mahalle.trim() && (
-            <p className="text-sm text-white/60">{form.mahalle} Mahallesi</p>
+            <p className="text-sm text-muted-foreground">{form.mahalle} Mahallesi</p>
           )}
         </div>
       </div>
 
       {/* Alt — Hazırlayan */}
-      <div className="relative flex flex-col gap-6 border-t border-white/10 pt-8 sm:flex-row sm:items-end sm:justify-between print:break-inside-avoid">
+      <div className="relative flex flex-col gap-6 border-t border-border pt-8 sm:flex-row sm:items-end sm:justify-between print:break-inside-avoid">
         <div className="space-y-2">
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/45">
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-foreground/45">
             Hazırlayan
           </p>
           <p className="text-xl font-medium tracking-tight">Enes Filiz</p>
-          <p className="text-sm font-light text-white/65">
+          <p className="text-sm font-light text-foreground/65">
             Gayrimenkul Değerleme Danışmanı
           </p>
-          <p className="text-sm text-white/50">enes@parselos.com · +90 532 000 00 00</p>
+          <p className="text-sm text-muted-foreground">enes@parselos.com · +90 532 000 00 00</p>
         </div>
         <div className="text-left sm:text-right">
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/45">
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-foreground/45">
             Rapor Tarihi
           </p>
-          <p className="mt-1 text-sm font-light text-white/80">{formatReportDate()}</p>
+          <p className="mt-1 text-sm font-light text-foreground/80">{formatReportDate()}</p>
         </div>
       </div>
     </div>
@@ -414,8 +414,8 @@ function BentoReport({
 
           <div className="absolute inset-x-0 top-5 flex items-start justify-between px-6">
             <div className="flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-3 py-1.5 backdrop-blur-md">
-              <Sparkles className="size-3.5 text-white" strokeWidth={1.5} />
-              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/90">
+              <Sparkles className="size-3.5 text-foreground" strokeWidth={1.5} />
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-foreground/90">
                 Parselos Değerleme
               </span>
             </div>
@@ -891,10 +891,10 @@ export function EkspertizView() {
     <div className="mx-auto w-full max-w-[1600px] space-y-8">
       <style dangerouslySetInnerHTML={{ __html: PRINT_PAGE_STYLE }} />
       <header className="space-y-2">
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
           Akıllı Değerleme
         </h1>
-        <p className="max-w-xl text-sm leading-relaxed text-zinc-400">
+        <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
           Uzun formatlı editorial rapor, gerçek uydu haritası ve tutarlı emsal
           analizi ile profesyonel değerleme.
         </p>
@@ -965,7 +965,7 @@ export function EkspertizView() {
             <Button
               type="button"
               variant="outline"
-              className="h-10 w-full border-parsel-border bg-parsel-card text-zinc-50 shadow-sm"
+              className="h-10 w-full border-border bg-parsel-card text-foreground shadow-sm"
               onClick={() => void handleTkgmQuery()}
               disabled={
                 isTkgmLoading ||
@@ -1032,7 +1032,7 @@ export function EkspertizView() {
                 value={form.ozellikler}
                 onChange={(e) => updateField("ozellikler", e.target.value)}
                 rows={3}
-                className="border-input bg-background ring-offset-background placeholder:text-zinc-400 focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               />
             </div>
 
@@ -1051,7 +1051,7 @@ export function EkspertizView() {
               {isGenerating ? "Analiz ediliyor…" : "Değerleme Raporu Oluştur"}
             </Button>
             {!canGenerate && (
-              <p className="text-center text-xs text-zinc-400">
+              <p className="text-center text-xs text-muted-foreground">
                 Brüt ve net alan doldurulmadan rapor oluşturulamaz. TKGM sorgusu
                 veya manuel giriş yapın.
               </p>
@@ -1068,7 +1068,7 @@ export function EkspertizView() {
               size="sm"
               onClick={() => void handleSaveArchive()}
               disabled={!report || isSavingArchive}
-              className="border-parsel-border bg-parsel-card text-zinc-50 shadow-sm"
+              className="border-border bg-parsel-card text-foreground shadow-sm"
             >
               {isSavingArchive ? (
                 <>

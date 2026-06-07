@@ -10,11 +10,11 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
         outline:
-          "border-zinc-800 bg-parsel-bg/80 text-zinc-100 hover:bg-parsel-card hover:text-zinc-100 aria-expanded:bg-parsel-card aria-expanded:text-zinc-100",
+          "border-border bg-background/80 text-foreground hover:bg-card hover:text-foreground aria-expanded:bg-card aria-expanded:text-foreground",
         secondary:
-          "bg-secondary text-zinc-100 hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-zinc-100",
+          "bg-secondary text-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-foreground",
         ghost:
-          "text-zinc-100 hover:bg-parsel-card/80 hover:text-zinc-100 aria-expanded:bg-parsel-card/80 aria-expanded:text-zinc-100",
+          "text-foreground hover:bg-card/80 hover:text-foreground aria-expanded:bg-card/80 aria-expanded:text-foreground",
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",

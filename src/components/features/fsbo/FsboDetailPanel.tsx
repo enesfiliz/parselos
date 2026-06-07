@@ -18,7 +18,7 @@ import type { FsboLeadData } from "@/lib/types/fsbo-lead";
 import { cn } from "@/lib/utils";
 
 const PANEL =
-  "min-w-0 rounded-2xl border border-white/5 bg-[#151f23] transition-all duration-300";
+  "min-w-0 rounded-2xl border border-border/50 bg-parsel-panel transition-all duration-300";
 
 type FsboDetailPanelProps = {
   lead: FsboLeadData | null;
@@ -40,7 +40,7 @@ export function FsboDetailPanel({
         )}
       >
         <Radar className="mb-3 size-8 text-zinc-700" strokeWidth={1.25} />
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-foreground0">
           Detay görmek için soldan bir FSBO sinyali seçin.
         </p>
       </div>
@@ -69,16 +69,16 @@ export function FsboDetailPanel({
 
   return (
     <div className={cn(PANEL, "flex min-h-[560px] flex-col overflow-hidden")}>
-      <div className="border-b border-white/5 p-4">
+      <div className="border-b border-border/50 p-4">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
             <FsboSourceBadge source={lead.source} className="size-7 text-xs" />
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground0">
                 {lead.islemTipi === "KIRALIK" ? "Kiralık" : "Satılık"} ·{" "}
                 {lead.kategori}
               </p>
-              <h2 className="font-outfit text-lg font-semibold text-zinc-50">
+              <h2 className="font-outfit text-lg font-semibold text-foreground">
                 {lead.title}
               </h2>
             </div>
@@ -87,7 +87,7 @@ export function FsboDetailPanel({
             href={lead.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 rounded-lg border border-white/10 p-2 text-zinc-400 transition-all duration-300 hover:border-[#b38c56]/30 hover:text-[#b38c56]"
+            className="shrink-0 rounded-lg border border-border p-2 text-muted-foreground transition-all duration-300 hover:border-parsel-gold/30 hover:text-parsel-gold"
           >
             <ExternalLink className="size-4" />
           </a>
@@ -98,7 +98,7 @@ export function FsboDetailPanel({
 
       <div className="flex flex-1 flex-col overflow-y-auto p-4">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-2xl font-bold tabular-nums text-[#b38c56]">
+          <p className="text-2xl font-bold tabular-nums text-parsel-gold">
             {lead.priceFormatted}
           </p>
           {badge ? (
@@ -113,30 +113,30 @@ export function FsboDetailPanel({
           ) : null}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 rounded-xl border border-white/5 bg-[#09090b] p-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 rounded-xl border border-border/50 bg-background p-4 md:grid-cols-4">
           {specItems.map((item) => (
             <div
               key={item.label}
-              className="rounded-lg border border-white/5 bg-[#151f23] px-3 py-2.5 transition-all duration-300 hover:border-white/10"
+              className="rounded-lg border border-border/50 bg-parsel-panel px-3 py-2.5 transition-all duration-300 hover:border-border"
             >
-              <p className="text-[10px] uppercase tracking-[0.1em] text-zinc-600">
+              <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
                 {item.label}
               </p>
-              <p className="mt-1 text-sm font-medium text-zinc-200">
+              <p className="mt-1 text-sm font-medium text-foreground">
                 {item.value}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 rounded-xl border border-white/5 bg-[#09090b] p-4">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+        <div className="mt-4 rounded-xl border border-border/50 bg-background p-4">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             İlan Açıklaması
           </p>
-          <p className="text-sm leading-relaxed text-zinc-400">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             {lead.description}
           </p>
-          <p className="mt-3 text-xs text-zinc-600">{lead.location}</p>
+          <p className="mt-3 text-xs text-muted-foreground">{lead.location}</p>
         </div>
 
         <div className="mt-auto flex flex-wrap gap-2 pt-6">
@@ -152,7 +152,7 @@ export function FsboDetailPanel({
           <button
             type="button"
             onClick={() => onSendToDeals(lead)}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#b38c56] px-5 py-2.5 text-sm font-bold text-black transition-all duration-300 hover:bg-[#c9a06a] sm:flex-none"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-parsel-gold px-5 py-2.5 text-sm font-bold text-black transition-all duration-300 hover:bg-[#c9a06a] sm:flex-none"
           >
             <Plus className="size-4" strokeWidth={2.5} />
             Fırsatlara Gönder

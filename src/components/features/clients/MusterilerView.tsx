@@ -103,21 +103,21 @@ function toDateInputValue(iso: string | null) {
 function ProfileCardSkeleton() {
   return (
     <div
-      className="animate-pulse rounded-xl border border-white/5 bg-[#151f23] p-6"
+      className="animate-pulse rounded-xl border border-border/50 bg-parsel-panel p-6"
       aria-hidden
     >
       <div className="flex gap-4">
-        <div className="size-14 rounded-2xl bg-zinc-800" />
+        <div className="size-14 rounded-2xl bg-border" />
         <div className="flex-1 space-y-2">
-          <div className="h-5 w-2/3 rounded bg-zinc-800" />
-          <div className="h-3 w-1/2 rounded bg-zinc-800/80" />
+          <div className="h-5 w-2/3 rounded bg-border" />
+          <div className="h-3 w-1/2 rounded bg-border/80" />
         </div>
       </div>
       <div className="mt-5 flex gap-2">
-        <div className="h-7 w-20 rounded-full bg-zinc-800" />
-        <div className="h-7 w-24 rounded-full bg-zinc-800" />
+        <div className="h-7 w-20 rounded-full bg-border" />
+        <div className="h-7 w-24 rounded-full bg-border" />
       </div>
-      <div className="mt-6 h-3 w-full rounded bg-zinc-800/60" />
+      <div className="mt-6 h-3 w-full rounded bg-border/60" />
     </div>
   );
 }
@@ -290,16 +290,16 @@ export function MusterilerView() {
     <div className="mx-auto w-full max-w-7xl space-y-8">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <header className="space-y-2">
-          <div className="flex items-center gap-2 text-zinc-400">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <Users className="size-4" strokeWidth={1.5} />
             <span className="text-[10px] font-medium uppercase tracking-[0.2em]">
               Portföy Vitrini
             </span>
           </div>
-          <h1 className="font-outfit text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
+          <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             Müşteriler
           </h1>
-          <p className="max-w-xl text-sm leading-relaxed text-zinc-400">
+          <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
             Profil kartlarıyla portföyünüzü yönetin; bütçe, mülk tipi ve doğum
             günü hatırlatıcıları tek bakışta.
           </p>
@@ -311,8 +311,8 @@ export function MusterilerView() {
       </div>
 
       {!isLoading && clients.length > 0 ? (
-        <p className="text-sm text-zinc-500">
-          <span className="font-medium text-zinc-300">{clients.length}</span>{" "}
+        <p className="text-sm text-foreground0">
+          <span className="font-medium text-foreground/90">{clients.length}</span>{" "}
           kayıtlı müşteri
         </p>
       ) : null}
@@ -326,15 +326,15 @@ export function MusterilerView() {
       ) : clients.length === 0 ? (
         <div
           className={cn(
-            "flex flex-col items-center justify-center rounded-xl border border-dashed border-white/5",
-            "bg-[#151f23] px-6 py-16 text-center sm:px-8 sm:py-20",
+            "flex flex-col items-center justify-center rounded-xl border border-dashed border-border/50",
+            "bg-parsel-panel px-6 py-16 text-center sm:px-8 sm:py-20",
           )}
         >
-          <Users className="mb-4 size-10 text-zinc-600" strokeWidth={1.25} />
-          <p className="font-outfit text-lg font-medium text-zinc-300">
+          <Users className="mb-4 size-10 text-muted-foreground" strokeWidth={1.25} />
+          <p className="font-outfit text-lg font-medium text-foreground/90">
             Henüz müşteri yok
           </p>
-          <p className="mt-2 max-w-sm text-sm text-zinc-500">
+          <p className="mt-2 max-w-sm text-sm text-foreground0">
             İlk profil kartınızı oluşturmak için &quot;Yeni Müşteri Ekle&quot;
             düğmesine tıklayın.
           </p>
@@ -452,7 +452,7 @@ export function MusterilerView() {
                   }
                   rows={3}
                   placeholder="Portföy notları…"
-                  className="flex min-h-[80px] w-full rounded-md border border-zinc-800 bg-parsel-bg/80 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-2 focus-visible:ring-parsel-primary/30 focus-visible:outline-none"
+                  className="flex min-h-[80px] w-full rounded-md border border-border bg-parsel-bg/80 px-3 py-2 text-sm text-foreground placeholder:text-foreground0 focus-visible:ring-2 focus-visible:ring-parsel-primary/30 focus-visible:outline-none"
                 />
               </div>
             </div>

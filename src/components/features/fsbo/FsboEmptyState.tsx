@@ -10,37 +10,37 @@ export function FsboEmptyState({ variant = "listening" }: FsboEmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
       <div className="relative mb-6">
-        <div className="absolute inset-0 animate-ping rounded-full bg-[#b38c56]/10" />
-        <div className="relative flex size-20 items-center justify-center rounded-full border border-[#b38c56]/25 bg-[#151f23]">
+        <div className="absolute inset-0 animate-ping rounded-full bg-parsel-gold/10" />
+        <div className="relative flex size-20 items-center justify-center rounded-full border border-[#b38c56]/25 bg-parsel-panel">
           {isListening ? (
-            <Satellite className="size-9 text-[#b38c56]" strokeWidth={1.25} />
+            <Satellite className="size-9 text-parsel-gold" strokeWidth={1.25} />
           ) : (
-            <Radio className="size-9 text-zinc-600" strokeWidth={1.25} />
+            <Radio className="size-9 text-muted-foreground" strokeWidth={1.25} />
           )}
         </div>
       </div>
 
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b38c56]">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-parsel-gold">
         {isListening ? "Sistem Dinlemede" : "Sonuç Bulunamadı"}
       </p>
-      <h3 className="mt-2 font-outfit text-lg font-semibold text-zinc-100">
+      <h3 className="mt-2 font-outfit text-lg font-semibold text-foreground">
         {isListening
           ? "Henüz yeni ilan düşmedi"
           : "Filtrelere uygun sinyal yok"}
       </h3>
-      <p className="mt-2 max-w-sm text-sm leading-relaxed text-zinc-500">
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-foreground0">
         {isListening
           ? "Scraper-bot yeni FSBO ilanları gönderdiğinde gelen kutusu otomatik dolacak. Geliştirme modunda önizleme kartları yüklendi."
           : "Filtreleri gevşetin veya radarı yeniden çalıştırın."}
       </p>
 
       {isListening ? (
-        <div className="mt-6 flex items-center gap-2 rounded-full border border-white/5 bg-[#0f1417] px-4 py-2">
+        <div className="mt-6 flex items-center gap-2 rounded-full border border-border/50 bg-parsel-sunken px-4 py-2">
           <span className="relative flex size-2">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
           </span>
-          <span className="text-xs text-zinc-400">Bot bağlantısı bekleniyor</span>
+          <span className="text-xs text-muted-foreground">Bot bağlantısı bekleniyor</span>
         </div>
       ) : null}
     </div>

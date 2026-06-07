@@ -29,10 +29,10 @@ export type CommandCenterUser = {
 };
 
 const WIDGET_CARD =
-  "rounded-2xl border border-white/5 bg-[#151f23] p-3 md:p-4";
+  "rounded-2xl border border-border/50 bg-parsel-panel p-3 md:p-4";
 
 const METRIC_CARD =
-  "flex min-h-[88px] min-w-0 flex-col justify-between rounded-2xl border border-white/5 bg-[#151f23] p-3 transition-all duration-300 hover:border-white/10 md:h-[96px] md:p-4";
+  "flex min-h-[88px] min-w-0 flex-col justify-between rounded-2xl border border-border/50 bg-parsel-panel p-3 transition-all duration-300 hover:border-border md:h-[96px] md:p-4";
 
 function formatToday() {
   return new Intl.DateTimeFormat("tr-TR", {
@@ -87,24 +87,24 @@ function PipelineMetricCard({ metrics }: { metrics: CommandCenterTopMetrics }) {
   return (
     <article className={METRIC_CARD}>
       <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-xs font-medium tracking-wide text-white/45">
+        <p className="truncate text-xs font-medium tracking-wide text-foreground/45">
           Toplam Pipeline Hacmi
         </p>
-        <BarChart3 className="h-4 w-4 shrink-0 text-white/25" strokeWidth={1.75} />
+        <BarChart3 className="h-4 w-4 shrink-0 text-foreground/25" strokeWidth={1.75} />
       </div>
 
       <div className="flex flex-col gap-1">
-        <p className="truncate text-lg font-semibold tabular-nums tracking-tight text-[#b38c56]">
+        <p className="truncate text-lg font-semibold tabular-nums tracking-tight text-parsel-gold">
           {formatFullTRY(metrics.pipelineHacmi)}
         </p>
         <div className="space-y-1">
-          <div className="flex items-center justify-between gap-2 text-[11px] text-white/40 md:text-[10px]">
+          <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground md:text-[10px]">
             <span className="truncate">Aylık komisyon hedefi</span>
             <span className="shrink-0 tabular-nums">%{metrics.komisyonHedefOrani}</span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-[#09090b]">
+          <div className="h-1.5 overflow-hidden rounded-full bg-background">
             <div
-              className="h-full rounded-full bg-[#b38c56] transition-all duration-500"
+              className="h-full rounded-full bg-parsel-gold transition-all duration-500"
               style={{ width: `${metrics.komisyonHedefOrani}%` }}
             />
           </div>
@@ -130,14 +130,14 @@ function CountMetricCard({
   return (
     <article className={METRIC_CARD}>
       <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-xs font-medium tracking-wide text-white/45">
+        <p className="truncate text-xs font-medium tracking-wide text-foreground/45">
           {label}
         </p>
-        <Icon className="h-4 w-4 shrink-0 text-white/25" strokeWidth={1.75} />
+        <Icon className="h-4 w-4 shrink-0 text-foreground/25" strokeWidth={1.75} />
       </div>
 
       <div className="flex items-end gap-2">
-        <p className="min-w-0 flex-1 truncate text-lg font-semibold tabular-nums tracking-tight text-white/90">
+        <p className="min-w-0 flex-1 truncate text-lg font-semibold tabular-nums tracking-tight text-foreground/90">
           {value}
         </p>
         {trendPct !== undefined ? (
@@ -150,7 +150,7 @@ function CountMetricCard({
 
 function ImarStatusBadge({ status }: { status: string }) {
   return (
-    <span className="shrink-0 rounded-md bg-white/5 px-2 py-1 text-[11px] text-white/55">
+    <span className="shrink-0 rounded-md bg-foreground/5 px-2 py-1 text-[11px] text-foreground/55">
       {status}
     </span>
   );
@@ -159,7 +159,7 @@ function ImarStatusBadge({ status }: { status: string }) {
 function ImarRadarPanel({ items }: { items: ImarWatchItem[] }) {
   return (
     <section className={cn(WIDGET_CARD, "flex flex-col")}>
-      <h2 className="mb-2 shrink-0 text-sm font-medium tracking-wide text-white/70">
+      <h2 className="mb-2 shrink-0 text-sm font-medium tracking-wide text-foreground/70">
         İmar & Askı Takip Radarı
       </h2>
 
@@ -167,15 +167,15 @@ function ImarRadarPanel({ items }: { items: ImarWatchItem[] }) {
         {items.map((item) => (
           <li
             key={item.id}
-            className="shrink-0 rounded-xl border border-white/5 bg-[#09090b] px-3 py-2 transition-all duration-300 hover:border-white/10"
+            className="shrink-0 rounded-xl border border-border/50 bg-background px-3 py-2 transition-all duration-300 hover:border-border"
           >
             <div className="flex min-w-0 items-center justify-between gap-2">
-              <p className="min-w-0 flex-1 truncate text-xs text-white/60">
+              <p className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
                 {item.label}
               </p>
               <ImarStatusBadge status={item.status} />
             </div>
-            <p className="mt-1 truncate text-[11px] text-white/30 md:text-[10px]">
+            <p className="mt-1 truncate text-[11px] text-muted-foreground md:text-[10px]">
               Son kontrol: {formatRelativeTime(item.lastCheckedAt)}
             </p>
           </li>
@@ -184,7 +184,7 @@ function ImarRadarPanel({ items }: { items: ImarWatchItem[] }) {
 
       <Link
         href="/imar-radari"
-        className="mt-2 inline-flex shrink-0 items-center gap-1.5 text-[11px] text-white/35 transition-colors hover:text-white/60"
+        className="mt-2 inline-flex shrink-0 items-center gap-1.5 text-[11px] text-foreground/35 transition-colors hover:text-muted-foreground"
       >
         İmar radarına git
         <ArrowRight className="h-3 w-3" />
@@ -196,28 +196,28 @@ function ImarRadarPanel({ items }: { items: ImarWatchItem[] }) {
 function FsboRadarPanel({ listings }: { listings: FsboCouponListing[] }) {
   return (
     <section className={cn(WIDGET_CARD, "flex flex-col")}>
-      <h2 className="mb-2 shrink-0 text-sm font-medium tracking-wide text-white/70">
+      <h2 className="mb-2 shrink-0 text-sm font-medium tracking-wide text-foreground/70">
         FSBO Kupon Radarı
       </h2>
 
       <ul className="custom-scrollbar flex max-h-[180px] flex-col gap-2 overflow-y-auto">
         {listings.length === 0 ? (
-          <li className="shrink-0 rounded-xl border border-dashed border-white/5 px-3 py-6 text-center text-xs text-white/35">
+          <li className="shrink-0 rounded-xl border border-dashed border-border/50 px-3 py-6 text-center text-xs text-foreground/35">
             Kupon ilan sinyali yok.
           </li>
         ) : (
           listings.map((listing) => (
             <li
               key={listing.id}
-              className="flex shrink-0 min-w-0 flex-col gap-2 rounded-xl border border-white/5 bg-[#09090b] px-3 py-2 transition-all duration-300 hover:border-white/10 sm:flex-row sm:items-center"
+              className="flex shrink-0 min-w-0 flex-col gap-2 rounded-xl border border-border/50 bg-background px-3 py-2 transition-all duration-300 hover:border-border sm:flex-row sm:items-center"
             >
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-medium text-white/75">
+                <p className="truncate text-xs font-medium text-foreground/75">
                   {listing.title}
                 </p>
-                <p className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] text-white/40">
-                  <span className="text-[#b38c56]">{listing.priceFormatted}</span>
-                  <span className="text-white/20">•</span>
+                <p className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <span className="text-parsel-gold">{listing.priceFormatted}</span>
+                  <span className="text-muted-foreground">•</span>
                   <span className="truncate">{listing.location}</span>
                   <span className="shrink-0 text-emerald-400/80">
                     %{listing.discountPct} ucuz
@@ -226,7 +226,7 @@ function FsboRadarPanel({ listings }: { listings: FsboCouponListing[] }) {
               </div>
               <Link
                 href="/fsbo-radar"
-                className="w-full shrink-0 rounded-md border border-[#b38c56]/25 bg-[#b38c56]/10 px-2 py-1.5 text-center text-[11px] font-medium text-[#d4b07a] transition-colors hover:bg-[#b38c56]/15 sm:w-auto md:text-[10px]"
+                className="w-full shrink-0 rounded-md border border-[#b38c56]/25 bg-parsel-gold/10 px-2 py-1.5 text-center text-[11px] font-medium text-[#d4b07a] transition-colors hover:bg-parsel-gold/15 sm:w-auto md:text-[10px]"
               >
                 Fırsata Çevir
               </Link>
@@ -237,7 +237,7 @@ function FsboRadarPanel({ listings }: { listings: FsboCouponListing[] }) {
 
       <Link
         href="/fsbo-radar"
-        className="mt-2 inline-flex shrink-0 items-center gap-1.5 text-[11px] text-white/35 transition-colors hover:text-white/60"
+        className="mt-2 inline-flex shrink-0 items-center gap-1.5 text-[11px] text-foreground/35 transition-colors hover:text-muted-foreground"
       >
         FSBO radarına git
         <ScanLine className="h-3 w-3" />
@@ -260,19 +260,19 @@ export function CommandCenterView({
   const greetingName = getGreetingName(user.firstName, user.fullName);
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 bg-[#09090b] md:gap-4">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 bg-background md:gap-4">
       <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <div className="mb-2 flex items-center gap-2 text-[#b38c56]">
+          <div className="mb-2 flex items-center gap-2 text-parsel-gold">
             <LayoutDashboard className="h-4 w-4" strokeWidth={1.5} />
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] md:text-[10px]">
               Ultra-Genişletilmiş Analitik Kokpit
             </span>
           </div>
-          <h1 className="font-outfit text-xl font-semibold tracking-tight text-white/90 md:text-2xl lg:text-3xl">
+          <h1 className="font-outfit text-xl font-semibold tracking-tight text-foreground/90 md:text-2xl lg:text-3xl">
             {greetingName ? `Hoş geldin, ${greetingName}` : "Hoş geldin"}
           </h1>
-          <p className="mt-1 text-sm text-white/70">{formatToday()}</p>
+          <p className="mt-1 text-sm text-foreground/70">{formatToday()}</p>
         </div>
         <DashboardGlobalSearch index={searchIndex} className="lg:max-w-sm" />
       </header>

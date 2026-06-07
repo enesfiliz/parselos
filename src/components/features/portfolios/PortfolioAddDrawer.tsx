@@ -46,14 +46,14 @@ function UnderlineField({
     <div className="space-y-2">
       <label
         htmlFor={id}
-        className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40"
+        className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
       >
         {label}
       </label>
       <input
         id={id}
         {...inputProps}
-        className="w-full border-b border-white/10 bg-transparent py-2.5 text-sm text-white/90 placeholder:text-white/25 transition-colors focus:border-[#b38c56] focus:outline-none"
+        className="w-full border-b border-border bg-transparent py-2.5 text-sm text-foreground/90 placeholder:text-white/25 transition-colors focus:border-[#b38c56] focus:outline-none"
       />
       {error ? <p className="text-[11px] text-red-400/90">{error}</p> : null}
     </div>
@@ -214,7 +214,7 @@ export function PortfolioAddDrawer({
       <aside
         aria-hidden={!open}
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-white/10 bg-[#0A0A0A] shadow-[-20px_0_60px_rgba(0,0,0,0.45)] transition-transform duration-300",
+          "fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-border bg-parsel-elevated shadow-[-20px_0_60px_rgba(0,0,0,0.45)] transition-transform duration-300",
           open ? "translate-x-0" : "translate-x-full",
         )}
       >
@@ -224,19 +224,19 @@ export function PortfolioAddDrawer({
         >
           <input type="hidden" {...register("coverImageUrl")} />
 
-          <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
+          <div className="flex items-center justify-between border-b border-border/50 px-6 py-5">
             <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#b38c56]/80">
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-parsel-gold/80">
                 {mode === "edit" ? "Düzenleme" : "Yeni Kayıt"}
               </p>
-              <h2 className="mt-1 text-lg font-medium tracking-tight text-white/90">
+              <h2 className="mt-1 text-lg font-medium tracking-tight text-foreground/90">
                 Portföy Kayıt Çekmecesi
               </h2>
             </div>
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="inline-flex size-8 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/5 hover:text-white/80"
+              className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground/80"
               aria-label="Çekmeceyi kapat"
             >
               <X className="size-4" strokeWidth={1.75} />
@@ -269,8 +269,8 @@ export function PortfolioAddDrawer({
                 className={cn(
                   "relative flex h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-dashed transition-colors",
                   dragActive
-                    ? "border-[#b38c56] bg-[#b38c56]/5"
-                    : "border-white/20 hover:border-[#b38c56]",
+                    ? "border-[#b38c56] bg-parsel-gold/5"
+                    : "border-white/20 hover:border-parsel-gold",
                   isUploading && "pointer-events-none opacity-70",
                 )}
               >
@@ -287,9 +287,9 @@ export function PortfolioAddDrawer({
                   />
                 ) : (
                   <>
-                    <ImagePlus className="size-5 text-white/35" strokeWidth={1.5} />
-                    <span className="text-xs text-white/45">Görsel Yükle</span>
-                    <span className="text-[10px] text-white/25">
+                    <ImagePlus className="size-5 text-foreground/35" strokeWidth={1.5} />
+                    <span className="text-xs text-foreground/45">Görsel Yükle</span>
+                    <span className="text-[10px] text-foreground/25">
                       Sürükle-bırak veya tıkla · max 5 MB
                     </span>
                   </>
@@ -297,7 +297,7 @@ export function PortfolioAddDrawer({
 
                 {isUploading ? (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-[1px]">
-                    <Loader2 className="size-5 animate-spin text-[#b38c56]" />
+                    <Loader2 className="size-5 animate-spin text-parsel-gold" />
                   </div>
                 ) : null}
               </button>
@@ -306,7 +306,7 @@ export function PortfolioAddDrawer({
                 <button
                   type="button"
                   onClick={clearCoverImage}
-                  className="absolute right-2 top-2 inline-flex size-8 items-center justify-center rounded-lg border border-white/10 bg-black/60 text-white/70 backdrop-blur-sm transition-colors hover:bg-black/80 hover:text-white"
+                  className="absolute right-2 top-2 inline-flex size-8 items-center justify-center rounded-lg border border-border bg-black/60 text-foreground/70 backdrop-blur-sm transition-colors hover:bg-black/80 hover:text-foreground"
                   aria-label="Görseli kaldır"
                 >
                   <Trash2 className="size-3.5" strokeWidth={1.75} />
@@ -333,19 +333,19 @@ export function PortfolioAddDrawer({
               <div className="space-y-2">
                 <label
                   htmlFor="portfolio-listing-type"
-                  className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40"
+                  className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
                 >
                   İlan Türü
                 </label>
                 <select
                   id="portfolio-listing-type"
-                  className="w-full border-b border-white/10 bg-transparent py-2.5 text-sm text-white/90 focus:border-[#b38c56] focus:outline-none"
+                  className="w-full border-b border-border bg-transparent py-2.5 text-sm text-foreground/90 focus:border-[#b38c56] focus:outline-none"
                   {...register("listingType")}
                 >
-                  <option value="SATILIK" className="bg-[#0A0A0A]">
+                  <option value="SATILIK" className="bg-parsel-elevated">
                     Satılık
                   </option>
-                  <option value="KIRALIK" className="bg-[#0A0A0A]">
+                  <option value="KIRALIK" className="bg-parsel-elevated">
                     Kiralık
                   </option>
                 </select>
@@ -393,7 +393,7 @@ export function PortfolioAddDrawer({
               <div className="space-y-2">
                 <label
                   htmlFor="portfolio-description"
-                  className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/40"
+                  className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
                 >
                   Açıklama
                 </label>
@@ -401,18 +401,18 @@ export function PortfolioAddDrawer({
                   id="portfolio-description"
                   rows={3}
                   placeholder="Portföy notları, öne çıkan özellikler..."
-                  className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2.5 text-sm text-white/85 placeholder:text-white/25 focus:border-[#b38c56] focus:outline-none"
+                  className="w-full resize-none rounded-xl border border-border bg-white/[0.02] px-3 py-2.5 text-sm text-foreground/85 placeholder:text-white/25 focus:border-[#b38c56] focus:outline-none"
                   {...register("description")}
                 />
               </div>
             </div>
           </div>
 
-          <div className="border-t border-white/5 px-6 py-5">
+          <div className="border-t border-border/50 px-6 py-5">
             <Button
               type="submit"
               disabled={isSubmitting || isUploading}
-              className="h-11 w-full bg-[#b38c56] text-sm font-medium text-black hover:bg-[#c49a62] disabled:opacity-60"
+              className="h-11 w-full bg-parsel-gold text-sm font-medium text-black hover:bg-[#c49a62] disabled:opacity-60"
             >
               {isSubmitting
                 ? "Kaydediliyor..."

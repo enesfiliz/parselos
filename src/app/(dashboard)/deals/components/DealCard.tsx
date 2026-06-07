@@ -47,7 +47,7 @@ function tagStyles(etiket: string | null | undefined) {
   if (value.includes("kredi")) {
     return "border-emerald-500/25 bg-emerald-500/10 text-emerald-300";
   }
-  return "border-white/10 bg-[#09090b]/60 text-zinc-400";
+  return "border-border bg-background/60 text-muted-foreground";
 }
 
 export type DealCardProps = {
@@ -64,8 +64,8 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
   return (
     <article
       className={cn(
-        "rounded-2xl border border-white/5 bg-[#151f23] p-4 shadow-xl",
-        "cursor-pointer hover:border-[#b38c56]/30 hover:shadow-2xl hover:shadow-black/20",
+        "rounded-2xl border border-border/50 bg-parsel-panel p-4 shadow-xl",
+        "cursor-pointer hover:border-parsel-gold/30 hover:shadow-2xl hover:shadow-black/20",
         isDragging && "border-[#b38c56]/35 shadow-2xl ring-1 ring-[#b38c56]/30",
       )}
     >
@@ -80,27 +80,27 @@ export function DealCard({ deal, isDragging }: DealCardProps) {
         </span>
       ) : null}
 
-      <h3 className="text-sm font-bold tracking-tight text-white">
+      <h3 className="text-sm font-bold tracking-tight text-foreground">
         {displayName}
       </h3>
 
-      <p className="mt-2 text-2xl font-bold tracking-tight text-[#b38c56]">
+      <p className="mt-2 text-2xl font-bold tracking-tight text-parsel-gold">
         {budget}
       </p>
 
-      <div className="mt-3 flex items-center gap-1.5 text-xs text-zinc-400">
-        <MapPin className="size-3.5 shrink-0 text-zinc-500" strokeWidth={1.75} />
+      <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+        <MapPin className="size-3.5 shrink-0 text-foreground0" strokeWidth={1.75} />
         <span className="truncate">{location}</span>
       </div>
 
       <DealIntelligenceNote deal={deal} />
 
-      <footer className="mt-4 flex items-start gap-1.5 border-t border-white/5 pt-3">
+      <footer className="mt-4 flex items-start gap-1.5 border-t border-border/50 pt-3">
         <StickyNote
-          className="mt-0.5 size-3.5 shrink-0 text-zinc-600"
+          className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
           strokeWidth={1.75}
         />
-        <p className="line-clamp-2 text-[11px] leading-relaxed text-zinc-500">
+        <p className="line-clamp-2 text-[11px] leading-relaxed text-foreground0">
           {sonNot}
         </p>
       </footer>

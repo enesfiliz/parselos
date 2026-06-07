@@ -48,7 +48,7 @@ export function InlineEditField({
   if (editing) {
     return (
       <div className="group/field">
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           {label}
         </p>
         <div className="flex items-center gap-1.5">
@@ -62,14 +62,14 @@ export function InlineEditField({
               if (e.key === "Enter") commit();
               if (e.key === "Escape") cancel();
             }}
-            className="h-8 border-white/10 bg-[#0f1417] text-sm"
+            className="h-8 border-border bg-parsel-sunken text-sm"
           />
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
             onClick={commit}
-            className="text-[#b38c56] hover:bg-[#b38c56]/10"
+            className="text-parsel-gold hover:bg-parsel-gold/10"
           >
             <Check className="size-3.5" />
           </Button>
@@ -78,7 +78,7 @@ export function InlineEditField({
             variant="ghost"
             size="icon-sm"
             onClick={cancel}
-            className="text-zinc-500"
+            className="text-foreground0"
           >
             <X className="size-3.5" />
           </Button>
@@ -94,18 +94,18 @@ export function InlineEditField({
         setDraft(value);
         setEditing(true);
       }}
-      className="group/field w-full rounded-lg border border-transparent px-2 py-1.5 text-left transition-colors hover:border-white/[0.06] hover:bg-white/[0.02]"
+      className="group/field w-full rounded-lg border border-transparent px-2 py-1.5 text-left transition-colors hover:border-border/60 hover:bg-foreground/[0.02]"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
       <div className="flex items-center justify-between gap-2">
         <p
           className={cn(
-            "text-sm text-zinc-200",
-            accent && "text-[#b38c56]",
+            "text-sm text-foreground",
+            accent && "text-parsel-gold",
             mono && "font-mono text-xs",
-            !value && "text-zinc-600",
+            !value && "text-muted-foreground",
           )}
         >
           {value || placeholder}
@@ -137,7 +137,7 @@ export function InlineEditSelect({
   if (editing) {
     return (
       <div>
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           {label}
         </p>
         <select
@@ -148,7 +148,7 @@ export function InlineEditSelect({
             setEditing(false);
           }}
           onBlur={() => setEditing(false)}
-          className="h-8 w-full rounded-lg border border-white/10 bg-[#0f1417] px-2.5 text-sm text-zinc-100 outline-none focus:border-[#b38c56]/40 focus:ring-2 focus:ring-[#b38c56]/20"
+          className="h-8 w-full rounded-lg border border-border bg-parsel-sunken px-2.5 text-sm text-foreground outline-none focus:border-[#b38c56]/40 focus:ring-2 focus:ring-[#b38c56]/20"
         >
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -164,13 +164,13 @@ export function InlineEditSelect({
     <button
       type="button"
       onClick={() => setEditing(true)}
-      className="group/field w-full rounded-lg border border-transparent px-2 py-1.5 text-left transition-colors hover:border-white/[0.06] hover:bg-white/[0.02]"
+      className="group/field w-full rounded-lg border border-transparent px-2 py-1.5 text-left transition-colors hover:border-border/60 hover:bg-foreground/[0.02]"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
       <div className="flex items-center justify-between gap-2">
-        <p className={cn("text-sm text-zinc-200", accent && "text-[#b38c56]")}>
+        <p className={cn("text-sm text-foreground", accent && "text-parsel-gold")}>
           {display}
         </p>
         <Pencil className="size-3 shrink-0 text-zinc-700 opacity-0 transition-opacity group-hover/field:opacity-100" />

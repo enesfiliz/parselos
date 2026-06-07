@@ -25,7 +25,7 @@ export function AdminSidebarNav({ onNavigate, className }: AdminSidebarNavProps)
           <Shield className="size-4 text-emerald-400" strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold tracking-wide text-zinc-100">
+          <p className="truncate text-sm font-semibold tracking-wide text-foreground">
             ParselOS
           </p>
           <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-emerald-400/80">
@@ -47,7 +47,7 @@ export function AdminSidebarNav({ onNavigate, className }: AdminSidebarNavProps)
                 "group flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                 active
                   ? "border border-emerald-500/25 bg-emerald-500/10 text-emerald-100"
-                  : "border border-transparent text-zinc-400 hover:border-emerald-500/10 hover:bg-emerald-500/5 hover:text-zinc-100",
+                  : "border border-transparent text-muted-foreground hover:border-emerald-500/10 hover:bg-emerald-500/5 hover:text-foreground",
               )}
             >
               <Icon
@@ -55,7 +55,7 @@ export function AdminSidebarNav({ onNavigate, className }: AdminSidebarNavProps)
                   "size-[17px] shrink-0 transition-colors",
                   active
                     ? "text-emerald-400"
-                    : "text-zinc-500 group-hover:text-emerald-300/80",
+                    : "text-foreground0 group-hover:text-emerald-300/80",
                 )}
                 strokeWidth={1.75}
               />
@@ -66,7 +66,7 @@ export function AdminSidebarNav({ onNavigate, className }: AdminSidebarNavProps)
       </nav>
 
       <div className="shrink-0 border-t border-emerald-500/10 px-5 py-4">
-        <p className="text-[11px] leading-relaxed text-zinc-500">
+        <p className="text-[11px] leading-relaxed text-foreground0">
           God Mode · Kurucu komuta katmanı
         </p>
         <Link

@@ -49,7 +49,7 @@ function ParselAiActivityIndicator() {
   return (
     <div className="flex items-center gap-2.5">
       <ParselAiGlyph size="sm" />
-      <span className="text-xs tracking-wide text-white/35">Yanıt hazırlanıyor</span>
+      <span className="text-xs tracking-wide text-foreground/35">Yanıt hazırlanıyor</span>
       <span className="flex gap-1" aria-hidden>
         <span className="size-1 rounded-full bg-white/25 animate-pulse" />
         <span className="size-1 rounded-full bg-white/20 animate-pulse [animation-delay:150ms]" />
@@ -68,7 +68,7 @@ function ToolDoneBadge({
 
   const label = TOOL_STATUS_LABELS[getToolName(part)] ?? "Tamamlandı";
   return (
-    <span className="text-[10px] font-medium tracking-widest text-white/30 uppercase">
+    <span className="text-[10px] font-medium tracking-widest text-muted-foreground uppercase">
       {label}
     </span>
   );
@@ -77,7 +77,7 @@ function ToolDoneBadge({
 function UserMessage({ text }: { text: string }) {
   return (
     <div className="flex justify-end">
-      <p className="max-w-[75%] rounded-lg bg-[#111] px-4 py-2.5 text-right text-[15px] leading-relaxed text-white/80">
+      <p className="max-w-[75%] rounded-lg bg-[#111] px-4 py-2.5 text-right text-[15px] leading-relaxed text-foreground/80">
         {text}
       </p>
     </div>
@@ -249,14 +249,14 @@ export function ParselCopilot() {
         role="dialog"
         aria-label="Parsel AI Workspace"
         aria-modal="true"
-        className="relative flex h-[90vh] w-[95%] max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#050505] shadow-[0_0_80px_rgba(0,0,0,0.8)]"
+        className="relative flex h-[90vh] w-[95%] max-w-5xl flex-col overflow-hidden rounded-2xl border border-border bg-parsel-admin shadow-[0_0_80px_rgba(0,0,0,0.8)]"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="shrink-0 border-t-2 border-[#b38c56]" aria-hidden />
 
-        <header className="flex shrink-0 items-center gap-2.5 border-b border-white/[0.04] px-6 py-4">
+        <header className="flex shrink-0 items-center gap-2.5 border-b border-border/40 px-6 py-4">
           <ParselAiGlyph size="md" />
-          <span className="text-xs font-medium tracking-widest text-white/40 uppercase">
+          <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
             Parsel AI Workspace
           </span>
         </header>
@@ -308,7 +308,7 @@ export function ParselCopilot() {
           </div>
         ) : null}
 
-        <footer className="shrink-0 border-t border-white/10 bg-[#050505] p-5">
+        <footer className="shrink-0 border-t border-border bg-parsel-admin p-5">
           <div className="custom-scrollbar mb-4 flex gap-2 overflow-x-auto">
             {COPILOT_QUICK_PROMPTS.map((chip) => (
               <button
@@ -316,7 +316,7 @@ export function ParselCopilot() {
                 type="button"
                 disabled={isLoading}
                 onClick={() => void submitText(chip.prompt)}
-                className="shrink-0 cursor-pointer rounded-md border border-white/[0.06] px-2.5 py-1 text-[11px] tracking-wide text-white/40 uppercase transition-colors hover:border-white/15 hover:text-white/60 disabled:cursor-not-allowed disabled:opacity-40"
+                className="shrink-0 cursor-pointer rounded-md border border-border/60 px-2.5 py-1 text-[11px] tracking-wide text-muted-foreground uppercase transition-colors hover:border-white/15 hover:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {chip.label}
               </button>
@@ -324,7 +324,7 @@ export function ParselCopilot() {
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-[#111] px-4 py-2 transition-colors focus-within:border-white/20">
+            <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-[#111] px-4 py-2 transition-colors focus-within:border-white/20">
               <input
                 ref={inputRef}
                 value={input}
@@ -332,7 +332,7 @@ export function ParselCopilot() {
                 onKeyDown={handleInputKeyDown}
                 disabled={isLoading}
                 placeholder={isLoading ? LOADING_PLACEHOLDER : PLACEHOLDER}
-                className="w-full bg-transparent py-3 text-[15px] text-white placeholder:text-white/30 focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+                className="w-full bg-transparent py-3 text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Parsel AI mesajı"
                 aria-busy={isLoading}
                 autoComplete="off"
@@ -340,7 +340,7 @@ export function ParselCopilot() {
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="shrink-0 rounded-lg bg-white/10 p-2 text-white transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-30"
+                className="shrink-0 rounded-lg bg-foreground/10 p-2 text-foreground transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-30"
                 aria-label="Gönder"
               >
                 <ArrowUp className="size-4" strokeWidth={2} />

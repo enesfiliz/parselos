@@ -27,7 +27,7 @@ export function SidebarNav({ onNavigate, className }: SidebarNavProps) {
           className="inline-flex transition-opacity hover:opacity-90"
           aria-label="ParselOS ana sayfa"
         >
-          <Logo className="h-14 w-auto max-w-[240px] text-zinc-100" />
+          <Logo className="h-14 w-auto max-w-[240px] text-foreground" />
         </Link>
       </div>
 
@@ -43,8 +43,8 @@ export function SidebarNav({ onNavigate, className }: SidebarNavProps) {
               className={cn(
                 "group flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200",
                   active
-                    ? "border border-zinc-700 bg-zinc-900 text-zinc-100"
-                    : "border border-transparent text-zinc-400 hover:border-zinc-800 hover:bg-zinc-900/50 hover:text-zinc-100",
+                    ? "border border-border bg-zinc-900 text-foreground"
+                    : "border border-transparent text-muted-foreground hover:border-border hover:bg-card/50 hover:text-foreground",
               )}
             >
               <Icon
@@ -52,7 +52,7 @@ export function SidebarNav({ onNavigate, className }: SidebarNavProps) {
                   "size-[17px] shrink-0 transition-colors",
                   active
                     ? "text-parsel-primary"
-                    : "text-zinc-400 group-hover:text-zinc-100",
+                    : "text-muted-foreground group-hover:text-foreground",
                 )}
                 strokeWidth={1.75}
               />
@@ -62,8 +62,8 @@ export function SidebarNav({ onNavigate, className }: SidebarNavProps) {
         })}
       </nav>
 
-      <div className="shrink-0 border-t border-parsel-border px-5 py-4">
-        <p className="text-[11px] leading-relaxed text-zinc-400">
+      <div className="shrink-0 border-t border-border px-5 py-4">
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
           Gayrimenkul operasyonları · Parselos
         </p>
       </div>

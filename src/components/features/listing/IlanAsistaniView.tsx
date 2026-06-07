@@ -17,13 +17,13 @@ import { cn } from "@/lib/utils";
 
 const inputClassName = cn(
   "h-11 w-full rounded-xl border border-input bg-background px-4 text-sm",
-  "transition-colors outline-none placeholder:text-zinc-400/60",
+  "transition-colors outline-none placeholder:text-muted-foreground/60",
   "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
 );
 
 const textareaClassName = cn(
   "min-h-[120px] w-full resize-y rounded-xl border border-input bg-background px-4 py-3 text-sm",
-  "transition-colors outline-none placeholder:text-zinc-400/60",
+  "transition-colors outline-none placeholder:text-muted-foreground/60",
   "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
 );
 
@@ -102,10 +102,10 @@ export function IlanAsistaniView() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-10">
       <header className="space-y-2">
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
           Yapay Zeka İlan Asistanı
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Gayrimenkul özelliklerini girin; SEO uyumlu, profesyonel ilan metni
           anında oluşturulsun.
         </p>
@@ -179,7 +179,7 @@ export function IlanAsistaniView() {
                   onChange={(e) => setEkstraOzellikler(e.target.value)}
                   className={textareaClassName}
                 />
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-muted-foreground">
                   Virgülle ayırarak not ekleyebilirsiniz
                 </p>
               </div>
@@ -237,7 +237,7 @@ export function IlanAsistaniView() {
 
           <CardContent className="pt-8 pb-10">
             {isGenerating ? (
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-muted-foreground">
                 Yapay zeka ilan metnini hazırlıyor…
               </p>
             ) : listing ? (
@@ -248,7 +248,7 @@ export function IlanAsistaniView() {
               </div>
             ) : (
               <div className="rounded-2xl border border-dashed border-border/80 px-8 py-16 text-center">
-                <p className="text-sm text-zinc-400">
+                <p className="text-sm text-muted-foreground">
                   Henüz ilan metni üretilmedi. Sol taraftaki formu doldurun.
                 </p>
               </div>

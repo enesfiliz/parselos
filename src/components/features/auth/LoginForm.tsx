@@ -57,24 +57,24 @@ export function LoginForm() {
   }
 
   return (
-    <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-white/5 bg-[#151f23] p-8 shadow-2xl">
+    <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border/50 bg-parsel-panel p-8 shadow-2xl">
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#b38c56]/10 blur-[100px]"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-parsel-gold/10 blur-[100px]"
       />
 
       <div className="relative">
-        <h1 className="mb-2 text-center text-2xl font-bold tracking-tighter text-white">
+        <h1 className="mb-2 text-center text-2xl font-bold tracking-tighter text-foreground">
           ParselOS
         </h1>
-        <p className="mb-8 text-center text-sm text-white/50">
-          Tekrar hoş geldin, Enes. Komuta merkezine erişiliyor...
+        <p className="mb-8 text-center text-sm text-muted-foreground">
+          Tekrar hoş geldin. Komuta merkezine erişiliyor...
         </p>
 
         <form onSubmit={handleSubmit} noValidate>
           <label
             htmlFor="login-email"
-            className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40"
+            className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-muted-foreground"
           >
             E-posta
           </label>
@@ -86,12 +86,12 @@ export function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="ornek@parselos.com"
-            className="mt-4 w-full rounded-lg border border-white/10 bg-[#09090b] px-4 py-3 text-sm text-white transition-all focus:border-[#b38c56] focus:ring-1 focus:ring-[#b38c56] focus:outline-none"
+            className="mt-4 w-full rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground transition-all focus:border-parsel-gold focus:ring-1 focus:ring-parsel-gold focus:outline-none"
           />
 
           <label
             htmlFor="login-password"
-            className="mb-1.5 mt-5 block text-xs font-medium uppercase tracking-wider text-white/40"
+            className="mb-1.5 mt-5 block text-xs font-medium uppercase tracking-wider text-muted-foreground"
           >
             Şifre
           </label>
@@ -104,12 +104,12 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-lg border border-white/10 bg-[#09090b] px-4 py-3 pr-11 text-sm text-white transition-all focus:border-[#b38c56] focus:ring-1 focus:ring-[#b38c56] focus:outline-none"
+              className="w-full rounded-lg border border-border bg-background px-4 py-3 pr-11 text-sm text-foreground transition-all focus:border-parsel-gold focus:ring-1 focus:ring-parsel-gold focus:outline-none"
             />
             <button
               type="button"
               onClick={() => setShowPassword((current) => !current)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 transition-colors hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
               aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"}
             >
               {showPassword ? (
@@ -127,7 +127,7 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={isBusy || !signIn}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-[#b38c56] py-3 font-medium text-white transition-colors hover:bg-[#9a784a] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-parsel-gold py-3 font-medium text-background transition-colors hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isBusy ? (
               <>
@@ -140,7 +140,7 @@ export function LoginForm() {
           </button>
         </form>
 
-        <p className="mt-4 flex items-center justify-center gap-1 text-center text-[10px] text-white/30">
+        <p className="mt-4 flex items-center justify-center gap-1 text-center text-[10px] text-muted-foreground">
           <Lock className="h-3 w-3 shrink-0" strokeWidth={1.75} />
           256-bit SSL Güvenli Bağlantı
         </p>

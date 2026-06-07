@@ -110,16 +110,16 @@ export function ArsivView() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8">
       <header className="space-y-2">
-        <div className="flex items-center gap-2 text-zinc-400">
+        <div className="flex items-center gap-2 text-muted-foreground">
           <Archive className="size-4" strokeWidth={1.5} />
           <span className="text-[10px] font-medium uppercase tracking-[0.2em]">
             Kurumsal Arşiv
           </span>
         </div>
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
           Ekspertiz Arşivi
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Kaydettiğiniz tüm değerleme raporları güvenle saklanır. Geçmiş analizlere
           tek tıkla ulaşın ve müşteri sunumlarınızı yeniden kullanın.
         </p>
@@ -145,8 +145,8 @@ export function ArsivView() {
       ) : reports.length === 0 ? (
         <Card className="border-border/60 shadow-lg ring-border/60">
           <CardContent className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-            <FileText className="size-8 text-zinc-500" strokeWidth={1.5} />
-            <p className="text-sm text-zinc-400">
+            <FileText className="size-8 text-foreground0" strokeWidth={1.5} />
+            <p className="text-sm text-muted-foreground">
               Henüz arşivlenmiş rapor yok. Ekspertiz modülünden rapor oluşturup
               &quot;Raporu Arşive Kaydet&quot; ile ekleyebilirsiniz.
             </p>
@@ -170,15 +170,15 @@ export function ArsivView() {
               </CardHeader>
 
               <CardContent className="flex flex-1 flex-col justify-between gap-5 pt-5">
-                <div className="space-y-2 text-sm text-zinc-400">
+                <div className="space-y-2 text-sm text-muted-foreground">
                   <p>{formatDate(item.olusturulmaTarihi)}</p>
-                  <p className="font-medium text-zinc-50">{item.m2}</p>
+                  <p className="font-medium text-foreground">{item.m2}</p>
                 </div>
 
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full border-parsel-border bg-parsel-card shadow-sm"
+                  className="w-full border-border bg-parsel-card shadow-sm"
                   onClick={() => setSelectedReport(item)}
                 >
                   <Eye className="size-4" />
@@ -210,19 +210,19 @@ export function ArsivView() {
               <div className="space-y-4 text-sm">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
                       Alan
                     </p>
-                    <p className="mt-1 font-medium text-zinc-50">
+                    <p className="mt-1 font-medium text-foreground">
                       {selectedReport.m2}
                     </p>
                   </div>
                   {snapshot?.report?.genel_skor !== undefined && (
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+                      <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
                         Yatırım Skoru
                       </p>
-                      <p className="mt-1 font-medium text-zinc-50">
+                      <p className="mt-1 font-medium text-foreground">
                         {snapshot.report.genel_skor} / 100
                       </p>
                     </div>
@@ -231,7 +231,7 @@ export function ArsivView() {
 
                 {snapshot?.report?.fiyat_analizi?.tahmini_deger && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
                       Tahmini Değer
                     </p>
                     <p className="mt-1 text-lg font-semibold tracking-tight">
@@ -242,17 +242,17 @@ export function ArsivView() {
 
                 {snapshot?.report?.uzman_gorusu && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.14em] text-zinc-500">
+                    <p className="text-[10px] uppercase tracking-[0.14em] text-foreground0">
                       Uzman Görüşü
                     </p>
-                    <p className="mt-2 leading-relaxed text-zinc-400">
+                    <p className="mt-2 leading-relaxed text-muted-foreground">
                       {snapshot.report.uzman_gorusu}
                     </p>
                   </div>
                 )}
 
                 {!snapshot && (
-                  <p className="text-zinc-400">
+                  <p className="text-muted-foreground">
                     Rapor detayları arşiv formatında saklanmış; önizleme için JSON
                     verisi mevcut.
                   </p>

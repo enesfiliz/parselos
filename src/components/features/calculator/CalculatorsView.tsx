@@ -36,12 +36,12 @@ import {
 import { cn } from "@/lib/utils";
 
 const TOOL_CARD =
-  "flex flex-col justify-between rounded-2xl border border-white/5 bg-[#151f23] p-4 shadow-sm transition-all hover:border-white/10 md:p-5";
+  "flex flex-col justify-between rounded-2xl border border-border/50 bg-parsel-panel p-4 shadow-sm transition-all hover:border-border md:p-5";
 
-const FIELD_LABEL = "mb-1.5 block text-xs font-medium text-white/60";
+const FIELD_LABEL = "mb-1.5 block text-xs font-medium text-muted-foreground";
 
 const FIELD_INPUT =
-  "w-full rounded-lg border border-white/10 bg-[#09090b] px-3 py-2.5 text-sm text-white transition-all focus:border-[#b38c56] focus:ring-1 focus:ring-[#b38c56]";
+  "w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground transition-all focus:border-[#b38c56] focus:ring-1 focus:ring-[#b38c56]";
 
 function ToolCard({
   title,
@@ -59,18 +59,18 @@ function ToolCard({
   return (
     <article className={TOOL_CARD}>
       <div>
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-white/90">
-          <Icon className="h-4 w-4 shrink-0 text-[#b38c56]" strokeWidth={1.75} />
+        <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground/90">
+          <Icon className="h-4 w-4 shrink-0 text-parsel-gold" strokeWidth={1.75} />
           {title}
         </h2>
         <div className="space-y-3">{children}</div>
       </div>
 
-      <div className="mt-5 flex flex-col items-center justify-center rounded-xl border border-white/5 bg-[#09090b] p-4">
-        <span className="text-center text-2xl font-bold tracking-tight text-[#b38c56]">
+      <div className="mt-5 flex flex-col items-center justify-center rounded-xl border border-border/50 bg-background p-4">
+        <span className="text-center text-2xl font-bold tracking-tight text-parsel-gold">
           {result}
         </span>
-        <span className="mt-1 text-center text-[11px] uppercase tracking-widest text-white/40 md:text-[10px]">
+        <span className="mt-1 text-center text-[11px] uppercase tracking-widest text-muted-foreground md:text-[10px]">
           {resultLabel}
         </span>
       </div>
@@ -135,7 +135,7 @@ function DecimalField({
         className={cn(FIELD_INPUT, "tabular-nums")}
       />
       {hint ? (
-        <p className="mt-1 text-[10px] text-white/30">{hint}</p>
+        <p className="mt-1 text-[10px] text-muted-foreground">{hint}</p>
       ) : null}
     </div>
   );
@@ -188,8 +188,8 @@ function SegmentToggle<T extends string>({
           className={cn(
             "rounded-lg border px-3 py-2 text-xs font-medium transition-all",
             value === option.id
-              ? "border-[#b38c56]/40 bg-[#b38c56]/10 text-[#d4b07a]"
-              : "border-white/10 bg-[#09090b] text-white/50 hover:border-white/20",
+              ? "border-[#b38c56]/40 bg-parsel-gold/10 text-[#d4b07a]"
+              : "border-border bg-background text-muted-foreground hover:border-white/20",
           )}
         >
           {option.label}
@@ -497,18 +497,18 @@ function RentIncreaseTool() {
 
 export function CalculatorsView() {
   return (
-    <div className="min-h-screen bg-[#09090b]">
-      <header className="mb-4 border-b border-white/5 pb-4 md:mb-6">
-        <div className="mb-2 flex items-center gap-2 text-[#b38c56]">
+    <div className="min-h-screen bg-background">
+      <header className="mb-4 border-b border-border/50 pb-4 md:mb-6">
+        <div className="mb-2 flex items-center gap-2 text-parsel-gold">
           <LineChart className="h-4 w-4" strokeWidth={1.75} />
           <span className="text-[11px] font-semibold uppercase tracking-[0.2em] md:text-[10px]">
             Finans & Operasyon
           </span>
         </div>
-        <h1 className="font-outfit text-xl font-semibold tracking-tight text-white/90 md:text-2xl">
+        <h1 className="font-outfit text-xl font-semibold tracking-tight text-foreground/90 md:text-2xl">
           Hesaplama Araçları
         </h1>
-        <p className="mt-1 text-sm text-white/40">
+        <p className="mt-1 text-sm text-muted-foreground">
           8 modül · anlık hesaplama · gayrimenkul profesyonelleri için
         </p>
       </header>

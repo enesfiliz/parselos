@@ -26,7 +26,7 @@ export function ParselAiGlyph({ size = "md", className }: ParselAiGlyphProps) {
       />
       <span
         className={cn(
-          "absolute inset-[2px] rounded-full border border-white/10 opacity-90 animate-[spin_6s_linear_infinite_reverse]",
+          "absolute inset-[2px] rounded-full border border-border opacity-90 animate-[spin_6s_linear_infinite_reverse]",
           dim,
         )}
         style={{
@@ -36,7 +36,7 @@ export function ParselAiGlyph({ size = "md", className }: ParselAiGlyphProps) {
       />
       <span
         className={cn(
-          "absolute inset-[5px] rounded-full bg-[#0A0A0A] border border-white/[0.06]",
+          "absolute inset-[5px] rounded-full bg-parsel-elevated border border-border/60",
           size === "sm" ? "inset-[3px]" : "inset-[5px]",
         )}
       />

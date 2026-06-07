@@ -58,10 +58,10 @@ export function AdminAiSettingsView() {
           <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-emerald-400/80">
             God Mode · AI Motoru
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-50 md:text-3xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
             Parsel AI Motor Kontrolü
           </h1>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-foreground0">
             Model, prompt ve yetenekleri kod değiştirmeden yönetin.
           </p>
         </div>
@@ -79,10 +79,10 @@ export function AdminAiSettingsView() {
       </header>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-5">
-        <article className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-6 xl:col-span-2">
+        <article className="rounded-2xl border border-border/50 bg-parsel-elevated p-6 xl:col-span-2">
           <div className="mb-5 flex items-center gap-2">
             <Sparkles className="size-4 text-emerald-400" strokeWidth={1.75} />
-            <h2 className="text-sm font-semibold text-zinc-100">
+            <h2 className="text-sm font-semibold text-foreground">
               Motor ve API Konfigürasyonu
             </h2>
           </div>
@@ -91,7 +91,7 @@ export function AdminAiSettingsView() {
             <div className="space-y-2">
               <label
                 htmlFor="active-model"
-                className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-500"
+                className="text-xs font-medium uppercase tracking-[0.14em] text-foreground0"
               >
                 Aktif Model
               </label>
@@ -104,10 +104,10 @@ export function AdminAiSettingsView() {
                     description: `${AI_MODEL_OPTIONS.find((m) => m.id === event.target.value)?.label} — kaydetmek için motor ayarlarını güncelleyin.`,
                   });
                 }}
-                className="h-11 w-full rounded-lg border border-white/10 bg-white/[0.02] px-3 text-sm text-zinc-100 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                className="h-11 w-full rounded-lg border border-border bg-white/[0.02] px-3 text-sm text-foreground focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
               >
                 {AI_MODEL_OPTIONS.map((model) => (
-                  <option key={model.id} value={model.id} className="bg-[#0A0A0A]">
+                  <option key={model.id} value={model.id} className="bg-parsel-elevated">
                     {model.label}
                   </option>
                 ))}
@@ -117,7 +117,7 @@ export function AdminAiSettingsView() {
             <div className="space-y-2">
               <label
                 htmlFor="api-key"
-                className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-500"
+                className="text-xs font-medium uppercase tracking-[0.14em] text-foreground0"
               >
                 API Key
               </label>
@@ -127,7 +127,7 @@ export function AdminAiSettingsView() {
                   type="password"
                   value={apiKey}
                   onChange={(event) => setApiKey(event.target.value)}
-                  className="h-11 min-w-0 flex-1 rounded-lg border border-white/10 bg-white/[0.02] px-4 font-mono text-sm text-zinc-300 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                  className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-white/[0.02] px-4 font-mono text-sm text-foreground/90 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
                   autoComplete="off"
                   spellCheck={false}
                 />
@@ -145,16 +145,16 @@ export function AdminAiSettingsView() {
                   Key Güncelle
                 </Button>
               </div>
-              <p className="text-xs text-zinc-600">
+              <p className="text-xs text-muted-foreground">
                 Groq, OpenAI veya Anthropic anahtarları buradan rotalanır.
               </p>
             </div>
           </div>
         </article>
 
-        <article className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-6 xl:col-span-3">
+        <article className="rounded-2xl border border-border/50 bg-parsel-elevated p-6 xl:col-span-3">
           <div className="mb-5 flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-zinc-100">
+            <h2 className="text-sm font-semibold text-foreground">
               Global System Prompt Editörü
             </h2>
             <span className="rounded-full border border-emerald-500/20 bg-emerald-500/5 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-emerald-300/90">
@@ -167,17 +167,17 @@ export function AdminAiSettingsView() {
             onChange={(event) => setSystemPrompt(event.target.value)}
             rows={14}
             spellCheck={false}
-            className="custom-scrollbar min-h-[280px] w-full resize-y rounded-xl border border-white/10 bg-[#111] p-4 font-mono text-sm leading-relaxed text-emerald-400/90 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20 xl:min-h-[320px]"
+            className="custom-scrollbar min-h-[280px] w-full resize-y rounded-xl border border-border bg-[#111] p-4 font-mono text-sm leading-relaxed text-emerald-400/90 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20 xl:min-h-[320px]"
           />
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-zinc-600">
+            <p className="text-xs text-muted-foreground">
               {systemPrompt.length.toLocaleString("tr-TR")} karakter · tüm oturumlara
               anında yansır
             </p>
             <Button
               type="button"
-              className="bg-emerald-600 text-white hover:bg-emerald-500"
+              className="bg-emerald-600 text-foreground hover:bg-emerald-500"
               onClick={() => {
                 toast.success("System prompt kaydedildi", {
                   description: "Parsel AI karakteri ve kuralları güncellendi.",
@@ -191,10 +191,10 @@ export function AdminAiSettingsView() {
         </article>
       </section>
 
-      <section className="rounded-2xl border border-white/5 bg-[#0A0A0A] p-6">
+      <section className="rounded-2xl border border-border/50 bg-parsel-elevated p-6">
         <div className="mb-5">
-          <h2 className="text-sm font-semibold text-zinc-100">Yetenek Yönetimi</h2>
-          <p className="mt-1 text-xs text-zinc-500">
+          <h2 className="text-sm font-semibold text-foreground">Yetenek Yönetimi</h2>
+          <p className="mt-1 text-xs text-foreground0">
             Copilot araçlarını ofis genelinde açıp kapatın.
           </p>
         </div>
@@ -209,11 +209,11 @@ export function AdminAiSettingsView() {
                   ? "border-red-500/15 bg-red-500/[0.03]"
                   : tool.enabled
                     ? "border-emerald-500/15 bg-emerald-500/[0.03]"
-                    : "border-white/5 bg-white/[0.02]",
+                    : "border-border/50 bg-white/[0.02]",
               )}
             >
               <div className="min-w-0">
-                <p className="flex items-center gap-2 text-sm font-medium text-zinc-100">
+                <p className="flex items-center gap-2 text-sm font-medium text-foreground">
                   <span aria-hidden>{tool.emoji}</span>
                   {tool.label}
                   {tool.maintenance ? (
@@ -226,14 +226,14 @@ export function AdminAiSettingsView() {
                         "rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide",
                         tool.enabled
                           ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300"
-                          : "border-zinc-600/40 bg-zinc-800/40 text-zinc-500",
+                          : "border-zinc-600/40 bg-border/40 text-foreground0",
                       )}
                     >
                       {tool.enabled ? "Aktif" : "Pasif"}
                     </span>
                   )}
                 </p>
-                <p className="mt-1 text-xs text-zinc-500">{tool.description}</p>
+                <p className="mt-1 text-xs text-foreground0">{tool.description}</p>
               </div>
 
               <AdminAiToggle
@@ -247,12 +247,12 @@ export function AdminAiSettingsView() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-emerald-500/10 bg-[#0A0A0A] p-6">
+      <section className="rounded-2xl border border-emerald-500/10 bg-parsel-elevated p-6">
         <div className="mb-5">
-          <h2 className="text-sm font-semibold text-zinc-100">
+          <h2 className="text-sm font-semibold text-foreground">
             Maliyet ve Token Monitörü
           </h2>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-foreground0">
             Mayıs 2026 dönemi · tüm kiracılar
           </p>
         </div>
@@ -261,16 +261,16 @@ export function AdminAiSettingsView() {
           {AI_COST_METRICS.map((metric) => (
             <div
               key={metric.id}
-              className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-4"
+              className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-4"
             >
-              <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-zinc-500">
+              <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-foreground0">
                 {metric.label}
               </p>
-              <p className="mt-2 text-lg font-semibold tracking-tight text-zinc-50">
+              <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
                 {metric.value}
               </p>
               {metric.hint ? (
-                <p className="mt-1 text-xs text-zinc-600">{metric.hint}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{metric.hint}</p>
               ) : null}
             </div>
           ))}

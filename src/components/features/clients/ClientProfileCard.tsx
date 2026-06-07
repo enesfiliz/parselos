@@ -40,7 +40,7 @@ export function ClientProfileCard({
   return (
     <article
       className={cn(
-        "group relative flex flex-col rounded-xl border border-zinc-800/80 bg-[#18181b] p-6",
+        "group relative flex flex-col rounded-xl border border-border bg-card p-6",
         panelCardHover,
         showBirthdayGlow &&
           "ring-1 ring-[#B38C56]/60 shadow-[0_0_15px_rgba(179,140,86,0.15)] hover:border-[#B38C56]/40",
@@ -52,7 +52,7 @@ export function ClientProfileCard({
             "absolute top-4 right-4 flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-wide",
             birthday.isWithinWeek
               ? "border-[#B38C56]/50 bg-[#B38C56]/10 text-[#e8d4b8]"
-              : "border-zinc-700/80 bg-zinc-800/60 text-zinc-400",
+              : "border-border/80 bg-border/60 text-muted-foreground",
           )}
           title={
             birthday.isToday
@@ -77,7 +77,7 @@ export function ClientProfileCard({
         <div
           className={cn(
             "flex size-14 shrink-0 items-center justify-center rounded-2xl border text-lg font-semibold tracking-tight",
-            "border-zinc-700/80 bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-100",
+            "border-border/80 bg-gradient-to-br from-zinc-800 to-zinc-900 text-foreground",
             "ring-1 ring-white/5",
           )}
           aria-hidden
@@ -87,16 +87,16 @@ export function ClientProfileCard({
 
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-outfit truncate text-lg font-semibold tracking-tight text-zinc-50">
+            <h2 className="font-outfit truncate text-lg font-semibold tracking-tight text-foreground">
               {client.adSoyad}
             </h2>
             {typeof client.aktifFirsatSayisi === "number" ? (
-              <span className="inline-flex shrink-0 items-center rounded-full border border-[#b38c56]/35 bg-[#b38c56]/10 px-2 py-0.5 text-[10px] font-semibold text-[#e8d4b8]">
+              <span className="inline-flex shrink-0 items-center rounded-full border border-[#b38c56]/35 bg-parsel-gold/10 px-2 py-0.5 text-[10px] font-semibold text-[#e8d4b8]">
                 {client.aktifFirsatSayisi} aktif fırsat
               </span>
             ) : null}
           </div>
-          <div className="flex flex-col gap-0.5 text-xs text-zinc-500">
+          <div className="flex flex-col gap-0.5 text-xs text-foreground0">
             {client.telefon ? (
               <span className="inline-flex items-center gap-1.5 truncate">
                 <Phone className="size-3 shrink-0" strokeWidth={1.75} />
@@ -139,17 +139,17 @@ export function ClientProfileCard({
       )}
 
       {client.notlar ? (
-        <p className="mt-4 line-clamp-2 text-sm leading-relaxed text-zinc-400">
+        <p className="mt-4 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
           {client.notlar}
         </p>
       ) : (
-        <p className="mt-4 text-sm italic text-zinc-600">Portföy notu eklenmemiş</p>
+        <p className="mt-4 text-sm italic text-muted-foreground">Portföy notu eklenmemiş</p>
       )}
 
-      <div className="mt-6 flex items-center justify-between gap-3 border-t border-zinc-800/80 pt-4">
+      <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4">
         <Badge
           variant="outline"
-          className="border-zinc-700/80 bg-transparent text-zinc-500"
+          className="border-border/80 bg-transparent text-foreground0"
         >
           {new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(
             new Date(client.olusturulmaTarihi),
@@ -163,7 +163,7 @@ export function ClientProfileCard({
             size="icon-sm"
             onClick={() => onEdit(client)}
             aria-label={`${client.adSoyad} düzenle`}
-            className="text-zinc-400 hover:text-zinc-100"
+            className="text-muted-foreground hover:text-foreground"
           >
             <Pencil className="size-4" />
           </Button>
@@ -173,7 +173,7 @@ export function ClientProfileCard({
             size="icon-sm"
             onClick={() => onDelete(client)}
             aria-label={`${client.adSoyad} sil`}
-            className="text-zinc-400 hover:text-red-400"
+            className="text-muted-foreground hover:text-red-400"
           >
             <Trash2 className="size-4" />
           </Button>

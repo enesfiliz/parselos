@@ -10,7 +10,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#09090b] text-zinc-100 antialiased">
+    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground antialiased">
       <Sidebar mobileOpen={mobileOpen} onMobileOpenChange={setMobileOpen} />
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">

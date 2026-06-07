@@ -36,7 +36,7 @@ function planBadgeClass(plan: AdminSubscriberRecord["plan"]) {
     case "Pro":
       return "border-blue-400/30 bg-blue-500/10 text-blue-200";
     default:
-      return "border-zinc-600/40 bg-zinc-800/40 text-zinc-400";
+      return "border-zinc-600/40 bg-border/40 text-muted-foreground";
   }
 }
 
@@ -49,7 +49,7 @@ function statusMeta(status: AdminSubscriberRecord["status"]) {
     case "suspended":
       return { label: "Askıda", dot: "bg-amber-400", text: "text-amber-300" };
     default:
-      return { label: "Pasif", dot: "bg-zinc-500", text: "text-zinc-400" };
+      return { label: "Pasif", dot: "bg-zinc-500", text: "text-muted-foreground" };
   }
 }
 
@@ -119,19 +119,19 @@ export function AdminSubscribersView() {
         <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-emerald-400/80">
           God Mode · Lisanslar
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-50 md:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
           Aboneler ve Lisans Yönetimi
         </h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-foreground0">
           {filteredRows.length} kayıt listeleniyor
         </p>
       </header>
 
-      <div className="flex flex-col gap-4 rounded-2xl border border-emerald-500/10 bg-[#0A0A0A] p-4 md:flex-row md:items-center md:justify-between md:p-5">
+      <div className="flex flex-col gap-4 rounded-2xl border border-emerald-500/10 bg-parsel-elevated p-4 md:flex-row md:items-center md:justify-between md:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <label className="relative block w-full sm:w-80">
             <Search
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-500"
+              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-foreground0"
               strokeWidth={1.75}
             />
             <input
@@ -139,7 +139,7 @@ export function AdminSubscribersView() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Ofis veya e-posta ara..."
-              className="w-full rounded-lg border border-white/10 bg-white/[0.02] py-2 pr-4 pl-10 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+              className="w-full rounded-lg border border-border bg-white/[0.02] py-2 pr-4 pl-10 text-sm text-foreground placeholder:text-foreground0 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
             />
           </label>
 
@@ -148,11 +148,11 @@ export function AdminSubscribersView() {
             onChange={(event) =>
               setPlanFilter(event.target.value as SubscriberPlanFilter)
             }
-            className="h-10 min-w-[180px] rounded-lg border border-white/10 bg-white/[0.02] px-3 text-sm text-zinc-200 focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+            className="h-10 min-w-[180px] rounded-lg border border-border bg-white/[0.02] px-3 text-sm text-foreground focus:border-emerald-500/30 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
             aria-label="Paket filtresi"
           >
             {PLAN_FILTERS.map((filter) => (
-              <option key={filter.id} value={filter.id} className="bg-[#0A0A0A]">
+              <option key={filter.id} value={filter.id} className="bg-parsel-elevated">
                 {filter.label}
               </option>
             ))}
@@ -175,11 +175,11 @@ export function AdminSubscribersView() {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-emerald-500/10 bg-[#0A0A0A]">
+      <div className="overflow-hidden rounded-2xl border border-emerald-500/10 bg-parsel-elevated">
         <div className="custom-scrollbar overflow-x-auto">
           <table className="w-full min-w-[980px] text-left text-sm">
             <thead>
-              <tr className="border-b border-white/[0.04] text-[10px] uppercase tracking-[0.16em] text-zinc-500">
+              <tr className="border-b border-border/40 text-[10px] uppercase tracking-[0.16em] text-foreground0">
                 <th className="px-5 py-4 font-medium md:px-6">Müşteri / Ofis</th>
                 <th className="px-4 py-4 font-medium">Plan & Lisans</th>
                 <th className="px-4 py-4 font-medium">Tüketim / Metrik</th>
@@ -195,7 +195,7 @@ export function AdminSubscribersView() {
                 return (
                   <tr
                     key={row.id}
-                    className="border-b border-white/[0.03] transition-colors hover:bg-white/[0.02]"
+                    className="border-b border-white/[0.03] transition-colors hover:bg-foreground/[0.02]"
                   >
                     <td className="px-5 py-4 md:px-6">
                       <div className="flex items-center gap-3">
@@ -203,10 +203,10 @@ export function AdminSubscribersView() {
                           {initialsFromName(row.name)}
                         </span>
                         <div className="min-w-0">
-                          <p className="truncate font-medium text-zinc-100">
+                          <p className="truncate font-medium text-foreground">
                             {row.name}
                           </p>
-                          <p className="truncate text-xs text-zinc-500">
+                          <p className="truncate text-xs text-foreground0">
                             {row.email}
                           </p>
                         </div>
@@ -223,10 +223,10 @@ export function AdminSubscribersView() {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <p className="text-sm text-zinc-200">
+                      <p className="text-sm text-foreground">
                         {formatTokenCount(row.aiTokensUsed)} token
                       </p>
-                      <p className="mt-0.5 text-xs text-zinc-500">
+                      <p className="mt-0.5 text-xs text-foreground0">
                         {row.dealCount} aktif fırsat
                       </p>
                     </td>
@@ -244,7 +244,7 @@ export function AdminSubscribersView() {
                         {status.label}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-sm text-white/40">
+                    <td className="px-4 py-4 text-sm text-muted-foreground">
                       {row.lastLoginLabel}
                     </td>
                     <td className="px-5 py-4 md:px-6">
@@ -258,7 +258,7 @@ export function AdminSubscribersView() {
         </div>
 
         {filteredRows.length === 0 ? (
-          <div className="px-6 py-12 text-center text-sm text-zinc-500">
+          <div className="px-6 py-12 text-center text-sm text-foreground0">
             Filtrelere uygun abone bulunamadı.
           </div>
         ) : null}

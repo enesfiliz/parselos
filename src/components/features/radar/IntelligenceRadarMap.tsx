@@ -40,14 +40,14 @@ function LayerSwitch({
   const Icon = layer.icon;
 
   return (
-    <div className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.04] bg-white/[0.015] px-2.5 py-2">
+    <div className="flex items-center justify-between gap-2 rounded-lg border border-border/40 bg-white/[0.015] px-2.5 py-2">
       <div className="flex min-w-0 items-center gap-2">
         <span
           className={cn(
             "flex size-6 shrink-0 items-center justify-center rounded-md border transition-colors",
             enabled
-              ? "border-[#b38c56]/30 bg-[#b38c56]/12 text-[#b38c56]"
-              : "border-zinc-800/80 bg-zinc-900/50 text-zinc-500",
+              ? "border-[#b38c56]/30 bg-parsel-gold/12 text-parsel-gold"
+              : "border-border bg-card/50 text-foreground0",
           )}
         >
           <Icon className="size-3" strokeWidth={1.5} />
@@ -55,7 +55,7 @@ function LayerSwitch({
         <span
           className={cn(
             "truncate text-xs font-medium",
-            enabled ? "text-zinc-200" : "text-zinc-500",
+            enabled ? "text-foreground" : "text-foreground0",
           )}
         >
           {layer.label}
@@ -70,7 +70,7 @@ function LayerSwitch({
         onClick={onToggle}
         className={cn(
           "relative h-4 w-7 shrink-0 rounded-full transition-colors duration-300",
-          enabled ? "bg-[#b38c56]/90" : "bg-zinc-700/80",
+          enabled ? "bg-parsel-gold/90" : "bg-zinc-700/80",
         )}
       >
         <span
@@ -90,16 +90,16 @@ function LayerControlPanel({
 }: IntelligenceRadarMapProps) {
   return (
     <aside className="pointer-events-auto absolute top-6 left-6 z-10 w-64 max-w-[calc(100%-3rem)]">
-      <div className="rounded-xl border border-white/[0.08] bg-[#151F23]/70 p-3.5 shadow-xl backdrop-blur-xl">
-        <div className="mb-2.5 flex items-center gap-2 border-b border-white/[0.05] pb-2">
-          <span className="flex size-6 items-center justify-center rounded-md border border-[#b38c56]/20 bg-[#b38c56]/8 text-[#b38c56]">
+      <div className="rounded-xl border border-border/60 bg-[#151F23]/70 p-3.5 shadow-xl backdrop-blur-xl">
+        <div className="mb-2.5 flex items-center gap-2 border-b border-border/50 pb-2">
+          <span className="flex size-6 items-center justify-center rounded-md border border-[#b38c56]/20 bg-parsel-gold/8 text-parsel-gold">
             <Layers className="size-3" strokeWidth={1.5} />
           </span>
           <div>
-            <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-zinc-600">
+            <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
               TUCBS / MTA
             </p>
-            <h2 className="text-xs font-semibold text-zinc-300">Canlı WMS Katmanları</h2>
+            <h2 className="text-xs font-semibold text-foreground/90">Canlı WMS Katmanları</h2>
           </div>
         </div>
 
@@ -183,13 +183,13 @@ export function IntelligenceRadarMap({
 
   if (!mapboxToken) {
     return (
-      <div className="flex min-h-[80vh] flex-col items-center justify-center gap-3 rounded-3xl border border-amber-500/20 bg-[#09090b] px-6 text-center">
-        <p className="text-sm font-medium text-zinc-200">
+      <div className="flex min-h-[80vh] flex-col items-center justify-center gap-3 rounded-3xl border border-amber-500/20 bg-background px-6 text-center">
+        <p className="text-sm font-medium text-foreground">
           Mapbox token bulunamadı
         </p>
-        <p className="max-w-md text-xs text-zinc-500">
+        <p className="max-w-md text-xs text-foreground0">
           `.env.local` dosyasına{" "}
-          <code className="text-[#b38c56]">NEXT_PUBLIC_MAPBOX_TOKEN</code>{" "}
+          <code className="text-parsel-gold">NEXT_PUBLIC_MAPBOX_TOKEN</code>{" "}
           ekleyin ve sunucuyu yeniden başlatın.
         </p>
       </div>
@@ -197,7 +197,7 @@ export function IntelligenceRadarMap({
   }
 
   return (
-    <div className="relative min-h-[80vh] w-full overflow-hidden rounded-3xl border border-white/[0.06] bg-[#09090b]">
+    <div className="relative min-h-[80vh] w-full overflow-hidden rounded-3xl border border-border/60 bg-background">
       <Map
         mapboxAccessToken={mapboxToken}
         mapStyle={MAPBOX_STYLE}

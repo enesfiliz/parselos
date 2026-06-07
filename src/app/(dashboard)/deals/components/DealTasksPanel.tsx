@@ -60,18 +60,18 @@ export function DealTasksPanel({
     <Tabs defaultValue="tasks" className="gap-3">
       <TabsList
         variant="line"
-        className="h-9 w-full justify-start gap-0 border-b border-white/[0.06] bg-transparent p-0"
+        className="h-9 w-full justify-start gap-0 border-b border-border/60 bg-transparent p-0"
       >
         <TabsTrigger
           value="tasks"
-          className="rounded-none border-0 px-3 data-active:text-[#b38c56]"
+          className="rounded-none border-0 px-3 data-active:text-parsel-gold"
         >
           <CheckSquare className="size-3.5" />
           Görevler
         </TabsTrigger>
         <TabsTrigger
           value="notes"
-          className="rounded-none border-0 px-3 data-active:text-[#b38c56]"
+          className="rounded-none border-0 px-3 data-active:text-parsel-gold"
         >
           <StickyNote className="size-3.5" />
           Notlar
@@ -82,22 +82,22 @@ export function DealTasksPanel({
         <ul className="space-y-1">
           {activeTasks.map((task) => (
             <li key={task.id}>
-              <div className="group flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition-colors hover:border-white/[0.04] hover:bg-white/[0.02]">
+              <div className="group flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 transition-colors hover:border-border/40 hover:bg-foreground/[0.02]">
                 <button
                   type="button"
                   onClick={() => toggleTask(task.id)}
-                  className="shrink-0 text-zinc-500 transition-colors hover:text-[#b38c56]"
+                  className="shrink-0 text-foreground0 transition-colors hover:text-parsel-gold"
                 >
                   {task.completed ? (
-                    <CheckSquare className="size-4 text-[#b38c56]" />
+                    <CheckSquare className="size-4 text-parsel-gold" />
                   ) : (
                     <Square className="size-4" />
                   )}
                 </button>
                 <span
                   className={cn(
-                    "flex-1 text-sm text-zinc-300",
-                    task.completed && "text-zinc-600 line-through",
+                    "flex-1 text-sm text-foreground/90",
+                    task.completed && "text-muted-foreground line-through",
                   )}
                 >
                   {task.label}
@@ -120,14 +120,14 @@ export function DealTasksPanel({
             onChange={(e) => setNewTask(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addTask()}
             placeholder="Yeni görev ekle..."
-            className="h-8 border-white/10 bg-[#0f1417] text-sm"
+            className="h-8 border-border bg-parsel-sunken text-sm"
           />
           <Button
             type="button"
             size="icon-sm"
             variant="outline"
             onClick={addTask}
-            className="shrink-0 border-white/10"
+            className="shrink-0 border-border"
           >
             <Plus className="size-4" />
           </Button>
@@ -143,14 +143,14 @@ export function DealTasksPanel({
               onChange={(e) => setNotesDraft(e.target.value)}
               rows={5}
               placeholder="Fırsat notları..."
-              className="w-full resize-none rounded-lg border border-white/10 bg-[#0f1417] px-3 py-2 text-sm text-zinc-200 outline-none focus:border-[#b38c56]/40 focus:ring-2 focus:ring-[#b38c56]/20"
+              className="w-full resize-none rounded-lg border border-border bg-parsel-sunken px-3 py-2 text-sm text-foreground outline-none focus:border-[#b38c56]/40 focus:ring-2 focus:ring-[#b38c56]/20"
             />
             <div className="flex gap-2">
               <Button
                 type="button"
                 size="sm"
                 onClick={saveNotes}
-                className="bg-[#b38c56] text-[#09090b] hover:bg-[#c9a06a]"
+                className="bg-parsel-gold text-[#09090b] hover:bg-[#c9a06a]"
               >
                 Kaydet
               </Button>
@@ -174,12 +174,12 @@ export function DealTasksPanel({
               setNotesDraft(notlar ?? "");
               setEditingNotes(true);
             }}
-            className="w-full rounded-lg border border-white/[0.06] bg-[#151f23] p-3 text-left transition-colors hover:border-[#b38c56]/20"
+            className="w-full rounded-lg border border-border/60 bg-parsel-panel p-3 text-left transition-colors hover:border-parsel-gold/20"
           >
             {notlar ? (
-              <p className="text-sm leading-relaxed text-zinc-400">{notlar}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">{notlar}</p>
             ) : (
-              <p className="text-sm text-zinc-600">
+              <p className="text-sm text-muted-foreground">
                 Not eklemek için tıklayın...
               </p>
             )}

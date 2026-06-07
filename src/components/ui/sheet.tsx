@@ -47,7 +47,7 @@ function SheetContent({
         data-slot="sheet-content"
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex h-full w-[min(18.5rem,90vw)] flex-col",
-          "border-r border-parsel-border bg-parsel-card/95 shadow-2xl shadow-black/40 outline-none",
+          "border-r border-border bg-parsel-card/95 shadow-2xl shadow-black/40 outline-none",
           "backdrop-blur-xl duration-300",
           "data-open:animate-in data-open:slide-in-from-left data-open:fade-in-0",
           "data-closed:animate-out data-closed:slide-out-to-left data-closed:fade-out-0",
@@ -63,7 +63,7 @@ function SheetContent({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="absolute top-3.5 right-3.5 text-zinc-400 hover:text-zinc-100"
+                className="absolute top-3.5 right-3.5 text-muted-foreground hover:text-foreground"
               />
             }
           >

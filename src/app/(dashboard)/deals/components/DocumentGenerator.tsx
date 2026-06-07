@@ -25,8 +25,8 @@ const PDFViewer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[58vh] items-center justify-center rounded-xl border border-zinc-800 bg-[#0f1417]">
-        <p className="text-sm text-zinc-500">PDF önizlemesi hazırlanıyor…</p>
+      <div className="flex h-[58vh] items-center justify-center rounded-xl border border-border bg-parsel-sunken">
+        <p className="text-sm text-foreground0">PDF önizlemesi hazırlanıyor…</p>
       </div>
     ),
   },
@@ -107,10 +107,10 @@ export function DocumentGenerator({ deal }: DocumentGeneratorProps) {
   return (
     <section className="space-y-3">
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground0">
           Resmi Evraklar
         </h3>
-        <p className="mt-1 text-[11px] text-zinc-600">
+        <p className="mt-1 text-[11px] text-muted-foreground">
           Fırsat verilerinden otomatik PDF üretin ve önizleyin.
         </p>
       </div>
@@ -122,11 +122,11 @@ export function DocumentGenerator({ deal }: DocumentGeneratorProps) {
             type="button"
             onClick={() => setPreviewType(item.type)}
             className={cn(
-              "inline-flex items-center gap-2.5 rounded-xl border border-zinc-800 bg-[#151f23] px-4 py-3 text-left text-sm font-medium text-zinc-100 transition-colors",
-              "hover:bg-[#1a262b] hover:border-zinc-700",
+              "inline-flex items-center gap-2.5 rounded-xl border border-border bg-parsel-panel px-4 py-3 text-left text-sm font-medium text-foreground transition-colors",
+              "hover:bg-[#1a262b] hover:border-border",
             )}
           >
-            <FileText className="size-4 shrink-0 text-[#b38c56]" strokeWidth={1.5} />
+            <FileText className="size-4 shrink-0 text-parsel-gold" strokeWidth={1.5} />
             <span>{item.label}</span>
           </button>
         ))}
@@ -140,20 +140,20 @@ export function DocumentGenerator({ deal }: DocumentGeneratorProps) {
       >
         <DialogContent
           showCloseButton
-          className="max-h-[92vh] w-[min(100vw-2rem,920px)] overflow-hidden border border-zinc-800 bg-[#0f1417] p-0 text-zinc-100 sm:max-w-[920px]"
+          className="max-h-[92vh] w-[min(100vw-2rem,920px)] overflow-hidden border border-border bg-parsel-sunken p-0 text-foreground sm:max-w-[920px]"
         >
-          <DialogHeader className="border-b border-zinc-800 px-5 py-4">
-            <DialogTitle className="font-outfit text-lg text-zinc-100">
+          <DialogHeader className="border-b border-border px-5 py-4">
+            <DialogTitle className="font-outfit text-lg text-foreground">
               {previewMeta?.title} — Önizleme
             </DialogTitle>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-foreground0">
               {deal.client.adSoyad} · {deal.property.ilanBasligi}
             </p>
           </DialogHeader>
 
           <div className="overflow-hidden bg-zinc-950 px-4 py-4">
             {previewDocument ? (
-              <div className="h-[58vh] overflow-hidden rounded-xl border border-zinc-800">
+              <div className="h-[58vh] overflow-hidden rounded-xl border border-border">
                 <PDFViewer width="100%" height="100%" showToolbar={false}>
                   {previewDocument}
                 </PDFViewer>
@@ -161,14 +161,14 @@ export function DocumentGenerator({ deal }: DocumentGeneratorProps) {
             ) : null}
           </div>
 
-          <div className="flex items-center justify-end gap-3 border-t border-zinc-800 px-5 py-4">
+          <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
             <button
               type="button"
               onClick={() => void handleDownloadOrShare()}
               disabled={isExporting}
               className={cn(
                 "inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-[#09090b] transition-all",
-                "bg-[#b38c56] hover:bg-[#c49a67] disabled:cursor-not-allowed disabled:opacity-60",
+                "bg-parsel-gold hover:bg-[#c49a67] disabled:cursor-not-allowed disabled:opacity-60",
                 "shadow-[0_0_24px_rgba(179,140,86,0.25)]",
               )}
             >

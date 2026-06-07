@@ -90,7 +90,7 @@ export function NotificationCenter() {
         type="button"
         variant="ghost"
         size="icon-sm"
-        className="relative text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+        className="relative text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
         onClick={() => setOpen((current) => !current)}
         aria-label="Bildirimler"
         aria-expanded={open}
@@ -109,20 +109,20 @@ export function NotificationCenter() {
         <div
           role="dialog"
           aria-label="Bildirim merkezi"
-          className="absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-1.5rem))] animate-in fade-in slide-in-from-top-2 overflow-hidden rounded-xl border border-white/5 bg-[#151f23] shadow-2xl duration-200 md:w-80"
+          className="absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-1.5rem))] animate-in fade-in slide-in-from-top-2 overflow-hidden rounded-xl border border-border/50 bg-parsel-panel shadow-2xl duration-200 md:w-80"
         >
-          <div className="flex items-center justify-between border-b border-white/5 px-4 py-3">
-            <h2 className="text-sm font-semibold text-white/90">Bildirimler</h2>
+          <div className="flex items-center justify-between border-b border-border/50 px-4 py-3">
+            <h2 className="text-sm font-semibold text-foreground/90">Bildirimler</h2>
             {unreadCount > 0 ? (
               <button
                 type="button"
                 onClick={markAllRead}
-                className="text-[10px] text-white/40 transition-colors hover:text-white"
+                className="text-[10px] text-muted-foreground transition-colors hover:text-foreground"
               >
                 Tümünü Okundu İşaretle
               </button>
             ) : (
-              <span className="text-[10px] text-white/25">Güncel</span>
+              <span className="text-[10px] text-foreground/25">Güncel</span>
             )}
           </div>
 
@@ -137,7 +137,7 @@ export function NotificationCenter() {
                     href={notification.href}
                     onClick={() => markRead(notification.id)}
                     className={cn(
-                      "flex gap-3 px-4 py-3 transition-colors hover:bg-white/[0.04]",
+                      "flex gap-3 px-4 py-3 transition-colors hover:bg-foreground/[0.04]",
                       !notification.read && "bg-white/[0.02]",
                     )}
                   >
@@ -154,10 +154,10 @@ export function NotificationCenter() {
                     </span>
 
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-xs leading-relaxed text-white/80">
+                      <p className="line-clamp-2 text-xs leading-relaxed text-foreground/80">
                         {notification.message}
                       </p>
-                      <p className="mt-1 text-right text-[9px] text-white/30">
+                      <p className="mt-1 text-right text-[9px] text-muted-foreground">
                         {notification.timeAgo}
                       </p>
                     </div>

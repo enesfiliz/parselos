@@ -68,7 +68,7 @@ export function DashboardGlobalSearch({
         type="button"
         onClick={openPalette}
         className={cn(
-          "flex h-10 w-full min-w-0 items-center gap-2 rounded-xl border border-white/5 bg-[#151f23] px-3 text-left text-sm text-white/40 transition-all duration-300 hover:border-white/10 sm:max-w-md",
+          "flex h-10 w-full min-w-0 items-center gap-2 rounded-xl border border-border/50 bg-parsel-panel px-3 text-left text-sm text-muted-foreground transition-all duration-300 hover:border-border sm:max-w-md",
           className,
         )}
       >
@@ -77,22 +77,22 @@ export function DashboardGlobalSearch({
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="border-white/10 bg-[#151f23] p-0 text-zinc-100 sm:max-w-lg">
-          <DialogHeader className="border-b border-white/5 px-4 py-3">
+        <DialogContent className="border-border bg-parsel-panel p-0 text-foreground sm:max-w-lg">
+          <DialogHeader className="border-b border-border/50 px-4 py-3">
             <DialogTitle className="sr-only">Global arama</DialogTitle>
             <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-white/40" />
+              <Search className="h-4 w-4 text-muted-foreground" />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Müşteri, fırsat, ilan…"
-                className="min-w-0 flex-1 bg-transparent text-sm text-white/90 outline-none placeholder:text-white/30"
+                className="min-w-0 flex-1 bg-transparent text-sm text-foreground/90 outline-none placeholder:text-muted-foreground"
               />
               <button
                 type="button"
                 onClick={closePalette}
-                className="text-white/30 hover:text-white/60"
+                className="text-muted-foreground hover:text-muted-foreground"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -101,7 +101,7 @@ export function DashboardGlobalSearch({
 
           <ul className="max-h-72 overflow-y-auto p-2">
             {filtered.length === 0 ? (
-              <li className="px-3 py-8 text-center text-xs text-white/35">
+              <li className="px-3 py-8 text-center text-xs text-foreground/35">
                 Eşleşen kayıt bulunamadı.
               </li>
             ) : (
@@ -113,16 +113,16 @@ export function DashboardGlobalSearch({
                     <Link
                       href={item.href}
                       onClick={closePalette}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-foreground/[0.04]"
                     >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/5 bg-[#09090b]">
-                        <Icon className="h-3.5 w-3.5 text-white/45" />
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-background">
+                        <Icon className="h-3.5 w-3.5 text-foreground/45" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm text-white/85">
+                        <span className="block truncate text-sm text-foreground/85">
                           {item.title}
                         </span>
-                        <span className="block truncate text-[11px] text-white/40">
+                        <span className="block truncate text-[11px] text-muted-foreground">
                           {meta.label} · {item.subtitle}
                         </span>
                       </span>

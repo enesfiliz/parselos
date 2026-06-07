@@ -142,8 +142,8 @@ export function SpotlightCard({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "group relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-[#18181b]",
-        "transition-colors duration-200 hover:border-zinc-700",
+        "group relative flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card",
+        "transition-colors duration-200 hover:border-border",
         className,
       )}
     >
@@ -173,7 +173,7 @@ export function ShineButton({
       href={href}
       className={cn(
         "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-lg px-10 text-sm font-semibold",
-        "bg-parsel-gold text-parsel-bg transition-colors duration-500 hover:bg-parsel-gold/90",
+        "bg-parsel-gold text-background transition-colors duration-500 hover:bg-parsel-gold/90",
         className,
       )}
     >

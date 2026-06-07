@@ -20,8 +20,8 @@ export function DealAppointmentTimeline({
   if (appointments.length === 0) return null;
 
   return (
-    <section className={cn("rounded-2xl border border-white/5 bg-[#151f23] p-4", className)}>
-      <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+    <section className={cn("rounded-2xl border border-border/50 bg-parsel-panel p-4", className)}>
+      <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
         Yaklaşan Randevular
       </p>
 
@@ -31,7 +31,7 @@ export function DealAppointmentTimeline({
           return (
             <li
               key={item.id}
-              className="relative ml-2 border-l border-white/10 pl-3"
+              className="relative ml-2 border-l border-border pl-3"
             >
               <span
                 className={cn(
@@ -42,12 +42,12 @@ export function DealAppointmentTimeline({
               <p
                 className={cn(
                   "text-xs leading-snug",
-                  past ? "text-white/30" : "text-white/65",
+                  past ? "text-muted-foreground" : "text-white/65",
                 )}
               >
                 {formatAppointmentTimelineLabel(item)}
               </p>
-              <p className="mt-0.5 truncate text-[10px] text-white/30">
+              <p className="mt-0.5 truncate text-[10px] text-muted-foreground">
                 {item.propertyTitle}
               </p>
             </li>

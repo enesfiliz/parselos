@@ -163,18 +163,18 @@ export function DealDetailSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         showCloseButton
-        className="!left-auto !right-0 w-full overflow-y-auto border-l border-white/10 bg-[#09090b] p-0 data-open:slide-in-from-right data-closed:slide-out-to-right sm:max-w-none sm:w-[500px]"
+        className="!left-auto !right-0 w-full overflow-y-auto border-l border-border bg-background p-0 data-open:slide-in-from-right data-closed:slide-out-to-right sm:max-w-none sm:w-[500px]"
       >
-        <header className="border-b border-white/10 px-6 py-6">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b38c56]">
+        <header className="border-b border-border px-6 py-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-parsel-gold">
             Enterprise Komuta Merkezi
           </p>
-          <h2 className="mt-2 font-outfit text-xl font-semibold tracking-tight text-zinc-50">
+          <h2 className="mt-2 font-outfit text-xl font-semibold tracking-tight text-foreground">
             {localDeal.client.adSoyad.startsWith("FSBO —")
               ? localDeal.property.ilanBasligi
               : localDeal.client.adSoyad}
           </h2>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-foreground0">
             {resolveLocation(localDeal)}
           </p>
         </header>
@@ -186,8 +186,8 @@ export function DealDetailSheet({
             onSelect={(client) => update({ client })}
           />
 
-          <section className="rounded-xl border border-white/5 bg-[#151f23] p-4">
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          <section className="rounded-xl border border-border/50 bg-parsel-panel p-4">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
               İlişkisel Düzenleme
             </p>
             <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
@@ -248,7 +248,7 @@ export function DealDetailSheet({
             </div>
           </section>
 
-          <section className="rounded-xl border border-white/5 bg-[#151f23] p-4">
+          <section className="rounded-xl border border-border/50 bg-parsel-panel p-4">
             <ExternalListingSection
               listingUrl={localDeal.listingUrl}
               listingIntel={localDeal.listingIntel}
@@ -258,8 +258,8 @@ export function DealDetailSheet({
             />
           </section>
 
-          <section className="rounded-xl border border-white/5 bg-[#151f23] p-4">
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          <section className="rounded-xl border border-border/50 bg-parsel-panel p-4">
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
               Yapılacak İşler
             </p>
             <DealTasksPanel

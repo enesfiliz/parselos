@@ -39,7 +39,7 @@ export function getSourceBadge(source: string): FsboSourceBadge {
     return {
       letter: "E",
       label: "Emlakjet",
-      className: "bg-red-600 text-white",
+      className: "bg-red-600 text-foreground",
     };
   }
 
@@ -47,7 +47,7 @@ export function getSourceBadge(source: string): FsboSourceBadge {
     return {
       letter: "H",
       label: "Hepsiemlak",
-      className: "bg-sky-600 text-white",
+      className: "bg-sky-600 text-foreground",
     };
   }
 

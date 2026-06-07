@@ -103,14 +103,14 @@ export function RadarGeocodeSearch({ onSelect }: RadarGeocodeSearchProps) {
       ref={containerRef}
       className="pointer-events-auto absolute top-4 right-4 z-[1000] w-96 max-w-[calc(100%-2rem)]"
     >
-      <div className="flex items-center gap-3 rounded-full border border-white/10 bg-[#151f23]/90 px-6 py-3 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center gap-3 rounded-full border border-border bg-parsel-panel/90 px-6 py-3 shadow-2xl backdrop-blur-xl">
         {isLoading ? (
           <Loader2
-            className="size-4 shrink-0 animate-spin text-[#b38c56]"
+            className="size-4 shrink-0 animate-spin text-parsel-gold"
             strokeWidth={1.5}
           />
         ) : (
-          <Search className="size-4 shrink-0 text-zinc-500" strokeWidth={1.25} />
+          <Search className="size-4 shrink-0 text-foreground0" strokeWidth={1.25} />
         )}
         <input
           type="search"
@@ -118,7 +118,7 @@ export function RadarGeocodeSearch({ onSelect }: RadarGeocodeSearchProps) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => (results.length > 0 || error) && setIsOpen(true)}
           placeholder="İl, İlçe, Mahalle veya Ada/Parsel ara..."
-          className="min-w-0 flex-1 bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-500"
+          className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-foreground0"
           autoComplete="off"
         />
         {query ? (
@@ -130,7 +130,7 @@ export function RadarGeocodeSearch({ onSelect }: RadarGeocodeSearchProps) {
               setIsOpen(false);
               setError(null);
             }}
-            className="text-zinc-500 transition-colors hover:text-zinc-300"
+            className="text-foreground0 transition-colors hover:text-foreground/90"
             aria-label="Aramayı temizle"
           >
             <X className="size-3.5" />
@@ -139,11 +139,11 @@ export function RadarGeocodeSearch({ onSelect }: RadarGeocodeSearchProps) {
       </div>
 
       {isOpen ? (
-        <ul className="mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#151f23]/95 shadow-2xl backdrop-blur-xl">
+        <ul className="mt-2 overflow-hidden rounded-2xl border border-border bg-parsel-panel/95 shadow-2xl backdrop-blur-xl">
           {error ? (
-            <li className="px-4 py-3 text-xs text-zinc-500">{error}</li>
+            <li className="px-4 py-3 text-xs text-foreground0">{error}</li>
           ) : results.length === 0 && !isLoading ? (
-            <li className="px-4 py-3 text-xs text-zinc-500">Sonuç bulunamadı.</li>
+            <li className="px-4 py-3 text-xs text-foreground0">Sonuç bulunamadı.</li>
           ) : (
             results.map((result, index) => (
               <li key={`${result.lat}-${result.lng}-${index}`}>
@@ -151,15 +151,15 @@ export function RadarGeocodeSearch({ onSelect }: RadarGeocodeSearchProps) {
                   type="button"
                   onClick={() => handleSelect(result)}
                   className={cn(
-                    "flex w-full items-start gap-2.5 px-4 py-3 text-left transition-colors hover:bg-white/[0.04]",
-                    index > 0 && "border-t border-white/[0.05]",
+                    "flex w-full items-start gap-2.5 px-4 py-3 text-left transition-colors hover:bg-foreground/[0.04]",
+                    index > 0 && "border-t border-border/50",
                   )}
                 >
                   <MapPin
-                    className="mt-0.5 size-3.5 shrink-0 text-[#b38c56]"
+                    className="mt-0.5 size-3.5 shrink-0 text-parsel-gold"
                     strokeWidth={1.5}
                   />
-                  <span className="line-clamp-2 text-xs leading-snug text-zinc-300">
+                  <span className="line-clamp-2 text-xs leading-snug text-foreground/90">
                     {result.label}
                   </span>
                 </button>

@@ -170,17 +170,17 @@ export function ClientCombobox({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-3 rounded-xl border border-white/[0.08] bg-[#151f23] p-3.5 text-left transition-colors hover:border-[#b38c56]/25"
+        className="flex w-full items-center gap-3 rounded-xl border border-border/60 bg-parsel-panel p-3.5 text-left transition-colors hover:border-parsel-gold/25"
       >
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#b38c56]/20 bg-[#b38c56]/10">
-          <UserRound className="size-5 text-[#b38c56]" strokeWidth={1.5} />
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-[#b38c56]/20 bg-parsel-gold/10">
+          <UserRound className="size-5 text-parsel-gold" strokeWidth={1.5} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground0">
             Müşteri
           </p>
-          <p className="truncate font-medium text-zinc-100">{client.adSoyad}</p>
-          <div className="mt-0.5 flex items-center gap-2 text-xs text-zinc-500">
+          <p className="truncate font-medium text-foreground">{client.adSoyad}</p>
+          <div className="mt-0.5 flex items-center gap-2 text-xs text-foreground0">
             {client.telefon ? (
               <span className="inline-flex items-center gap-1">
                 <Phone className="size-3" />
@@ -188,28 +188,28 @@ export function ClientCombobox({
               </span>
             ) : null}
             {client.kaynak ? (
-              <span className="text-zinc-600">· {client.kaynak}</span>
+              <span className="text-muted-foreground">· {client.kaynak}</span>
             ) : null}
           </div>
         </div>
         <ChevronDown
           className={cn(
-            "size-4 shrink-0 text-zinc-500 transition-transform",
+            "size-4 shrink-0 text-foreground0 transition-transform",
             open && "rotate-180",
           )}
         />
       </button>
 
       {open ? (
-        <div className="absolute top-[calc(100%+6px)] z-50 w-full overflow-hidden rounded-xl border border-white/10 bg-[#0f1417] shadow-2xl shadow-black/60">
-          <div className="border-b border-white/[0.06] p-2">
+        <div className="absolute top-[calc(100%+6px)] z-50 w-full overflow-hidden rounded-xl border border-border bg-parsel-sunken shadow-2xl shadow-black/60">
+          <div className="border-b border-border/60 p-2">
             <div className="relative">
-              <Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-zinc-600" />
+              <Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Müşteri ara..."
-                className="h-8 border-white/10 bg-[#09090b] pl-8 text-sm"
+                className="h-8 border-border bg-background pl-8 text-sm"
               />
             </div>
           </div>
@@ -225,14 +225,14 @@ export function ClientCombobox({
                     setQuery("");
                   }}
                   className={cn(
-                    "flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors hover:bg-white/[0.04]",
-                    c.id === client.id && "bg-[#b38c56]/10 text-[#b38c56]",
+                    "flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors hover:bg-foreground/[0.04]",
+                    c.id === client.id && "bg-parsel-gold/10 text-parsel-gold",
                   )}
                 >
-                  <UserRound className="size-3.5 shrink-0 text-zinc-600" />
+                  <UserRound className="size-3.5 shrink-0 text-muted-foreground" />
                   <div className="min-w-0">
                     <p className="truncate font-medium">{c.adSoyad}</p>
-                    <p className="truncate text-xs text-zinc-600">
+                    <p className="truncate text-xs text-muted-foreground">
                       {c.telefon ?? "Telefon yok"}
                       {c.mulkTipi ? ` · ${c.mulkTipi}` : ""}
                     </p>
@@ -241,33 +241,33 @@ export function ClientCombobox({
               </li>
             ))}
             {filtered.length === 0 ? (
-              <li className="px-3 py-4 text-center text-xs text-zinc-600">
+              <li className="px-3 py-4 text-center text-xs text-muted-foreground">
                 Sonuç bulunamadı
               </li>
             ) : null}
           </ul>
 
-          <div className="border-t border-white/[0.06] p-2">
+          <div className="border-t border-border/60 p-2">
             {creating ? (
               <div className="space-y-2">
                 <Input
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="Ad Soyad"
-                  className="h-8 border-white/10 bg-[#09090b] text-sm"
+                  className="h-8 border-border bg-background text-sm"
                 />
                 <Input
                   value={newPhone}
                   onChange={(e) => setNewPhone(e.target.value)}
                   placeholder="Telefon"
-                  className="h-8 border-white/10 bg-[#09090b] text-sm"
+                  className="h-8 border-border bg-background text-sm"
                 />
                 <div className="flex gap-2">
                   <Button
                     type="button"
                     size="sm"
                     onClick={handleCreateClient}
-                    className="flex-1 bg-[#b38c56] text-[#09090b] hover:bg-[#c9a06a]"
+                    className="flex-1 bg-parsel-gold text-[#09090b] hover:bg-[#c9a06a]"
                   >
                     Kaydet
                   </Button>
@@ -285,7 +285,7 @@ export function ClientCombobox({
               <button
                 type="button"
                 onClick={() => setCreating(true)}
-                className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-[#b38c56] transition-colors hover:bg-[#b38c56]/10"
+                className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-parsel-gold transition-colors hover:bg-parsel-gold/10"
               >
                 <Plus className="size-4" />
                 Yeni Müşteri Yarat

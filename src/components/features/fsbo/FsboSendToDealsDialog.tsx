@@ -150,28 +150,28 @@ export function FsboSendToDealsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="border-white/10 bg-[#151f23] text-zinc-100 sm:max-w-md">
+      <DialogContent className="border-border bg-parsel-panel text-foreground sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 font-outfit">
-            <Plus className="size-4 text-[#b38c56]" />
+            <Plus className="size-4 text-parsel-gold" />
             Fırsatlara Gönder
           </DialogTitle>
-          <DialogDescription className="text-zinc-500">
+          <DialogDescription className="text-foreground0">
             {lead
               ? `"${lead.title}" ilanını gerçek bir müşteriye bağlayın. İlan başlığı müşteri olarak kaydedilmez.`
               : "İlan seçilmedi."}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex gap-1 rounded-xl border border-white/5 bg-[#09090b] p-1">
+        <div className="flex gap-1 rounded-xl border border-border/50 bg-background p-1">
           <button
             type="button"
             onClick={() => setMode("existing")}
             className={cn(
               "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-300",
               mode === "existing"
-                ? "bg-[#151f23] text-zinc-100"
-                : "text-zinc-500 hover:text-zinc-300",
+                ? "bg-parsel-panel text-foreground"
+                : "text-foreground0 hover:text-foreground/90",
             )}
           >
             <Search className="size-3.5" />
@@ -183,8 +183,8 @@ export function FsboSendToDealsDialog({
             className={cn(
               "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-300",
               mode === "new"
-                ? "bg-[#151f23] text-zinc-100"
-                : "text-zinc-500 hover:text-zinc-300",
+                ? "bg-parsel-panel text-foreground"
+                : "text-foreground0 hover:text-foreground/90",
             )}
           >
             <UserPlus className="size-3.5" />
@@ -195,22 +195,22 @@ export function FsboSendToDealsDialog({
         {mode === "existing" ? (
           <>
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-600" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Müşteri ara (ad, telefon)..."
-                className="h-10 w-full rounded-xl border border-white/5 bg-[#09090b] pl-10 pr-3 text-sm text-zinc-200 outline-none transition-all duration-300 placeholder:text-zinc-600 focus:border-[#b38c56]/35"
+                className="h-10 w-full rounded-xl border border-border/50 bg-background pl-10 pr-3 text-sm text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground focus:border-[#b38c56]/35"
               />
             </div>
 
-            <div className="max-h-56 overflow-y-auto rounded-xl border border-white/5 bg-[#09090b]">
+            <div className="max-h-56 overflow-y-auto rounded-xl border border-border/50 bg-background">
               {loadingClients ? (
                 <div className="flex justify-center py-10">
-                  <Loader2 className="size-5 animate-spin text-zinc-500" />
+                  <Loader2 className="size-5 animate-spin text-foreground0" />
                 </div>
               ) : filtered.length === 0 ? (
-                <p className="px-4 py-8 text-center text-xs text-zinc-500">
+                <p className="px-4 py-8 text-center text-xs text-foreground0">
                   Eşleşen müşteri bulunamadı. Yeni müşteri sekmesinden ekleyin.
                 </p>
               ) : (
@@ -221,21 +221,21 @@ export function FsboSendToDealsDialog({
                         type="button"
                         onClick={() => setSelectedId(client.id)}
                         className={cn(
-                          "flex w-full flex-col gap-0.5 border-b border-white/5 px-3 py-2.5 text-left transition-all duration-300 last:border-b-0",
+                          "flex w-full flex-col gap-0.5 border-b border-border/50 px-3 py-2.5 text-left transition-all duration-300 last:border-b-0",
                           selectedId === client.id
-                            ? "bg-[#b38c56]/10"
+                            ? "bg-parsel-gold/10"
                             : "hover:bg-white/[0.03]",
                         )}
                       >
-                        <span className="text-sm font-medium text-zinc-100">
+                        <span className="text-sm font-medium text-foreground">
                           {client.adSoyad}
                         </span>
-                        <span className="text-[11px] text-zinc-500">
+                        <span className="text-[11px] text-foreground0">
                           {client.telefon ?? "Telefon yok"}
                           {client.butce ? ` · ${client.butce}` : ""}
                         </span>
                         {client.mulkTipi ? (
-                          <span className="truncate text-[10px] text-zinc-600">
+                          <span className="truncate text-[10px] text-muted-foreground">
                             {client.mulkTipi}
                           </span>
                         ) : null}
@@ -247,34 +247,34 @@ export function FsboSendToDealsDialog({
             </div>
           </>
         ) : (
-          <div className="space-y-3 rounded-xl border border-white/5 bg-[#09090b] p-4">
+          <div className="space-y-3 rounded-xl border border-border/50 bg-background p-4">
             <label className="block space-y-1.5">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 Ad Soyad
               </span>
               <input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Örn. Murat Korkmaz"
-                className="h-10 w-full rounded-xl border border-white/5 bg-[#151f23] px-3 text-sm text-zinc-200 outline-none transition-all duration-300 placeholder:text-zinc-600 focus:border-[#b38c56]/35"
+                className="h-10 w-full rounded-xl border border-border/50 bg-parsel-panel px-3 text-sm text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground focus:border-[#b38c56]/35"
               />
             </label>
             <label className="block space-y-1.5">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 Telefon (isteğe bağlı)
               </span>
               <input
                 value={newPhone}
                 onChange={(e) => setNewPhone(e.target.value)}
                 placeholder="05xx xxx xx xx"
-                className="h-10 w-full rounded-xl border border-white/5 bg-[#151f23] px-3 text-sm text-zinc-200 outline-none transition-all duration-300 placeholder:text-zinc-600 focus:border-[#b38c56]/35"
+                className="h-10 w-full rounded-xl border border-border/50 bg-parsel-panel px-3 text-sm text-foreground outline-none transition-all duration-300 placeholder:text-muted-foreground focus:border-[#b38c56]/35"
               />
             </label>
             <Button
               type="button"
               disabled={creating || newName.trim().length < 2}
               onClick={handleCreateClient}
-              className="w-full border border-[#b38c56]/30 bg-[#b38c56]/10 text-[#e8d4b8] transition-all duration-300 hover:bg-[#b38c56]/20"
+              className="w-full border border-[#b38c56]/30 bg-parsel-gold/10 text-[#e8d4b8] transition-all duration-300 hover:bg-parsel-gold/20"
             >
               {creating ? (
                 <>
@@ -296,7 +296,7 @@ export function FsboSendToDealsDialog({
             type="button"
             variant="ghost"
             onClick={() => handleOpenChange(false)}
-            className="text-zinc-400"
+            className="text-muted-foreground"
           >
             İptal
           </Button>
@@ -304,7 +304,7 @@ export function FsboSendToDealsDialog({
             type="button"
             disabled={sending || !selectedId || !lead}
             onClick={handleSend}
-            className="border border-[#b38c56]/30 bg-[#b38c56]/10 text-[#e8d4b8] transition-all duration-300 hover:bg-[#b38c56]/20"
+            className="border border-[#b38c56]/30 bg-parsel-gold/10 text-[#e8d4b8] transition-all duration-300 hover:bg-parsel-gold/20"
           >
             {sending ? (
               <>

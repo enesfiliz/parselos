@@ -17,7 +17,7 @@ export const APPOINTMENT_TYPE_META: Record<
 > = {
   showing: {
     label: "Yer Gösterme",
-    badgeClass: "bg-[#b38c56]/10 text-[#d4b07a] border border-[#b38c56]/20",
+    badgeClass: "bg-parsel-gold/10 text-[#d4b07a] border border-[#b38c56]/20",
   },
   deed: {
     label: "Tapu İşlemi",

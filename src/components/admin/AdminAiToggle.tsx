@@ -28,7 +28,7 @@ export function AdminAiToggle({
         disabled && "cursor-not-allowed opacity-50",
         checked
           ? "border-emerald-500/40 bg-emerald-500/20"
-          : "border-white/10 bg-white/[0.04]",
+          : "border-border bg-white/[0.04]",
       )}
     >
       <span

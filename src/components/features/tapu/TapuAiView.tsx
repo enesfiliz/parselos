@@ -121,7 +121,7 @@ function FieldInput({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={id} className="text-xs text-zinc-400">
+      <Label htmlFor={id} className="text-xs text-muted-foreground">
         {label}
       </Label>
       <Input
@@ -129,7 +129,7 @@ function FieldInput({
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(id, event.target.value)}
-        className="h-10 border-white/10 bg-[#09090b] text-zinc-100 placeholder:text-zinc-600"
+        className="h-10 border-border bg-background text-foreground placeholder:text-muted-foreground"
       />
     </div>
   );
@@ -137,34 +137,34 @@ function FieldInput({
 
 function IntelligenceReport({ result }: { result: DeedAnalysis | null }) {
   return (
-    <aside className="bg-[#151f23] border border-white/10 p-5 rounded-2xl">
+    <aside className="bg-parsel-panel border border-border p-5 rounded-2xl">
       <div className="mb-5 flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#b38c56]/25 bg-[#b38c56]/10 text-[#b38c56]">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#b38c56]/25 bg-parsel-gold/10 text-parsel-gold">
           <Brain className="size-5" strokeWidth={1.75} />
         </span>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b38c56]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-parsel-gold">
             TapuAI
           </p>
-          <h2 className="font-outfit text-lg font-semibold text-zinc-50">
+          <h2 className="font-outfit text-lg font-semibold text-foreground">
             TapuAI İstihbarat Raporu
           </h2>
         </div>
       </div>
 
       {!result ? (
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 text-sm leading-relaxed text-zinc-400">
+        <div className="rounded-xl border border-border/60 bg-white/[0.03] p-4 text-sm leading-relaxed text-muted-foreground">
           Görsel yüklendiğinde Gemini belgeyi okuyacak, hisse/nitelik sinyallerini
           yorumlayacak ve yatırım odaklı risk-avantaj raporunu burada açacak.
         </div>
       ) : (
         <div className="space-y-5">
-          <div className="rounded-xl border border-white/[0.06] bg-[#09090b]/70 p-4">
-            <div className="mb-2 flex items-center gap-2 text-[#b38c56]">
+          <div className="rounded-xl border border-border/60 bg-background/70 p-4">
+            <div className="mb-2 flex items-center gap-2 text-parsel-gold">
               <Sparkles className="size-4" strokeWidth={1.75} />
               <h3 className="text-sm font-semibold">Jilet Özet</h3>
             </div>
-            <p className="text-sm leading-relaxed text-zinc-300">
+            <p className="text-sm leading-relaxed text-foreground/90">
               {result.aiSummary || "Özet üretilemedi."}
             </p>
           </div>
@@ -181,7 +181,7 @@ function IntelligenceReport({ result }: { result: DeedAnalysis | null }) {
               ).map((item, index) => (
                 <li
                   key={`${item}-${index}`}
-                  className="rounded-lg border border-red-500/15 bg-red-500/5 px-3 py-2 text-sm leading-relaxed text-zinc-300"
+                  className="rounded-lg border border-red-500/15 bg-red-500/5 px-3 py-2 text-sm leading-relaxed text-foreground/90"
                 >
                   {item}
                 </li>
@@ -201,7 +201,7 @@ function IntelligenceReport({ result }: { result: DeedAnalysis | null }) {
               ).map((item, index) => (
                 <li
                   key={`${item}-${index}`}
-                  className="rounded-lg border border-emerald-500/15 bg-emerald-500/5 px-3 py-2 text-sm leading-relaxed text-zinc-300"
+                  className="rounded-lg border border-emerald-500/15 bg-emerald-500/5 px-3 py-2 text-sm leading-relaxed text-foreground/90"
                 >
                   {item}
                 </li>
@@ -302,10 +302,10 @@ export function TapuAiView() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8">
       <header className="space-y-2">
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-zinc-50">
+        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
           TapuAI Analiz Sistemi
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Tapu veya ekspertiz görselini yükleyin; Gemini belge verilerini çıkarıp
           nitelik, hisse ve yatırım sinyallerini profesyonel rapora dönüştürsün.
         </p>
@@ -313,10 +313,10 @@ export function TapuAiView() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.78fr)]">
         <div className="space-y-6">
-          <Card className="border-white/10 bg-[#0d0d10]">
+          <Card className="border-border bg-[#0d0d10]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
-                <UploadCloud className="size-4 text-[#b38c56]" strokeWidth={1.75} />
+                <UploadCloud className="size-4 text-parsel-gold" strokeWidth={1.75} />
                 Belge Yükleme
               </CardTitle>
             </CardHeader>
@@ -338,8 +338,8 @@ export function TapuAiView() {
                   "flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-5 rounded-xl border border-dashed px-8 py-12 text-center transition-colors outline-none",
                   "focus-visible:ring-3 focus-visible:ring-[#b38c56]/30",
                   isDragging
-                    ? "border-[#b38c56] bg-[#b38c56]/10"
-                    : "border-white/15 bg-[#09090b] hover:border-[#b38c56]/60 hover:bg-[#111114]",
+                    ? "border-[#b38c56] bg-parsel-gold/10"
+                    : "border-white/15 bg-background hover:border-parsel-gold/60 hover:bg-[#111114]",
                   isAnalyzing && "pointer-events-none opacity-70",
                 )}
               >
@@ -351,7 +351,7 @@ export function TapuAiView() {
                   onChange={handleFileChange}
                 />
 
-                <span className="flex size-12 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-[#b38c56]">
+                <span className="flex size-12 items-center justify-center rounded-xl border border-border bg-white/[0.03] text-parsel-gold">
                   {isAnalyzing ? (
                     <Brain className="size-5 animate-pulse" strokeWidth={1.75} />
                   ) : (
@@ -363,17 +363,17 @@ export function TapuAiView() {
                   <p className="text-sm font-medium">
                     Tapu veya ekspertiz görselini sürükleyin ya da seçin
                   </p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-foreground0">
                     JPG, PNG, WEBP · analiz Gemini 1.5 Flash ile yapılır
                   </p>
                 </div>
               </div>
 
               {fileName && (
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-white/[0.03] px-4 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm text-zinc-100">{fileName}</p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="truncate text-sm text-foreground">{fileName}</p>
+                    <p className="text-xs text-foreground0">
                       {isAnalyzing
                         ? "TapuAI belgeyi analiz ediyor"
                         : status === "done"
@@ -383,7 +383,7 @@ export function TapuAiView() {
                             : "Hazır"}
                     </p>
                   </div>
-                  <FileText className="size-4 shrink-0 text-zinc-500" />
+                  <FileText className="size-4 shrink-0 text-foreground0" />
                 </div>
               )}
 
@@ -395,7 +395,7 @@ export function TapuAiView() {
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-[#0d0d10]">
+          <Card className="border-border bg-[#0d0d10]">
             <CardHeader className="flex flex-row items-center justify-between gap-4">
               <CardTitle className="text-base">Çıkarılan Tapu Verileri</CardTitle>
               <Button

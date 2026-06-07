@@ -89,10 +89,10 @@ type VoiceRecorderProps = {
 function DataCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-border bg-card px-5 py-4">
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-400">
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
         {label}
       </p>
-      <p className="mt-3 text-sm font-medium leading-relaxed text-zinc-100">
+      <p className="mt-3 text-sm font-medium leading-relaxed text-foreground">
         {value || "—"}
       </p>
     </div>
@@ -263,7 +263,7 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
               "disabled:pointer-events-none disabled:opacity-60",
               isRecording
                 ? "border-foreground/30 bg-foreground text-background shadow-lg"
-                : "border-border bg-background text-zinc-100 hover:border-foreground/20 hover:bg-muted/30",
+                : "border-border bg-background text-foreground hover:border-foreground/20 hover:bg-muted/30",
             )}
           >
             <span
@@ -289,7 +289,7 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
                   : "bg-muted-foreground/40",
               )}
             />
-            <span className="text-zinc-400">
+            <span className="text-muted-foreground">
               {isProcessing ? "Sync" : isRecording ? "Rec" : "Standby"}
             </span>
             <span className="text-foreground/80">{formatDuration(duration)}</span>
@@ -315,7 +315,7 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
             ))}
           </div>
 
-          <p className="max-w-xs text-center text-xs leading-relaxed text-zinc-400">
+          <p className="max-w-xs text-center text-xs leading-relaxed text-muted-foreground">
             {isProcessing
               ? "Ses notu API'ye gönderiliyor…"
               : isRecording

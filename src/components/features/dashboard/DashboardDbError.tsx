@@ -9,61 +9,61 @@ export function DashboardDbError() {
 
   return (
     <div className="mx-auto w-full max-w-2xl">
-      <div className="rounded-xl border border-parsel-border/80 bg-parsel-card/60 p-6">
+      <div className="rounded-xl border border-border/80 bg-parsel-card/60 p-6">
         <div className="flex items-start gap-3">
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-400">
             <AlertCircle className="size-4" strokeWidth={1.75} />
           </span>
           <div className="space-y-3">
             <div>
-              <h1 className="text-lg font-semibold text-zinc-100">
+              <h1 className="text-lg font-semibold text-foreground">
                 Veritabanı bağlantısı kurulamadı
               </h1>
-              <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                 Dashboard verileri yüklenemedi. Supabase veritabanı kimlik
                 bilgileri geçersiz veya bağlantı dizesi hatalı olabilir.
               </p>
             </div>
 
-            <ol className="list-decimal space-y-1.5 pl-5 text-sm text-zinc-400">
+            <ol className="list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
               <li>
                 Supabase → Project Settings → Database →{" "}
                 <strong>Reset database password</strong>
               </li>
               <li>
                 <strong>Session pooler</strong> URI&apos;yi kopyalayın (port{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-zinc-400">5432</code>)
+                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">5432</code>)
               </li>
               <li>
-                <code className="rounded bg-parsel-border/50 px-1 text-zinc-400">.env.local</code>{" "}
+                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">.env.local</code>{" "}
                 içindeki{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-zinc-400">DATABASE_URL</code>{" "}
+                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">DATABASE_URL</code>{" "}
                 değerini güncelleyin
               </li>
               <li>
                 Şifrede{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-zinc-400">@ # / ?</code>{" "}
+                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">@ # / ?</code>{" "}
                 gibi karakterler varsa URL encode edin (
-                <code className="rounded bg-parsel-border/50 px-1 text-zinc-400">@</code> →{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-zinc-400">%40</code>)
+                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">@</code> →{" "}
+                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">%40</code>)
               </li>
               <li>
                 Dev sunucusunu yeniden başlatın:{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-zinc-400">npm run dev</code>
+                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">npm run dev</code>
               </li>
             </ol>
 
             {hints.length > 0 ? (
-              <ul className="space-y-1 rounded-lg border border-parsel-border bg-parsel-border/30 px-4 py-3 text-xs text-zinc-400">
+              <ul className="space-y-1 rounded-lg border border-border bg-parsel-border/30 px-4 py-3 text-xs text-muted-foreground">
                 {hints.map((hint) => (
                   <li key={hint}>• {hint}</li>
                 ))}
               </ul>
             ) : null}
 
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-muted-foreground">
               Bağlantıyı test etmek için:{" "}
-              <code className="rounded bg-parsel-border/50 px-1 text-zinc-400">npm run db:check</code>
+              <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">npm run db:check</code>
             </p>
           </div>
         </div>

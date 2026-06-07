@@ -11,10 +11,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const selectClass =
-  "h-9 min-w-[120px] rounded-lg border border-white/10 bg-[#09090b] px-2.5 text-xs text-zinc-100 outline-none focus:border-[#b38c56]/40";
+  "h-9 min-w-[120px] rounded-lg border border-border bg-background px-2.5 text-xs text-foreground outline-none focus:border-[#b38c56]/40";
 
 const inputClass =
-  "h-9 w-full min-w-[100px] rounded-lg border border-white/10 bg-[#09090b] px-2.5 text-xs text-zinc-100 outline-none focus:border-[#b38c56]/40";
+  "h-9 w-full min-w-[100px] rounded-lg border border-border bg-background px-2.5 text-xs text-foreground outline-none focus:border-[#b38c56]/40";
 
 type FsboFilterBarProps = {
   draft: FsboRadarFilters;
@@ -34,10 +34,10 @@ export function FsboFilterBar({
   }
 
   return (
-    <section className="rounded-2xl border border-white/5 bg-[#151f23] p-4">
+    <section className="rounded-2xl border border-border/50 bg-parsel-panel p-4">
       <div className="mb-3 flex items-center gap-2">
-        <Radar className="size-4 text-[#b38c56]" strokeWidth={1.5} />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+        <Radar className="size-4 text-parsel-gold" strokeWidth={1.5} />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-foreground0">
           İstihbarat Filtreleri
         </p>
       </div>
@@ -130,7 +130,7 @@ export function FsboFilterBar({
           <button
             type="button"
             onClick={() => onDraftChange(EMPTY_FSBO_FILTERS)}
-            className="h-9 rounded-lg border border-white/10 px-3 text-xs text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-200"
+            className="h-9 rounded-lg border border-border px-3 text-xs text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground"
           >
             Sıfırla
           </button>
@@ -138,7 +138,7 @@ export function FsboFilterBar({
             type="button"
             disabled={isRunning}
             onClick={onRun}
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#b38c56] px-5 text-xs font-bold text-black transition-colors hover:bg-[#c9a06a] disabled:opacity-60"
+            className="inline-flex h-9 items-center gap-2 rounded-lg bg-parsel-gold px-5 text-xs font-bold text-black transition-colors hover:bg-[#c9a06a] disabled:opacity-60"
           >
             <Radar className={cn("size-4", isRunning && "animate-spin")} />
             Radarı Çalıştır
@@ -158,7 +158,7 @@ function FilterField({
 }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </span>
       {children}

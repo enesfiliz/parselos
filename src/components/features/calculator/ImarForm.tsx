@@ -24,7 +24,7 @@ function ResultCard({ label, value }: { label: string; value: string }) {
   return (
     <Card className="border-border/60 shadow-none ring-border/60">
       <CardContent className="space-y-3 pt-8 pb-8">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-zinc-400">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
           {label}
         </p>
         <p className="text-4xl font-semibold tracking-tight">{value}</p>
@@ -79,7 +79,7 @@ export function ImarForm() {
             onChange={(e) => setTaks(e.target.value)}
             className="h-11"
           />
-          <p className="text-xs text-zinc-400">Örn: 0.25</p>
+          <p className="text-xs text-muted-foreground">Örn: 0.25</p>
         </div>
 
         <div className="space-y-2">
@@ -95,7 +95,7 @@ export function ImarForm() {
             onChange={(e) => setKaks(e.target.value)}
             className="h-11"
           />
-          <p className="text-xs text-zinc-400">Örn: 1.50</p>
+          <p className="text-xs text-muted-foreground">Örn: 1.50</p>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ export function ImarForm() {
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-border/80 px-8 py-14 text-center">
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-muted-foreground">
             Hesaplama için geçerli arsa alanı, TAKS ve KAKS değerlerini girin.
           </p>
         </div>

@@ -84,7 +84,7 @@ export function AdminBillingRowMenu({
         type="button"
         variant="ghost"
         size="icon-sm"
-        className="text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-200"
+        className="text-foreground0 hover:bg-foreground/[0.04] hover:text-foreground"
         aria-label={`${subscriber.name} fatura işlemleri`}
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
@@ -95,7 +95,7 @@ export function AdminBillingRowMenu({
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 top-full z-30 mt-1 min-w-[220px] overflow-hidden rounded-xl border border-emerald-500/15 bg-[#0A0A0A] py-1 shadow-[0_16px_40px_rgba(0,0,0,0.55)]"
+          className="absolute right-0 top-full z-30 mt-1 min-w-[220px] overflow-hidden rounded-xl border border-emerald-500/15 bg-parsel-elevated py-1 shadow-[0_16px_40px_rgba(0,0,0,0.55)]"
         >
           {MENU_ITEMS.map((item) => {
             const Icon = item.icon;

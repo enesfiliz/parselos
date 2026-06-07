@@ -55,22 +55,22 @@ function PortfolioEmptyState({ onAdd }: { onAdd: () => void }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.08] bg-[#050505] px-6 py-16 text-center"
+      className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-dashed border-border/60 bg-parsel-admin px-6 py-16 text-center"
     >
-      <span className="mb-5 flex size-14 items-center justify-center rounded-2xl border border-white/[0.06] bg-white/[0.02]">
-        <Briefcase className="size-6 text-[#b38c56]/70" strokeWidth={1.5} />
+      <span className="mb-5 flex size-14 items-center justify-center rounded-2xl border border-border/60 bg-white/[0.02]">
+        <Briefcase className="size-6 text-parsel-gold/70" strokeWidth={1.5} />
       </span>
-      <h2 className="font-inter text-lg font-medium tracking-tight text-white/90">
+      <h2 className="font-inter text-lg font-medium tracking-tight text-foreground/90">
         Burada henüz bir portföy yok
       </h2>
-      <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/45">
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-foreground/45">
         İlk portföyünü ekleyerek işe başla. Yetkili mülklerini tek vitrinde
         yönet, performansını anlık takip et.
       </p>
       <button
         type="button"
         onClick={onAdd}
-        className="mt-8 inline-flex h-11 items-center gap-2 rounded-lg bg-[#b38c56] px-6 text-sm font-medium text-black transition-colors hover:bg-[#c49a62]"
+        className="mt-8 inline-flex h-11 items-center gap-2 rounded-lg bg-parsel-gold px-6 text-sm font-medium text-black transition-colors hover:bg-[#c49a62]"
       >
         <Plus className="size-4" strokeWidth={2} />
         İlk Portföyünü Ekle
@@ -239,17 +239,17 @@ export function PortfoliosView({
   const isFilterEmpty = !isTrulyEmpty && filtered.length === 0;
 
   return (
-    <div className="min-h-screen bg-[#09090b]">
-      <header className="mb-6 flex flex-col gap-4 border-b border-white/5 pb-5 lg:flex-row lg:items-end lg:justify-between">
+    <div className="min-h-screen bg-background">
+      <header className="mb-6 flex flex-col gap-4 border-b border-border/50 pb-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-[#b38c56]/70">
+          <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-parsel-gold/70">
             Portföy Vitrini
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-3">
-            <h1 className="font-outfit text-2xl font-semibold tracking-tight text-white/90 md:text-3xl">
+            <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground/90 md:text-3xl">
               Yetkili Portföylerim
             </h1>
-            <span className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-0.5 text-xs tabular-nums text-white/50">
+            <span className="rounded-full border border-border bg-white/[0.03] px-2.5 py-0.5 text-xs tabular-nums text-muted-foreground">
               {activeCount} aktif
             </span>
           </div>
@@ -260,10 +260,10 @@ export function PortfoliosView({
             <select
               value={filter}
               onChange={(event) => setFilter(event.target.value as ListingFilter)}
-              className="h-10 w-full rounded-lg border border-white/10 bg-transparent px-3 text-xs text-white/70 transition-colors focus:border-[#b38c56] focus:outline-none focus:ring-1 focus:ring-[#b38c56]/30 sm:w-auto"
+              className="h-10 w-full rounded-lg border border-border bg-transparent px-3 text-xs text-foreground/70 transition-colors focus:border-[#b38c56] focus:outline-none focus:ring-1 focus:ring-[#b38c56]/30 sm:w-auto"
             >
               {FILTER_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} className="bg-[#0A0A0A]">
+                <option key={option.value} value={option.value} className="bg-parsel-elevated">
                   {option.label}
                 </option>
               ))}
@@ -273,7 +273,7 @@ export function PortfoliosView({
               type="button"
               onClick={openCreateSheet}
               disabled={isSaving}
-              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#b38c56] px-4 text-sm font-medium text-black transition-colors hover:bg-[#c49a62] disabled:opacity-60 sm:w-auto"
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-parsel-gold px-4 text-sm font-medium text-black transition-colors hover:bg-[#c49a62] disabled:opacity-60 sm:w-auto"
             >
               <Plus className="size-4" strokeWidth={2} />
               Portföy Ekle
@@ -285,8 +285,8 @@ export function PortfoliosView({
       {isTrulyEmpty ? (
         <PortfolioEmptyState onAdd={openCreateSheet} />
       ) : isFilterEmpty ? (
-        <div className="rounded-2xl border border-dashed border-white/10 px-6 py-20 text-center">
-          <p className="text-sm text-white/40">
+        <div className="rounded-2xl border border-dashed border-border px-6 py-20 text-center">
+          <p className="text-sm text-muted-foreground">
             Bu filtreye uygun yetkili portföy bulunamadı.
           </p>
         </div>
@@ -349,7 +349,7 @@ export function PortfoliosView({
       />
 
       {isSaving || isDeleting ? (
-        <div className="pointer-events-none fixed bottom-6 right-6 z-[70] flex items-center gap-2 rounded-full border border-white/10 bg-[#0A0A0A]/95 px-4 py-2 text-xs text-white/70 shadow-xl">
+        <div className="pointer-events-none fixed bottom-6 right-6 z-[70] flex items-center gap-2 rounded-full border border-border bg-parsel-elevated/95 px-4 py-2 text-xs text-foreground/70 shadow-xl">
           <Loader2 className="size-3.5 animate-spin" />
           {isDeleting ? "Siliniyor..." : "Kaydediliyor..."}
         </div>

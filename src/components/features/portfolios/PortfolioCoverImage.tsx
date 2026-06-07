@@ -32,7 +32,7 @@ export function PortfolioCoverImage({
   const cover = item.coverImageUrl?.trim();
 
   return (
-    <div className={cn("relative overflow-hidden bg-[#09090b]", className)}>
+    <div className={cn("relative overflow-hidden bg-background", className)}>
       <div
         className={cn(
           "absolute inset-0 bg-gradient-to-br",
