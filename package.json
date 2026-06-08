@@ -8,8 +8,11 @@
   },
   "scripts": {
     "dev": "node --max-old-space-size=8192 ./node_modules/next/dist/bin/next dev --turbo",
-    "build": "prisma generate && next build && node scripts/prepare-standalone.mjs",
-    "build:hostinger": "prisma generate && next build && node scripts/prepare-standalone.mjs",
+    "build": "prisma generate && next build",
+    "build:hostinger": "node scripts/build-hostinger.mjs",
+    "vercel-build": "prisma generate && next build",
+    "vercel:env": "node --env-file=.env.local scripts/sync-vercel-env.mjs",
+    "vercel:deploy": "npm run vercel:env && npx vercel --prod",
     "deploy:db": "prisma migrate deploy",
     "postinstall": "prisma generate",
     "start": "node scripts/start-production.mjs",

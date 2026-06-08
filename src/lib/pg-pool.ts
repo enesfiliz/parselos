@@ -26,12 +26,15 @@ export function normalizeConnectionString(connectionString: string) {
 
 export function createPgPool(connectionString: string) {
   const normalized = normalizeConnectionString(connectionString);
+  const isServerless = Boolean(process.env.VERCEL);
 
   const config: PoolConfig = {
     connectionString: normalized,
-    max: 5,
-    idleTimeoutMillis: 20_000,
-    connectionTimeoutMillis: 10_000,
+    // Vercel serverless: her instance tek bağlantı (Supabase transaction pooler ile)
+    max: isServerless ? 1 : 5,
+    idleTimeoutMillis: isServerless ? 5_000 : 20_000,
+    connectionTimeoutMillis: isServerless ? 5_000 : 10_000,
+    allowExitOnIdle: isServerless,
   };
 
   if (isSupabaseHost(connectionString)) {

@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
+const isHostingerBuild = process.env.HOSTINGER_BUILD === "1";
+
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // Standalone yalnızca Hostinger VPS/PM2 için; Vercel kendi çıktısını kullanır.
+  ...(isHostingerBuild ? { output: "standalone" as const } : {}),
   images: {
     remotePatterns: [
       {
@@ -11,7 +14,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Prisma client şema değişikliklerinde Turbopack önbelleğine takılmasın
   serverExternalPackages: [
     "@prisma/client",
     "@prisma/adapter-pg",

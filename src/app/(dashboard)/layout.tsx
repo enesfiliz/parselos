@@ -1,6 +1,8 @@
 import { DashboardShell } from "@/components/layout/DashboardShell";
 import { ensureCurrentAgent } from "@/lib/auth/agent";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: Readonly<{
