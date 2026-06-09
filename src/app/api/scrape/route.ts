@@ -46,6 +46,17 @@ export async function POST(request: Request) {
 
     const result = await scrapeListingUrl(url);
 
+    if (result.mocked) {
+      return NextResponse.json(
+        {
+          error:
+            "Kaynak engellendi; önizleme verisi gösterilmedi. Linki tarayıcıda açıp FSBO → İlan Linki Ekle kullanın.",
+          mocked: true,
+        },
+        { status: 422 },
+      );
+    }
+
     if (!result.title || !result.price) {
       return NextResponse.json(
         { error: "Veriler çekilemedi, linki kontrol edin." },

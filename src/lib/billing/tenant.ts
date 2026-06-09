@@ -1,19 +1,31 @@
 import "server-only";
 
 import { clerkClient } from "@clerk/nextjs/server";
-import type { TenantPlanType, TenantStatus } from "@prisma/client";
+import type {
+  AgentRoleType,
+  TenantOrganizationType,
+  TenantPlanType,
+  TenantStatus,
+} from "@prisma/client";
 
+import { ROLE_TO_ORG_DEFAULT } from "@/lib/account/labels";
 import { prisma } from "@/lib/prisma";
 
 function tenantDisplayName(agent: {
   firstName: string | null;
   lastName: string | null;
   email: string | null;
+  roleType?: AgentRoleType;
 }) {
   const fullName = [agent.firstName, agent.lastName].filter(Boolean).join(" ").trim();
+  if (agent.roleType === "BROKER" && fullName) return `${fullName} Brokerlık`;
   if (fullName) return `${fullName} Ofisi`;
   if (agent.email) return agent.email.split("@")[0] ?? "ParselOS Ofisi";
   return "ParselOS Ofisi";
+}
+
+function defaultOrgType(roleType: AgentRoleType): TenantOrganizationType {
+  return ROLE_TO_ORG_DEFAULT[roleType];
 }
 
 export async function syncTenantPlanToClerk(
@@ -49,17 +61,25 @@ export async function getOrCreateTenantForAgent(agentId: string) {
     return { agent, tenant: agent.tenant };
   }
 
+  const isOfficeLead = agent.roleType === "BROKER" || agent.roleType === "KURULUS";
+  const organizationType = defaultOrgType(agent.roleType);
+
   const tenant = await prisma.tenant.create({
     data: {
       name: tenantDisplayName(agent),
       planType: "FREE",
       status: "ACTIVE",
+      organizationType,
+      ownerAgentId: isOfficeLead ? agent.id : null,
     },
   });
 
   const updatedAgent = await prisma.agent.update({
     where: { id: agent.id },
-    data: { tenantId: tenant.id },
+    data: {
+      tenantId: tenant.id,
+      tenantMemberRole: isOfficeLead ? "OWNER" : "OWNER",
+    },
     include: { tenant: true },
   });
 
@@ -111,15 +131,15 @@ export async function updateTenantSubscriptionState(input: {
     include: {
       agents: {
         select: { clerkUserId: true },
-        take: 1,
       },
     },
   });
 
-  const clerkUserId = tenant.agents[0]?.clerkUserId;
-  if (clerkUserId) {
-    await syncTenantPlanToClerk(clerkUserId, tenant.planType, tenant.status);
-  }
+  await Promise.all(
+    tenant.agents.map((member) =>
+      syncTenantPlanToClerk(member.clerkUserId, tenant.planType, tenant.status),
+    ),
+  );
 
   return tenant;
 }

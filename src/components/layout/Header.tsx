@@ -3,15 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight, Menu } from "lucide-react";
-import { UserButton } from "@clerk/nextjs";
-
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/ui/AppIcon";
+import { HeaderUserButton } from "@/components/layout/HeaderUserButton";
 import { NotificationCenter } from "@/components/layout/NotificationCenter";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { getClerkAppearance } from "@/lib/clerk-appearance";
 import { getDashboardPageTitle } from "@/lib/dashboard-nav";
-import { useTheme } from "next-themes";
 
 type HeaderProps = {
   onMenuClick: () => void;
@@ -20,12 +17,10 @@ type HeaderProps = {
 export function Header({ onMenuClick }: HeaderProps) {
   const pathname = usePathname();
   const pageTitle = getDashboardPageTitle(pathname);
-  const { resolvedTheme } = useTheme();
-  const clerkAppearance = getClerkAppearance(resolvedTheme);
 
   return (
-    <header className="shrink-0 border-b border-border bg-card dark:bg-background">
-      <div className="flex h-14 items-center justify-between gap-3 px-3 sm:h-16 sm:gap-4 md:px-6 lg:px-8">
+    <header className="parsel-shell-header sticky top-0 z-20 shrink-0">
+      <div className="flex h-[3.75rem] items-center justify-between gap-3 px-4 sm:h-16 sm:gap-4 md:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Button
             type="button"
@@ -40,33 +35,32 @@ export function Header({ onMenuClick }: HeaderProps) {
 
           <nav
             aria-label="Breadcrumb"
-            className="flex min-w-0 items-center gap-1.5 text-sm"
+            className="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-1.5"
           >
             <Link
               href="/dashboard"
-              className="flex min-w-0 items-center gap-2 truncate text-muted-foreground transition-colors hover:text-foreground"
+              className="flex min-w-0 items-center gap-2 truncate text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <AppIcon className="size-5 shrink-0" />
-              ParselOS
+              <span className="hidden sm:inline">ParselOS</span>
             </Link>
-            <ChevronRight
-              className="size-3.5 shrink-0 text-muted-foreground"
-              strokeWidth={1.75}
-              aria-hidden
-            />
-            <span className="truncate font-semibold text-foreground">
-              {pageTitle}
-            </span>
+            <div className="flex min-w-0 items-center gap-1.5">
+              <ChevronRight
+                className="hidden size-3.5 shrink-0 text-muted-foreground sm:block"
+                strokeWidth={1.75}
+                aria-hidden
+              />
+              <h1 className="truncate font-outfit text-base font-bold tracking-tight text-foreground sm:text-lg">
+                {pageTitle}
+              </h1>
+            </div>
           </nav>
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <ThemeToggle />
           <NotificationCenter />
-          <UserButton
-            appearance={clerkAppearance}
-            userProfileProps={{ appearance: clerkAppearance }}
-          />
+          <HeaderUserButton />
         </div>
       </div>
     </header>

@@ -100,19 +100,18 @@ export function IlanAsistaniView() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-10">
-      <header className="space-y-2">
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
-          Yapay Zeka İlan Asistanı
-        </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Gayrimenkul özelliklerini girin; SEO uyumlu, profesyonel ilan metni
-          anında oluşturulsun.
+    <div className="space-y-6">
+      <header>
+        <p className="parsel-section-label mb-2 text-parsel-gold">İlan üretimi</p>
+        <h1 className="parsel-page-title text-foreground">İlan Asistanı</h1>
+        <p className="mt-2 max-w-2xl text-sm font-medium text-muted-foreground">
+          Portföy bilgilerinden SEO uyumlu, profesyonel ilan metni üretin.
+          Sonucu kopyalayıp ilan sitelerine yapıştırın.
         </p>
       </header>
 
-      <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
-        <Card className="border-border/60 shadow-sm ring-border/60">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="parsel-surface shadow-parsel-md">
           <CardHeader className="border-b border-border/50 pb-5">
             <CardTitle className="text-base font-medium">
               Gayrimenkul Bilgileri
@@ -201,7 +200,7 @@ export function IlanAsistaniView() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/60 shadow-sm ring-border/60">
+        <Card className="parsel-surface shadow-parsel-md">
           <CardHeader className="flex flex-row items-start justify-between gap-4 border-b border-border/50 pb-5">
             <div className="space-y-1">
               <CardTitle className="text-base font-medium">

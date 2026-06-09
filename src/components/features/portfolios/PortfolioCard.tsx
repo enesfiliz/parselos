@@ -48,7 +48,7 @@ export function PortfolioCard({
 
   return (
     <article
-      className="group relative overflow-hidden rounded-2xl border border-border/50 bg-parsel-admin transition-all duration-300 hover:border-parsel-gold/30 hover:shadow-[0_10px_40px_rgba(179,140,86,0.08)]"
+      className="parsel-surface group relative cursor-pointer overflow-hidden rounded-2xl border border-border/60 shadow-parsel-sm transition-all duration-200 hover:border-parsel-gold/35 hover:shadow-parsel-md"
       onClick={() => onDetails(item)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -139,10 +139,10 @@ export function PortfolioCard({
       </div>
 
       <div className="space-y-2 px-4 pb-3 pt-4">
-        <p className="font-inter text-2xl font-medium tracking-tight text-foreground">
+        <p className="font-outfit text-2xl font-semibold tracking-tight text-foreground">
           {item.priceFormatted}
         </p>
-        <h2 className="truncate text-sm font-medium text-foreground/85">{item.title}</h2>
+        <h2 className="truncate text-sm font-medium text-foreground">{item.title}</h2>
         <p className="flex items-center gap-1 text-xs text-muted-foreground">
           <MapPin className="size-3 shrink-0" strokeWidth={1.5} />
           <span className="truncate">{item.location}</span>
@@ -161,20 +161,20 @@ export function PortfolioCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 border-t border-border/50">
+      <div className="grid grid-cols-3 border-t border-border/50 bg-muted/10">
         <div className="border-r border-border/50 px-3 py-3 text-center">
-          <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/35">Oda</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">{item.rooms}</p>
+          <p className="parsel-section-label text-[10px]">Oda</p>
+          <p className="mt-1 text-xs font-medium text-foreground/80">{item.rooms}</p>
         </div>
         <div className="border-r border-border/50 px-3 py-3 text-center">
-          <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/35">m²</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="parsel-section-label text-[10px]">m²</p>
+          <p className="mt-1 text-xs font-medium text-foreground/80">
             {item.sqm > 0 ? item.sqm.toLocaleString("tr-TR") : "—"}
           </p>
         </div>
         <div className="px-3 py-3 text-center">
-          <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/35">Yaş</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">{item.buildingAge}</p>
+          <p className="parsel-section-label text-[10px]">Yaş</p>
+          <p className="mt-1 text-xs font-medium text-foreground/80">{item.buildingAge}</p>
         </div>
       </div>
     </article>

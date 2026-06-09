@@ -5,6 +5,7 @@ export type ScrapeResult = {
   m2: string;
   url: string;
   source: string;
+  images: string[];
   /** Gerçek scrape mi yoksa mock fallback mi */
   mocked: boolean;
 };

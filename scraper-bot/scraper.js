@@ -174,6 +174,39 @@ export async function scrapeTarget(browser, target) {
   return listings;
 }
 
+async function postWithRetry(apiUrl, payload, headers, maxAttempts = 3) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const response = await axios.post(apiUrl, payload, {
+        headers,
+        timeout: 60_000,
+        validateStatus: (status) => status < 500,
+      });
+
+      if (response.status >= 400) {
+        throw new Error(
+          `HTTP ${response.status}: ${JSON.stringify(response.data)}`,
+        );
+      }
+
+      return response.data;
+    } catch (error) {
+      lastError = error;
+      const waitMs = attempt * 2000;
+      console.warn(
+        `[scraper-bot] API denemesi ${attempt}/${maxAttempts} başarısız — ${waitMs}ms sonra tekrar.`,
+      );
+      if (attempt < maxAttempts) {
+        await sleep(waitMs);
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 export async function sendToParselos(listings) {
   const apiUrl = process.env.PARSELOS_API_URL?.trim();
   const secret =
@@ -189,28 +222,27 @@ export async function sendToParselos(listings) {
 
   if (listings.length === 0) {
     console.warn("[scraper-bot] Gönderilecek ilan yok.");
-    return { inserted: 0, skipped: 0 };
+    return { inserted: 0, updated: 0, skipped: 0, total: 0 };
   }
 
-  const response = await axios.post(
+  const headers = {
+    "x-bot-secret": secret,
+    Authorization: `Bearer ${secret}`,
+    "Content-Type": "application/json",
+    "User-Agent": "ParselOS-ScraperBot/1.0",
+  };
+
+  const result = await postWithRetry(
     apiUrl,
     {
       source: "parselos-scraper-bot",
       syncedAt: new Date().toISOString(),
       listings,
     },
-    {
-      headers: {
-        "x-bot-secret": secret,
-        Authorization: `Bearer ${secret}`,
-        "Content-Type": "application/json",
-        "User-Agent": "ParselOS-ScraperBot/1.0",
-      },
-      timeout: 60_000,
-    },
+    headers,
   );
 
-  return response.data;
+  return result;
 }
 
 export async function runScrapeJob(targets) {
@@ -229,7 +261,9 @@ export async function runScrapeJob(targets) {
   console.log(`[scraper-bot] Toplam ${allListings.length} ilan ayıklandı.`);
 
   const result = await sendToParselos(allListings);
-  console.log("[scraper-bot] Hostinger API yanıtı:", result);
+  console.log(
+    `[scraper-bot] ParselOS yanıtı — inserted: ${result.inserted ?? 0}, updated: ${result.updated ?? 0}, skipped: ${result.skipped ?? 0}`,
+  );
 
   return { listings: allListings, apiResult: result };
 }

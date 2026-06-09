@@ -5,15 +5,13 @@ import {
   ClerkLoading,
   SignInButton,
   SignUpButton,
-  UserButton,
   useAuth,
 } from "@clerk/nextjs";
+import { MembershipMenu } from "@/components/features/account/MembershipMenu";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { getClerkAppearance } from "@/lib/clerk-appearance";
 import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
 
 const SHINE_BUTTON_CLASS =
   "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-lg px-10 text-sm font-semibold bg-parsel-gold text-background transition-colors duration-500 hover:bg-parsel-gold/90";
@@ -21,8 +19,8 @@ const SHINE_BUTTON_CLASS =
 const OUTLINE_BUTTON_CLASS =
   "inline-flex h-12 items-center justify-center rounded-lg border border-border bg-card px-10 text-sm font-medium text-muted-foreground transition-colors hover:border-border hover:text-foreground";
 
-const NAV_PANEL_LINK_CLASS =
-  "inline-flex items-center justify-center rounded-lg border border-parsel-gold/30 bg-parsel-gold/10 px-5 py-2.5 text-sm font-semibold text-parsel-gold transition-colors duration-300 hover:bg-parsel-gold/15";
+const PANEL_BUTTON_CLASS =
+  "inline-flex h-11 items-center justify-center rounded-xl bg-parsel-gold px-5 text-sm font-semibold text-zinc-950 shadow-sm transition-colors hover:bg-[#c5a36e]";
 
 const NAV_SIGN_IN_CLASS =
   "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold text-muted-foreground transition-colors duration-300 hover:text-foreground";
@@ -35,18 +33,12 @@ function AuthNavSkeleton() {
 }
 
 function SignedInNavActions() {
-  const { resolvedTheme } = useTheme();
-  const clerkAppearance = getClerkAppearance(resolvedTheme);
-
   return (
     <>
-      <Link href="/dashboard" className={NAV_PANEL_LINK_CLASS}>
+      <Link href="/dashboard" className={PANEL_BUTTON_CLASS}>
         Panele Git
       </Link>
-      <UserButton
-        appearance={clerkAppearance}
-        userProfileProps={{ appearance: clerkAppearance }}
-      />
+      <MembershipMenu />
     </>
   );
 }
@@ -77,7 +69,7 @@ function LoadedNavActions() {
 }
 
 export const HERO_GOLD_BUTTON_CLASS =
-  "relative inline-flex overflow-hidden animate-[pulse_3s_cubic-bezier(0.4,0,0.6,1)_infinite] bg-parsel-gold px-8 py-4 font-outfit text-sm font-semibold text-zinc-950 shadow-lg shadow-[#b38c56]/20 transition-all hover:bg-[#c5a36e] rounded-xl";
+  "inline-flex h-12 items-center justify-center rounded-xl bg-parsel-gold px-8 font-outfit text-sm font-semibold text-zinc-950 shadow-sm transition-colors hover:bg-[#c5a36e]";
 
 const HERO_DEMO_BUTTON_CLASS =
   "inline-flex items-center justify-center rounded-xl border border-border bg-foreground/5 px-8 py-4 font-outfit text-sm font-medium text-foreground backdrop-blur-xl transition-all hover:bg-foreground/10 hover:text-foreground";
@@ -92,7 +84,7 @@ function LoadedHeroActions({ align }: { align: "center" | "start" }) {
   if (isSignedIn) {
     return (
       <div className={rowClass}>
-        <Link href="/dashboard" className={HERO_GOLD_BUTTON_CLASS}>
+        <Link href="/dashboard" className={PANEL_BUTTON_CLASS}>
           Panele Git
         </Link>
         <a href="#features" className={HERO_DEMO_BUTTON_CLASS}>
@@ -125,7 +117,7 @@ function LoadedCtaAction() {
 
   if (isSignedIn) {
     return (
-      <Link href="/dashboard" className={cn(SHINE_BUTTON_CLASS, "mt-12 px-12")}>
+      <Link href="/dashboard" className={cn(PANEL_BUTTON_CLASS, "mt-12 px-10")}>
         Panele Git
       </Link>
     );

@@ -7,7 +7,9 @@ import {
   upsertAgentFromClerk,
   type ClerkUserLike,
 } from "@/lib/auth/agent";
+import { syncAgentProfileToClerk } from "@/lib/account/sync-profile-metadata";
 import { getOrCreateTenantForAgent } from "@/lib/billing/tenant";
+import { prisma } from "@/lib/prisma";
 
 function isClerkUserPayload(data: unknown): data is ClerkUserLike {
   if (!data || typeof data !== "object") return false;
@@ -33,7 +35,14 @@ export async function POST(request: NextRequest) {
         }
 
         const agent = await upsertAgentFromClerk(event.data);
-        await getOrCreateTenantForAgent(agent.id);
+        const { tenant } = await getOrCreateTenantForAgent(agent.id);
+
+        const profileAgent = await prisma.agent.findUnique({
+          where: { id: agent.id },
+        });
+        if (profileAgent) {
+          await syncAgentProfileToClerk(event.data.id, profileAgent, tenant);
+        }
 
         if (event.type === "user.created") {
           await assignOrphanRecordsToAgent(agent.id);

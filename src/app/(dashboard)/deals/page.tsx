@@ -166,6 +166,50 @@ function patchDeal(
   return { ...deal, ...patch, guncellenmeTarihi: new Date().toISOString() };
 }
 
+function createOptimisticDeal(): DealCardData {
+  const now = new Date().toISOString();
+  const suffix = `${Date.now()}`;
+
+  return {
+    id: `optimistic-deal-${suffix}`,
+    stage: "LEAD",
+    notlar: "Sistem kaydi olusturuluyor...",
+    olusturulmaTarihi: now,
+    guncellenmeTarihi: now,
+    etiket: "Yeni",
+    sonIletisim: "Bugun",
+    budgetTL: null,
+    tasks: DEFAULT_DEAL_TASKS,
+    listingUrl: null,
+    fsboLeadId: null,
+    listingIntel: null,
+    buyerMatch: null,
+    client: {
+      id: `optimistic-client-${suffix}`,
+      adSoyad: "Yeni Musteri",
+      telefon: null,
+      email: null,
+      kaynak: "Pipeline",
+      butce: null,
+      mulkTipi: null,
+    },
+    property: {
+      id: `optimistic-prop-${suffix}`,
+      ilanBasligi: "Yeni Portfoy",
+      fiyat: null,
+      il: "-",
+      ilce: "-",
+      mahalle: null,
+      ada: null,
+      parsel: null,
+      durum: "SATILIK",
+      tur: "YETKILI",
+      odaSayisi: null,
+      metrekare: null,
+    },
+  };
+}
+
 function normalizeClient(value: unknown): Client | null {
   if (!value || typeof value !== "object") return null;
   const record = value as Record<string, unknown>;
@@ -898,9 +942,9 @@ const KanbanCard = memo(function KanbanCard({
         }
       }}
       className={cn(
-        "group relative flex w-full min-w-0 flex-col gap-3.5 rounded-2xl border border-border/50 bg-parsel-panel p-4 text-left hover:border-border hover:shadow-xl",
+        "group relative flex min-h-[224px] w-full min-w-0 flex-col gap-3.5 rounded-2xl border border-border/50 bg-parsel-panel p-4 text-left shadow-sm contain-layout hover:border-border hover:shadow-xl",
         !showStageSelect && "cursor-grab active:cursor-grabbing",
-        isDragging && "shadow-2xl ring-1 ring-[#b38c56]/35",
+        isDragging && "shadow-2xl ring-1 ring-[#b38c56]/35 will-change-transform",
       )}
     >
       {deal.etiket ? (
@@ -1045,7 +1089,7 @@ function DraggableKanbanCard({
 
   const style: CSSProperties = enableDrag
     ? {
-        opacity: isDragging ? 0 : 1,
+        opacity: isDragging ? 0.12 : 1,
         transform: isDragging ? undefined : CSS.Translate.toString(transform),
         pointerEvents: isDragging ? "none" : undefined,
       }
@@ -1151,6 +1195,7 @@ export default function DealsPage() {
   const [fsboLoading, setFsboLoading] = useState(false);
   const [notes, setNotes] = useState<DealNoteData[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
+  const [creatingDeal, setCreatingDeal] = useState(false);
   const [, setPromotingId] = useState<string | null>(null);
   const dealsRef = useRef(deals);
   const isMobile = useMediaQuery("(max-width: 767px)");
@@ -1188,6 +1233,7 @@ export default function DealsPage() {
   }, [reloadDeals]);
 
   const selected = deals.find((d) => d.id === selectedId) ?? null;
+  const selectedDealId = selected?.id ?? null;
 
   const dealsByStage = useMemo(() => {
     const map = Object.fromEntries(
@@ -1207,7 +1253,7 @@ export default function DealsPage() {
     : null;
 
   useEffect(() => {
-    if (!selected || !sheetOpen) {
+    if (!selectedDealId || !sheetOpen) {
       queueMicrotask(() => {
         setNotes([]);
         setFsboMatches([]);
@@ -1216,7 +1262,7 @@ export default function DealsPage() {
     }
 
     queueMicrotask(() => setFsboLoading(true));
-    getFsboMatchesForDeal(selected.id)
+    getFsboMatchesForDeal(selectedDealId)
       .then((res) => {
         if (res.success) {
           setFsboMatches(Array.isArray(res.data) ? res.data : []);
@@ -1232,7 +1278,7 @@ export default function DealsPage() {
       .finally(() => setFsboLoading(false));
 
     queueMicrotask(() => setNotesLoading(true));
-    getDealNotes(selected.id)
+    getDealNotes(selectedDealId)
       .then((res) => {
         if (res.success) {
           setNotes(normalizeDealNotes(res.data));
@@ -1246,7 +1292,7 @@ export default function DealsPage() {
         toast.error("Notlar yüklenemedi.");
       })
       .finally(() => setNotesLoading(false));
-  }, [selected, sheetOpen]);
+  }, [selectedDealId, sheetOpen]);
 
   async function persistDeal(nextDeal: DealCardData) {
     const optimistic = dealsRef.current.map((d) =>
@@ -1284,12 +1330,25 @@ export default function DealsPage() {
   }
 
   async function handleAddDeal() {
+    if (creatingDeal) return;
+
+    const optimisticDeal = createOptimisticDeal();
+    setCreatingDeal(true);
+    commit([optimisticDeal, ...dealsRef.current]);
+
     const result = await createDealWithDefaults();
+    setCreatingDeal(false);
+
     if (!result.success) {
+      commit(dealsRef.current.filter((deal) => deal.id !== optimisticDeal.id));
       toast.error(result.error);
       return;
     }
-    commit([result.data, ...dealsRef.current]);
+    commit(
+      dealsRef.current.map((deal) =>
+        deal.id === optimisticDeal.id ? result.data : deal,
+      ),
+    );
     openDeal(result.data);
     toast.success("Yeni fırsat oluşturuldu.");
   }
@@ -1552,9 +1611,14 @@ export default function DealsPage() {
           <button
             type="button"
             onClick={handleAddDeal}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-parsel-gold px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:brightness-110 sm:w-auto"
+            disabled={creatingDeal}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-parsel-gold px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:brightness-110 disabled:cursor-wait disabled:opacity-70 sm:w-auto"
           >
-            <Plus className="size-4" strokeWidth={2} />
+            {creatingDeal ? (
+              <Loader2 className="size-4 animate-spin" strokeWidth={2} />
+            ) : (
+              <Plus className="size-4" strokeWidth={2} />
+            )}
             Fırsat Ekle
           </button>
 

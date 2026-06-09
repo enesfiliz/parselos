@@ -11,8 +11,9 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
 import Link from "next/link";
+
+import { PaymentBadges } from "@/components/marketing/PaymentBadges";
 
 import {
   LandingCtaAuth,
@@ -21,9 +22,11 @@ import {
   SignUpShineButton,
 } from "@/components/marketing/LandingAuthButtons";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { AppIcon } from "@/components/ui/AppIcon";
 import { Logo } from "@/components/ui/Logo";
+import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { RevealOnMount, RevealOnScroll } from "@/components/marketing/landing-motion";
+import { formatOfficePricingNote } from "@/lib/billing/plan-catalog";
+import { LANDING_PRICING_PLANS } from "@/lib/billing/plan-catalog";
 import { cn } from "@/lib/utils";
 
 type FeatureAnim = "tapu" | "imar" | "fsbo" | "match" | "ilan" | "ekspertiz";
@@ -40,7 +43,7 @@ const FEATURE_CARDS: {
     id: "tapu-ai",
     title: "Tapu AI",
     description:
-      "Tapu ve sözleşme belgelerini tarayın; yapılandırılmış özet anında.",
+      "Tapu sureti ve sözleşmelerden ada, parsel ve malik bilgisini çıkarır.",
     icon: ScanText,
     anim: "tapu",
     className: "md:col-span-2 lg:col-span-2",
@@ -64,7 +67,7 @@ const FEATURE_CARDS: {
   {
     id: "ilan",
     title: "Akıllı İlan Asistanı",
-    description: "SEO uyumlu, profesyonel ilan metinleri saniyeler içinde.",
+    description: "Portföy verisinden ilan metni ve başlık önerisi üretir.",
     icon: PenLine,
     anim: "ilan",
   },
@@ -85,70 +88,12 @@ const FEATURE_CARDS: {
   },
 ];
 
-const PRICING_PLANS = [
-  {
-    id: "starter",
-    name: "Başlangıç",
-    price: "Ücretsiz",
-    period: "14 gün deneme",
-    description: "Yeni danışmanlar ve küçük portföyler için.",
-    highlighted: false,
-    features: [
-      "Temel müşteri takibi",
-      "50 portföy kaydı limiti",
-      "Standart ekspertiz şablonu",
-      "E-posta desteği",
-    ],
-    cta: "Ücretsiz Başla",
-    ctaClass:
-      "bg-foreground/5 text-foreground hover:bg-foreground/10 border border-border/60",
-  },
-  {
-    id: "pro",
-    name: "Profesyonel",
-    price: "₺1.990",
-    period: "/ ay · KDV dahil",
-    description: "Seviye 5 danışmanlar ve yoğun portföy için.",
-    highlighted: true,
-    badge: "En Çok Tercih Edilen",
-    features: [
-      "Sınırsız portföy ve müşteri",
-      "İmar & askı uyarıları",
-      "Gelişmiş raporlama ve arşiv",
-      "Sesli CRM ve Tapu AI",
-      "Öncelikli destek",
-    ],
-    cta: "Profesyonel'e Geç",
-    ctaClass: "bg-zinc-100 text-black hover:bg-white",
-  },
-  {
-    id: "office",
-    name: "Ofis",
-    price: "Özel teklif",
-    period: "yıllık · takım",
-    description: "Broker ve çok şubeli ofisler için.",
-    highlighted: false,
-    features: [
-      "Sınırsız ekip üyesi",
-      "Broker yetkileri ve roller",
-      "Kurumsal SSO (yakında)",
-      "Özel onboarding",
-      "SLA ve telefon desteği",
-    ],
-    cta: "Satış ile Görüşün",
-    ctaClass:
-      "bg-foreground/5 text-foreground hover:bg-foreground/10 border border-border/60",
-  },
-] as const;
-
 const HERO_LIVE_FEED = [
   {
     id: "imar",
     icon: Radar,
     iconColor: "text-parsel-gold",
     iconBg: "bg-parsel-gold/10 border-[#b38c56]/20",
-    float: "landing-capsule-float",
-    stagger: "justify-start",
     content: (
       <>
         İmar Radarı:{" "}
@@ -164,8 +109,6 @@ const HERO_LIVE_FEED = [
     icon: CheckCircle,
     iconColor: "text-[#6b8f4a]",
     iconBg: "bg-[#4d6b35]/15 border-[#4d6b35]/25",
-    float: "landing-capsule-float-2",
-    stagger: "justify-center",
     content: (
       <>
         Yeni FSBO Eşleşmesi:{" "}
@@ -178,8 +121,6 @@ const HERO_LIVE_FEED = [
     icon: TrendingUp,
     iconColor: "text-muted-foreground",
     iconBg: "bg-white/[0.04] border-border",
-    float: "landing-capsule-float-3",
-    stagger: "justify-end",
     content: (
       <>
         Portföy Analizi:{" "}
@@ -189,60 +130,44 @@ const HERO_LIVE_FEED = [
   },
 ] as const;
 
-function HeroLiveFeedPill({
-  icon: Icon,
-  iconColor,
-  iconBg,
-  float,
-  children,
-}: {
-  icon: LucideIcon;
-  iconColor: string;
-  iconBg: string;
-  float: string;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        float,
-        "flex w-full max-w-[min(100%,22rem)] items-center gap-4 rounded-2xl border border-border/60 bg-white/[0.04] px-5 py-3.5 text-sm shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-2xl",
-      )}
-    >
-      <span
-        className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-full border",
-          iconBg,
-        )}
-      >
-        <Icon className={cn("size-[18px]", iconColor)} strokeWidth={1.5} />
-      </span>
-      <p className="min-w-0 flex-1 text-left leading-snug text-muted-foreground">
-        {children}
-      </p>
-    </div>
-  );
-}
+const HERO_STATS = [
+  { value: "2", label: "ücretsiz portföy" },
+  { value: "₺549", label: "danışman / ay" },
+  { value: "5+", label: "danışman dahil ofis" },
+] as const;
 
-function HeroLiveFeed() {
+function HeroProductPanel() {
   return (
-    <RevealOnMount delay={280} className="w-full lg:pt-4">
-      <div className="relative min-h-[320px] w-full py-6 sm:min-h-[360px]">
-        <div
-          className="pointer-events-none absolute inset-0 rounded-3xl bg-[#4d6b35]/5 blur-[100px]"
-          aria-hidden
-        />
-        <ul className="relative flex flex-col gap-4 sm:gap-5">
+    <RevealOnMount delay={200} className="w-full lg:pt-2">
+      <div className="parsel-surface relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-card to-parsel-sunken/80 p-6 shadow-parsel-lg sm:p-8">
+        <div className="mb-6 flex items-center justify-between gap-3 border-b border-border/40 pb-4">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-parsel-gold">
+              Komuta merkezi
+            </p>
+            <p className="font-outfit text-lg font-bold text-foreground">
+              Tek panelde operasyon
+            </p>
+          </div>
+          <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10px] font-semibold text-primary">
+            Canlı
+          </span>
+        </div>
+        <ul className="space-y-3">
           {HERO_LIVE_FEED.map((item) => (
-            <li key={item.id} className={cn("flex w-full", item.stagger)}>
-              <HeroLiveFeedPill
-                icon={item.icon}
-                iconColor={item.iconColor}
-                iconBg={item.iconBg}
-                float={item.float}
+            <li
+              key={item.id}
+              className="flex items-center gap-3 rounded-xl border border-border/50 bg-background/60 px-4 py-3"
+            >
+              <span
+                className={cn(
+                  "flex size-9 shrink-0 items-center justify-center rounded-lg border",
+                  item.iconBg,
+                )}
               >
-                {item.content}
-              </HeroLiveFeedPill>
+                <item.icon className={cn("size-4", item.iconColor)} strokeWidth={1.75} />
+              </span>
+              <p className="text-sm leading-snug text-muted-foreground">{item.content}</p>
             </li>
           ))}
         </ul>
@@ -251,13 +176,66 @@ function HeroLiveFeed() {
   );
 }
 
+const WORKFLOW_STEPS = [
+  {
+    step: "01",
+    title: "Portföyü topla",
+    description: "Yetkili portföy, FSBO link import ve müşteri kayıtları tek vitrinde.",
+  },
+  {
+    step: "02",
+    title: "Sahayı izle",
+    description: "İmar radarı, tapu AI ve ilan asistanı ile fırsatları kaçırmayın.",
+  },
+  {
+    step: "03",
+    title: "Raporla ve kapat",
+    description: "Ekspertiz, eşleştirme ve WhatsApp raporu ile satışı hızlandırın.",
+  },
+] as const;
+
+function WorkflowSection() {
+  return (
+    <section className="border-y border-border/40 bg-parsel-sunken/30 px-8 py-16 lg:px-12 lg:py-20">
+      <div className="mx-auto max-w-[1400px]">
+        <div className="mb-10 max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-parsel-gold/90">
+            Operasyon akışı
+          </p>
+          <h2 className="font-outfit mt-3 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            Sahadan rapora üç adım
+          </h2>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {WORKFLOW_STEPS.map((item) => (
+            <article
+              key={item.step}
+              className="rounded-2xl border border-border/50 bg-card/40 p-6 transition-colors hover:border-border/80"
+            >
+              <p className="font-mono text-xs font-medium tracking-[0.2em] text-parsel-gold">
+                {item.step}
+              </p>
+              <h3 className="font-outfit mt-3 text-lg font-semibold text-foreground">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {item.description}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HeroSection() {
   return (
-    <section className="relative isolate min-h-[90vh] overflow-hidden bg-background pb-24 pt-28 lg:pb-32 lg:pt-36">
+    <section className="relative isolate min-h-[88vh] overflow-hidden bg-background pb-20 pt-28 lg:pb-28 lg:pt-36">
       <div className="pointer-events-none absolute top-0 left-1/2 -z-10 h-[400px] w-[80%] max-w-4xl -translate-x-1/2 bg-gradient-to-b from-[#4d6b35]/20 to-transparent blur-[120px]" />
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
-        <div className="landing-aurora-blob absolute -left-32 -top-40 size-[min(560px,70vw)] rounded-full bg-[#4d6b35]/20 blur-[120px] sm:blur-[160px]" />
-        <div className="landing-aurora-blob-gold absolute -bottom-48 -right-24 size-[min(520px,65vw)] rounded-full bg-parsel-gold/15 blur-[120px] sm:blur-[160px]" />
+        <div className="absolute -left-32 -top-40 size-[min(560px,70vw)] rounded-full bg-[#4d6b35]/15 blur-[100px]" />
+        <div className="absolute -bottom-48 -right-24 size-[min(520px,65vw)] rounded-full bg-parsel-gold/10 blur-[100px]" />
         <div className="absolute left-1/2 top-0 h-px w-[min(640px,90vw)] -translate-x-1/2 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
       </div>
 
@@ -265,31 +243,47 @@ function HeroSection() {
         <div className="flex flex-col items-start text-left">
           <RevealOnMount delay={0}>
             <span className="inline-flex items-center rounded-full border border-border/60 bg-white/[0.03] px-4 py-1.5 text-xs font-medium tracking-wide text-muted-foreground">
-              ✨ ParselOS v1.0 Yayında
+              ParselOS · Gayrimenkul Operasyon Platformu
             </span>
           </RevealOnMount>
 
           <RevealOnMount delay={80}>
-            <h1 className="font-outfit mt-6 text-[2.75rem] font-semibold leading-[1.05] tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground via-foreground to-muted-foreground sm:text-5xl lg:text-[3.5rem] xl:text-[4rem]">
-              Gayrimenkulde
+            <h1 className="font-outfit mt-6 text-[2.75rem] font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.5rem] xl:text-[4rem]">
+              Sahada çalışan
               <br />
-              Yapay Zeka Devrimi
+              <span className="text-parsel-gold">gayrimenkul</span> platformu
             </h1>
           </RevealOnMount>
 
           <RevealOnMount delay={160}>
-            <p className="mt-6 max-w-xl text-base font-normal leading-relaxed text-muted-foreground sm:text-lg">
-              SPK uyumlu ekspertiz, müşteri radarı ve TKGM entegrasyonu — tek
-              panelde, profesyonel operasyon akışı.
+            <p className="mt-6 max-w-xl text-base font-medium leading-relaxed text-muted-foreground sm:text-lg">
+              Portföy vitrini, FSBO radarı, tapu AI, ekspertiz ve ekip yönetimi -
+              tek panelde. Başlangıç paketi sınırlı ve ücretsiz; profesyonel kullanımda
+              danışman veya ofis lisansı.
             </p>
           </RevealOnMount>
 
-          <RevealOnMount delay={220}>
+          <RevealOnMount delay={200}>
+            <dl className="mt-8 flex flex-wrap gap-6 sm:gap-10">
+              {HERO_STATS.map((stat) => (
+                <div key={stat.label}>
+                  <dt className="font-outfit text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                    {stat.value}
+                  </dt>
+                  <dd className="mt-0.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    {stat.label}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </RevealOnMount>
+
+          <RevealOnMount delay={240}>
             <LandingHeroAuthActions align="start" />
           </RevealOnMount>
         </div>
 
-        <HeroLiveFeed />
+        <HeroProductPanel />
       </div>
     </section>
   );
@@ -508,8 +502,8 @@ function FeatureCard({
     <RevealOnScroll delay={delay}>
       <article
         className={cn(
-          "group landing-card-anim-fast flex h-full flex-col rounded-3xl border border-border/50 bg-white/[0.02] p-8",
-          "transition-all duration-500 hover:border-white/15 hover:shadow-[0_0_40px_rgba(84,114,54,0.08)]",
+          "group flex h-full flex-col rounded-2xl border border-border/50 bg-card/30 p-8",
+          "transition-colors duration-200 hover:border-parsel-gold/25 hover:bg-card/50",
           className,
         )}
       >
@@ -542,7 +536,7 @@ function FeaturesSection() {
               Operasyonunuzun Her Adımı İçin AI
             </h2>
             <p className="mt-5 text-lg font-normal leading-relaxed text-muted-foreground">
-              Tapu taramadan müşteri eşleştirmeye — tek platformda, sektör
+              Tapu taramadan müşteri eşleştirmeye - tek platformda, sektör
               standartlarında akış.
             </p>
           </div>
@@ -569,32 +563,41 @@ function FeaturesSection() {
 function PricingCard({
   plan,
 }: {
-  plan: (typeof PRICING_PLANS)[number];
+  plan: (typeof LANDING_PRICING_PLANS)[number];
 }) {
   return (
     <article
       className={cn(
-        "relative flex flex-col overflow-hidden rounded-[2rem] border border-border/50",
-        "bg-gradient-to-b from-white/[0.03] to-background",
-        plan.highlighted && "ring-1 ring-[#547236]",
+        "relative flex flex-col overflow-hidden rounded-2xl border bg-card",
+        plan.highlighted
+          ? "border-primary/30 shadow-[0_12px_40px_rgba(0,0,0,0.06)]"
+          : "border-border/70",
       )}
     >
-      {"badge" in plan && plan.badge ? (
-        <span className="absolute right-6 top-6 rounded-full border border-[#547236]/40 bg-[#547236]/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#547236]">
+      {plan.badge ? (
+        <span className="absolute right-5 top-5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
           {plan.badge}
         </span>
       ) : null}
 
-      <div className="border-b border-border/50 p-8 pt-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {plan.name}
+      <div className="border-b border-border/60 p-8 pt-9">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          {plan.marketingName}
         </p>
         <p className="font-outfit mt-4 text-4xl font-semibold tracking-tight text-foreground">
-          {plan.price}
+          {plan.priceLabel}
         </p>
-        <p className="mt-1 text-sm font-normal text-muted-foreground">{plan.period}</p>
-        <p className="mt-4 text-sm font-normal leading-relaxed text-muted-foreground">
-          {plan.description}
+        <p className="mt-1 text-sm text-muted-foreground">{plan.periodLabel}</p>
+        {plan.annualNote ? (
+          <p className="mt-2 text-xs font-medium text-primary">{plan.annualNote}</p>
+        ) : null}
+        {formatOfficePricingNote(plan) ? (
+          <p className="mt-1 text-xs text-muted-foreground">
+            {formatOfficePricingNote(plan)}
+          </p>
+        ) : null}
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          {plan.tagline}
         </p>
       </div>
 
@@ -604,45 +607,32 @@ function PricingCard({
             <Check
               className={cn(
                 "mt-0.5 size-4 shrink-0",
-                plan.highlighted ? "text-[#547236]" : "text-muted-foreground",
+                plan.highlighted ? "text-primary" : "text-muted-foreground",
               )}
               strokeWidth={1.5}
             />
-            <span className="font-normal leading-relaxed">{feature}</span>
+            <span className="leading-relaxed">{feature}</span>
           </li>
         ))}
       </ul>
 
       <div className="p-8 pt-0">
-        {plan.id === "starter" ? (
-          <SignUpShineButton
-            className={cn(
-              "flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold",
-              plan.ctaClass,
-            )}
-          >
+        {plan.planType === "FREE" ? (
+          <SignUpShineButton className="flex h-12 w-full items-center justify-center rounded-xl border border-border bg-muted/50 text-sm font-semibold text-foreground hover:bg-muted">
             {plan.cta}
           </SignUpShineButton>
-        ) : plan.id === "pro" ? (
+        ) : (
           <Link
             href="/sign-up"
             className={cn(
               "flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold transition-colors",
-              plan.ctaClass,
+              plan.highlighted
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "border border-border bg-muted/40 text-foreground hover:bg-muted",
             )}
           >
             {plan.cta}
           </Link>
-        ) : (
-          <a
-            href="mailto:info@parselos.com?subject=Ofis%20Paketi"
-            className={cn(
-              "flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold transition-colors",
-              plan.ctaClass,
-            )}
-          >
-            {plan.cta}
-          </a>
         )}
       </div>
     </article>
@@ -661,22 +651,29 @@ function PricingSection() {
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#B38C56]/80">
               Fiyatlandırma
             </p>
-            <h2 className="font-outfit mt-5 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Her Ölçekteki Gayrimenkul Profesyoneli İçin
+            <h2 className="font-outfit mt-5 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              Net paket, şeffaf fiyat
             </h2>
-            <p className="mt-5 text-lg font-normal leading-relaxed text-muted-foreground">
-              Başlangıç paketiyle deneyin; portföyünüz büyüdükçe Profesyonel veya
-              Ofis planına geçin.
+            <p className="mt-5 text-lg font-medium leading-relaxed text-muted-foreground">
+              Başlangıç paketi sınırlı ve ücretsiz - herkes için yeterli deneme alanı.
+              Profesyonel kullanımda Danışman veya Ofis paketi. Fiyatlar KDV dahil.
             </p>
           </div>
         </RevealOnScroll>
 
         <div className="mt-16 grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-5">
-          {PRICING_PLANS.map((plan, index) => (
-            <RevealOnScroll key={plan.id} delay={index * 100}>
+          {LANDING_PRICING_PLANS.map((plan, index) => (
+            <RevealOnScroll key={plan.id} delay={index * 60}>
               <PricingCard plan={plan} />
             </RevealOnScroll>
           ))}
+        </div>
+
+        <div className="mt-12 flex flex-col items-center gap-4">
+          <p className="text-center text-xs text-muted-foreground">
+            Ödemeler iyzico altyapısı ile güvence altındadır. Dijital hizmet anında teslim edilir.
+          </p>
+          <PaymentBadges />
         </div>
       </div>
     </section>
@@ -686,14 +683,14 @@ function PricingSection() {
 export function LandingPage() {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-background font-sans text-foreground">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-8 py-4 lg:px-12 lg:py-5">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border/40 bg-background/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-3.5 sm:px-8 lg:px-12 lg:py-4">
           <Link
             href="/"
             className="inline-flex text-foreground transition-opacity hover:opacity-90"
             aria-label="ParselOS"
           >
-            <Logo className="h-14 w-auto max-w-[min(100%,360px)] text-foreground" />
+            <Logo className="h-11 w-auto max-w-[190px] sm:h-12" />
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             <a
@@ -718,6 +715,7 @@ export function LandingPage() {
 
       <HeroSection />
 
+      <WorkflowSection />
       <FeaturesSection />
       <PricingSection />
 
@@ -735,17 +733,7 @@ export function LandingPage() {
         </RevealOnScroll>
       </section>
 
-      <footer className="border-t border-border/50 px-8 py-12 lg:px-12">
-        <div className="mx-auto flex max-w-[1400px] flex-col items-center justify-between gap-4 sm:flex-row">
-          <span className="flex items-center gap-2.5 text-sm text-muted-foreground">
-            <AppIcon className="h-5 w-5" />
-            ParselOS © {new Date().getFullYear()}
-          </span>
-          <span className="text-sm font-normal text-muted-foreground">
-            Yapay zeka destekli gayrimenkul operasyonları
-          </span>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

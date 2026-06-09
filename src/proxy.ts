@@ -6,6 +6,11 @@ import type { TenantPlanType } from "@prisma/client";
 
 const isPublicRoute = createRouteMatcher([
   "/",
+  "/gizlilik-politikasi",
+  "/kullanim-kosullari",
+  "/mesafeli-satis-sozlesmesi",
+  "/teslimat-ve-iade",
+  "/kvkk",
   "/login(.*)",
   "/sign-in(.*)",
   "/sign-up(.*)",
@@ -43,6 +48,7 @@ const isDashboardRoute = createRouteMatcher([
   "/customers(.*)",
   "/calendar(.*)",
   "/billing(.*)",
+  "/account(.*)",
   "/admin(.*)",
 ]);
 
@@ -124,8 +130,13 @@ export default clerkMiddleware(async (auth, request) => {
 
 export const config = {
   matcher: [
+    // Clerk auth() — bu rotalar matcher'da olmazsa login/sign-up patlar
+    "/login(.*)",
+    "/sign-in(.*)",
+    "/sign-up(.*)",
     "/admin(.*)",
     "/arsiv(.*)",
+    "/account(.*)",
     "/billing(.*)",
     "/calculators(.*)",
     "/calendar(.*)",

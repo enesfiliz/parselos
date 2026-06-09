@@ -1,15 +1,10 @@
 import * as cheerio from "cheerio";
 
+import {
+  fetchListingContent,
+  fetchListingMetaViaMicrolink,
+} from "@/lib/scrape/listing-fetcher";
 import type { ScrapeResult } from "@/lib/types/scrape";
-
-const SCRAPE_HEADERS: HeadersInit = {
-  "User-Agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  Accept:
-    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-  "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
-  "Cache-Control": "no-cache",
-};
 
 const MOCK_TITLES = [
   "Kadıköy Moda Deniz Manzaralı 3+1 Daire",
@@ -91,8 +86,98 @@ export function buildMockScrapeResult(url: string): ScrapeResult {
     m2: String(m2),
     url,
     source: detectListingSource(url),
+    images: [],
     mocked: true,
   };
+}
+
+function absolutizeImageUrl(baseUrl: string, src: string): string | null {
+  const trimmed = src.trim();
+  if (!trimmed || trimmed.startsWith("data:")) return null;
+  try {
+    if (trimmed.startsWith("//")) {
+      return `https:${trimmed}`;
+    }
+    if (trimmed.startsWith("http")) return trimmed;
+    return new URL(trimmed, baseUrl).href;
+  } catch {
+    return null;
+  }
+}
+
+function isLikelyListingImage(url: string): boolean {
+  if (/logo|icon|avatar|sprite|badge|1x1|pixel|favicon|placeholder/i.test(url)) {
+    return false;
+  }
+  if (/\.(jpg|jpeg|png|webp|gif)(\?|$)/i.test(url)) return true;
+  if (
+    /sahibinden\.com|emlakjet\.com|hepsiemlak\.com|cloudfront|akamaized|cdn|\/image|\/photo|\/classified/i.test(
+      url,
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function normalizeImageList(baseUrl: string, candidates: string[]): string[] {
+  const seen = new Set<string>();
+  for (const raw of candidates) {
+    const abs = absolutizeImageUrl(baseUrl, raw);
+    if (abs && !seen.has(abs) && isLikelyListingImage(abs)) {
+      seen.add(abs);
+    }
+  }
+  return [...seen].slice(0, 8);
+}
+
+function extractImagesFromCheerio(
+  $: ReturnType<typeof cheerio.load>,
+  pageUrl: string,
+): string[] {
+  const candidates: string[] = [];
+
+  const og = $('meta[property="og:image"]').attr("content");
+  if (og) candidates.push(og);
+
+  const twitter = $('meta[name="twitter:image"]').attr("content");
+  if (twitter) candidates.push(twitter);
+
+  const selectors = [
+    "img.stdImg",
+    ".classifiedDetailPhotos img",
+    "[class*='gallery'] img",
+    "[data-testid*='photo'] img",
+    ".swiper-slide img",
+    ".listing-image img",
+  ];
+
+  for (const selector of selectors) {
+    $(selector).each((_, el) => {
+      const src =
+        $(el).attr("src") ||
+        $(el).attr("data-src") ||
+        $(el).attr("data-original");
+      if (src) candidates.push(src);
+    });
+  }
+
+  return normalizeImageList(pageUrl, candidates);
+}
+
+function extractImagesFromMarkdown(pageUrl: string, markdown: string): string[] {
+  const candidates: string[] = [];
+  for (const match of markdown.matchAll(
+    /!\[[^\]]*]\((https?:\/\/[^)]+)\)/gi,
+  )) {
+    candidates.push(match[1]);
+  }
+  for (const match of markdown.matchAll(
+    /https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp)(?:\?[^\s"'<>]*)?/gi,
+  )) {
+    candidates.push(match[0]);
+  }
+  return normalizeImageList(pageUrl, candidates);
 }
 
 function firstNonEmpty(...values: (string | undefined | null)[]): string {
@@ -226,7 +311,9 @@ function scrapeFromHtml(url: string, html: string): Partial<ScrapeResult> {
     }
   }
 
-  return { title, price, location, m2, url, source };
+  const images = extractImagesFromCheerio($, url);
+
+  return { title, price, location, m2, url, source, images };
 }
 
 function isCompleteResult(
@@ -237,37 +324,144 @@ function isCompleteResult(
   );
 }
 
-export async function scrapeListingUrl(url: string): Promise<ScrapeResult> {
+const BLOCKED_SOURCE_MESSAGE =
+  "Kaynak erişimi engellendi (CAPTCHA / bot koruması). İlanı tarayıcıda açıp linki buraya yapıştırın veya kendi scraper-bot sunucunuzu kullanın.";
+
+export type ScrapeListingOptions = {
+  /** false: mock veri dönmez, hata fırlatır (FSBO içe aktarma) */
+  allowMock?: boolean;
+  /** Kullanıcı beyanı — otomatik çekim başarısızsa kullanılır */
+  manual?: {
+    title?: string;
+    price?: string | number;
+    location?: string;
+    m2?: string | number;
+    imageUrl?: string;
+  };
+};
+
+function parseJinaMarkdown(url: string, markdown: string): Partial<ScrapeResult> {
+  const source = detectListingSource(url);
+  const lines = markdown.split("\n").map((l) => l.trim()).filter(Boolean);
+
+  let title = "";
+  for (const line of lines.slice(0, 8)) {
+    const heading = line.replace(/^#+\s*/, "").trim();
+    if (heading.length > 8 && !/sahibinden|emlakjet|hepsiemlak/i.test(heading)) {
+      title = heading;
+      break;
+    }
+  }
+
+  const bodyText = markdown.replace(/\s+/g, " ");
+  const price = extractPriceFromText(bodyText);
+  const location = extractLocationFromText(bodyText) || extractLocationFromText(title);
+  const m2 = extractM2FromText(bodyText);
+  const images = extractImagesFromMarkdown(url, markdown);
+
+  return { title, price, location, m2, url, source, images };
+}
+
+function mergeManual(
+  partial: Partial<ScrapeResult>,
+  manual: ScrapeListingOptions["manual"],
+  url: string,
+): Partial<ScrapeResult> {
+  if (!manual) return partial;
+
+  const price =
+    manual.price !== undefined
+      ? typeof manual.price === "number"
+        ? formatTryPrice(manual.price)
+        : manual.price.trim()
+      : partial.price;
+
+  const manualImages = manual.imageUrl?.trim()
+    ? normalizeImageList(url, [manual.imageUrl.trim()])
+    : [];
+
+  return {
+    ...partial,
+    title: manual.title?.trim() || partial.title,
+    price: price || partial.price,
+    location: manual.location?.trim() || partial.location,
+    m2:
+      manual.m2 !== undefined
+        ? String(manual.m2)
+        : partial.m2,
+    images:
+      manualImages.length > 0
+        ? normalizeImageList(url, [...manualImages, ...(partial.images ?? [])])
+        : partial.images,
+    url,
+    source: partial.source || detectListingSource(url),
+  };
+}
+
+export async function scrapeListingUrl(
+  url: string,
+  options?: ScrapeListingOptions,
+): Promise<ScrapeResult> {
   const normalizedUrl = url.trim();
+  const allowMock = options?.allowMock !== false;
 
   try {
-    const response = await fetch(normalizedUrl, {
-      headers: SCRAPE_HEADERS,
-      redirect: "follow",
-      signal: AbortSignal.timeout(12_000),
-    });
+    const { html, source: fetchSource } = await fetchListingContent(normalizedUrl);
 
-    if (!response.ok) {
-      return buildMockScrapeResult(normalizedUrl);
+    let partial: Partial<ScrapeResult> = {};
+
+    if (html) {
+      partial =
+        fetchSource === "jina"
+          ? parseJinaMarkdown(normalizedUrl, html)
+          : scrapeFromHtml(normalizedUrl, html);
     }
 
-    const contentType = response.headers.get("content-type") ?? "";
-    if (!contentType.includes("text/html")) {
-      return buildMockScrapeResult(normalizedUrl);
+    if (!partial.title || !partial.price || !partial.images?.length) {
+      const meta = await fetchListingMetaViaMicrolink(normalizedUrl);
+      if (meta?.title && !partial.title) partial.title = meta.title;
+      if (meta?.image) {
+        partial.images = normalizeImageList(normalizedUrl, [
+          ...(partial.images ?? []),
+          meta.image,
+        ]);
+      }
+      if (meta?.description) {
+        if (!partial.price) partial.price = extractPriceFromText(meta.description);
+        if (!partial.location) {
+          partial.location = extractLocationFromText(meta.description);
+        }
+      }
     }
 
-    const html = await response.text();
-
-    if (
-      html.length < 500 ||
-      /captcha|cloudflare|access denied|bot detection/i.test(html)
-    ) {
-      return buildMockScrapeResult(normalizedUrl);
-    }
-
-    const partial = scrapeFromHtml(normalizedUrl, html);
+    partial = mergeManual(partial, options?.manual, normalizedUrl);
 
     if (!isCompleteResult(partial)) {
+      if (options?.manual?.title && options?.manual?.price) {
+        const manualPrice =
+          typeof options.manual.price === "number"
+            ? formatTryPrice(options.manual.price)
+            : options.manual.price;
+        return {
+          title: options.manual.title,
+          price: manualPrice,
+          location: options.manual.location || partial.location || "Belirtilmedi",
+          m2: options.manual.m2 ? String(options.manual.m2) : partial.m2 || "—",
+          url: normalizedUrl,
+          source: partial.source || detectListingSource(normalizedUrl),
+          images: partial.images ?? [],
+          mocked: false,
+        };
+      }
+
+      if (!allowMock) {
+        throw new Error(
+          partial.title
+            ? "Fiyat okunamadı. Aşağıdaki manuel alanları doldurun."
+            : `${BLOCKED_SOURCE_MESSAGE} Manuel başlık ve fiyat girebilirsiniz.`,
+        );
+      }
+
       const mock = buildMockScrapeResult(normalizedUrl);
       return {
         title: partial.title || mock.title,
@@ -276,6 +470,7 @@ export async function scrapeListingUrl(url: string): Promise<ScrapeResult> {
         m2: partial.m2 || mock.m2,
         url: normalizedUrl,
         source: partial.source || mock.source,
+        images: partial.images ?? mock.images,
         mocked: !(partial.title && partial.price),
       };
     }
@@ -287,9 +482,33 @@ export async function scrapeListingUrl(url: string): Promise<ScrapeResult> {
       m2: partial.m2 || "—",
       url: normalizedUrl,
       source: partial.source,
+      images: partial.images ?? [],
       mocked: false,
     };
-  } catch {
+  } catch (error) {
+    if (options?.manual?.title && options?.manual?.price) {
+      const manualPrice =
+        typeof options.manual.price === "number"
+          ? formatTryPrice(options.manual.price)
+          : options.manual.price;
+      const manualImages = options.manual.imageUrl?.trim()
+        ? normalizeImageList(normalizedUrl, [options.manual.imageUrl.trim()])
+        : [];
+      return {
+        title: options.manual.title,
+        price: manualPrice,
+        location: options.manual.location || "Belirtilmedi",
+        m2: options.manual.m2 ? String(options.manual.m2) : "—",
+        url: normalizedUrl,
+        source: detectListingSource(normalizedUrl),
+        images: manualImages,
+        mocked: false,
+      };
+    }
+
+    if (!allowMock) {
+      throw error instanceof Error ? error : new Error(BLOCKED_SOURCE_MESSAGE);
+    }
     return buildMockScrapeResult(normalizedUrl);
   }
 }

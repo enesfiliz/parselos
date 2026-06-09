@@ -72,8 +72,8 @@ export function RevealOnScroll({
       className={cn(
         className,
         visible
-          ? "animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-1000"
-          : "translate-y-4 opacity-0",
+          ? "animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-300"
+          : "opacity-0",
       )}
       style={{ animationDelay: visible ? `${delay}ms` : undefined }}
     >
@@ -94,7 +94,7 @@ export function RevealOnMount({
   return (
     <div
       className={cn(
-        "animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-1000",
+        "animate-in fade-in fill-mode-both duration-300",
         className,
       )}
       style={{ animationDelay: `${delay}ms` }}

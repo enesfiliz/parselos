@@ -177,21 +177,24 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as AppraisalRequestBody;
 
-    const hasInput = [
-      body.il,
-      body.ilce,
-      body.mahalle,
-      body.ada,
-      body.parsel,
-      body.brutMetrekare,
-      body.netMetrekare,
-    ].some((value) => typeof value === "string" && value.trim().length > 0);
+    const requiredFields: Array<[keyof AppraisalRequestBody, string]> = [
+      ["il", "İl"],
+      ["ilce", "İlçe"],
+      ["mahalle", "Mahalle"],
+      ["ada", "Ada"],
+      ["parsel", "Parsel"],
+      ["brutMetrekare", "Brüt m²"],
+      ["netMetrekare", "Net m²"],
+    ];
 
-    if (!hasInput) {
+    const missingFields = requiredFields
+      .filter(([key]) => !body[key]?.toString().trim())
+      .map(([, label]) => label);
+
+    if (missingFields.length > 0) {
       return NextResponse.json(
         {
-          error:
-            "En az il, ilçe, mahalle, ada/parsel veya brüt/net m² bilgisi girilmelidir.",
+          error: `Eksik alanlar: ${missingFields.join(", ")}.`,
         },
         { status: 400 },
       );
@@ -223,6 +226,26 @@ export async function POST(request: Request) {
     }
 
     const data = parseAppraisalPayload(rawContent);
+
+    const missing: string[] = [];
+    if (!data.fiyat_analizi.tahmini_deger) missing.push("tahmini değer");
+    if (!data.fiyat_analizi.ortalama_m2_fiyat) missing.push("m² fiyatı");
+    if (data.radar_metrikleri.length < 4) missing.push("radar metrikleri");
+    if (data.emsal_analizi.length < 3) missing.push("emsal analizi");
+    if (data.karlilik_oranlari.length < 2) missing.push("karlılık oranları");
+    if (!data.uzman_gorusu.trim()) missing.push("uzman görüşü");
+    if (!data.detayli_bolge_analizi.trim()) missing.push("bölge analizi");
+    if (!data.yatirim_ve_risk_raporu.trim()) missing.push("risk raporu");
+    if (!data.fiyat_analizi_gerekcesi.trim()) missing.push("fiyat gerekçesi");
+
+    if (missing.length > 0) {
+      return NextResponse.json(
+        {
+          error: `Rapor eksik üretildi (${missing.join(", ")}). Lütfen tekrar deneyin.`,
+        },
+        { status: 502 },
+      );
+    }
 
     return NextResponse.json({ data });
   } catch (error) {

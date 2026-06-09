@@ -26,12 +26,16 @@ async function executeJob() {
 
   try {
     const targets = await loadTargets();
+    console.log(`[scraper-bot] ${targets.length} hedef yüklendi.`);
     const result = await runScrapeJob(targets);
+    const api = result.apiResult ?? {};
     console.log(
-      `[scraper-bot] Tarama tamamlandı — ${result.listings.length} ilan gönderildi.`,
+      `[scraper-bot] Tarama tamamlandı — ayıklanan: ${result.listings.length}, DB inserted: ${api.inserted ?? 0}, updated: ${api.updated ?? 0}`,
     );
+    return result;
   } catch (error) {
     console.error("[scraper-bot] Tarama başarısız:", error);
+    throw error;
   }
 }
 
@@ -52,6 +56,12 @@ cron.schedule(
   { timezone },
 );
 
-if (process.argv.includes("--run-now")) {
+const runNow = process.argv.includes("--run-now");
+
+if (runNow) {
+  executeJob()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
+} else if (process.env.RUN_ON_START === "1") {
   void executeJob();
 }

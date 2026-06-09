@@ -31,41 +31,112 @@ enum TenantStatus {
   TRIAL
 }
 
+enum AgentRoleType {
+  DANISMAN
+  KURULUS
+  BROKER
+}
+
+enum TenantOrganizationType {
+  BIREYSEL
+  OFIS
+  KURULUS
+  BROKERLIK
+}
+
+enum TenantMemberRole {
+  OWNER
+  MANAGER
+  MEMBER
+}
+
+enum LicenseVerificationStatus {
+  NONE
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
 /// SaaS kiracı — ofis / abonelik birimi
 model Tenant {
-  id                         String           @id @default(uuid())
+  id                         String                   @id @default(uuid())
   name                       String
-  planType                   TenantPlanType   @default(FREE)
-  status                     TenantStatus     @default(ACTIVE)
+  planType                   TenantPlanType           @default(FREE)
+  status                     TenantStatus             @default(ACTIVE)
+  organizationType           TenantOrganizationType   @default(BIREYSEL)
+  taxNumber                  String?
+  address                    String?
+  phone                      String?
+  city                       String?
+  website                    String?
   iyzicoCustomerReference    String?
   iyzicoSubscriptionReference String?
   iyzicoPricingPlanReference String?
-  olusturulmaTarihi          DateTime         @default(now())
-  guncellenmeTarihi          DateTime         @updatedAt
+  ownerAgentId               String?
+  olusturulmaTarihi          DateTime                 @default(now())
+  guncellenmeTarihi          DateTime                 @updatedAt
   agents                     Agent[]
+  ownerAgent                 Agent?                   @relation("TenantOwner", fields: [ownerAgentId], references: [id], onDelete: SetNull)
+  invites                    TenantInvite[]
 
   @@index([planType, status])
   @@index([iyzicoSubscriptionReference])
+  @@index([ownerAgentId])
 }
 
 /// Clerk ile eşleşen danışman (giriş yapan kullanıcı)
 model Agent {
-  id                String     @id @default(uuid())
-  clerkUserId       String     @unique
+  id                String         @id @default(uuid())
+  clerkUserId       String         @unique
   email             String?
   firstName         String?
   lastName          String?
   imageUrl          String?
-  tenantId          String?
-  lastActiveAt      DateTime   @default(now())
-  olusturulmaTarihi DateTime   @default(now())
-  guncellenmeTarihi DateTime   @updatedAt
-  tenant            Tenant?    @relation(fields: [tenantId], references: [id], onDelete: SetNull)
-  fsboLeads         FsboLead[]
-  deals             Deal[]
+  roleType          AgentRoleType  @default(DANISMAN)
+  professionalTitle String?
+  phone             String?
+  licenseNumber        String?
+  licenseStatus        LicenseVerificationStatus @default(NONE)
+  licenseSubmittedAt   DateTime?
+  licenseVerifiedAt    DateTime?
+  licenseRejectReason  String?
+  licenseRegistryMeta  Json?
+  city                 String?
+  tenantId             String?
+  tenantMemberRole     TenantMemberRole          @default(MEMBER)
+  lastActiveAt         DateTime                  @default(now())
+  olusturulmaTarihi    DateTime                  @default(now())
+  guncellenmeTarihi    DateTime                  @updatedAt
+  tenant               Tenant?                   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  ownedTenants         Tenant[]                  @relation("TenantOwner")
+  createdInvites       TenantInvite[]            @relation("InviteCreator")
+  fsboLeads            FsboLead[]
+  deals                Deal[]
 
   @@index([lastActiveAt])
   @@index([tenantId])
+  @@index([licenseStatus])
+}
+
+/// Broker / ofis davet kodu — ekip üyesi onboarding
+model TenantInvite {
+  id                 String           @id @default(uuid())
+  tenantId           String
+  code               String           @unique
+  createdByAgentId   String
+  inviteRoleType     AgentRoleType    @default(DANISMAN)
+  tenantMemberRole   TenantMemberRole @default(MEMBER)
+  maxUses            Int              @default(5)
+  usedCount          Int              @default(0)
+  expiresAt          DateTime?
+  isActive           Boolean          @default(true)
+  olusturulmaTarihi  DateTime         @default(now())
+  guncellenmeTarihi  DateTime         @updatedAt
+  tenant             Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdBy          Agent            @relation("InviteCreator", fields: [createdByAgentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, isActive])
+  @@index([expiresAt])
 }
 
 /// Müşteri (Client) — portföy ve CRM kayıtları

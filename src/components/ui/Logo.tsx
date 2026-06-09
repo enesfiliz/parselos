@@ -1082,17 +1082,21 @@ z`} />
 
 export type LogoProps = {
   className?: string;
+  /** PNG/Image için; SVG logo bu prop'u yok sayar */
+  priority?: boolean;
 };
 
-export const Logo = ({
-  className = "h-14 w-auto",
-}: LogoProps) => (
-  <svg
-    viewBox="0 0 1295 465"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden
-    className={cn("shrink-0", className)}
-  >
-    {LOGO_PATHS}
-  </svg>
-);
+/** viewBox 1295×465 — yükseklik verin, genişlik w-auto ile oran korunur */
+export function Logo({ className = "h-10 w-auto max-w-[200px]" }: LogoProps) {
+  return (
+    <svg
+      viewBox="0 0 1295 465"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="ParselOS"
+      role="img"
+      className={cn("block shrink-0", className)}
+    >
+      {LOGO_PATHS}
+    </svg>
+  );
+}

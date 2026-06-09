@@ -35,7 +35,26 @@ export function formatRegionLabel(region: string) {
     return `${parts[0]}, ${parts[1]}`;
   }
 
-  return parts[0] ?? region;
+  const single = parts[0] ?? region;
+  const words = single.split(/\s+/).filter(Boolean);
+  if (words.length >= 2) {
+    const district = words[words.length - 1];
+    const city = words.slice(0, -1).join(" ");
+    return `${district}, ${city}`;
+  }
+
+  return single;
+}
+
+/** İlçe + il ayrıştırması (scraper için) */
+export function parseRegionParts(region: string) {
+  const label = formatRegionLabel(region);
+  const parts = label.split(",").map((p) => p.trim()).filter(Boolean);
+  if (parts.length >= 2) {
+    return { district: parts[0], city: parts[1], label };
+  }
+  const single = parts[0] ?? region;
+  return { district: single, city: single, label: single };
 }
 
 export function loadImarRadarConfig(): ImarRadarConfig {

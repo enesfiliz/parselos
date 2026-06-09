@@ -1,27 +1,14 @@
 import * as cheerio from "cheerio";
 import { NextResponse } from "next/server";
 
+import { buildScrapeTargetsForRegion } from "@/lib/radar/scrape-targets";
+import {
+  fetchListingHtmlDirect,
+  fetchListingViaJinaReader,
+} from "@/lib/scrape/listing-fetcher";
+
 const DEFAULT_REGION = "Bilecik Söğüt";
 const DEFAULT_KEYWORDS = ["sanayi", "imar planı", "parsel", "askı"] as const;
-
-function formatRegionLabel(region: string) {
-  const parts = region
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length >= 2) {
-    return { district: parts[0], city: parts[1], label: `${parts[0]}, ${parts[1]}` };
-  }
-
-  const single = parts[0] ?? region;
-  return { district: single, city: single, label: single };
-}
-
-const SCRAPE_TARGETS = [
-  "https://www.sogut.bel.tr/tr/icerik/duyurular",
-  "https://www.bilecik.gov.tr/duyurular",
-] as const;
 
 export interface RadarAnnouncement {
   id: string;
@@ -29,6 +16,8 @@ export interface RadarAnnouncement {
   summary: string;
   region: string;
   source: string;
+  sourceUrl: string;
+  verified: boolean;
   publishedAt: string;
   matchedKeywords: string[];
   isNew: boolean;
@@ -43,6 +32,7 @@ export interface RadarAnalysis {
   trackedKeywords: string[];
   lastScannedAt: string;
   activityLevel: "dusuk" | "orta" | "yuksek";
+  scannedSources: number;
 }
 
 function normalizeText(value: string) {
@@ -56,71 +46,43 @@ function matchesKeywords(text: string, keywords: readonly string[]) {
   );
 }
 
-function buildDummyAnnouncements(
-  region: string,
-  keywords: readonly string[],
-): RadarAnnouncement[] {
-  const now = Date.now();
-  const { district, city, label } = formatRegionLabel(region);
-  const authority = city !== district ? `${city} ${district}` : district;
+function resolveSourceUrl(pageUrl: string, href: string | undefined): string {
+  if (!href?.trim()) return pageUrl;
+  try {
+    return new URL(href, pageUrl).href;
+  } catch {
+    return pageUrl;
+  }
+}
 
-  const templates: Omit<RadarAnnouncement, "id" | "region" | "matchedKeywords">[] = [
-    {
-      title: `${district} OSB Güney Parsel Uzatım Planı Askıya Çıktı`,
-      summary: `${label} sınırlarında organize sanayi bölgesi güneyindeki parsel sınırları için 1/5000 ölçekli nazım imar planı değişikliği 30 gün süreyle askıya alındı.`,
-      source: `${authority} İl Özel İdaresi (Örnek)`,
-      publishedAt: new Date(now - 1000 * 60 * 45).toISOString(),
-      isNew: true,
-      category: "aski",
-    },
-    {
-      title: `${district} Merkez 124 Ada 8 Parsel İmar Durumu Güncellendi`,
-      summary: `${label} bölgesinde 124 ada 8 parsel için imar planı notları revize edildi; fonksiyon ve yapılaşma koşulları güncellendi.`,
-      source: `${district} Belediyesi (Örnek)`,
-      publishedAt: new Date(now - 1000 * 60 * 60 * 5).toISOString(),
-      isNew: true,
-      category: "parsel",
-    },
-    {
-      title: `${district} 1/1000 Uygulama İmar Planı Değişikliği İlanı`,
-      summary: `${label} kapsamında konut ve ticari alanlara yönelik uygulama imar planı değişikliği belediye ilan panosunda ve e-belediye duyurularında yayımlandı.`,
-      source: `${city} Çevre, Şehircilik (Örnek)`,
-      publishedAt: new Date(now - 1000 * 60 * 60 * 26).toISOString(),
-      isNew: false,
-      category: "plan-degisikligi",
-    },
-    {
-      title: `${district} Sanayi Alanı Genişleme Planı Halkın Bilgisine Sunuldu`,
-      summary: `${label} içindeki sanayi alanlarına ilişkin fonksiyon değişikliği ve yol hizası revizyonu içeren plan değişikliği askı sürecine alındı.`,
-      source: `${authority} Planlama Müdürlüğü (Örnek)`,
-      publishedAt: new Date(now - 1000 * 60 * 60 * 52).toISOString(),
-      isNew: false,
-      category: "sanayi",
-    },
-  ];
+function sourceLabelFromUrl(url: string): string {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    if (host.endsWith(".bel.tr")) {
+      const slug = host.split(".")[0];
+      return `${slug.charAt(0).toUpperCase()}${slug.slice(1)} Belediyesi`;
+    }
+    if (host.endsWith(".gov.tr")) return "Resmi Duyuru";
+    return host;
+  } catch {
+    return "Kaynak";
+  }
+}
 
-  return templates
-    .map((item, index) => {
-      const text = `${item.title} ${item.summary}`.toLocaleLowerCase("tr-TR");
-      const matchedKeywords = keywords.filter((keyword) =>
-        text.includes(keyword.toLocaleLowerCase("tr-TR")),
-      );
-
-      return {
-        ...item,
-        id: `dummy-${label}-${index}`,
-        region: label,
-        matchedKeywords:
-          matchedKeywords.length > 0 ? matchedKeywords : [...keywords].slice(0, 2),
-      };
-    })
-    .filter((item) => item.matchedKeywords.length > 0);
+function categorize(text: string): RadarAnnouncement["category"] {
+  const lower = text.toLocaleLowerCase("tr-TR");
+  if (lower.includes("askı")) return "aski";
+  if (lower.includes("parsel")) return "parsel";
+  if (lower.includes("sanayi")) return "sanayi";
+  if (lower.includes("plan")) return "plan-degisikligi";
+  return "diger";
 }
 
 function buildAnalysis(
   region: string,
   keywords: string[],
   announcements: RadarAnnouncement[],
+  scannedSources: number,
 ): RadarAnalysis {
   const newCount = announcements.filter((item) => item.isNew).length;
   const categoryLabels: Record<RadarAnnouncement["category"], string> = {
@@ -146,83 +108,141 @@ function buildAnalysis(
   const activityLevel: RadarAnalysis["activityLevel"] =
     newCount >= 2 ? "yuksek" : newCount === 1 ? "orta" : "dusuk";
 
+  const summary =
+    announcements.length > 0
+      ? `${region} için ${announcements.length} doğrulanmış duyuru (${scannedSources} kaynak tarandı).`
+      : `${region} için ${scannedSources} resmi kaynak tarandı; eşleşen duyuru bulunamadı.`;
+
   return {
-    summary: `${region} bölgesi için ${announcements.length} imar/sanayi duyurusu izleniyor. Son taramada ${newCount} yeni kayıt, ${categories.length} farklı duyuru tipi tespit edildi.`,
+    summary,
     totalMatches: announcements.length,
     newCount,
     categories,
     trackedKeywords: keywords,
     lastScannedAt: new Date().toISOString(),
     activityLevel,
+    scannedSources,
   };
+}
+
+function parseMarkdownLinks(
+  markdown: string,
+  pageUrl: string,
+  region: string,
+  keywords: readonly string[],
+): RadarAnnouncement[] {
+  const results: RadarAnnouncement[] = [];
+  const seen = new Set<string>();
+
+  for (const match of markdown.matchAll(/\[([^\]]+)]\((https?:\/\/[^)]+)\)/gi)) {
+    const text = normalizeText(match[1]);
+    if (text.length < 12 || text.length > 220) continue;
+
+    const matchedKeywords = matchesKeywords(text, keywords);
+    if (matchedKeywords.length === 0) continue;
+
+    const sourceUrl = match[2];
+    if (seen.has(sourceUrl)) continue;
+    seen.add(sourceUrl);
+
+    results.push({
+      id: `${pageUrl}-md-${results.length}`,
+      title: text.slice(0, 120),
+      summary: text,
+      region,
+      source: sourceLabelFromUrl(sourceUrl),
+      sourceUrl,
+      verified: true,
+      publishedAt: new Date().toISOString(),
+      matchedKeywords,
+      isNew: true,
+      category: categorize(text),
+    });
+  }
+
+  return results;
+}
+
+function parseHtmlAnnouncements(
+  html: string,
+  pageUrl: string,
+  region: string,
+  keywords: readonly string[],
+): RadarAnnouncement[] {
+  const $ = cheerio.load(html);
+  const results: RadarAnnouncement[] = [];
+  const seen = new Set<string>();
+
+  $("a[href]").each((_, element) => {
+    const text = normalizeText($(element).text());
+    if (text.length < 12 || text.length > 220) return;
+
+    const matchedKeywords = matchesKeywords(text, keywords);
+    if (matchedKeywords.length === 0) return;
+
+    const href = $(element).attr("href");
+    const sourceUrl = resolveSourceUrl(pageUrl, href);
+    if (seen.has(sourceUrl)) return;
+    seen.add(sourceUrl);
+
+    results.push({
+      id: `${pageUrl}-${results.length}-${text.slice(0, 16)}`,
+      title: text.slice(0, 120),
+      summary: text,
+      region,
+      source: sourceLabelFromUrl(sourceUrl),
+      sourceUrl,
+      verified: true,
+      publishedAt: new Date().toISOString(),
+      matchedKeywords,
+      isNew: true,
+      category: categorize(text),
+    });
+  });
+
+  return results;
+}
+
+async function fetchPageContent(url: string): Promise<string | null> {
+  const direct = await fetchListingHtmlDirect(url);
+  if (direct && direct.length > 400) return direct;
+  return fetchListingViaJinaReader(url);
 }
 
 async function scrapeAnnouncements(
   region: string,
   keywords: readonly string[],
-): Promise<RadarAnnouncement[]> {
-  const results: RadarAnnouncement[] = [];
+): Promise<{ announcements: RadarAnnouncement[]; scannedSources: number }> {
+  const targets = buildScrapeTargetsForRegion(region);
+  const merged: RadarAnnouncement[] = [];
+  const seenUrls = new Set<string>();
+  let scannedSources = 0;
 
-  for (const url of SCRAPE_TARGETS) {
+  for (const url of targets) {
     try {
-      const response = await fetch(url, {
-        headers: {
-          "User-Agent":
-            "ParselosImarRadari/1.0 (+https://parselos.local; zoning-monitor)",
-          Accept: "text/html,application/xhtml+xml",
-        },
-        signal: AbortSignal.timeout(8000),
-        next: { revalidate: 0 },
-      });
+      const content = await fetchPageContent(url);
+      if (!content) continue;
 
-      if (!response.ok) continue;
+      scannedSources += 1;
 
-      const html = await response.text();
-      const $ = cheerio.load(html);
+      const isMarkdown = !content.includes("<html") && !content.includes("<body");
+      const batch = isMarkdown
+        ? parseMarkdownLinks(content, url, region, keywords)
+        : parseHtmlAnnouncements(content, url, region, keywords);
 
-      $("a, li, article, .duyuru, .haber, .news-item, .list-group-item").each(
-        (_, element) => {
-          const text = normalizeText($(element).text());
-          if (text.length < 24 || text.length > 280) return;
+      for (const item of batch) {
+        if (seenUrls.has(item.sourceUrl)) continue;
+        seenUrls.add(item.sourceUrl);
+        merged.push(item);
+      }
 
-          const matchedKeywords = matchesKeywords(text, keywords);
-          if (matchedKeywords.length === 0) return;
-
-          const href = $(element).attr("href") ?? $(element).find("a").attr("href");
-          const source = href ? `${url.split("/").slice(0, 3).join("/")}${href.startsWith("/") ? href : `/${href}`}` : url;
-
-          const lower = text.toLocaleLowerCase("tr-TR");
-          const category: RadarAnnouncement["category"] = lower.includes("askı")
-            ? "aski"
-            : lower.includes("parsel")
-              ? "parsel"
-              : lower.includes("sanayi")
-                ? "sanayi"
-                : lower.includes("plan")
-                  ? "plan-degisikligi"
-                  : "diger";
-
-          results.push({
-            id: `${url}-${results.length}-${text.slice(0, 24)}`,
-            title: text.slice(0, 120),
-            summary: text,
-            region,
-            source,
-            publishedAt: new Date().toISOString(),
-            matchedKeywords,
-            isNew: true,
-            category,
-          });
-        },
-      );
-
-      if (results.length > 0) break;
+      if (merged.length >= 12) break;
     } catch {
       continue;
     }
   }
 
-  return results.slice(0, 10);
+  return { announcements: merged.slice(0, 12), scannedSources };
 }
 
 export async function GET(request: Request) {
@@ -237,17 +257,16 @@ export async function GET(request: Request) {
           .filter(Boolean)
       : [...DEFAULT_KEYWORDS];
 
-    const liveResults = await scrapeAnnouncements(region, keywords);
-    const announcements =
-      liveResults.length > 0
-        ? liveResults
-        : buildDummyAnnouncements(region, keywords);
-    const analysis = buildAnalysis(region, keywords, announcements);
+    const { announcements, scannedSources } = await scrapeAnnouncements(
+      region,
+      keywords,
+    );
+    const analysis = buildAnalysis(region, keywords, announcements, scannedSources);
 
     return NextResponse.json({
       region,
       keywords,
-      mode: liveResults.length > 0 ? "live" : "dummy",
+      mode: announcements.length > 0 ? "live" : "empty",
       announcements,
       analysis,
     });

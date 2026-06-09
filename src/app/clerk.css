@@ -200,3 +200,45 @@
 .cl-profilePage p {
   color: inherit;
 }
+
+.parsel-clerk-profile .cl-rootBox,
+.parsel-clerk-profile .cl-card,
+.parsel-clerk-profile .cl-cardBox,
+.parsel-clerk-profile .cl-profilePage,
+.parsel-clerk-profile .cl-page,
+.parsel-clerk-profile .cl-pageScrollBox,
+.parsel-clerk-profile .cl-navbar,
+.parsel-clerk-profile .cl-scrollBox,
+.parsel-clerk-profile .cl-main,
+.parsel-clerk-profile .cl-profileSection,
+.parsel-clerk-profile .cl-profileSectionContent {
+  background-color: var(--card) !important;
+  color: var(--foreground) !important;
+}
+
+.parsel-clerk-profile .cl-rootBox {
+  width: 100% !important;
+}
+
+.parsel-clerk-profile .cl-card,
+.parsel-clerk-profile .cl-cardBox {
+  width: 100% !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+.parsel-clerk-profile .cl-navbar {
+  border-right: 1px solid var(--border) !important;
+  background-color: var(--card) !important;
+}
+
+.parsel-clerk-profile .cl-navbarButton:hover,
+.parsel-clerk-profile .cl-navbarButton[data-active="true"] {
+  background-color: var(--muted) !important;
+}
+
+.parsel-clerk-profile .cl-headerTitle {
+  font-family: var(--font-outfit), system-ui, sans-serif !important;
+  font-weight: 600 !important;
+}

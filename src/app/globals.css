@@ -8,9 +8,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-inter);
   --font-mono: ui-monospace, monospace;
-  --font-heading: var(--font-outfit), system-ui, sans-serif;
+  --font-heading: var(--font-outfit);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -57,8 +57,13 @@
 }
 
 :root {
-  --font-inter: Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-outfit: Outfit, ui-sans-serif, system-ui, sans-serif;
+  --font-inter: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-outfit: Outfit, Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+:root {
   --background: #f3f3f0;
   --foreground: #111113;
   --card: #ffffff;
@@ -101,7 +106,12 @@
   --parsel-nav-active-bg: #e8f0e2;
   --parsel-nav-active-border: #b8cfaa;
   --parsel-nav-active-text: #1f3312;
-  --parsel-card-shadow: 0 1px 2px rgb(17 17 19 / 0.05), 0 4px 16px rgb(17 17 19 / 0.04);
+  --parsel-card-shadow: 0 1px 2px rgb(17 17 19 / 0.06), 0 8px 24px rgb(17 17 19 / 0.07);
+  --parsel-panel-border: rgb(17 17 19 / 0.08);
+  --parsel-shadow-sm: 0 1px 2px rgb(17 17 19 / 0.05);
+  --parsel-shadow-md: 0 4px 16px rgb(17 17 19 / 0.08), 0 1px 3px rgb(17 17 19 / 0.04);
+  --parsel-shadow-lg: 0 12px 40px rgb(17 17 19 / 0.12), 0 2px 8px rgb(17 17 19 / 0.06);
+  --parsel-header-blur: rgb(255 255 255 / 0.82);
   --parsel-scrollbar: rgb(138 100 40 / 0.4);
   --parsel-scrollbar-hover: rgb(138 100 40 / 0.6);
 }
@@ -148,7 +158,12 @@
   --parsel-nav-active-bg: #1c1c1f;
   --parsel-nav-active-border: #3f3f46;
   --parsel-nav-active-text: #f4f4f5;
-  --parsel-card-shadow: none;
+  --parsel-card-shadow: 0 1px 0 rgb(255 255 255 / 0.04), 0 8px 32px rgb(0 0 0 / 0.45);
+  --parsel-panel-border: rgb(255 255 255 / 0.07);
+  --parsel-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.35);
+  --parsel-shadow-md: 0 4px 20px rgb(0 0 0 / 0.4), 0 1px 0 rgb(255 255 255 / 0.03);
+  --parsel-shadow-lg: 0 16px 48px rgb(0 0 0 / 0.55), 0 1px 0 rgb(255 255 255 / 0.04);
+  --parsel-header-blur: rgb(9 9 11 / 0.78);
   --parsel-scrollbar: rgb(179 140 86 / 0.35);
   --parsel-scrollbar-hover: rgb(179 140 86 / 0.55);
 }
@@ -159,23 +174,31 @@
   }
   body {
     @apply bg-background font-sans text-foreground antialiased;
+    font-weight: 400;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;
   }
-  html:not(.dark) body {
-    font-weight: 500;
+  h1 {
+    @apply font-outfit font-bold tracking-tight text-foreground;
+    letter-spacing: -0.025em;
   }
-  html:not(.dark) .text-muted-foreground {
-    font-weight: 500;
+  h2 {
+    @apply font-outfit font-semibold tracking-tight text-foreground;
+    letter-spacing: -0.02em;
   }
-  h1,
-  h2,
   h3,
   h4,
   h5,
   h6 {
     @apply font-outfit font-semibold text-foreground;
+  }
+  strong,
+  b {
+    font-weight: 600;
   }
   label,
   [data-slot="label"] {
@@ -195,8 +218,36 @@
 @layer components {
   html:not(.dark) [data-slot="card"],
   html:not(.dark) .rounded-2xl.border.bg-parsel-panel,
-  html:not(.dark) .rounded-xl.border.bg-parsel-panel {
+  html:not(.dark) .rounded-xl.border.bg-parsel-panel,
+  html:not(.dark) .parsel-surface {
     box-shadow: var(--parsel-card-shadow);
+    border-color: var(--parsel-panel-border);
+  }
+
+  .parsel-page-title {
+    @apply font-outfit text-2xl font-bold tracking-tight sm:text-3xl;
+    letter-spacing: -0.03em;
+  }
+
+  .parsel-section-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground;
+  }
+
+  .parsel-shell-header {
+    border-bottom: 1px solid var(--parsel-panel-border);
+    background: var(--parsel-header-blur);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--parsel-shadow-sm);
+  }
+
+  .parsel-metric-value {
+    @apply font-outfit text-xl font-bold tabular-nums tracking-tight text-foreground sm:text-2xl;
+    letter-spacing: -0.02em;
+  }
+
+  .parsel-nav-group-label {
+    @apply px-3 pb-1 pt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/70;
   }
 }
 

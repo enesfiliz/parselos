@@ -1,11 +1,16 @@
 "use client";
 
 import { Layers } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Map, { Layer, NavigationControl, Source } from "react-map-gl/mapbox";
 
+import { IntelligenceRadarSettings } from "@/components/features/radar/IntelligenceRadarSettings";
 import { RadarGeocodeSearch } from "@/components/features/radar/RadarGeocodeSearch";
 import { RadarMapLegend } from "@/components/features/radar/RadarMapLegend";
+import {
+  POPULAR_RADAR_REGIONS,
+  type IntelligenceRadarConfig,
+} from "@/lib/radar/intelligence-radar-config";
 import {
   DEFAULT_RADAR_VIEW,
   INTELLIGENCE_WMS_LAYERS,
@@ -26,6 +31,11 @@ const MAPBOX_STYLE = "mapbox://styles/mapbox/dark-v11";
 export type IntelligenceRadarMapProps = {
   activeLayers: IntelligenceLayerState;
   onToggleLayer: (id: IntelligenceLayerId) => void;
+  initialView?: IntelligenceRadarConfig["view"];
+  onViewChange?: (view: IntelligenceRadarConfig["view"]) => void;
+  radarConfig?: IntelligenceRadarConfig;
+  onSelectRegion?: (region: (typeof POPULAR_RADAR_REGIONS)[number]) => void;
+  onResetConfig?: () => void;
 };
 
 function LayerSwitch({
@@ -157,18 +167,47 @@ function WmsRasterLayers({
 export function IntelligenceRadarMap({
   activeLayers,
   onToggleLayer,
+  initialView,
+  onViewChange,
+  radarConfig,
+  onSelectRegion,
+  onResetConfig,
 }: IntelligenceRadarMapProps) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const startView = initialView ?? DEFAULT_RADAR_VIEW;
   const [viewState, setViewState] = useState({
-    longitude: DEFAULT_RADAR_VIEW.longitude,
-    latitude: DEFAULT_RADAR_VIEW.latitude,
-    zoom: DEFAULT_RADAR_VIEW.zoom,
+    longitude: startView.longitude,
+    latitude: startView.latitude,
+    zoom: startView.zoom,
   });
+
+  useEffect(() => {
+    if (!initialView) return;
+    queueMicrotask(() => {
+      setViewState({
+        longitude: initialView.longitude,
+        latitude: initialView.latitude,
+        zoom: initialView.zoom,
+      });
+    });
+  }, [initialView?.label, initialView?.longitude, initialView?.latitude, initialView?.zoom, initialView]);
 
   const origin = "";
 
+  const emitView = useCallback(
+    (lng: number, lat: number, zoom: number, label?: string) => {
+      onViewChange?.({
+        longitude: lng,
+        latitude: lat,
+        zoom,
+        label: label ?? radarConfig?.view.label ?? startView.label,
+      });
+    },
+    [onViewChange, radarConfig?.view.label, startView.label],
+  );
+
   const handleGeocodeSelect = useCallback(
-    (result: { lat: number; lng: number; type: string | null }) => {
+    (result: { lat: number; lng: number; type: string | null; label?: string }) => {
       const zoom =
         result.type === "city" || result.type === "administrative" ? 9 : 12;
 
@@ -177,8 +216,9 @@ export function IntelligenceRadarMap({
         latitude: result.lat,
         zoom,
       });
+      emitView(result.lng, result.lat, zoom, result.label);
     },
-    [],
+    [emitView],
   );
 
   if (!mapboxToken) {
@@ -203,6 +243,10 @@ export function IntelligenceRadarMap({
         mapStyle={MAPBOX_STYLE}
         {...viewState}
         onMove={(event) => setViewState(event.viewState)}
+        onMoveEnd={(event) => {
+          const { longitude, latitude, zoom } = event.viewState;
+          emitView(longitude, latitude, zoom);
+        }}
         style={{ width: "100%", height: "80vh", minHeight: "80vh" }}
         attributionControl
         reuseMaps
@@ -217,6 +261,13 @@ export function IntelligenceRadarMap({
           onToggleLayer={onToggleLayer}
         />
         <RadarGeocodeSearch onSelect={handleGeocodeSelect} />
+        {radarConfig && onSelectRegion && onResetConfig ? (
+          <IntelligenceRadarSettings
+            config={radarConfig}
+            onSelectRegion={onSelectRegion}
+            onReset={onResetConfig}
+          />
+        ) : null}
         <RadarMapLegend />
       </div>
     </div>

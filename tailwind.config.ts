@@ -28,6 +28,14 @@ const config = {
         outfit: ["var(--font-outfit)", "system-ui", "sans-serif"],
         heading: ["var(--font-outfit)", "system-ui", "sans-serif"],
       },
+      fontSize: {
+        "2xs": ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.02em" }],
+      },
+      boxShadow: {
+        "parsel-sm": "var(--parsel-shadow-sm)",
+        "parsel-md": "var(--parsel-shadow-md)",
+        "parsel-lg": "var(--parsel-shadow-lg)",
+      },
     },
   },
 } satisfies Config;

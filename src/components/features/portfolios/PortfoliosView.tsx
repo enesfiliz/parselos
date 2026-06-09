@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { Briefcase, Loader2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -31,32 +30,9 @@ const FILTER_OPTIONS: { value: ListingFilter; label: string }[] = [
   { value: "KIRALIK", label: "Kiralık" },
 ];
 
-const GRID_VARIANTS = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.07, delayChildren: 0.04 },
-  },
-};
-
-const CARD_VARIANTS = {
-  hidden: { opacity: 0, y: 14 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.38, ease: "easeOut" as const },
-  },
-  exit: { opacity: 0, scale: 0.96, transition: { duration: 0.2 } },
-};
-
 function PortfolioEmptyState({ onAdd }: { onAdd: () => void }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-dashed border-border/60 bg-parsel-admin px-6 py-16 text-center"
-    >
+    <div className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-dashed border-border/60 bg-parsel-admin px-6 py-16 text-center">
       <span className="mb-5 flex size-14 items-center justify-center rounded-2xl border border-border/60 bg-white/[0.02]">
         <Briefcase className="size-6 text-parsel-gold/70" strokeWidth={1.5} />
       </span>
@@ -75,7 +51,7 @@ function PortfolioEmptyState({ onAdd }: { onAdd: () => void }) {
         <Plus className="size-4" strokeWidth={2} />
         İlk Portföyünü Ekle
       </button>
-    </motion.div>
+    </div>
   );
 }
 
@@ -293,32 +269,17 @@ export function PortfoliosView({
           </p>
         </div>
       ) : (
-        <motion.div
-          variants={GRID_VARIANTS}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        >
-          <AnimatePresence mode="popLayout">
-            {filtered.map((item) => (
-              <motion.div
-                key={item.id}
-                variants={CARD_VARIANTS}
-                initial="hidden"
-                animate="show"
-                exit="exit"
-                layout
-              >
-                <PortfolioCard
-                  item={item}
-                  onDetails={openDetails}
-                  onEdit={openEditSheet}
-                  onDelete={openDeleteDialog}
-                />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filtered.map((item) => (
+            <PortfolioCard
+              key={item.id}
+              item={item}
+              onDetails={openDetails}
+              onEdit={openEditSheet}
+              onDelete={openDeleteDialog}
+            />
+          ))}
+        </div>
       )}
 
       <PortfolioAddDrawer

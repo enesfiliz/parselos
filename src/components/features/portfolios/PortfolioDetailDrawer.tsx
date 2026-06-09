@@ -79,7 +79,7 @@ export function PortfolioDetailDrawer({
       <aside
         aria-hidden={!open}
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-border bg-parsel-elevated shadow-[-24px_0_80px_rgba(0,0,0,0.5)] transition-transform duration-300",
+          "parsel-surface fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-border/60 shadow-[-24px_0_80px_rgba(0,0,0,0.45)] transition-transform duration-300",
           open ? "translate-x-0" : "translate-x-full",
         )}
       >
@@ -140,7 +140,7 @@ export function PortfolioDetailDrawer({
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-xl border border-border/50 bg-white/[0.02] px-3 py-3 text-center"
+                className="rounded-xl border border-border/50 bg-muted/15 px-3 py-3 text-center"
               >
                 <p className="text-[10px] uppercase tracking-[0.12em] text-foreground/35">
                   {stat.label}
@@ -151,7 +151,7 @@ export function PortfolioDetailDrawer({
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-3">
+            <div className="rounded-xl border border-border/50 bg-muted/15 px-4 py-3">
               <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-foreground/35">
                 <Eye className="size-3" strokeWidth={1.5} />
                 Gösterim
@@ -160,7 +160,7 @@ export function PortfolioDetailDrawer({
                 {portfolio.showingsCount}
               </p>
             </div>
-            <div className="rounded-xl border border-border/50 bg-white/[0.02] px-4 py-3">
+            <div className="rounded-xl border border-border/50 bg-muted/15 px-4 py-3">
               <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-foreground/35">
                 <FileText className="size-3" strokeWidth={1.5} />
                 Teklif
@@ -171,7 +171,7 @@ export function PortfolioDetailDrawer({
             </div>
           </div>
 
-          <div className="mt-6 rounded-xl border border-border/50 bg-white/[0.02] p-4">
+          <div className="mt-6 rounded-xl border border-border/50 bg-muted/15 p-4">
             <div className="mb-2 flex items-center justify-between gap-2">
               <p className="flex items-center gap-1.5 text-xs text-foreground/45">
                 <Calendar className="size-3.5" strokeWidth={1.5} />
@@ -197,7 +197,7 @@ export function PortfolioDetailDrawer({
             </div>
           </div>
 
-          <div className="mt-6 rounded-xl border border-border/50 bg-white/[0.02] p-4">
+          <div className="mt-6 rounded-xl border border-border/50 bg-muted/15 p-4">
             <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-foreground/35">
               <User className="size-3" strokeWidth={1.5} />
               Mal Sahibi

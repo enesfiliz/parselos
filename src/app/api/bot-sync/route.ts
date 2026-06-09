@@ -183,6 +183,9 @@ export async function POST(request: Request) {
             region: listing.region,
             metrekare: listing.metrekare ?? undefined,
             odaSayisi: listing.odaSayisi ?? undefined,
+            listingNo: listing.listingNo ?? undefined,
+            islemTipi: listing.islemTipi ?? undefined,
+            kategori: listing.kategori ?? undefined,
             location: listing.location,
             il: listing.il,
             ilce: listing.ilce,
@@ -206,6 +209,7 @@ export async function POST(request: Request) {
             kategori: listing.kategori ?? "KONUT",
             description: `${listing.title}. ${listing.region} bölgesinde scraper-bot kaydı.`,
             isDiscarded: false,
+            listedAt: new Date(),
             agentId: assignAgentId,
           },
         });

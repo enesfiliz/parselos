@@ -1,20 +1,31 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Loader2, Sparkles } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
+import { PlanBadge } from "@/components/features/account/RoleBadge";
 import { Button } from "@/components/ui/button";
+import { STATUS_LABELS } from "@/lib/account/labels";
+import type { TenantPlanType, TenantStatus } from "@/lib/account/types";
+import { formatOfficePricingNote, PLAN_CATALOG } from "@/lib/billing/plan-catalog";
 import { BILLING_PLANS, type BillablePlan } from "@/lib/billing/plans";
 import { cn } from "@/lib/utils";
 
 type BillingViewProps = {
-  currentPlan: "FREE" | "PRO" | "PREMIUM";
-  currentStatus: string;
+  currentPlan: TenantPlanType;
+  currentStatus: TenantStatus;
+  embedded?: boolean;
 };
 
-export function BillingView({ currentPlan, currentStatus }: BillingViewProps) {
+const ALL_PLANS: TenantPlanType[] = ["FREE", "PRO", "PREMIUM"];
+
+export function BillingView({
+  currentPlan,
+  currentStatus,
+  embedded = false,
+}: BillingViewProps) {
   const searchParams = useSearchParams();
   const [loadingPlan, setLoadingPlan] = useState<BillablePlan | null>(null);
   const checkoutHostRef = useRef<HTMLDivElement>(null);
@@ -27,7 +38,7 @@ export function BillingView({ currentPlan, currentStatus }: BillingViewProps) {
     if (status === "success") {
       toast.success("Abonelik aktif", {
         description: plan
-          ? `${plan} paketiniz başarıyla tanımlandı.`
+          ? `${plan} paketiniz tanımlandı.`
           : "Ödemeniz onaylandı.",
       });
     } else if (status === "error") {
@@ -74,88 +85,126 @@ export function BillingView({ currentPlan, currentStatus }: BillingViewProps) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
-      <header className="space-y-2">
-        <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-parsel-gold/70">
-          Abonelik
-        </p>
-        <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground/90 md:text-3xl">
-          Paketi Yükselt
-        </h1>
-        <p className="text-sm text-foreground/45">
-          Mevcut plan:{" "}
-          <span className="font-medium text-foreground/75">{currentPlan}</span> · Durum:{" "}
-          <span className="font-medium text-foreground/75">{currentStatus}</span>
-        </p>
-      </header>
+    <div className={cn("space-y-8", embedded ? "w-full" : "mx-auto max-w-6xl")}>
+      <div
+        className={cn(
+          "rounded-2xl border border-border bg-card px-5 py-4",
+          embedded ? "shadow-sm" : "",
+        )}
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm text-muted-foreground">Aktif plan</span>
+          <PlanBadge plan={currentPlan} />
+          <span className="text-sm text-muted-foreground">
+            · {STATUS_LABELS[currentStatus]}
+          </span>
+        </div>
+        {!embedded ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            KDV dahil aylık fiyatlar. İstediğiniz zaman paket değiştirebilirsiniz.
+          </p>
+        ) : null}
+      </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {(Object.keys(BILLING_PLANS) as BillablePlan[]).map((planKey) => {
-          const plan = BILLING_PLANS[planKey];
+      <div className="grid gap-5 lg:grid-cols-3">
+        {ALL_PLANS.map((planKey) => {
+          const catalog = PLAN_CATALOG[planKey];
           const isCurrent = currentPlan === planKey;
+          const isBillable = catalog.billable;
+          const billing = isBillable ? BILLING_PLANS[planKey as BillablePlan] : null;
 
           return (
             <article
               key={planKey}
               className={cn(
-                "rounded-2xl border bg-parsel-admin p-6 transition-colors",
-                planKey === "PREMIUM"
-                  ? "border-[#b38c56]/30 shadow-[0_0_40px_rgba(179,140,86,0.08)]"
-                  : "border-border/60",
+                "relative flex flex-col rounded-2xl border bg-card p-6",
+                catalog.highlighted
+                  ? "border-primary/35 shadow-[0_0_0_1px_rgba(122,159,69,0.15)]"
+                  : "border-border",
+                isCurrent && "ring-2 ring-primary/25",
               )}
             >
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-medium text-foreground/90">{plan.label}</h2>
-                  <p className="mt-1 text-sm text-foreground/45">{plan.description}</p>
-                </div>
-                {planKey === "PREMIUM" ? (
-                  <Sparkles className="size-5 text-parsel-gold" strokeWidth={1.5} />
+              {catalog.badge ? (
+                <span className="absolute right-4 top-4 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                  {catalog.badge}
+                </span>
+              ) : null}
+
+              <header className="mb-5 border-b border-border/60 pb-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {catalog.marketingName}
+                </p>
+                <p className="mt-3 font-outfit text-3xl font-semibold tracking-tight text-foreground">
+                  {catalog.priceLabel}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{catalog.periodLabel}</p>
+                {catalog.annualNote ? (
+                  <p className="mt-2 text-xs font-medium text-primary/90">
+                    {catalog.annualNote}
+                  </p>
                 ) : null}
-              </div>
+                {formatOfficePricingNote(catalog) ? (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {formatOfficePricingNote(catalog)}
+                  </p>
+                ) : null}
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {billing?.description ?? catalog.tagline}
+                </p>
+              </header>
 
-              <p className="font-inter text-3xl font-medium tracking-tight text-foreground">
-                {plan.priceLabel}
-              </p>
-
-              <ul className="mt-5 space-y-2">
-                {plan.features.map((feature) => (
+              <ul className="mb-6 flex-1 space-y-2.5">
+                {catalog.features.map((feature) => (
                   <li
                     key={feature}
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                    className="flex items-start gap-2.5 text-sm text-foreground/85"
                   >
-                    <Check className="size-3.5 shrink-0 text-parsel-gold" strokeWidth={2} />
-                    {feature}
+                    <Check
+                      className="mt-0.5 size-3.5 shrink-0 text-primary"
+                      strokeWidth={2}
+                    />
+                    <span>{feature}</span>
                   </li>
                 ))}
               </ul>
 
-              <Button
-                type="button"
-                disabled={isCurrent || loadingPlan !== null}
-                className={cn(
-                  "mt-6 h-11 w-full",
-                  planKey === "PREMIUM"
-                    ? "bg-parsel-gold text-black hover:bg-[#c49a62]"
-                    : "bg-foreground/10 text-foreground hover:bg-white/15",
-                )}
-                onClick={() => startSubscription(planKey)}
-              >
-                {loadingPlan === planKey ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    Iyzico&apos;ya yönlendiriliyor...
-                  </>
-                ) : isCurrent ? (
-                  "Aktif Paket"
-                ) : (
-                  `${plan.label} Paketine Geç`
-                )}
-              </Button>
+              {isBillable ? (
+                <Button
+                  type="button"
+                  disabled={isCurrent || loadingPlan !== null}
+                  className={cn(
+                    "h-11 w-full",
+                    catalog.highlighted
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "bg-muted text-foreground hover:bg-muted/80",
+                  )}
+                  onClick={() => startSubscription(planKey as BillablePlan)}
+                >
+                  {loadingPlan === planKey ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      Yönlendiriliyor...
+                    </>
+                  ) : isCurrent ? (
+                    "Mevcut Paket"
+                  ) : (
+                    catalog.cta
+                  )}
+                </Button>
+              ) : (
+                <div className="flex h-11 items-center justify-center rounded-lg border border-dashed border-border text-sm font-medium text-muted-foreground">
+                  {isCurrent ? "Mevcut Paket" : "Varsayılan plan"}
+                </div>
+              )}
             </article>
           );
         })}
       </div>
+
+      <p className="text-center text-xs text-muted-foreground">
+        Ödeme altyapısı Iyzico ile güvence altındadır. TTBS onaylı danışman rozeti
+        Danışman ve Ofis paketlerinde aktiftir.
+      </p>
 
       <div ref={checkoutHostRef} className="hidden" aria-hidden />
     </div>

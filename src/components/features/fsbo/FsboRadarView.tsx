@@ -13,6 +13,7 @@ import {
 import { FsboDetailPanel } from "@/components/features/fsbo/FsboDetailPanel";
 import { FsboEmptyState } from "@/components/features/fsbo/FsboEmptyState";
 import { FsboFilterBar } from "@/components/features/fsbo/FsboFilterBar";
+import { FsboImportPanel } from "@/components/features/fsbo/FsboImportPanel";
 import { FsboInboxCard } from "@/components/features/fsbo/FsboInboxCard";
 import { FsboSendToDealsDialog } from "@/components/features/fsbo/FsboSendToDealsDialog";
 import { appendMockDeal } from "@/lib/deals/deal-persistence";
@@ -193,14 +194,24 @@ export function FsboRadarView({
               FSBO Komuta Merkezi
             </span>
           </div>
-          <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          <h1 className="parsel-page-title text-foreground">
             İstihbarat Radarı — Medya Odaklı Inbox
           </h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Veritabanından gelen canlı FSBO ilanları; kapak fotoğrafı, kaynak
-            rozeti ve fiyatlarla gelen kutusunda listelenir.
+          <p className="mt-2 max-w-2xl text-sm font-medium text-muted-foreground">
+            Veritabanından gelen FSBO ilanları; link içe aktarma veya scraper-bot
+            ile beslenir. Otomatik Sahibinden taraması yapılmaz.
           </p>
         </header>
+
+        {!useMock ? (
+          <FsboImportPanel
+            onImported={(leads) => {
+              setAllLeads(leads);
+              setSelectedId(leads[0]?.id ?? null);
+              router.refresh();
+            }}
+          />
+        ) : null}
 
         {fetchError ? (
           <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">

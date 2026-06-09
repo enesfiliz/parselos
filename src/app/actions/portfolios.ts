@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import { requireCurrentAgent } from "@/lib/auth/agent";
+import { assertCanCreatePortfolio } from "@/lib/billing/enforce-limits";
+import { getTenantPlanForClerkUser } from "@/lib/billing/tenant";
 import { findOrCreateClient } from "@/lib/deals/find-or-create-client";
 import { findAuthorizedPropertyForAgent } from "@/lib/portfolios/portfolio-access";
 import {
@@ -46,6 +48,9 @@ export async function createPortfolioAction(
 ): Promise<ActionResult<AuthorizedPortfolioItem>> {
   try {
     const agent = await requireCurrentAgent();
+    const { planType } = await getTenantPlanForClerkUser(agent.clerkUserId);
+    await assertCanCreatePortfolio(planType);
+
     const propertyData = buildPropertyData(values);
 
     const ownerName = values.ownerName.trim() || "Mal Sahibi";

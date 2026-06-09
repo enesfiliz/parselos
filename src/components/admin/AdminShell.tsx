@@ -9,11 +9,11 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { getClerkAppearance } from "@/lib/clerk-appearance";
-import { useTheme } from "next-themes";
+import { useParselTheme } from "@/components/providers/ThemeProvider";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme } = useParselTheme();
   const clerkAppearance = getClerkAppearance(resolvedTheme);
 
   return (

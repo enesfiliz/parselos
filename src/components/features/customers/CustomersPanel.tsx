@@ -4,9 +4,11 @@ import {
   Kanban,
   Mail,
   MessageCircle,
+  Pencil,
   Phone,
   Plus,
   Search,
+  Trash2,
   UserRound,
   Users,
 } from "lucide-react";
@@ -97,6 +99,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
   const [selected, setSelected] = useState<CustomerListItem | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<CustomerFormState>(emptyForm);
 
@@ -111,11 +114,53 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
   }
 
   function openCreateDialog() {
+    setEditingId(null);
     setForm(emptyForm);
     setDialogOpen(true);
   }
 
-  async function handleCreate(event: React.FormEvent) {
+  function openEditDialog(customer: CustomerListItem) {
+    setEditingId(customer.id);
+    setForm({
+      adSoyad: customer.adSoyad,
+      telefon: customer.telefon ?? "",
+      email: customer.email ?? "",
+      butce: customer.butce ?? "",
+      mulkTipi: customer.mulkTipi ?? "",
+      notlar: customer.notlar ?? "",
+    });
+    setDialogOpen(true);
+  }
+
+  async function handleDelete(customer: CustomerListItem) {
+    if (
+      !window.confirm(
+        `${customer.adSoyad} müşterisini silmek istediğinize emin misiniz?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/clients/${customer.id}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Silinemedi.");
+      }
+      setCustomers((prev) => prev.filter((c) => c.id !== customer.id));
+      if (selected?.id === customer.id) {
+        setSheetOpen(false);
+        setSelected(null);
+      }
+      toast.success("Müşteri silindi.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Silinemedi.");
+    }
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const adSoyad = form.adSoyad.trim();
     if (!adSoyad) {
@@ -125,18 +170,23 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
 
     setSaving(true);
     try {
-      const response = await fetch("/api/clients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          adSoyad,
-          telefon: form.telefon.trim() || null,
-          email: form.email.trim() || null,
-          butce: form.butce.trim() || null,
-          mulkTipi: form.mulkTipi.trim() || null,
-          notlar: form.notlar.trim() || null,
-        }),
-      });
+      const body = {
+        adSoyad,
+        telefon: form.telefon.trim() || null,
+        email: form.email.trim() || null,
+        butce: form.butce.trim() || null,
+        mulkTipi: form.mulkTipi.trim() || null,
+        notlar: form.notlar.trim() || null,
+      };
+
+      const response = await fetch(
+        editingId ? `/api/clients/${editingId}` : "/api/clients",
+        {
+          method: editingId ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      );
 
       const payload = (await response.json()) as {
         data?: {
@@ -156,7 +206,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
       };
 
       if (!response.ok) {
-        throw new Error(payload.error ?? "Müşteri eklenemedi.");
+        throw new Error(payload.error ?? "Kayıt başarısız.");
       }
 
       const saved = payload.data;
@@ -180,10 +230,18 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
         propertyType: hints.propertyType,
       };
 
-      setCustomers((prev) => [row, ...prev]);
+      setCustomers((prev) =>
+        editingId
+          ? prev.map((c) => (c.id === editingId ? row : c))
+          : [row, ...prev],
+      );
+      if (selected?.id === editingId) {
+        setSelected(row);
+      }
       setDialogOpen(false);
       setForm(emptyForm);
-      toast.success("Yeni müşteri eklendi.");
+      setEditingId(null);
+      toast.success(editingId ? "Müşteri güncellendi." : "Yeni müşteri eklendi.");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Müşteri eklenemedi.",
@@ -200,7 +258,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <Users className="size-4 text-parsel-gold" strokeWidth={1.5} />
-              <h1 className="font-outfit text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+              <h1 className="parsel-page-title text-foreground">
                 Müşteriler ve Yatırımcılar
               </h1>
               <span className="inline-flex items-center rounded-full border border-[#b38c56]/35 bg-parsel-gold/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#e8d4b8]">
@@ -276,6 +334,8 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
                     customer={customer}
                     variant="desktop"
                     onProfile={() => openProfile(customer)}
+                    onEdit={() => openEditDialog(customer)}
+                    onDelete={() => handleDelete(customer)}
                   />
                 ))}
               </ul>
@@ -288,6 +348,8 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
                   customer={customer}
                   variant="mobile"
                   onProfile={() => openProfile(customer)}
+                  onEdit={() => openEditDialog(customer)}
+                  onDelete={() => handleDelete(customer)}
                 />
               ))}
             </ul>
@@ -368,6 +430,27 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
               </section>
 
               <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSheetOpen(false);
+                    openEditDialog(selected);
+                  }}
+                >
+                  <Pencil className="size-3.5" />
+                  Düzenle
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(selected)}
+                >
+                  <Trash2 className="size-3.5" />
+                  Sil
+                </Button>
                 {buildWhatsAppUrl(selected.telefon) ? (
                   <a
                     href={buildWhatsAppUrl(selected.telefon)!}
@@ -395,12 +478,16 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="border-border bg-parsel-panel text-foreground">
           <DialogHeader>
-            <DialogTitle>Yeni Müşteri</DialogTitle>
+            <DialogTitle>
+              {editingId ? "Müşteriyi Düzenle" : "Yeni Müşteri"}
+            </DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              Portföye yeni yatırımcı veya son kullanıcı ekleyin.
+              {editingId
+                ? "İletişim ve portföy kriterlerini güncelleyin."
+                : "Portföye yeni yatırımcı veya son kullanıcı ekleyin."}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleCreate} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="adSoyad">Ad Soyad</Label>
               <Input
@@ -467,7 +554,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
                 disabled={saving}
                 className="bg-parsel-gold text-black hover:brightness-110"
               >
-                {saving ? "Kaydediliyor..." : "Kaydet"}
+                {saving ? "Kaydediliyor..." : editingId ? "Güncelle" : "Kaydet"}
               </Button>
             </DialogFooter>
           </form>
@@ -481,10 +568,14 @@ function CustomerRow({
   customer,
   variant,
   onProfile,
+  onEdit,
+  onDelete,
 }: {
   customer: CustomerListItem;
   variant: "desktop" | "mobile";
   onProfile: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   const waHref = buildWhatsAppUrl(customer.telefon);
 
@@ -512,7 +603,12 @@ function CustomerRow({
           </div>
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <ActionButtons waHref={waHref} onProfile={onProfile} />
+          <ActionButtons
+            waHref={waHref}
+            onProfile={onProfile}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
         </div>
       </li>
     );
@@ -547,7 +643,12 @@ function CustomerRow({
       <span className="inline-flex w-fit rounded-full border border-border/50 bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
         {customer.aktifFirsatSayisi} Aktif
       </span>
-      <ActionButtons waHref={waHref} onProfile={onProfile} />
+      <ActionButtons
+        waHref={waHref}
+        onProfile={onProfile}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
     </li>
   );
 }
@@ -555,12 +656,32 @@ function CustomerRow({
 function ActionButtons({
   waHref,
   onProfile,
+  onEdit,
+  onDelete,
 }: {
   waHref: string | null;
   onProfile: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   return (
     <div className="flex items-center justify-end gap-1.5">
+      <button
+        type="button"
+        onClick={onEdit}
+        className="inline-flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground"
+        aria-label="Düzenle"
+      >
+        <Pencil className="size-3.5" />
+      </button>
+      <button
+        type="button"
+        onClick={onDelete}
+        className="inline-flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-destructive"
+        aria-label="Sil"
+      >
+        <Trash2 className="size-3.5" />
+      </button>
       <a
         href={waHref ?? "#"}
         target="_blank"

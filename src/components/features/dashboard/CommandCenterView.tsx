@@ -29,10 +29,10 @@ export type CommandCenterUser = {
 };
 
 const WIDGET_CARD =
-  "rounded-2xl border border-border/50 bg-parsel-panel p-3 md:p-4";
+  "parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-md md:p-5";
 
 const METRIC_CARD =
-  "flex min-h-[88px] min-w-0 flex-col justify-between rounded-2xl border border-border/50 bg-parsel-panel p-3 transition-all duration-300 hover:border-border md:h-[96px] md:p-4";
+  "parsel-surface flex min-h-[96px] min-w-0 flex-col justify-between rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm transition-all duration-300 hover:border-border hover:shadow-parsel-md md:h-[104px]";
 
 function formatToday() {
   return new Intl.DateTimeFormat("tr-TR", {
@@ -94,7 +94,7 @@ function PipelineMetricCard({ metrics }: { metrics: CommandCenterTopMetrics }) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <p className="truncate text-lg font-semibold tabular-nums tracking-tight text-parsel-gold">
+        <p className="parsel-metric-value truncate text-parsel-gold">
           {formatFullTRY(metrics.pipelineHacmi)}
         </p>
         <div className="space-y-1">
@@ -137,7 +137,7 @@ function CountMetricCard({
       </div>
 
       <div className="flex items-end gap-2">
-        <p className="min-w-0 flex-1 truncate text-lg font-semibold tabular-nums tracking-tight text-foreground/90">
+        <p className="parsel-metric-value min-w-0 flex-1 truncate text-foreground">
           {value}
         </p>
         {trendPct !== undefined ? (
@@ -260,19 +260,19 @@ export function CommandCenterView({
   const greetingName = getGreetingName(user.firstName, user.fullName);
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-3 bg-background md:gap-4">
-      <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <div className="flex w-full flex-col gap-4 md:gap-6">
+      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <div className="mb-2 flex items-center gap-2 text-parsel-gold">
-            <LayoutDashboard className="h-4 w-4" strokeWidth={1.5} />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] md:text-[10px]">
-              Ultra-Genişletilmiş Analitik Kokpit
+            <LayoutDashboard className="size-4" strokeWidth={2} />
+            <span className="parsel-section-label text-parsel-gold">
+              Komuta merkezi
             </span>
           </div>
-          <h1 className="font-outfit text-xl font-semibold tracking-tight text-foreground/90 md:text-2xl lg:text-3xl">
+          <h1 className="parsel-page-title text-foreground">
             {greetingName ? `Hoş geldin, ${greetingName}` : "Hoş geldin"}
           </h1>
-          <p className="mt-1 text-sm text-foreground/70">{formatToday()}</p>
+          <p className="mt-2 text-sm font-medium text-muted-foreground">{formatToday()}</p>
         </div>
         <DashboardGlobalSearch index={searchIndex} className="lg:max-w-sm" />
       </header>

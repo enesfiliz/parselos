@@ -1,4 +1,5 @@
-import type { TenantPlanType } from "@prisma/client";
+import type { TenantPlanType } from "@/lib/account/types";
+import { PLAN_CATALOG } from "@/lib/billing/plan-catalog";
 
 export type BillablePlan = Extract<TenantPlanType, "PRO" | "PREMIUM">;
 
@@ -9,29 +10,25 @@ export const BILLING_PLANS: Record<
     priceLabel: string;
     description: string;
     features: string[];
+    priceMonthly: number;
+    annualNote?: string;
   }
 > = {
   PRO: {
-    label: "Pro",
-    priceLabel: "₺990 / ay",
-    description: "Aktif danışmanlar için AI destekli operasyon paketi.",
-    features: [
-      "AI İlan Analizi",
-      "WhatsApp Mesaj Otonomisi",
-      "50 portföy limiti",
-      "Parsel AI 500 kredi",
-    ],
+    label: PLAN_CATALOG.PRO.marketingName,
+    priceLabel: `${PLAN_CATALOG.PRO.priceLabel} / ay`,
+    description: PLAN_CATALOG.PRO.tagline,
+    features: PLAN_CATALOG.PRO.features,
+    priceMonthly: PLAN_CATALOG.PRO.priceMonthly,
+    annualNote: PLAN_CATALOG.PRO.annualNote,
   },
   PREMIUM: {
-    label: "Premium",
-    priceLabel: "₺1.990 / ay",
-    description: "Yüksek hacimli ofisler için tam otonomi.",
-    features: [
-      "Tüm Pro özellikleri",
-      "Öncelikli AI motoru",
-      "200 portföy limiti",
-      "Parsel AI 2000 kredi",
-    ],
+    label: PLAN_CATALOG.PREMIUM.marketingName,
+    priceLabel: `${PLAN_CATALOG.PREMIUM.priceLabel} / ay`,
+    description: PLAN_CATALOG.PREMIUM.tagline,
+    features: PLAN_CATALOG.PREMIUM.features,
+    priceMonthly: PLAN_CATALOG.PREMIUM.priceMonthly,
+    annualNote: PLAN_CATALOG.PREMIUM.annualNote,
   },
 };
 

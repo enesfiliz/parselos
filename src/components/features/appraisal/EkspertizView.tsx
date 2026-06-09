@@ -134,19 +134,17 @@ function EditorialSection({
   return (
     <section
       className={cn(
-        "editorial-section rounded-2xl bg-white px-8 py-10 shadow-lg ring-1 ring-neutral-100/80 print:break-inside-avoid print:px-6 print:py-6 print:shadow-none",
+        "editorial-section parsel-surface rounded-2xl border border-border/60 px-8 py-10 shadow-parsel-md print:break-inside-avoid print:border-0 print:bg-white print:px-6 print:py-6 print:shadow-none",
         breakBefore && "print:break-before-page",
       )}
     >
       <div className="flex items-start gap-4">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-neutral-50 ring-1 ring-neutral-100">
-          <Icon className="size-5 text-neutral-600" strokeWidth={1.5} />
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-muted/20">
+          <Icon className="size-5 text-primary" strokeWidth={1.5} />
         </div>
         <div className="space-y-1">
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-400">
-            {kicker}
-          </p>
-          <h2 className="text-xl font-semibold tracking-tight text-neutral-900">
+          <p className="parsel-section-label text-[10px]">{kicker}</p>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
             {title}
           </h2>
         </div>
@@ -158,7 +156,7 @@ function EditorialSection({
         {paragraphs.map((paragraph, index) => (
           <p
             key={`${title}-${index}`}
-            className="text-[15px] leading-[1.85] text-neutral-700"
+            className="text-[15px] leading-[1.85] text-muted-foreground print:text-neutral-700"
           >
             {paragraph}
           </p>
@@ -271,7 +269,7 @@ function BentoCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-white p-6 shadow-lg ring-1 ring-neutral-100/80 print:break-inside-avoid print:p-4 print:shadow-none",
+        "parsel-surface rounded-2xl border border-border/60 p-6 shadow-parsel-md print:break-inside-avoid print:border-0 print:bg-white print:p-4 print:shadow-none",
         className,
       )}
     >
@@ -296,11 +294,9 @@ function PropertyOverviewCard({ form }: { form: AppraisalForm }) {
     <BentoCard>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-400">
-            Mülk Künyesi
-          </p>
-          <h3 className="mt-1 text-base font-semibold tracking-tight text-neutral-900">
-            Property Overview
+          <p className="parsel-section-label text-[10px]">Mülk Künyesi</p>
+          <h3 className="mt-1 text-base font-semibold tracking-tight text-foreground">
+            Genel Bakış
           </h3>
         </div>
         <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
@@ -313,7 +309,7 @@ function PropertyOverviewCard({ form }: { form: AppraisalForm }) {
       <Table>
         <TableBody>
           <TableRow className="hover:bg-transparent">
-            <TableCell className="w-40 text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">
+            <TableCell className="w-40 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               Brüt Alan
             </TableCell>
             <TableCell>
@@ -340,14 +336,12 @@ function PropertyOverviewCard({ form }: { form: AppraisalForm }) {
       <div className="grid gap-5 sm:grid-cols-2">
         {locationFields.map(({ icon: Icon, label, value }) => (
           <div key={label} className="flex items-start gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-neutral-50 ring-1 ring-neutral-100">
-              <Icon className="size-4 text-neutral-500" strokeWidth={1.5} />
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted/20">
+              <Icon className="size-4 text-primary" strokeWidth={1.5} />
             </div>
             <div className="min-w-0 space-y-0.5">
-              <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-neutral-400">
-                {label}
-              </p>
-              <p className="text-sm font-medium leading-snug text-neutral-900">
+              <p className="parsel-section-label text-[10px]">{label}</p>
+              <p className="text-sm font-medium leading-snug text-foreground">
                 {value}
               </p>
             </div>
@@ -456,30 +450,24 @@ function BentoReport({
         <div className="grid gap-3 md:grid-cols-2 print:gap-2 print:break-inside-avoid">
           <BentoCard className="flex flex-col justify-between gap-6">
             <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-400">
-                Yatırım Skoru
-              </p>
+              <p className="parsel-section-label text-[10px]">Yatırım Skoru</p>
               <div className="mt-4 flex items-end gap-3">
-                <span className="text-7xl font-semibold tabular-nums tracking-tighter text-neutral-900">
+                <span className="text-6xl font-semibold tabular-nums tracking-tighter text-foreground sm:text-7xl">
                   {report.genel_skor}
                 </span>
-                <span className="mb-3 text-lg text-neutral-400">/ 100</span>
+                <span className="mb-3 text-lg text-muted-foreground">/ 100</span>
               </div>
             </div>
-            <div className="space-y-2 border-t border-neutral-100 pt-5">
-              <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-400">
-                Uzman Görüşü
-              </p>
-              <p className="text-sm leading-relaxed text-neutral-600">
+            <div className="space-y-2 border-t border-border/50 pt-5">
+              <p className="parsel-section-label text-[10px]">Uzman Görüşü</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
                 {report.uzman_gorusu}
               </p>
             </div>
           </BentoCard>
 
           <BentoCard>
-            <p className="mb-4 text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-400">
-              Lokasyon Metrikleri
-            </p>
+            <p className="parsel-section-label mb-4 text-[10px]">Lokasyon Metrikleri</p>
             <div className="report-chart h-64 w-full print:h-56 print:break-inside-avoid">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="72%">
@@ -512,14 +500,14 @@ function BentoReport({
         <BentoCard>
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-neutral-400">
+              <p className="parsel-section-label text-[10px]">
                 Karşılaştırmalı Piyasa Analizi
               </p>
-              <h3 className="mt-1 text-base font-semibold tracking-tight text-neutral-900">
+              <h3 className="mt-1 text-base font-semibold tracking-tight text-foreground">
                 Emsal Değerlendirmesi (CMA)
               </h3>
             </div>
-            <TrendingUp className="size-5 text-neutral-300" strokeWidth={1.5} />
+            <TrendingUp className="size-5 text-primary/60" strokeWidth={1.5} />
           </div>
 
           <Table>
@@ -533,7 +521,7 @@ function BentoReport({
             <TableBody>
               {report.emsal_analizi.map((row) => (
                 <TableRow key={row.rakip_mulk}>
-                  <TableCell className="font-medium text-neutral-900">
+                  <TableCell className="font-medium text-foreground">
                     {row.rakip_mulk}
                   </TableCell>
                   <TableCell>{row.fiyat}</TableCell>
@@ -552,14 +540,12 @@ function BentoReport({
         <div className="grid gap-3 sm:grid-cols-2 print:gap-2 print:break-inside-avoid">
           {report.karlilik_oranlari.map((item) => (
             <BentoCard key={item.baslik} className="flex items-start gap-4">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-neutral-50 ring-1 ring-neutral-100">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-muted/20">
                 <KarlilikIcon baslik={item.baslik} />
               </div>
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-400">
-                  {item.baslik}
-                </p>
-                <p className="mt-1 text-2xl font-semibold tracking-tight text-neutral-900">
+                <p className="parsel-section-label text-[10px]">{item.baslik}</p>
+                <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
                   {item.deger}
                 </p>
               </div>
@@ -572,9 +558,7 @@ function BentoReport({
       <div className="col-span-full space-y-4 pt-1 print:space-y-3 print:pt-0">
         <div className="flex items-center gap-4 px-2 print:break-inside-avoid">
           <Separator className="flex-1" />
-          <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-neutral-400">
-            Detaylı Analiz Raporu
-          </p>
+          <p className="parsel-section-label text-[10px]">Detaylı Analiz Raporu</p>
           <Separator className="flex-1" />
         </div>
 
@@ -603,7 +587,7 @@ function BentoReport({
       </div>
 
       <footer className="px-2 pt-4 print:break-inside-avoid">
-        <p className="text-[10px] leading-relaxed text-neutral-400">
+        <p className="text-[10px] leading-relaxed text-muted-foreground">
           Bu rapor Parselos AI tarafından üretilmiştir. Yatırım kararı öncesinde
           bağımsız SPK lisanslı ekspertiz raporu alınması önerilir.
         </p>
@@ -697,7 +681,13 @@ export function EkspertizView() {
   }, [tkgmKoordinatlar]);
 
   const canGenerate =
-    form.brutMetrekare.trim().length > 0 && form.netMetrekare.trim().length > 0;
+    form.il.trim().length > 0 &&
+    form.ilce.trim().length > 0 &&
+    form.mahalle.trim().length > 0 &&
+    form.ada.trim().length > 0 &&
+    form.parsel.trim().length > 0 &&
+    form.brutMetrekare.trim().length > 0 &&
+    form.netMetrekare.trim().length > 0;
 
   const locationFields: Array<keyof AppraisalForm> = [
     "il",
@@ -888,21 +878,19 @@ export function EkspertizView() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] space-y-8">
+    <div className="space-y-6">
       <style dangerouslySetInnerHTML={{ __html: PRINT_PAGE_STYLE }} />
-      <header className="space-y-2">
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
-          Akıllı Değerleme
-        </h1>
-        <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-          Uzun formatlı editorial rapor, gerçek uydu haritası ve tutarlı emsal
-          analizi ile profesyonel değerleme.
+      <header>
+        <p className="parsel-section-label mb-2 text-parsel-gold">Değerleme</p>
+        <h1 className="parsel-page-title text-foreground">Ekspertiz</h1>
+        <p className="mt-2 max-w-xl text-sm font-medium text-muted-foreground">
+          TKGM sorgusu, uydu haritası ve yapay zeka destekli değerleme raporu.
+          PDF indirin veya arşive kaydedin.
         </p>
       </header>
 
-      <div className="grid gap-8 xl:grid-cols-[320px_minmax(0,1fr)] xl:gap-10">
-        {/* Sol Kolon — Form */}
-        <Card className="h-fit border-border/60 shadow-sm">
+      <div className="grid gap-6 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
+        <Card className="parsel-surface h-fit shadow-parsel-md">
           <CardHeader className="border-b border-border/50 pb-5">
             <CardTitle className="text-base font-medium">Mülk Bilgileri</CardTitle>
             <CardDescription>Değerleme girdileri</CardDescription>
@@ -994,8 +982,8 @@ export function EkspertizView() {
                 className={cn(
                   "rounded-xl border px-4 py-3 text-sm",
                   tkgmKoordinatlar
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                    : "border-amber-200 bg-amber-50 text-amber-900",
+                    ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300"
+                    : "border-amber-500/25 bg-amber-500/10 text-amber-200",
                 )}
               >
                 {tkgmNotice}
@@ -1052,15 +1040,15 @@ export function EkspertizView() {
             </Button>
             {!canGenerate && (
               <p className="text-center text-xs text-muted-foreground">
-                Brüt ve net alan doldurulmadan rapor oluşturulamaz. TKGM sorgusu
-                veya manuel giriş yapın.
+                İl, ilçe, mahalle, ada, parsel ve brüt/net m² alanları zorunludur.
+                TKGM sorgusu ile otomatik doldurabilirsiniz.
               </p>
             )}
           </CardContent>
         </Card>
 
         {/* Sağ Kolon — Bento Rapor Masası */}
-        <div className="flex min-h-[85vh] flex-col gap-4">
+        <div className="flex min-h-[560px] flex-col gap-4">
           <div className="flex justify-end gap-2">
             <Button
               type="button"
@@ -1094,7 +1082,7 @@ export function EkspertizView() {
             </Button>
           </div>
 
-          <div className="flex-1 overflow-y-auto rounded-2xl bg-parsel-card/40 p-6 ring-1 ring-parsel-border/60 print:m-0 print:bg-white print:p-0 print:ring-0">
+          <div className="parsel-surface flex-1 overflow-y-auto rounded-2xl border border-border/60 p-4 sm:p-6 print:m-0 print:border-0 print:bg-white print:p-0">
             <div ref={printRef} className="print-container mx-auto w-full max-w-4xl">
               {report ? (
                 <>
@@ -1107,12 +1095,10 @@ export function EkspertizView() {
                   />
                 </>
               ) : (
-                <div className="mx-auto flex min-h-[480px] max-w-4xl items-center justify-center rounded-2xl bg-white p-12 shadow-lg ring-1 ring-neutral-100">
+                <div className="mx-auto flex min-h-[420px] max-w-4xl items-center justify-center rounded-2xl border border-dashed border-border/60 bg-muted/10 p-10">
                   <div className="max-w-sm space-y-3 text-center">
-                    <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-neutral-400">
-                      Bento Rapor Masası
-                    </p>
-                    <p className="text-sm leading-relaxed text-neutral-500">
+                    <p className="parsel-section-label text-[10px]">Rapor Önizleme</p>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
                       {isGenerating
                         ? "Yapay zeka tutarlı fiyat modeli, emsal verileri ve uzun format analiz metinlerini hazırlıyor…"
                         : "Formu doldurup rapor oluşturduğunuzda özet pano, uydu haritası ve detaylı editorial bölümler burada görüntülenecek."}

@@ -4,6 +4,7 @@ import {
   Activity,
   BarChart3,
   Bell,
+  ExternalLink,
   Radar,
   RefreshCw,
   ShieldAlert,
@@ -35,6 +36,8 @@ interface RadarAnnouncement {
   summary: string;
   region: string;
   source: string;
+  sourceUrl?: string;
+  verified?: boolean;
   publishedAt: string;
   matchedKeywords: string[];
   isNew: boolean;
@@ -49,12 +52,13 @@ interface RadarAnalysis {
   trackedKeywords: string[];
   lastScannedAt: string;
   activityLevel: "dusuk" | "orta" | "yuksek";
+  scannedSources?: number;
 }
 
 interface RadarResponse {
   region: string;
   keywords: string[];
-  mode: "live" | "dummy";
+  mode: "live" | "empty";
   announcements: RadarAnnouncement[];
   analysis: RadarAnalysis;
 }
@@ -106,23 +110,32 @@ function formatRelativeTime(value: string) {
 }
 
 function AnnouncementCard({ item }: { item: RadarAnnouncement }) {
+  const sourceHref = item.sourceUrl?.startsWith("http") ? item.sourceUrl : null;
+
   return (
-    <Card className="border-border/60 shadow-sm ring-border/60">
+    <Card className="parsel-surface border-border/60 shadow-parsel-sm">
       <CardHeader className="gap-3 border-b border-border/50 pb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
-            <Badge variant="outline" className="font-normal text-[10px]">
-              {CATEGORY_LABELS[item.category]}
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="font-normal text-[10px]">
+                {CATEGORY_LABELS[item.category]}
+              </Badge>
+              {item.verified ? (
+                <Badge className="border-primary/30 bg-primary/10 font-normal text-[10px] text-primary">
+                  Doğrulanmış kaynak
+                </Badge>
+              ) : null}
+            </div>
             <CardTitle className="text-base font-semibold leading-snug tracking-tight">
               {item.title}
             </CardTitle>
           </div>
-          {item.isNew && (
+          {item.isNew ? (
             <Badge className="shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
               Yeni
             </Badge>
-          )}
+          ) : null}
         </div>
         <CardDescription className="flex flex-wrap items-center gap-2 text-xs">
           <span>{formatRelativeTime(item.publishedAt)}</span>
@@ -141,6 +154,18 @@ function AnnouncementCard({ item }: { item: RadarAnnouncement }) {
             </Badge>
           ))}
         </div>
+
+        {sourceHref ? (
+          <a
+            href={sourceHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-border/60 bg-muted/20 px-3 text-xs font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5"
+          >
+            <ExternalLink className="size-3.5" strokeWidth={1.75} />
+            Kaynağa git
+          </a>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -424,11 +449,11 @@ export function ImarRadariView() {
                 Askı, plan değişikliği ve parsel duyuruları
               </p>
             </div>
-            {data && (
+            {data ? (
               <p className="font-mono text-xs tracking-[0.14em] uppercase text-muted-foreground">
-                {data.mode === "live" ? "Canlı kaynak" : "Örnek akış"}
+                {data.mode === "live" ? "Doğrulanmış kaynak" : "Kayıt bulunamadı"}
               </p>
-            )}
+            ) : null}
           </div>
 
           {error && (
@@ -444,10 +469,15 @@ export function ImarRadariView() {
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Duyurular taranıyor…</p>
           ) : data && data.announcements.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border px-8 py-16 text-center">
-              <p className="text-sm text-muted-foreground">
-                Seçili bölge ve kelimelere uygun duyuru bulunamadı. Bölge veya
-                anahtar kelime seçimini genişletin.
+            <div className="parsel-surface rounded-2xl border border-dashed border-border px-8 py-16 text-center">
+              <p className="text-sm font-medium text-foreground">
+                Doğrulanmış duyuru bulunamadı
+              </p>
+              <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                {data.analysis.scannedSources
+                  ? `${data.analysis.scannedSources} resmi kaynak tarandı; eşleşen duyuru yok.`
+                  : "Resmi belediye ve kamu sitelerinden eşleşme bulunamadı."}{" "}
+                Bölge veya anahtar kelime seçimini genişletip tekrar tarayın.
               </p>
             </div>
           ) : (

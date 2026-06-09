@@ -1,8 +1,8 @@
 /**
- * .env.local → Vercel Production env sync
- * Kullanım: node --env-file=.env.local scripts/sync-vercel-env.mjs
+ * .env.local + .env.production.local → Vercel Production env sync
+ * Kullanım: node scripts/sync-vercel-env.mjs
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -36,6 +36,7 @@ const KEYS = [
 ];
 
 function parseEnvFile(filePath) {
+  if (!existsSync(filePath)) return {};
   const content = readFileSync(filePath, "utf8");
   const env = {};
 
@@ -58,26 +59,31 @@ function parseEnvFile(filePath) {
   return env;
 }
 
-const envPath = path.join(rootDir, ".env.local");
-const env = { ...parseEnvFile(envPath), ...process.env };
-
-// Production URL override
-if (!env.NEXT_PUBLIC_APP_URL || env.NEXT_PUBLIC_APP_URL.includes("localhost")) {
-  env.NEXT_PUBLIC_APP_URL = "https://parselos.com";
-}
+const env = {
+  ...parseEnvFile(path.join(rootDir, ".env.local")),
+  ...parseEnvFile(path.join(rootDir, ".env.production.local")),
+};
 
 const CLERK_DEFAULTS = {
   NEXT_PUBLIC_CLERK_SIGN_IN_URL: "/sign-in",
   NEXT_PUBLIC_CLERK_SIGN_UP_URL: "/sign-up",
   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: "/dashboard",
   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: "/dashboard",
+  NEXT_PUBLIC_APP_URL: "https://parselos.com",
 };
 
 for (const [key, value] of Object.entries(CLERK_DEFAULTS)) {
   if (!env[key]?.trim()) env[key] = value;
 }
 
-// Vercel serverless: transaction pooler (6543) + pgbouncer
+// Production Clerk keys .env.production.local'den gelmeli
+if (env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith("pk_test_")) {
+  console.error(
+    "✗ Vercel için production Clerk key gerekli (.env.production.local).",
+  );
+  process.exit(1);
+}
+
 if (env.DATABASE_URL?.includes("pooler.supabase.com")) {
   let url = env.DATABASE_URL.replace(":5432/", ":6543/");
   if (!url.includes("pgbouncer=true")) {
@@ -87,7 +93,6 @@ if (env.DATABASE_URL?.includes("pooler.supabase.com")) {
     url += "&connection_limit=1";
   }
   env.DATABASE_URL = url;
-  console.log("ℹ DATABASE_URL → Vercel için transaction pooler (6543) formatına çevrildi");
 }
 
 let synced = 0;
@@ -103,7 +108,7 @@ for (const key of KEYS) {
 
   console.log(`→ ${key}`);
 
-  const remove = spawnSync("npx", ["vercel", "env", "rm", key, "production", "--yes"], {
+  spawnSync("npx", ["vercel", "env", "rm", key, "production", "--yes"], {
     cwd: rootDir,
     stdio: "ignore",
     shell: true,
@@ -129,4 +134,11 @@ for (const key of KEYS) {
 }
 
 console.log(`\n✓ ${synced} değişken Vercel Production'a aktarıldı (${skipped} atlandı).`);
-console.log("Şimdi: npx vercel --prod");
+if (!env.CLERK_WEBHOOK_SIGNING_SECRET) {
+  console.log(
+    "\n⚠ CLERK_WEBHOOK_SIGNING_SECRET eksik — Clerk Dashboard → Webhooks →\n" +
+      "  URL: https://parselos.com/api/webhooks/clerk\n" +
+      "  Events: user.created, user.updated, session.created\n" +
+      "  Sonra whsec_... değerini .env.production.local'e ekleyip scripti tekrar çalıştır.",
+  );
+}
