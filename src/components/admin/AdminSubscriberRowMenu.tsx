@@ -5,11 +5,11 @@ import { MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import type { AdminSubscriberRecord } from "@/lib/admin/mock-subscribers";
+import type { LiveAdminSubscriber } from "@/lib/admin/live-data";
 import { cn } from "@/lib/utils";
 
 type AdminSubscriberRowMenuProps = {
-  subscriber: AdminSubscriberRecord;
+  subscriber: Pick<LiveAdminSubscriber, "id" | "name" | "email" | "plan">;
 };
 
 const MENU_ITEMS = [
@@ -39,7 +39,10 @@ const MENU_ITEMS = [
   },
 ];
 
-function handleAction(subscriber: AdminSubscriberRecord, actionId: string) {
+function handleAction(
+  subscriber: AdminSubscriberRowMenuProps["subscriber"],
+  actionId: string,
+) {
   switch (actionId) {
     case "plan":
       toast.message("Lisans güncelleme", {

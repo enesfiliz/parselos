@@ -583,6 +583,139 @@
   animation-delay: -3s;
 }
 
+.landing-parcel-field {
+  background-image:
+    linear-gradient(rgba(84, 114, 54, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(84, 114, 54, 0.12) 1px, transparent 1px),
+    radial-gradient(circle at 20% 30%, rgba(179, 140, 86, 0.18), transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(84, 114, 54, 0.2), transparent 40%);
+  background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%;
+  animation: landing-parcel-drift 18s ease-in-out infinite;
+}
+
+.landing-hero-mesh {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(77, 107, 53, 0.18), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(179, 140, 86, 0.12), transparent 50%),
+    radial-gradient(ellipse 70% 45% at 50% 100%, rgba(84, 114, 54, 0.1), transparent 55%);
+}
+
+.landing-hero-parcel-grid {
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 75%);
+}
+
+.landing-hero-gradient-text {
+  background: linear-gradient(135deg, #d4a574 0%, #b38c56 45%, #8fb86a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.landing-hero-stage {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  animation: landing-hero-stage-float 8s ease-in-out infinite;
+}
+
+.landing-hero-glow {
+  animation: landing-hero-glow-pulse 6s ease-in-out infinite;
+}
+
+.landing-hero-orbit {
+  animation: landing-hero-orbit-spin 48s linear infinite;
+}
+
+.landing-hero-orbit-reverse {
+  animation: landing-hero-orbit-spin 64s linear infinite reverse;
+}
+
+.landing-hero-scan {
+  animation: landing-hero-scan-sweep 5s ease-in-out infinite;
+}
+
+.landing-hero-float-card {
+  animation: landing-hero-card-float 5.5s ease-in-out infinite;
+}
+
+.landing-hero-parcel-dot {
+  animation: landing-hero-dot-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes landing-parcel-drift {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.03) translateY(-6px);
+  }
+}
+
+@keyframes landing-hero-stage-float {
+  0%,
+  100% {
+    transform: translateY(0) rotateX(2deg) rotateY(-3deg);
+  }
+  50% {
+    transform: translateY(-12px) rotateX(3deg) rotateY(-2deg);
+  }
+}
+
+@keyframes landing-hero-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes landing-hero-orbit-spin {
+  from {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateX(-50%) rotate(360deg);
+  }
+}
+
+@keyframes landing-hero-scan-sweep {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: translateY(-100%);
+  }
+  50% {
+    opacity: 0.45;
+    transform: translateY(280%);
+  }
+}
+
+@keyframes landing-hero-card-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes landing-hero-dot-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-doc-scan-line,
   .landing-dashboard-float,
@@ -597,6 +730,14 @@
   .landing-match-line,
   .landing-aurora-blob,
   .landing-aurora-blob-gold,
+  .landing-parcel-field,
+  .landing-hero-stage,
+  .landing-hero-glow,
+  .landing-hero-orbit,
+  .landing-hero-orbit-reverse,
+  .landing-hero-scan,
+  .landing-hero-float-card,
+  .landing-hero-parcel-dot,
   .landing-capsule-float,
   .landing-capsule-float-2,
   .landing-capsule-float-3 {

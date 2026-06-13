@@ -1,30 +1,28 @@
 import {
   Building2,
   Check,
-  CheckCircle,
   ClipboardCheck,
   FileScan,
   PenLine,
   Radar,
   ScanText,
   Target,
-  TrendingUp,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
 import { PaymentBadges } from "@/components/marketing/PaymentBadges";
+import { HeroShowcase } from "@/components/marketing/HeroShowcase";
 
 import {
   LandingCtaAuth,
-  LandingHeroAuthActions,
   LandingNavAuth,
   SignUpShineButton,
 } from "@/components/marketing/LandingAuthButtons";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
-import { RevealOnMount, RevealOnScroll } from "@/components/marketing/landing-motion";
+import { RevealOnScroll } from "@/components/marketing/landing-motion";
 import { formatOfficePricingNote } from "@/lib/billing/plan-catalog";
 import { LANDING_PRICING_PLANS } from "@/lib/billing/plan-catalog";
 import { cn } from "@/lib/utils";
@@ -88,94 +86,6 @@ const FEATURE_CARDS: {
   },
 ];
 
-const HERO_LIVE_FEED = [
-  {
-    id: "imar",
-    icon: Radar,
-    iconColor: "text-parsel-gold",
-    iconBg: "bg-parsel-gold/10 border-[#b38c56]/20",
-    content: (
-      <>
-        İmar Radarı:{" "}
-        <strong className="font-medium text-foreground">
-          Oluklu Köyü 126 Ada 58 Parsel
-        </strong>{" "}
-        güncellendi.
-      </>
-    ),
-  },
-  {
-    id: "fsbo",
-    icon: CheckCircle,
-    iconColor: "text-[#6b8f4a]",
-    iconBg: "bg-[#4d6b35]/15 border-[#4d6b35]/25",
-    content: (
-      <>
-        Yeni FSBO Eşleşmesi:{" "}
-        <strong className="font-medium text-foreground">Konut (Bütçe: 6M ₺)</strong>
-      </>
-    ),
-  },
-  {
-    id: "portfolio",
-    icon: TrendingUp,
-    iconColor: "text-muted-foreground",
-    iconBg: "bg-white/[0.04] border-border",
-    content: (
-      <>
-        Portföy Analizi:{" "}
-        <strong className="font-medium text-foreground">+14% Değer Artışı</strong>
-      </>
-    ),
-  },
-] as const;
-
-const HERO_STATS = [
-  { value: "2", label: "ücretsiz portföy" },
-  { value: "₺549", label: "danışman / ay" },
-  { value: "5+", label: "danışman dahil ofis" },
-] as const;
-
-function HeroProductPanel() {
-  return (
-    <RevealOnMount delay={200} className="w-full lg:pt-2">
-      <div className="parsel-surface relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-card to-parsel-sunken/80 p-6 shadow-parsel-lg sm:p-8">
-        <div className="mb-6 flex items-center justify-between gap-3 border-b border-border/40 pb-4">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-parsel-gold">
-              Komuta merkezi
-            </p>
-            <p className="font-outfit text-lg font-bold text-foreground">
-              Tek panelde operasyon
-            </p>
-          </div>
-          <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[10px] font-semibold text-primary">
-            Canlı
-          </span>
-        </div>
-        <ul className="space-y-3">
-          {HERO_LIVE_FEED.map((item) => (
-            <li
-              key={item.id}
-              className="flex items-center gap-3 rounded-xl border border-border/50 bg-background/60 px-4 py-3"
-            >
-              <span
-                className={cn(
-                  "flex size-9 shrink-0 items-center justify-center rounded-lg border",
-                  item.iconBg,
-                )}
-              >
-                <item.icon className={cn("size-4", item.iconColor)} strokeWidth={1.75} />
-              </span>
-              <p className="text-sm leading-snug text-muted-foreground">{item.content}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </RevealOnMount>
-  );
-}
-
 const WORKFLOW_STEPS = [
   {
     step: "01",
@@ -224,66 +134,6 @@ function WorkflowSection() {
             </article>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-function HeroSection() {
-  return (
-    <section className="relative isolate min-h-[88vh] overflow-hidden bg-background pb-20 pt-28 lg:pb-28 lg:pt-36">
-      <div className="pointer-events-none absolute top-0 left-1/2 -z-10 h-[400px] w-[80%] max-w-4xl -translate-x-1/2 bg-gradient-to-b from-[#4d6b35]/20 to-transparent blur-[120px]" />
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
-        <div className="absolute -left-32 -top-40 size-[min(560px,70vw)] rounded-full bg-[#4d6b35]/15 blur-[100px]" />
-        <div className="absolute -bottom-48 -right-24 size-[min(520px,65vw)] rounded-full bg-parsel-gold/10 blur-[100px]" />
-        <div className="absolute left-1/2 top-0 h-px w-[min(640px,90vw)] -translate-x-1/2 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
-      </div>
-
-      <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-6 lg:min-h-[calc(90vh-10rem)] lg:grid-cols-2">
-        <div className="flex flex-col items-start text-left">
-          <RevealOnMount delay={0}>
-            <span className="inline-flex items-center rounded-full border border-border/60 bg-white/[0.03] px-4 py-1.5 text-xs font-medium tracking-wide text-muted-foreground">
-              ParselOS · Gayrimenkul Operasyon Platformu
-            </span>
-          </RevealOnMount>
-
-          <RevealOnMount delay={80}>
-            <h1 className="font-outfit mt-6 text-[2.75rem] font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-[3.5rem] xl:text-[4rem]">
-              Sahada çalışan
-              <br />
-              <span className="text-parsel-gold">gayrimenkul</span> platformu
-            </h1>
-          </RevealOnMount>
-
-          <RevealOnMount delay={160}>
-            <p className="mt-6 max-w-xl text-base font-medium leading-relaxed text-muted-foreground sm:text-lg">
-              Portföy vitrini, FSBO radarı, tapu AI, ekspertiz ve ekip yönetimi -
-              tek panelde. Başlangıç paketi sınırlı ve ücretsiz; profesyonel kullanımda
-              danışman veya ofis lisansı.
-            </p>
-          </RevealOnMount>
-
-          <RevealOnMount delay={200}>
-            <dl className="mt-8 flex flex-wrap gap-6 sm:gap-10">
-              {HERO_STATS.map((stat) => (
-                <div key={stat.label}>
-                  <dt className="font-outfit text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                    {stat.value}
-                  </dt>
-                  <dd className="mt-0.5 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {stat.label}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </RevealOnMount>
-
-          <RevealOnMount delay={240}>
-            <LandingHeroAuthActions align="start" />
-          </RevealOnMount>
-        </div>
-
-        <HeroProductPanel />
       </div>
     </section>
   );
@@ -520,13 +370,25 @@ function FeatureCard({
   );
 }
 
+function FeaturesParcelBackground() {
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      <div className="landing-parcel-field absolute inset-0 opacity-[0.35]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background/80" />
+      <div className="landing-aurora-blob absolute -left-24 top-1/4 size-72 rounded-full bg-[#4d6b35]/25 blur-[90px]" />
+      <div className="landing-aurora-blob-gold absolute -right-16 bottom-1/4 size-64 rounded-full bg-parsel-gold/15 blur-[80px]" />
+    </div>
+  );
+}
+
 function FeaturesSection() {
   return (
     <section
       id="features"
-      className="relative scroll-mt-28 px-8 py-24 lg:px-12 lg:py-32"
+      className="relative scroll-mt-28 overflow-hidden px-8 py-24 lg:px-12 lg:py-32"
     >
-      <div className="mx-auto max-w-[1400px]">
+      <FeaturesParcelBackground />
+      <div className="relative z-10 mx-auto max-w-[1400px]">
         <RevealOnScroll>
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#547236]/90">
@@ -713,7 +575,7 @@ export function LandingPage() {
         </div>
       </header>
 
-      <HeroSection />
+      <HeroShowcase />
 
       <WorkflowSection />
       <FeaturesSection />
@@ -721,14 +583,25 @@ export function LandingPage() {
 
       <section className="px-8 pb-20 lg:px-12 lg:pb-28">
         <RevealOnScroll>
-          <div className="mx-auto max-w-[1400px] rounded-[2rem] border border-border/50 bg-white/[0.02] px-10 py-16 text-center lg:py-20">
-            <h3 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              Portföyünüzü bir üst seviyeye taşıyın
-            </h3>
-            <p className="mx-auto mt-4 max-w-md text-base font-normal text-muted-foreground">
-              Dakikalar içinde hesap oluşturun; ilk ekspertiz raporunuzu üretin.
-            </p>
-            <LandingCtaAuth />
+          <div className="relative mx-auto max-w-3xl overflow-hidden rounded-3xl border border-border/50 bg-gradient-to-b from-card to-parsel-sunken/50 px-8 py-14 text-center shadow-parsel-lg sm:px-12 sm:py-16">
+            <div className="pointer-events-none absolute inset-0 opacity-30" aria-hidden>
+              <div className="landing-parcel-field absolute inset-0" />
+            </div>
+            <div className="relative">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#547236]/90">
+                Hemen başlayın
+              </p>
+              <h3 className="font-outfit mx-auto mt-4 max-w-xl text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                Portföyünüzü bir üst seviyeye taşıyın
+              </h3>
+              <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-muted-foreground">
+                Dakikalar içinde hesap oluşturun; ilk ekspertiz raporunuzu üretin ve
+                ekibinizi aynı panelde toplayın.
+              </p>
+              <div className="mt-8 flex justify-center">
+                <LandingCtaAuth />
+              </div>
+            </div>
           </div>
         </RevealOnScroll>
       </section>

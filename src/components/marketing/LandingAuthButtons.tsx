@@ -69,10 +69,10 @@ function LoadedNavActions() {
 }
 
 export const HERO_GOLD_BUTTON_CLASS =
-  "inline-flex h-12 items-center justify-center rounded-xl bg-parsel-gold px-8 font-outfit text-sm font-semibold text-zinc-950 shadow-sm transition-colors hover:bg-[#c5a36e]";
+  "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-parsel-gold px-8 font-outfit text-sm font-semibold text-zinc-950 shadow-sm transition-colors hover:bg-[#c5a36e]";
 
 const HERO_DEMO_BUTTON_CLASS =
-  "inline-flex items-center justify-center rounded-xl border border-border bg-foreground/5 px-8 py-4 font-outfit text-sm font-medium text-foreground backdrop-blur-xl transition-all hover:bg-foreground/10 hover:text-foreground";
+  "inline-flex h-12 items-center justify-center rounded-xl border border-border bg-foreground/5 px-8 font-outfit text-sm font-medium text-foreground backdrop-blur-xl transition-all hover:bg-foreground/10 hover:text-foreground";
 
 function LoadedHeroActions({ align }: { align: "center" | "start" }) {
   const { isSignedIn } = useAuth();
@@ -117,14 +117,14 @@ function LoadedCtaAction() {
 
   if (isSignedIn) {
     return (
-      <Link href="/dashboard" className={cn(PANEL_BUTTON_CLASS, "mt-12 px-10")}>
+      <Link href="/dashboard" className={cn(PANEL_BUTTON_CLASS, "mt-0 px-10")}>
         Panele Git
       </Link>
     );
   }
 
   return (
-    <SignUpShineButton className="mt-12 px-12">Ücretsiz Başla</SignUpShineButton>
+    <SignUpShineButton className="mt-0 px-12">Ücretsiz Başla</SignUpShineButton>
   );
 }
 

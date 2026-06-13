@@ -6,16 +6,14 @@ import { toast } from "sonner";
 
 import { AdminSubscriberRowMenu } from "@/components/admin/AdminSubscriberRowMenu";
 import { Button } from "@/components/ui/button";
-import {
-  ADMIN_SUBSCRIBER_RECORDS,
-  formatTokenCount,
-  type AdminSubscriberRecord,
-  type SubscriberPlanFilter,
-} from "@/lib/admin/mock-subscribers";
+import type { LiveAdminSubscriber } from "@/lib/admin/live-data";
 import { cn } from "@/lib/utils";
+
+type SubscriberPlanFilter = "all" | "Pro" | "Premium" | "Free" | "suspended";
 
 const PLAN_FILTERS: Array<{ id: SubscriberPlanFilter; label: string }> = [
   { id: "all", label: "Tümü" },
+  { id: "Free", label: "Ücretsiz" },
   { id: "Pro", label: "Pro" },
   { id: "Premium", label: "Premium" },
   { id: "suspended", label: "Askıya Alınanlar" },
@@ -29,7 +27,7 @@ function initialsFromName(name: string) {
     .join("");
 }
 
-function planBadgeClass(plan: AdminSubscriberRecord["plan"]) {
+function planBadgeClass(plan: LiveAdminSubscriber["plan"]) {
   switch (plan) {
     case "Premium":
       return "border-emerald-400/35 bg-gradient-to-r from-emerald-500/15 to-[#b38c56]/10 text-emerald-200 shadow-[0_0_18px_rgba(52,211,153,0.12)]";
@@ -40,7 +38,7 @@ function planBadgeClass(plan: AdminSubscriberRecord["plan"]) {
   }
 }
 
-function statusMeta(status: AdminSubscriberRecord["status"]) {
+function statusMeta(status: LiveAdminSubscriber["status"]) {
   switch (status) {
     case "active":
       return { label: "Aktif", dot: "bg-emerald-400", text: "text-emerald-300" };
@@ -53,7 +51,7 @@ function statusMeta(status: AdminSubscriberRecord["status"]) {
   }
 }
 
-function exportSubscribersCsv(rows: AdminSubscriberRecord[]) {
+function exportSubscribersCsv(rows: LiveAdminSubscriber[]) {
   const header = [
     "Ofis",
     "E-posta",
@@ -90,14 +88,18 @@ function exportSubscribersCsv(rows: AdminSubscriberRecord[]) {
   URL.revokeObjectURL(url);
 }
 
-export function AdminSubscribersView() {
+export function AdminSubscribersView({
+  initialRows,
+}: {
+  initialRows: LiveAdminSubscriber[];
+}) {
   const [query, setQuery] = useState("");
   const [planFilter, setPlanFilter] = useState<SubscriberPlanFilter>("all");
 
   const filteredRows = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return ADMIN_SUBSCRIBER_RECORDS.filter((row) => {
+    return initialRows.filter((row) => {
       const matchesQuery =
         !normalizedQuery ||
         row.name.toLowerCase().includes(normalizedQuery) ||
@@ -111,7 +113,7 @@ export function AdminSubscribersView() {
 
       return matchesQuery && matchesPlan;
     });
-  }, [planFilter, query]);
+  }, [initialRows, planFilter, query]);
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">
@@ -208,6 +210,7 @@ export function AdminSubscribersView() {
                           </p>
                           <p className="truncate text-xs text-muted-foreground">
                             {row.email}
+                            {row.tenantName ? ` · ${row.tenantName}` : ""}
                           </p>
                         </div>
                       </div>
@@ -224,10 +227,11 @@ export function AdminSubscribersView() {
                     </td>
                     <td className="px-4 py-4">
                       <p className="text-sm text-foreground">
-                        {formatTokenCount(row.aiTokensUsed)} token
+                        {row.dealCount} aktif fırsat
                       </p>
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        {row.dealCount} aktif fırsat
+                        {row.city ?? "Şehir belirtilmemiş"}
+                        {row.memberCount > 0 ? ` · ${row.memberCount} üye` : ""}
                       </p>
                     </td>
                     <td className="px-4 py-4">

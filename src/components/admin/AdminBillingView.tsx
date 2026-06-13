@@ -15,7 +15,46 @@ import {
   ADMIN_BILLING_METRICS,
   type AdminBillingSubscriber,
 } from "@/lib/admin/mock-billing";
+import type { LiveAdminSubscriber } from "@/lib/admin/live-data";
 import { cn } from "@/lib/utils";
+
+function mapLiveToBilling(rows: LiveAdminSubscriber[]): AdminBillingSubscriber[] {
+  const paid = rows.filter((row) => row.plan !== "Free");
+  if (paid.length === 0) return ADMIN_ACTIVE_BILLING_SUBSCRIBERS;
+
+  return paid.map((row) => ({
+    id: row.id,
+    name: row.tenantName ?? row.name,
+    email: row.email,
+    plan: row.plan,
+    startDate: "—",
+    nextPaymentDate: row.status === "active" ? "Aktif döngü" : "—",
+    status:
+      row.status === "suspended"
+        ? "pending"
+        : row.status === "blocked"
+          ? "cancelled"
+          : "active",
+    mrrTL: row.plan === "Premium" ? 5490 : row.plan === "Pro" ? 549 : 0,
+  }));
+}
+
+function buildBillingMetrics(rows: LiveAdminSubscriber[]) {
+  const paid = rows.filter((row) => row.plan !== "Free" && row.status === "active");
+  const mrr = paid.reduce(
+    (sum, row) => sum + (row.plan === "Premium" ? 5490 : row.plan === "Pro" ? 549 : 0),
+    0,
+  );
+
+  if (mrr === 0) return ADMIN_BILLING_METRICS;
+
+  return {
+    ...ADMIN_BILLING_METRICS,
+    monthlyRevenue: `₺${mrr.toLocaleString("tr-TR")}`,
+    monthlyRevenueChange: `${paid.length} aktif ücretli üye`,
+    pendingCount: rows.filter((row) => row.status === "suspended").length,
+  };
+}
 
 function planBadgeClass(plan: AdminBillingSubscriber["plan"]) {
   switch (plan) {
@@ -39,9 +78,15 @@ function statusMeta(status: AdminBillingSubscriber["status"]) {
   }
 }
 
-export function AdminBillingView() {
+export function AdminBillingView({
+  initialRows,
+}: {
+  initialRows: LiveAdminSubscriber[];
+}) {
   const [query, setQuery] = useState("");
-  const [subscribers, setSubscribers] = useState(ADMIN_ACTIVE_BILLING_SUBSCRIBERS);
+  const [subscribers, setSubscribers] = useState(() =>
+    mapLiveToBilling(initialRows),
+  );
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -79,7 +124,7 @@ export function AdminBillingView() {
     );
   }
 
-  const metrics = ADMIN_BILLING_METRICS;
+  const metrics = buildBillingMetrics(initialRows);
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">

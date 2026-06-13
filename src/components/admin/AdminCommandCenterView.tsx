@@ -1,16 +1,13 @@
 import { Activity, ArrowUpRight, Users } from "lucide-react";
 
 import { AdminSparkline } from "@/components/admin/AdminSparkline";
-import {
-  ADMIN_AI_LOGS,
-  ADMIN_METRICS,
-  ADMIN_SUBSCRIBERS,
-  type AdminAiLogRow,
-  type AdminSubscriberRow,
-} from "@/lib/admin/mock-saas-metrics";
+import type {
+  LiveAdminMetrics,
+  LiveAdminRecentAgent,
+} from "@/lib/admin/live-data";
 import { cn } from "@/lib/utils";
 
-function planBadgeClass(plan: AdminSubscriberRow["plan"]) {
+function planBadgeClass(plan: LiveAdminRecentAgent["plan"]) {
   switch (plan) {
     case "Premium":
       return "border-emerald-500/25 bg-emerald-500/10 text-emerald-300";
@@ -21,7 +18,7 @@ function planBadgeClass(plan: AdminSubscriberRow["plan"]) {
   }
 }
 
-function eventBadgeClass(event: AdminSubscriberRow["event"]) {
+function eventBadgeClass(event: LiveAdminRecentAgent["event"]) {
   switch (event) {
     case "Yükseltme":
       return "text-emerald-400";
@@ -32,18 +29,84 @@ function eventBadgeClass(event: AdminSubscriberRow["event"]) {
   }
 }
 
-function logStatusClass(status: AdminAiLogRow["status"]) {
-  switch (status) {
-    case "success":
-      return "bg-emerald-500";
-    case "pending":
-      return "bg-amber-400";
-    default:
-      return "bg-red-400";
-  }
+function buildMetricCards(metrics: LiveAdminMetrics) {
+  return [
+    {
+      id: "agents",
+      label: "Toplam Danışman",
+      value: metrics.totalAgents.toLocaleString("tr-TR"),
+      change: `${metrics.activeAgents7d} aktif (7g)`,
+      changePositive: metrics.activeAgents7d > 0,
+      sparkline: [metrics.totalAgents, metrics.activeAgents7d, metrics.totalAgents],
+    },
+    {
+      id: "tenants",
+      label: "Ofis / Kiracı",
+      value: metrics.totalTenants.toLocaleString("tr-TR"),
+      change: `${metrics.paidTenants} ücretli paket`,
+      changePositive: metrics.paidTenants > 0,
+      sparkline: [metrics.totalTenants, metrics.paidTenants, metrics.totalTenants],
+    },
+    {
+      id: "deals",
+      label: "Aktif Fırsat",
+      value: metrics.totalDeals.toLocaleString("tr-TR"),
+      change: "CRM kanban kayıtları",
+      changePositive: true,
+      sparkline: [metrics.totalDeals, metrics.totalProperties, metrics.totalDeals],
+    },
+    {
+      id: "fsbo",
+      label: "FSBO Lead",
+      value: metrics.fsboLeads.toLocaleString("tr-TR"),
+      change: "Radar havuzu",
+      changePositive: metrics.fsboLeads > 0,
+      sparkline: [metrics.fsboLeads, metrics.fsboLeads, metrics.fsboLeads],
+    },
+  ];
 }
 
-export function AdminCommandCenterView() {
+function buildActivityLogs(metrics: LiveAdminMetrics, recent: LiveAdminRecentAgent[]) {
+  const logs = recent.map((agent) => ({
+    id: agent.id,
+    actor: agent.name,
+    action:
+      agent.event === "Kayıt"
+        ? "yeni hesap oluşturdu"
+        : agent.event === "Yükseltme"
+          ? `${agent.plan} pakete geçti`
+          : "panele giriş yaptı",
+    timestamp: agent.whenLabel,
+    status: "success" as const,
+  }));
+
+  if (logs.length === 0) {
+    return [
+      {
+        id: "empty",
+        actor: "Sistem",
+        action: `${metrics.totalAgents} danışman kayıtlı — henüz son aktivite yok`,
+        timestamp: "Canlı veri",
+        status: "pending" as const,
+      },
+    ];
+  }
+
+  return logs;
+}
+
+type AdminCommandCenterViewProps = {
+  metrics: LiveAdminMetrics;
+  recent: LiveAdminRecentAgent[];
+};
+
+export function AdminCommandCenterView({
+  metrics,
+  recent,
+}: AdminCommandCenterViewProps) {
+  const metricCards = buildMetricCards(metrics);
+  const activityLogs = buildActivityLogs(metrics, recent);
+
   return (
     <div className="mx-auto max-w-[1600px] space-y-8">
       <header className="space-y-2">
@@ -56,7 +119,7 @@ export function AdminCommandCenterView() {
               Komuta Merkezi
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              ParselOS SaaS Genel Bakış
+              ParselOS SaaS — canlı veritabanı özeti
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-emerald-500/15 bg-emerald-500/5 px-3 py-1.5 text-xs text-emerald-300/90">
@@ -64,13 +127,13 @@ export function AdminCommandCenterView() {
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-40" />
               <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
             </span>
-            Canlı sistem izleme aktif
+            Canlı PostgreSQL
           </div>
         </div>
       </header>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {ADMIN_METRICS.map((metric) => (
+        {metricCards.map((metric) => (
           <article
             key={metric.id}
             className="rounded-2xl border border-emerald-500/10 bg-parsel-elevated p-5 shadow-[0_0_40px_rgba(0,0,0,0.35)]"
@@ -103,10 +166,10 @@ export function AdminCommandCenterView() {
               <Users className="size-4 text-emerald-400" strokeWidth={1.75} />
               <div>
                 <h2 className="text-sm font-semibold text-foreground">
-                  Aktif Aboneler
+                  Son Üyeler
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Son kayıt ve paket yükseltmeleri
+                  Kayıt ve paket hareketleri
                 </p>
               </div>
             </div>
@@ -117,14 +180,14 @@ export function AdminCommandCenterView() {
             <table className="w-full min-w-[320px] text-left text-sm">
               <thead className="sticky top-0 bg-parsel-elevated text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
                 <tr className="border-b border-border/40">
-                  <th className="px-5 py-3 font-medium md:px-6">Ofis / Danışman</th>
+                  <th className="px-5 py-3 font-medium md:px-6">Danışman</th>
                   <th className="px-3 py-3 font-medium">Paket</th>
-                  <th className="px-3 py-3 font-medium">Durum</th>
-                  <th className="px-5 py-3 font-medium md:px-6">Son Giriş</th>
+                  <th className="px-3 py-3 font-medium">Olay</th>
+                  <th className="px-5 py-3 font-medium md:px-6">Zaman</th>
                 </tr>
               </thead>
               <tbody>
-                {ADMIN_SUBSCRIBERS.map((row) => (
+                {recent.map((row) => (
                   <tr
                     key={row.id}
                     className="border-b border-white/[0.03] transition-colors hover:bg-emerald-500/[0.03]"
@@ -151,7 +214,7 @@ export function AdminCommandCenterView() {
                       {row.event}
                     </td>
                     <td className="px-5 py-3.5 text-muted-foreground md:px-6">
-                      {row.lastLogin}
+                      {row.whenLabel}
                     </td>
                   </tr>
                 ))}
@@ -166,10 +229,10 @@ export function AdminCommandCenterView() {
               <Activity className="size-4 text-emerald-400" strokeWidth={1.75} />
               <div>
                 <h2 className="text-sm font-semibold text-foreground">
-                  Parsel AI Canlı Akış
+                  Platform Aktivitesi
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Son araç çağrıları ve oturum olayları
+                  Son kullanıcı olayları
                 </p>
               </div>
             </div>
@@ -179,7 +242,7 @@ export function AdminCommandCenterView() {
           </div>
 
           <ul className="custom-scrollbar max-h-[420px] divide-y divide-white/[0.04] overflow-y-auto">
-            {ADMIN_AI_LOGS.map((log) => (
+            {activityLogs.map((log) => (
               <li
                 key={log.id}
                 className="flex gap-3 px-5 py-4 transition-colors hover:bg-emerald-500/[0.03] md:px-6"
@@ -187,7 +250,11 @@ export function AdminCommandCenterView() {
                 <span
                   className={cn(
                     "mt-1.5 size-2 shrink-0 rounded-full",
-                    logStatusClass(log.status),
+                    log.status === "success"
+                      ? "bg-emerald-500"
+                      : log.status === "pending"
+                        ? "bg-amber-400"
+                        : "bg-red-400",
                   )}
                   aria-hidden
                 />

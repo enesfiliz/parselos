@@ -7,7 +7,7 @@ import {
   isToolUIPart,
   type UIMessage,
 } from "ai";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Sparkles, X } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -41,6 +41,46 @@ function getMessageText(message: UIMessage): string {
     .filter((part) => part.type === "text")
     .map((part) => part.text)
     .join("");
+}
+
+function CopilotEmptyState({
+  onPick,
+  disabled,
+}: {
+  onPick: (prompt: string) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="mx-auto flex max-w-2xl flex-col items-center py-8 text-center">
+      <div className="relative mb-6 flex size-16 items-center justify-center rounded-2xl border border-[#b38c56]/30 bg-[#b38c56]/10">
+        <Sparkles className="size-7 text-[#b38c56]" strokeWidth={1.5} />
+        <span className="absolute -inset-1 rounded-2xl bg-[#b38c56]/10 blur-xl" aria-hidden />
+      </div>
+      <h2 className="font-outfit text-xl font-semibold text-foreground">
+        Parsel AI
+      </h2>
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+        Portföy, ilan, tapu ve randevu süreçleriniz için bağlama duyarlı asistan.
+        Aşağıdan bir görev seçin veya doğrudan sorun.
+      </p>
+      <div className="mt-8 grid w-full gap-2 sm:grid-cols-2">
+        {COPILOT_QUICK_PROMPTS.slice(0, 4).map((chip) => (
+          <button
+            key={chip.label}
+            type="button"
+            disabled={disabled}
+            onClick={() => onPick(chip.prompt)}
+            className="rounded-xl border border-border/60 bg-[#111]/60 px-4 py-3 text-left text-sm text-foreground/90 transition-colors hover:border-[#b38c56]/35 hover:bg-[#b38c56]/5 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <span className="block text-[10px] font-medium uppercase tracking-wider text-[#b38c56]/80">
+              Öneri
+            </span>
+            <span className="mt-1 block">{chip.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function ParselAiActivityIndicator() {
@@ -219,16 +259,31 @@ export function ParselCopilotPanel({ onClose }: ParselCopilotPanelProps) {
         role="dialog"
         aria-label="Parsel AI Workspace"
         aria-modal="true"
-        className="relative flex h-[90vh] w-[95%] max-w-5xl flex-col overflow-hidden rounded-2xl border border-border bg-parsel-admin shadow-[0_0_80px_rgba(0,0,0,0.8)]"
+        className="relative flex h-[90vh] w-[95%] max-w-5xl flex-col overflow-hidden rounded-2xl border border-border/80 bg-parsel-admin shadow-[0_0_80px_rgba(0,0,0,0.8)] ring-1 ring-[#b38c56]/20"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="shrink-0 border-t-2 border-[#b38c56]" aria-hidden />
 
-        <header className="flex shrink-0 items-center gap-2.5 border-b border-border/40 px-6 py-4">
-          <ParselAiGlyph size="md" />
-          <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-            Parsel AI Workspace
-          </span>
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border/40 px-6 py-4">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <ParselAiGlyph size="md" />
+            <div className="min-w-0">
+              <span className="block text-sm font-semibold text-foreground">
+                Parsel AI
+              </span>
+              <span className="block truncate text-[11px] text-muted-foreground">
+                Operasyon asistanı · bağlama duyarlı
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/60 text-muted-foreground transition-colors hover:border-white/20 hover:bg-white/5 hover:text-foreground"
+            aria-label="Parsel AI kapat"
+          >
+            <X className="size-4" strokeWidth={2} />
+          </button>
         </header>
 
         <div
@@ -236,9 +291,9 @@ export function ParselCopilotPanel({ onClose }: ParselCopilotPanelProps) {
           className="custom-scrollbar flex-1 overflow-y-auto px-6 py-6 md:px-8 md:py-8"
         >
           {messages.length === 0 && !isLoading ? (
-            <AssistantMessage
-              text="Randevu, portföy, ilan ve tapu süreçlerinde yardımcı olabilirim."
-              toolParts={[]}
+            <CopilotEmptyState
+              disabled={isLoading}
+              onPick={(prompt) => void submitText(prompt)}
             />
           ) : null}
 

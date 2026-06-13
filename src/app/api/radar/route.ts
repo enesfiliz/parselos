@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { unstable_cache } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { buildScrapeTargetsForRegion } from "@/lib/radar/scrape-targets";
@@ -218,28 +219,33 @@ async function scrapeAnnouncements(
   const seenUrls = new Set<string>();
   let scannedSources = 0;
 
-  for (const url of targets) {
-    try {
+  const batches = await Promise.allSettled(
+    targets.map(async (url) => {
       const content = await fetchPageContent(url);
-      if (!content) continue;
+      if (!content) return { url, batch: [] as RadarAnnouncement[] };
 
-      scannedSources += 1;
-
-      const isMarkdown = !content.includes("<html") && !content.includes("<body");
+      const isMarkdown =
+        !content.includes("<html") && !content.includes("<body");
       const batch = isMarkdown
         ? parseMarkdownLinks(content, url, region, keywords)
         : parseHtmlAnnouncements(content, url, region, keywords);
 
-      for (const item of batch) {
-        if (seenUrls.has(item.sourceUrl)) continue;
-        seenUrls.add(item.sourceUrl);
-        merged.push(item);
-      }
+      return { url, batch };
+    }),
+  );
 
-      if (merged.length >= 12) break;
-    } catch {
-      continue;
+  for (const result of batches) {
+    if (result.status !== "fulfilled" || result.value.batch.length === 0) continue;
+
+    scannedSources += 1;
+
+    for (const item of result.value.batch) {
+      if (seenUrls.has(item.sourceUrl)) continue;
+      seenUrls.add(item.sourceUrl);
+      merged.push(item);
     }
+
+    if (merged.length >= 12) break;
   }
 
   return { announcements: merged.slice(0, 12), scannedSources };
@@ -257,10 +263,14 @@ export async function GET(request: Request) {
           .filter(Boolean)
       : [...DEFAULT_KEYWORDS];
 
-    const { announcements, scannedSources } = await scrapeAnnouncements(
-      region,
-      keywords,
+    const cacheKey = `${region}:${keywords.join(",")}`;
+    const scrapeCached = unstable_cache(
+      () => scrapeAnnouncements(region, keywords),
+      ["imar-radar", cacheKey],
+      { revalidate: 300 },
     );
+
+    const { announcements, scannedSources } = await scrapeCached();
     const analysis = buildAnalysis(region, keywords, announcements, scannedSources);
 
     return NextResponse.json({

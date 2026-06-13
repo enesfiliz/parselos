@@ -1,11 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-import { AdminShell } from "@/components/admin/AdminShell";
-
 export const dynamic = "force-dynamic";
 
-export default async function AdminLayout({
+export default async function AdminRootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -16,5 +14,7 @@ export default async function AdminLayout({
     redirect("/login?redirect_url=/admin");
   }
 
-  return <AdminShell>{children}</AdminShell>;
+  return (
+    <div className="min-h-screen bg-parsel-admin text-foreground">{children}</div>
+  );
 }

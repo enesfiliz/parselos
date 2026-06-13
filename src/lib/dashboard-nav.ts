@@ -10,7 +10,6 @@ import {
   PenTool,
   ScanLine,
   Radar,
-  Radio,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -46,7 +45,6 @@ export const dashboardNavGroups: DashboardNavGroup[] = [
     items: [
       { label: "FSBO Radarı", href: "/fsbo-radar", icon: ScanLine },
       { label: "İmar Radarı", href: "/imar-radari", icon: Radar },
-      { label: "İstihbarat Haritası", href: "/radar", icon: Radio },
     ],
   },
   {
