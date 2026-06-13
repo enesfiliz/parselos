@@ -1,8 +1,18 @@
 "use client";
 
-import { Briefcase, Loader2, Plus } from "lucide-react";
+import {
+  Briefcase,
+  Eye,
+  FileText,
+  Loader2,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -12,45 +22,65 @@ import {
 } from "@/app/actions/portfolios";
 import { PortfolioAddDrawer } from "@/components/features/portfolios/PortfolioAddDrawer";
 import { PortfolioCard } from "@/components/features/portfolios/PortfolioCard";
+import { PortfolioCoverImage } from "@/components/features/portfolios/PortfolioCoverImage";
 import { PortfolioDeleteDialog } from "@/components/features/portfolios/PortfolioDeleteDialog";
 import { PortfolioDetailDrawer } from "@/components/features/portfolios/PortfolioDetailDrawer";
+import {
+  computePortfolioMetrics,
+  extractAdaParsel,
+  extractImarLabel,
+  getListingBadge,
+  getYetkiStatus,
+  isMockPortfolio,
+  matchesPortfolioFilters,
+  matchesPortfolioQuery,
+  METRIC_CARD,
+  type KindFilter,
+  type ListingFilter,
+} from "@/components/features/portfolios/portfolio-ui-helpers";
+import { Button } from "@/components/ui/button";
+import { propertyKindLabel } from "@/lib/portfolios/portfolio-form";
 import type { PortfolioFormValues } from "@/lib/portfolios/portfolio-form";
 import type { AuthorizedPortfolioItem } from "@/lib/portfolios/portfolio-types";
-
-type ListingFilter = "ALL" | "SATILIK" | "KIRALIK";
+import { cn } from "@/lib/utils";
 
 type PortfoliosViewProps = {
   portfolios: AuthorizedPortfolioItem[];
   openSheetOnMount?: boolean;
 };
 
-const FILTER_OPTIONS: { value: ListingFilter; label: string }[] = [
+const LISTING_FILTERS: { value: ListingFilter; label: string }[] = [
   { value: "ALL", label: "Tümü" },
   { value: "SATILIK", label: "Satılık" },
   { value: "KIRALIK", label: "Kiralık" },
 ];
 
+const KIND_FILTERS: { value: KindFilter; label: string }[] = [
+  { value: "ALL", label: "Tüm türler" },
+  { value: "konut", label: "Konut" },
+  { value: "arsa", label: "Arsa" },
+  { value: "ticari", label: "Ticari" },
+];
+
 function PortfolioEmptyState({ onAdd }: { onAdd: () => void }) {
   return (
-    <div className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border border-dashed border-border/60 bg-parsel-admin px-6 py-16 text-center">
-      <span className="mb-5 flex size-14 items-center justify-center rounded-2xl border border-border/60 bg-white/[0.02]">
-        <Briefcase className="size-6 text-parsel-gold/70" strokeWidth={1.5} />
-      </span>
-      <h2 className="font-inter text-lg font-medium tracking-tight text-foreground/90">
-        Burada henüz bir portföy yok
-      </h2>
-      <p className="mt-2 max-w-sm text-sm leading-relaxed text-foreground/45">
-        İlk portföyünü ekleyerek işe başla. Yetkili mülklerini tek vitrinde
-        yönet, performansını anlık takip et.
+    <div className="parsel-surface rounded-2xl border border-dashed border-border/60 bg-parsel-panel px-6 py-16 text-center shadow-parsel-sm">
+      <Briefcase className="mx-auto size-10 text-primary/70" strokeWidth={1.25} />
+      <p className="mt-4 text-sm font-semibold text-foreground">
+        Henüz portföy eklenmedi
       </p>
-      <button
+      <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+        İlk yetkili mülkünüzü ekleyin; fiyat, bölge, imar ve yetki takibi burada
+        başlar.
+      </p>
+      <Button
         type="button"
         onClick={onAdd}
-        className="mt-8 inline-flex h-11 items-center gap-2 rounded-lg bg-parsel-gold px-6 text-sm font-medium text-black transition-colors hover:bg-[#c49a62]"
+        className="mt-6 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
       >
         <Plus className="size-4" strokeWidth={2} />
-        İlk Portföyünü Ekle
-      </button>
+        İlk Portföyü Ekle
+      </Button>
     </div>
   );
 }
@@ -60,7 +90,9 @@ export function PortfoliosView({
   openSheetOnMount = false,
 }: PortfoliosViewProps) {
   const router = useRouter();
-  const [filter, setFilter] = useState<ListingFilter>("ALL");
+  const [listingFilter, setListingFilter] = useState<ListingFilter>("ALL");
+  const [kindFilter, setKindFilter] = useState<KindFilter>("ALL");
+  const [query, setQuery] = useState("");
   const [items, setItems] = useState<AuthorizedPortfolioItem[]>(portfolios);
 
   const [formOpen, setFormOpen] = useState(false);
@@ -113,16 +145,23 @@ export function PortfoliosView({
     }
   }, [openSheetOnMount, openCreateSheet, router]);
 
-  const filtered = useMemo(() => {
-    if (filter === "ALL") return items;
-    return items.filter((item) => item.listingType === filter);
-  }, [filter, items]);
+  const metrics = useMemo(() => computePortfolioMetrics(items), [items]);
+
+  const filtered = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          matchesPortfolioQuery(item, query) &&
+          matchesPortfolioFilters(item, listingFilter, kindFilter),
+      ),
+    [items, query, listingFilter, kindFilter],
+  );
 
   async function handlePortfolioSubmit(values: PortfolioFormValues) {
     setIsSaving(true);
     try {
       if (formMode === "edit" && activePortfolio) {
-        const isMock = activePortfolio.id.startsWith("portfolio-mock-");
+        const isMock = isMockPortfolio(activePortfolio.id);
         const result = isMock
           ? await createPortfolioAction(values)
           : await updatePortfolioAction(activePortfolio.id, values);
@@ -176,7 +215,7 @@ export function PortfoliosView({
 
     setIsDeleting(true);
     try {
-      const isMock = deletePortfolio.id.startsWith("portfolio-mock-");
+      const isMock = isMockPortfolio(deletePortfolio.id);
       if (isMock) {
         setItems((current) =>
           current.filter((item) => item.id !== deletePortfolio.id),
@@ -212,75 +251,176 @@ export function PortfoliosView({
     }
   }
 
-  const activeCount = items.length;
   const isTrulyEmpty = items.length === 0;
   const isFilterEmpty = !isTrulyEmpty && filtered.length === 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="mb-6 flex flex-col gap-4 border-b border-border/50 pb-5 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0">
-          <p className="text-[10px] font-medium uppercase tracking-[0.22em] text-parsel-gold/70">
-            Portföy Vitrini
-          </p>
-          <div className="mt-1 flex flex-wrap items-center gap-3">
-            <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground/90 md:text-3xl">
-              Yetkili Portföylerim
-            </h1>
-            <span className="rounded-full border border-border bg-white/[0.03] px-2.5 py-0.5 text-xs tabular-nums text-muted-foreground">
-              {activeCount} aktif
-            </span>
+    <div className="min-h-full bg-parsel-canvas">
+      <div className="mx-auto w-full max-w-6xl space-y-6">
+        <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-3">
+            <p className="parsel-section-label text-primary">Portföy merkezi</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="parsel-page-title text-foreground">Yetkili Portföyler</h1>
+              <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-panel px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
+                {items.length} kayıt
+              </span>
+            </div>
+            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              Yetkili mülklerinizi tek vitrinde yönetin. Tür, bölge, fiyat, imar ve yetki
+              durumunu anlık takip edin.
+            </p>
           </div>
-        </div>
-
-        {!isTrulyEmpty ? (
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-            <select
-              value={filter}
-              onChange={(event) => setFilter(event.target.value as ListingFilter)}
-              className="h-10 w-full rounded-lg border border-border bg-transparent px-3 text-xs text-foreground/70 transition-colors focus:border-[#b38c56] focus:outline-none focus:ring-1 focus:ring-[#b38c56]/30 sm:w-auto"
-            >
-              {FILTER_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} className="bg-parsel-elevated">
-                  {option.label}
-                </option>
-              ))}
-            </select>
-
-            <button
+          {!isTrulyEmpty ? (
+            <Button
               type="button"
               onClick={openCreateSheet}
               disabled={isSaving}
-              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-parsel-gold px-4 text-sm font-medium text-black transition-colors hover:bg-[#c49a62] disabled:opacity-60 sm:w-auto"
+              className="h-11 shrink-0 gap-1.5 bg-primary px-5 text-primary-foreground shadow-parsel-sm hover:bg-primary/90"
             >
               <Plus className="size-4" strokeWidth={2} />
               Portföy Ekle
-            </button>
-          </div>
-        ) : null}
-      </header>
+            </Button>
+          ) : null}
+        </header>
 
-      {isTrulyEmpty ? (
-        <PortfolioEmptyState onAdd={openCreateSheet} />
-      ) : isFilterEmpty ? (
-        <div className="rounded-2xl border border-dashed border-border px-6 py-20 text-center">
-          <p className="text-sm text-muted-foreground">
-            Bu filtreye uygun yetkili portföy bulunamadı.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((item) => (
-            <PortfolioCard
-              key={item.id}
-              item={item}
-              onDetails={openDetails}
-              onEdit={openEditSheet}
-              onDelete={openDeleteDialog}
-            />
-          ))}
-        </div>
-      )}
+        {!isTrulyEmpty ? (
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <article className={METRIC_CARD}>
+              <p className="text-[11px] font-medium text-muted-foreground">Toplam portföy</p>
+              <p className="parsel-metric-value mt-2 text-foreground">{metrics.total}</p>
+            </article>
+            <article className={METRIC_CARD}>
+              <p className="text-[11px] font-medium text-muted-foreground">Satılık</p>
+              <p className="parsel-metric-value mt-2 text-parsel-gold">{metrics.forSale}</p>
+            </article>
+            <article className={METRIC_CARD}>
+              <p className="text-[11px] font-medium text-muted-foreground">Kiralık</p>
+              <p className="parsel-metric-value mt-2 text-primary">{metrics.forRent}</p>
+            </article>
+            <article className={METRIC_CARD}>
+              <p className="text-[11px] font-medium text-muted-foreground">Yetki kritik</p>
+              <p className="parsel-metric-value mt-2 text-foreground">{metrics.urgentYetki}</p>
+            </article>
+          </section>
+        ) : null}
+
+        {!isTrulyEmpty ? (
+          <section className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm sm:p-5">
+            <div className="flex flex-col gap-4">
+              <div className="relative min-w-0">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  strokeWidth={1.75}
+                />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Başlık, bölge, fiyat, imar veya ada/parsel ile ara..."
+                  className="h-11 w-full rounded-xl border border-border/60 bg-parsel-elevated pl-10 pr-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/30 focus:ring-2 focus:ring-primary/15"
+                />
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                <div className="flex flex-wrap gap-2">
+                  {LISTING_FILTERS.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setListingFilter(item.value)}
+                      className={cn(
+                        "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                        listingFilter === item.value
+                          ? "border-primary/25 bg-primary/10 text-primary"
+                          : "border-border/60 bg-parsel-elevated text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {KIND_FILTERS.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setKindFilter(item.value)}
+                      className={cn(
+                        "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                        kindFilter === item.value
+                          ? "border-primary/25 bg-primary/10 text-primary"
+                          : "border-border/60 bg-parsel-elevated text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {filtered.length} portföy listeleniyor
+              {query.trim() ? ` · “${query.trim()}” araması` : ""}
+              {items.some((item) => isMockPortfolio(item.id))
+                ? " · örnek kayıtlar vitrinde gösteriliyor"
+                : ""}
+            </p>
+          </section>
+        ) : null}
+
+        {isTrulyEmpty ? (
+          <PortfolioEmptyState onAdd={openCreateSheet} />
+        ) : isFilterEmpty ? (
+          <div className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel px-6 py-12 text-center shadow-parsel-sm">
+            <p className="text-sm font-medium text-foreground">
+              Eşleşen portföy bulunamadı
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Arama veya filtreyi değiştirmeyi deneyin.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="hidden overflow-x-auto rounded-2xl border border-border/60 bg-parsel-panel shadow-parsel-sm md:block">
+              <div className="min-w-[1040px]">
+                <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_minmax(0,0.55fr)_minmax(0,0.8fr)_minmax(0,0.75fr)_minmax(0,0.65fr)_auto] gap-3 border-b border-border/60 bg-parsel-elevated/80 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  <span>Portföy</span>
+                  <span>Bölge</span>
+                  <span>Tür / İmar</span>
+                  <span>Ada / Parsel</span>
+                  <span>m²</span>
+                  <span>Fiyat</span>
+                  <span>Durum</span>
+                  <span>Aktivite</span>
+                  <span className="text-right">İşlem</span>
+                </div>
+                <ul>
+                  {filtered.map((item) => (
+                    <PortfolioTableRow
+                      key={item.id}
+                      item={item}
+                      onDetails={openDetails}
+                      onEdit={openEditSheet}
+                      onDelete={openDeleteDialog}
+                    />
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <ul className="flex flex-col gap-3 md:hidden">
+              {filtered.map((item) => (
+                <PortfolioCard
+                  key={item.id}
+                  item={item}
+                  onDetails={openDetails}
+                  onEdit={openEditSheet}
+                  onDelete={openDeleteDialog}
+                />
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
 
       <PortfolioAddDrawer
         open={formOpen}
@@ -312,11 +452,175 @@ export function PortfoliosView({
       />
 
       {isSaving || isDeleting ? (
-        <div className="pointer-events-none fixed bottom-6 right-6 z-[70] flex items-center gap-2 rounded-full border border-border bg-parsel-elevated/95 px-4 py-2 text-xs text-foreground/70 shadow-xl">
+        <div className="pointer-events-none fixed bottom-6 right-6 z-[70] flex items-center gap-2 rounded-full border border-border bg-parsel-elevated/95 px-4 py-2 text-xs text-muted-foreground shadow-xl">
           <Loader2 className="size-3.5 animate-spin" />
           {isDeleting ? "Siliniyor..." : "Kaydediliyor..."}
         </div>
       ) : null}
     </div>
+  );
+}
+
+function PortfolioTableRow({
+  item,
+  onDetails,
+  onEdit,
+  onDelete,
+}: {
+  item: AuthorizedPortfolioItem;
+  onDetails: (item: AuthorizedPortfolioItem) => void;
+  onEdit: (item: AuthorizedPortfolioItem) => void;
+  onDelete: (item: AuthorizedPortfolioItem) => void;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const listing = getListingBadge(item.listingType);
+  const yetki = getYetkiStatus(item.yetkiRemainingDays);
+  const imar = extractImarLabel(item.title, item.propertyKind);
+  const adaParsel = extractAdaParsel(item.title, item.description);
+  const mock = isMockPortfolio(item.id);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function onPointerDown(event: MouseEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [menuOpen]);
+
+  return (
+    <li className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_minmax(0,0.55fr)_minmax(0,0.8fr)_minmax(0,0.75fr)_minmax(0,0.65fr)_auto] items-center gap-3 border-b border-border/50 px-5 py-3.5 transition-colors last:border-b-0 hover:bg-foreground/[0.02]">
+      <button
+        type="button"
+        onClick={() => onDetails(item)}
+        className="flex min-w-0 items-center gap-3 text-left"
+      >
+        <div className="relative size-12 shrink-0 overflow-hidden rounded-xl border border-border/60">
+          <PortfolioCoverImage item={item} className="absolute inset-0" sizes="48px" />
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <p className="truncate text-sm font-medium text-foreground">{item.title}</p>
+            {mock ? (
+              <span className="rounded-full border border-border/60 bg-parsel-elevated px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground">
+                Örnek
+              </span>
+            ) : null}
+          </div>
+          <p className="truncate text-xs text-muted-foreground">
+            {propertyKindLabel(item.propertyKind)}
+          </p>
+        </div>
+      </button>
+
+      <p className="min-w-0 truncate text-sm text-foreground/90">{item.location}</p>
+
+      <div className="min-w-0">
+        <p className="truncate text-sm text-foreground/90">{imar}</p>
+        <p className="truncate text-[10px] text-muted-foreground">
+          {propertyKindLabel(item.propertyKind)}
+        </p>
+      </div>
+
+      <p className="text-xs text-muted-foreground">{adaParsel ?? "—"}</p>
+
+      <p className="text-sm tabular-nums text-foreground/90">
+        {item.sqm > 0 ? item.sqm.toLocaleString("tr-TR") : "—"}
+      </p>
+
+      <p className="text-sm font-semibold text-parsel-gold">{item.priceFormatted}</p>
+
+      <div className="min-w-0 space-y-1">
+        <span
+          className={cn(
+            "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium",
+            listing.className,
+          )}
+        >
+          {listing.label}
+        </span>
+        <span
+          className={cn(
+            "flex w-fit flex-col rounded-full border px-2 py-0.5 text-[10px] font-medium",
+            yetki.className,
+          )}
+        >
+          <span>{yetki.detail}</span>
+          <span className="text-[9px] opacity-80">{yetki.label}</span>
+        </span>
+      </div>
+
+      <div className="min-w-0 text-xs text-muted-foreground">
+        <p className="inline-flex items-center gap-1">
+          <Eye className="size-3" />
+          {item.showingsCount} gösterim
+        </p>
+        <p className="mt-0.5 inline-flex items-center gap-1">
+          <FileText className="size-3" />
+          {item.offersCount} teklif
+        </p>
+      </div>
+
+      <div ref={menuRef} className="relative flex justify-end">
+        <button
+          type="button"
+          aria-label={`${item.title} işlemleri`}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((current) => !current)}
+          className="inline-flex size-8 items-center justify-center rounded-lg border border-border/60 text-muted-foreground transition-colors hover:border-primary/20 hover:bg-accent hover:text-foreground"
+        >
+          <MoreHorizontal className="size-4" strokeWidth={1.75} />
+        </button>
+
+        {menuOpen ? (
+          <div
+            role="menu"
+            className="absolute right-0 top-full z-20 mt-1 min-w-[148px] overflow-hidden rounded-xl border border-border bg-parsel-elevated py-1 shadow-xl"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-foreground/75 transition-colors hover:bg-foreground/5"
+              onClick={() => {
+                setMenuOpen(false);
+                onDetails(item);
+              }}
+            >
+              <Eye className="size-3.5" strokeWidth={1.75} />
+              Detay
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-foreground/75 transition-colors hover:bg-foreground/5"
+              onClick={() => {
+                setMenuOpen(false);
+                onEdit(item);
+              }}
+            >
+              <Pencil className="size-3.5" strokeWidth={1.75} />
+              Düzenle
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-destructive transition-colors hover:bg-destructive/10"
+              onClick={() => {
+                setMenuOpen(false);
+                onDelete(item);
+              }}
+            >
+              <Trash2 className="size-3.5" strokeWidth={1.75} />
+              Kaldır
+            </button>
+          </div>
+        ) : null}
+      </div>
+    </li>
   );
 }

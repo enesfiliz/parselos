@@ -1,6 +1,12 @@
 "use client";
 
-import { Landmark, TrendingUp } from "lucide-react";
+import {
+  Calculator,
+  CircleDollarSign,
+  Landmark,
+  Percent,
+  TrendingUp,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   Area,
@@ -12,14 +18,15 @@ import {
   YAxis,
 } from "recharts";
 
-import { Badge } from "@/components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  CHART_COLORS,
+  CHART_PERIOD_OPTIONS,
+  METRIC_CARD,
+  PANEL_CARD,
+  sliceChartPeriod,
+  type ChartPeriod,
+} from "@/components/features/finance/finans-ui-helpers";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -33,6 +40,8 @@ import {
 } from "@/lib/finance-calculations";
 import { cn } from "@/lib/utils";
 
+type FinancePanel = "credit" | "roi";
+
 function MetricBlock({
   label,
   value,
@@ -43,13 +52,11 @@ function MetricBlock({
   highlight?: boolean;
 }) {
   return (
-    <div className="space-y-1.5 rounded-xl border border-border bg-parsel-card/50 px-4 py-3">
-      <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
+    <div className="rounded-xl border border-border/60 bg-parsel-elevated px-4 py-3">
+      <p className="parsel-section-label text-[10px] text-muted-foreground">{label}</p>
       <p
         className={cn(
-          "font-semibold tabular-nums tracking-tight text-foreground",
+          "mt-1 font-semibold tabular-nums tracking-tight text-foreground",
           highlight ? "text-2xl" : "text-lg",
         )}
       >
@@ -60,6 +67,9 @@ function MetricBlock({
 }
 
 export function FinansView() {
+  const [activePanel, setActivePanel] = useState<FinancePanel>("credit");
+  const [chartPeriod, setChartPeriod] = useState<ChartPeriod>("24");
+
   const [krediTutari, setKrediTutari] = useState("2500000");
   const [faizOrani, setFaizOrani] = useState("3.25");
   const [vadeAy, setVadeAy] = useState("120");
@@ -86,275 +96,394 @@ export function FinansView() {
 
   const chartData = useMemo(() => {
     if (!credit) return [];
-    return credit.schedule.map((row) => ({
+    const rows = credit.schedule.map((row) => ({
       ay: `${row.ay}. Ay`,
       anapara: Math.round(row.anapara),
       faiz: Math.round(row.faiz),
     }));
-  }, [credit]);
+    return sliceChartPeriod(rows, chartPeriod);
+  }, [credit, chartPeriod]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8">
-      <header className="space-y-2">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Landmark className="size-4" strokeWidth={1.5} />
-          <span className="text-[10px] font-medium uppercase tracking-[0.2em]">
-            Finans & Kredi
-          </span>
-        </div>
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
-          Finansal Hesaplayıcılar
-        </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Kredi yükünü ve yatırım geri dönüşünü modern FinTech arayüzüyle
-          modelleyin. Tüm rakamlar anlık güncellenir.
-        </p>
-      </header>
+    <div className="min-h-full bg-parsel-canvas">
+      <div className="mx-auto w-full max-w-6xl space-y-6">
+        <header className="space-y-3">
+          <p className="parsel-section-label text-primary">Finans kontrolü</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="parsel-page-title text-foreground">Finans</h1>
+            <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-panel px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
+              Canlı simülasyon
+            </span>
+          </div>
+          <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Kredi yükünüzü ve yatırım geri dönüşünü modelleyin. Tüm rakamlar girdi
+            değiştikçe anlık güncellenir.
+          </p>
+        </header>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Gelişmiş Kredi Simülatörü */}
-        <Card className="border-border/60 shadow-lg ring-1 ring-parsel-border/80">
-          <CardHeader className="border-b border-border/50 pb-5">
-            <CardTitle className="text-base font-medium">
-              Gelişmiş Kredi Simülatörü
-            </CardTitle>
-            <CardDescription>
-              Eşit taksitli ödeme planı ve anapara–faiz erimesi
-            </CardDescription>
-          </CardHeader>
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] font-medium text-muted-foreground">Aylık taksit</p>
+            <p className="parsel-metric-value mt-2 text-parsel-gold">
+              {credit ? formatCurrency(credit.aylikTaksit) : "—"}
+            </p>
+          </article>
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] font-medium text-muted-foreground">Toplam faiz</p>
+            <p className="parsel-metric-value mt-2 text-foreground">
+              {credit ? formatCurrency(credit.toplamFaizYuku) : "—"}
+            </p>
+          </article>
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] font-medium text-muted-foreground">Brüt getiri</p>
+            <p className="parsel-metric-value mt-2 text-primary">
+              {roi ? formatPercent(roi.yillikBrutGetiri) : "—"}
+            </p>
+          </article>
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] font-medium text-muted-foreground">Amortisman</p>
+            <p className="parsel-metric-value mt-2 text-foreground">
+              {roi ? `${formatNumber(roi.amortismanAy, 0)} ay` : "—"}
+            </p>
+          </article>
+        </section>
 
-          <CardContent className="space-y-6 pt-6">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-2 sm:col-span-3">
-                <Label htmlFor="kredi-tutari">Kredi Tutarı (TL)</Label>
-                <Input
-                  id="kredi-tutari"
-                  value={krediTutari}
-                  onChange={(e) => setKrediTutari(e.target.value)}
-                  placeholder="2.500.000"
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="faiz-orani">Faiz Oranı (Aylık %)</Label>
-                <Input
-                  id="faiz-orani"
-                  value={faizOrani}
-                  onChange={(e) => setFaizOrani(e.target.value)}
-                  placeholder="3,25"
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="vade-ay">Vade (Ay)</Label>
-                <Input
-                  id="vade-ay"
-                  value={vadeAy}
-                  onChange={(e) => setVadeAy(e.target.value)}
-                  placeholder="120"
-                  className="h-10"
-                />
-              </div>
-            </div>
+        <section className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-2 shadow-parsel-sm sm:hidden">
+          <div className="grid grid-cols-2 gap-2">
+            {(
+              [
+                { id: "credit" as const, label: "Kredi", icon: Landmark },
+                { id: "roi" as const, label: "ROI", icon: TrendingUp },
+              ] as const
+            ).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActivePanel(item.id)}
+                className={cn(
+                  "inline-flex h-10 items-center justify-center gap-2 rounded-xl text-sm font-medium transition-colors",
+                  activePanel === item.id
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <item.icon className="size-4" strokeWidth={1.75} />
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </section>
 
-            {credit ? (
-              <>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <MetricBlock
-                    label="Aylık Taksit"
-                    value={formatCurrency(credit.aylikTaksit)}
-                    highlight
-                  />
-                  <MetricBlock
-                    label="Toplam Geri Ödeme"
-                    value={formatCurrency(credit.toplamGeriOdeme)}
-                  />
-                  <MetricBlock
-                    label="Toplam Faiz Yükü"
-                    value={formatCurrency(credit.toplamFaizYuku)}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="h-56 w-full">
-                  <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                    Anapara & Faiz Erimesi
-                  </p>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData}>
-                      <defs>
-                        <linearGradient id="anaparaFill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#171717" stopOpacity={0.35} />
-                          <stop offset="95%" stopColor="#171717" stopOpacity={0.02} />
-                        </linearGradient>
-                        <linearGradient id="faizFill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#737373" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="#737373" stopOpacity={0.02} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid stroke="#e5e5e5" strokeDasharray="4 4" vertical={false} />
-                      <XAxis
-                        dataKey="ay"
-                        tick={{ fill: "#a3a3a3", fontSize: 10 }}
-                        interval="preserveStartEnd"
-                        minTickGap={24}
-                      />
-                      <YAxis
-                        tick={{ fill: "#a3a3a3", fontSize: 10 }}
-                        width={56}
-                        tickFormatter={(v) =>
-                          v >= 1_000_000
-                            ? `${(v / 1_000_000).toFixed(1)}M`
-                            : v >= 1000
-                              ? `${(v / 1000).toFixed(0)}K`
-                              : String(v)
-                        }
-                      />
-                      <Tooltip
-                        formatter={(value, name) => [
-                          formatCurrency(Number(value ?? 0)),
-                          name === "anapara" ? "Anapara" : "Faiz",
-                        ]}
-                        contentStyle={{
-                          borderRadius: 10,
-                          border: "1px solid #e5e5e5",
-                          fontSize: 12,
-                        }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="anapara"
-                        stackId="1"
-                        stroke="#171717"
-                        fill="url(#anaparaFill)"
-                        strokeWidth={2}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="faiz"
-                        stackId="1"
-                        stroke="#737373"
-                        fill="url(#faizFill)"
-                        strokeWidth={2}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Geçerli kredi tutarı, faiz ve vade girin.
-              </p>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <section
+            className={cn(
+              PANEL_CARD,
+              activePanel !== "credit" && "hidden lg:block",
             )}
-          </CardContent>
-        </Card>
-
-        {/* ROI & Amortisman */}
-        <Card className="border-border/60 shadow-lg ring-1 ring-parsel-border/80">
-          <CardHeader className="border-b border-border/50 pb-5">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="size-4 text-muted-foreground" strokeWidth={1.5} />
-              <div>
-                <CardTitle className="text-base font-medium">
-                  ROI & Amortisman Motoru
-                </CardTitle>
-                <CardDescription>
-                  Kira getirisi ve değer artışına göre geri dönüş
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-6 pt-6">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="satis-fiyati">Gayrimenkul Satış Fiyatı (TL)</Label>
-                <Input
-                  id="satis-fiyati"
-                  value={satisFiyati}
-                  onChange={(e) => setSatisFiyati(e.target.value)}
-                  placeholder="8.500.000"
-                  className="h-10"
-                />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="aylik-kira">Beklenen Aylık Kira (TL)</Label>
-                  <Input
-                    id="aylik-kira"
-                    value={aylikKira}
-                    onChange={(e) => setAylikKira(e.target.value)}
-                    placeholder="35.000"
-                    className="h-10"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="deger-artis">Yıllık Değer Artış Tahmini (%)</Label>
-                  <Input
-                    id="deger-artis"
-                    value={degerArtis}
-                    onChange={(e) => setDegerArtis(e.target.value)}
-                    placeholder="12"
-                    className="h-10"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {roi ? (
-              <>
-                <div className="rounded-2xl border border-border bg-parsel-card/50 p-6">
-                  <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-                    Amortisman Süresi
+          >
+            <div className="border-b border-border/60 px-5 py-5 sm:px-6">
+              <div className="flex items-start gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+                  <Landmark className="size-5" strokeWidth={1.75} />
+                </span>
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">
+                    Kredi simülatörü
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Eşit taksitli ödeme planı ve anapara–faiz erimesi
                   </p>
-                  <div className="mt-4 flex flex-wrap items-end gap-4">
-                    <div>
-                      <span className="text-5xl font-semibold tabular-nums tracking-tighter text-foreground">
-                        {formatNumber(roi.amortismanAy, 0)}
-                      </span>
-                      <span className="ml-2 text-lg text-muted-foreground">ay</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6 px-5 py-6 sm:px-6">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2 sm:col-span-3">
+                  <Label htmlFor="kredi-tutari">Kredi tutarı (TL)</Label>
+                  <Input
+                    id="kredi-tutari"
+                    value={krediTutari}
+                    onChange={(e) => setKrediTutari(e.target.value)}
+                    placeholder="2.500.000"
+                    className="h-11 border-border/60 bg-parsel-elevated"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="faiz-orani">Faiz oranı (aylık %)</Label>
+                  <Input
+                    id="faiz-orani"
+                    value={faizOrani}
+                    onChange={(e) => setFaizOrani(e.target.value)}
+                    placeholder="3,25"
+                    className="h-11 border-border/60 bg-parsel-elevated"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="vade-ay">Vade (ay)</Label>
+                  <Input
+                    id="vade-ay"
+                    value={vadeAy}
+                    onChange={(e) => setVadeAy(e.target.value)}
+                    placeholder="120"
+                    className="h-11 border-border/60 bg-parsel-elevated"
+                  />
+                </div>
+              </div>
+
+              {credit ? (
+                <>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <MetricBlock
+                      label="Aylık taksit"
+                      value={formatCurrency(credit.aylikTaksit)}
+                      highlight
+                    />
+                    <MetricBlock
+                      label="Toplam geri ödeme"
+                      value={formatCurrency(credit.toplamGeriOdeme)}
+                    />
+                    <MetricBlock
+                      label="Toplam faiz yükü"
+                      value={formatCurrency(credit.toplamFaizYuku)}
+                    />
+                  </div>
+
+                  <Separator className="bg-border/60" />
+
+                  <div>
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                      <p className="parsel-section-label text-muted-foreground">
+                        Dönemsel erime
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {CHART_PERIOD_OPTIONS.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setChartPeriod(option.value)}
+                            className={cn(
+                              "rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors",
+                              chartPeriod === option.value
+                                ? "border-primary/25 bg-primary/10 text-primary"
+                                : "border-border/60 bg-parsel-elevated text-muted-foreground hover:text-foreground",
+                            )}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <Badge variant="secondary" className="text-sm font-normal tabular-nums">
-                      ≈ {formatNumber(roi.amortismanYil, 1)} yıl
-                    </Badge>
+                    <div className="h-56 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={chartData}>
+                          <defs>
+                            <linearGradient id="anaparaFill" x1="0" y1="0" x2="0" y2="1">
+                              <stop
+                                offset="5%"
+                                stopColor={CHART_COLORS.primary}
+                                stopOpacity={0.35}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor={CHART_COLORS.primary}
+                                stopOpacity={0.02}
+                              />
+                            </linearGradient>
+                            <linearGradient id="faizFill" x1="0" y1="0" x2="0" y2="1">
+                              <stop
+                                offset="5%"
+                                stopColor={CHART_COLORS.gold}
+                                stopOpacity={0.4}
+                              />
+                              <stop
+                                offset="95%"
+                                stopColor={CHART_COLORS.gold}
+                                stopOpacity={0.02}
+                              />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid
+                            stroke={CHART_COLORS.grid}
+                            strokeDasharray="4 4"
+                            vertical={false}
+                          />
+                          <XAxis
+                            dataKey="ay"
+                            tick={{ fill: CHART_COLORS.muted, fontSize: 10 }}
+                            interval="preserveStartEnd"
+                            minTickGap={24}
+                          />
+                          <YAxis
+                            tick={{ fill: CHART_COLORS.muted, fontSize: 10 }}
+                            width={56}
+                            tickFormatter={(v) =>
+                              v >= 1_000_000
+                                ? `${(v / 1_000_000).toFixed(1)}M`
+                                : v >= 1000
+                                  ? `${(v / 1000).toFixed(0)}K`
+                                  : String(v)
+                            }
+                          />
+                          <Tooltip
+                            formatter={(value, name) => [
+                              formatCurrency(Number(value ?? 0)),
+                              name === "anapara" ? "Anapara" : "Faiz",
+                            ]}
+                            contentStyle={{
+                              borderRadius: 10,
+                              border: `1px solid ${CHART_COLORS.grid}`,
+                              fontSize: 12,
+                            }}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="anapara"
+                            stackId="1"
+                            stroke={CHART_COLORS.primary}
+                            fill="url(#anaparaFill)"
+                            strokeWidth={2}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="faiz"
+                            stackId="1"
+                            stroke={CHART_COLORS.gold}
+                            fill="url(#faizFill)"
+                            strokeWidth={2}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
-                  <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                    Sadece kira geliri ile yatırımın kendini amorti etme süresi (basit
-                    geri dönüş modeli).
+                </>
+              ) : (
+                <div className="rounded-xl border border-dashed border-border/60 bg-parsel-elevated/60 px-4 py-10 text-center">
+                  <Calculator className="mx-auto size-8 text-muted-foreground/60" strokeWidth={1.25} />
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    Geçerli kredi tutarı, faiz ve vade girin.
                   </p>
                 </div>
+              )}
+            </div>
+          </section>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-neutral-900/10 bg-neutral-900 px-5 py-6 text-foreground">
-                    <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                      Kira Çarpanı
-                    </p>
-                    <p className="mt-2 text-4xl font-semibold tabular-nums tracking-tight">
-                      {formatNumber(roi.kiraCarpani, 1)}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">yıl (brüt)</p>
-                  </div>
+          <section
+            className={cn(PANEL_CARD, activePanel !== "roi" && "hidden lg:block")}
+          >
+            <div className="border-b border-border/60 px-5 py-5 sm:px-6">
+              <div className="flex items-start gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+                  <TrendingUp className="size-5" strokeWidth={1.75} />
+                </span>
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">
+                    ROI & amortisman
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Kira getirisi ve değer artışına göre geri dönüş
+                  </p>
+                </div>
+              </div>
+            </div>
 
-                  <div className="space-y-3">
-                    <MetricBlock
-                      label="Yıllık Brüt Getiri"
-                      value={formatPercent(roi.yillikBrutGetiri)}
+            <div className="space-y-6 px-5 py-6 sm:px-6">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="satis-fiyati">Gayrimenkul satış fiyatı (TL)</Label>
+                  <Input
+                    id="satis-fiyati"
+                    value={satisFiyati}
+                    onChange={(e) => setSatisFiyati(e.target.value)}
+                    placeholder="8.500.000"
+                    className="h-11 border-border/60 bg-parsel-elevated"
+                  />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="aylik-kira">Beklenen aylık kira (TL)</Label>
+                    <Input
+                      id="aylik-kira"
+                      value={aylikKira}
+                      onChange={(e) => setAylikKira(e.target.value)}
+                      placeholder="35.000"
+                      className="h-11 border-border/60 bg-parsel-elevated"
                     />
-                    <MetricBlock
-                      label="10 Yıl Sonra Tahmini Değer"
-                      value={formatCurrency(roi.onYillikDegerTahmini)}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="deger-artis">Yıllık değer artışı (%)</Label>
+                    <Input
+                      id="deger-artis"
+                      value={degerArtis}
+                      onChange={(e) => setDegerArtis(e.target.value)}
+                      placeholder="12"
+                      className="h-11 border-border/60 bg-parsel-elevated"
                     />
                   </div>
                 </div>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Geçerli satış fiyatı ve aylık kira girin.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+              </div>
+
+              {roi ? (
+                <>
+                  <div className="rounded-2xl border border-border/60 bg-parsel-elevated p-5">
+                    <p className="parsel-section-label text-muted-foreground">
+                      Amortisman süresi
+                    </p>
+                    <div className="mt-4 flex flex-wrap items-end gap-4">
+                      <div>
+                        <span className="text-5xl font-semibold tabular-nums tracking-tighter text-foreground">
+                          {formatNumber(roi.amortismanAy, 0)}
+                        </span>
+                        <span className="ml-2 text-lg text-muted-foreground">ay</span>
+                      </div>
+                      <Badge
+                        variant="secondary"
+                        className="border-border/60 bg-parsel-panel text-sm font-normal tabular-nums"
+                      >
+                        ≈ {formatNumber(roi.amortismanYil, 1)} yıl
+                      </Badge>
+                    </div>
+                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                      Sadece kira geliri ile yatırımın kendini amorti etme süresi (basit
+                      geri dönüş modeli).
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-2xl border border-primary/20 bg-primary/5 px-5 py-6">
+                      <p className="flex items-center gap-1.5 parsel-section-label text-[10px] text-muted-foreground">
+                        <CircleDollarSign className="size-3" />
+                        Kira çarpanı
+                      </p>
+                      <p className="mt-2 text-4xl font-semibold tabular-nums tracking-tight text-foreground">
+                        {formatNumber(roi.kiraCarpani, 1)}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">yıl (brüt)</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <MetricBlock
+                        label="Yıllık brüt getiri"
+                        value={formatPercent(roi.yillikBrutGetiri)}
+                      />
+                      <MetricBlock
+                        label="10 yıl sonra tahmini değer"
+                        value={formatCurrency(roi.onYillikDegerTahmini)}
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="rounded-xl border border-dashed border-border/60 bg-parsel-elevated/60 px-4 py-10 text-center">
+                  <Percent className="mx-auto size-8 text-muted-foreground/60" strokeWidth={1.25} />
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    Geçerli satış fiyatı ve aylık kira girin.
+                  </p>
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );

@@ -25,4 +25,23 @@ export const parselTheme = {
   textSubtle: "var(--muted-foreground)",
 } as const;
 
-export type ParselTheme = typeof parselTheme;
+export type ParselThemeTokens = typeof parselTheme;
+
+/** User-facing light/dark appearance preference */
+export type ParselColorScheme = "light" | "dark";
+
+export const PARSEL_THEME_STORAGE_KEY = "parselos-theme";
+
+export function readStoredTheme(): ParselColorScheme {
+  if (typeof window === "undefined") return "light";
+  const stored = window.localStorage.getItem(PARSEL_THEME_STORAGE_KEY);
+  return stored === "light" || stored === "dark" ? stored : "light";
+}
+
+export function applyParselTheme(theme: ParselColorScheme) {
+  document.documentElement.classList.toggle("dark", theme === "dark");
+  document.documentElement.style.colorScheme = theme;
+}
+
+/** Runs synchronously before React hydration to avoid light→dark flicker. */
+export const PARSEL_THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("${PARSEL_THEME_STORAGE_KEY}");var t=s==="dark"||s==="light"?s:"light";document.documentElement.classList.toggle("dark",t==="dark");document.documentElement.style.colorScheme=t;}catch(e){}})();`;

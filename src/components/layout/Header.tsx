@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight, Menu } from "lucide-react";
+import { ChevronRight, Menu, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppIcon } from "@/components/ui/AppIcon";
 import { HeaderUserButton } from "@/components/layout/HeaderUserButton";
@@ -58,6 +58,13 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <Link
+            href="/sesli-crm"
+            aria-label="Sesli CRM — sesli not ekle"
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary md:hidden"
+          >
+            <Mic className="size-[18px]" strokeWidth={1.85} />
+          </Link>
           <ThemeToggle />
           <NotificationCenter />
           <HeaderUserButton />

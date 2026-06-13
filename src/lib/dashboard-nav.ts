@@ -3,14 +3,18 @@ import {
   Briefcase,
   Calculator,
   CalendarDays,
+  CreditCard,
   FileText,
   Kanban,
   LayoutDashboard,
   LineChart,
+  Mic,
   PenTool,
   ScanLine,
   Radar,
+  Settings,
   Users,
+  Wallet,
   type LucideIcon,
 } from "lucide-react";
 
@@ -38,6 +42,7 @@ export const dashboardNavGroups: DashboardNavGroup[] = [
       { label: "Ajanda", href: "/calendar", icon: CalendarDays },
       { label: "Portföylerim", href: "/portfolios", icon: Briefcase },
       { label: "Hesaplayıcılar", href: "/calculators", icon: Calculator },
+      { label: "Finans", href: "/finans", icon: Wallet },
     ],
   },
   {
@@ -54,29 +59,38 @@ export const dashboardNavGroups: DashboardNavGroup[] = [
       { label: "İlan Asistanı", href: "/ilan-asistani", icon: PenTool },
       { label: "Ekspertiz", href: "/ekspertiz", icon: LineChart },
       { label: "Ekspertiz Arşivi", href: "/arsiv", icon: Archive },
+      { label: "Sesli CRM", href: "/sesli-crm", icon: Mic },
     ],
   },
+];
+
+/** Sidebar alt bölümü — hesap ve abonelik */
+export const dashboardFooterNavItems: DashboardNavItem[] = [
+  { label: "Hesap", href: "/account", icon: Settings },
+  { label: "Abonelik", href: "/billing", icon: CreditCard },
+];
+
+/** Mobil tek dokunuş hızlı erişim */
+export const mobileQuickNavItems: DashboardNavItem[] = [
+  { label: "Sesli CRM", href: "/sesli-crm", icon: Mic },
 ];
 
 export const dashboardNavItems: DashboardNavItem[] = dashboardNavGroups.flatMap(
   (group) => group.items,
 );
 
+export const allDashboardNavItems: DashboardNavItem[] = [
+  ...dashboardNavItems,
+  ...dashboardFooterNavItems,
+];
+
 export function isNavItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-const extraPageTitles: Array<{ prefix: string; title: string }> = [
-  { prefix: "/account", title: "Hesap & Abonelik" },
-  { prefix: "/billing", title: "Abonelik" },
-];
-
 export function getDashboardPageTitle(pathname: string) {
-  const extra = extraPageTitles.find(
-    (item) => pathname === item.prefix || pathname.startsWith(`${item.prefix}/`),
+  const match = allDashboardNavItems.find((item) =>
+    isNavItemActive(pathname, item.href),
   );
-  if (extra) return extra.title;
-
-  const match = dashboardNavItems.find((item) => isNavItemActive(pathname, item.href));
   return match?.label ?? "Panel";
 }

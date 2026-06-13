@@ -3,7 +3,10 @@
 import {
   ArrowRight,
   BarChart3,
+  Briefcase,
   LayoutDashboard,
+  Mic,
+  Radar,
   ScanLine,
   TrendingDown,
   TrendingUp,
@@ -193,6 +196,117 @@ function ImarRadarPanel({ items }: { items: ImarWatchItem[] }) {
   );
 }
 
+const QUICK_LINKS = [
+  {
+    href: "/customers",
+    icon: Users,
+    title: "Müşteriler",
+    description: "Talep ve görüşme takibi",
+  },
+  {
+    href: "/portfolios",
+    icon: Briefcase,
+    title: "Portföylerim",
+    description: "Aktif ilan ve varlık yönetimi",
+  },
+  {
+    href: "/imar-radari",
+    icon: Radar,
+    title: "İmar Radarı",
+    description: "Parsel ve imar değişiklikleri",
+  },
+] as const;
+
+function SesliCrmQuickCard() {
+  return (
+    <Link
+      href="/sesli-crm"
+      className={cn(
+        WIDGET_CARD,
+        "group relative flex flex-col justify-between gap-4 border-primary/25 bg-gradient-to-br from-parsel-panel via-parsel-panel to-primary/[0.06] transition-all duration-300 hover:border-primary/40 hover:shadow-parsel-md md:min-h-[132px]",
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="parsel-section-label text-primary">Sesli CRM</p>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Saha görüşmesini müşteri notuna dönüştür
+          </p>
+        </div>
+        <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary transition-colors group-hover:border-primary/30 group-hover:bg-primary/15">
+          <Mic className="size-4" strokeWidth={2} />
+        </span>
+      </div>
+      <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-colors group-hover:text-primary/90">
+        Sesli not ekle
+        <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </Link>
+  );
+}
+
+function QuickLinkCard({
+  href,
+  icon: Icon,
+  title,
+  description,
+}: {
+  href: string;
+  icon: typeof Users;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        WIDGET_CARD,
+        "group flex min-h-[132px] flex-col justify-between gap-3 transition-all duration-300 hover:border-border hover:shadow-parsel-md",
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-foreground">{title}</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
+        </div>
+        <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-parsel-sunken/80 text-muted-foreground transition-colors group-hover:border-primary/20 group-hover:text-primary">
+          <Icon className="size-4" strokeWidth={1.75} />
+        </span>
+      </div>
+      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-foreground/40 transition-colors group-hover:text-muted-foreground">
+        Aç
+        <ArrowRight className="size-3" />
+      </span>
+    </Link>
+  );
+}
+
+function ProductQuickActions() {
+  return (
+    <section>
+      <div className="mb-3">
+        <h2 className="text-sm font-medium tracking-wide text-foreground/70">
+          Günlük operasyonlar
+        </h2>
+        <p className="mt-0.5 text-[11px] text-muted-foreground md:text-xs">
+          Müşteri, portföy, parsel verisi ve saha notları — tek panelden erişin
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
+        <div className="md:col-span-2 lg:col-span-5">
+          <SesliCrmQuickCard />
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:col-span-2 lg:col-span-7">
+          {QUICK_LINKS.map((item) => (
+            <QuickLinkCard key={item.href} {...item} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FsboRadarPanel({ listings }: { listings: FsboCouponListing[] }) {
   return (
     <section className={cn(WIDGET_CARD, "flex flex-col")}>
@@ -273,6 +387,9 @@ export function CommandCenterView({
             {greetingName ? `Hoş geldin, ${greetingName}` : "Hoş geldin"}
           </h1>
           <p className="mt-2 text-sm font-medium text-muted-foreground">{formatToday()}</p>
+          <p className="mt-1 max-w-xl text-xs leading-relaxed text-foreground/45">
+            Müşteri takibi, portföy, parsel verisi ve saha notları — günlük operasyon özeti
+          </p>
         </div>
         <DashboardGlobalSearch index={searchIndex} className="lg:max-w-sm" />
       </header>
@@ -299,6 +416,8 @@ export function CommandCenterView({
           positiveIsGood={false}
         />
       </section>
+
+      <ProductQuickActions />
 
       <section className="grid grid-cols-1 gap-3 lg:grid-cols-12 lg:items-start">
         <div className="lg:col-span-8">

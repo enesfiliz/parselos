@@ -14,19 +14,19 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const SHINE_BUTTON_CLASS =
-  "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-lg px-10 text-sm font-semibold bg-parsel-gold text-background transition-colors duration-500 hover:bg-parsel-gold/90";
+  "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl px-10 text-sm font-semibold bg-primary text-primary-foreground shadow-sm transition-colors duration-300 hover:bg-primary/90";
 
 const OUTLINE_BUTTON_CLASS =
-  "inline-flex h-12 items-center justify-center rounded-lg border border-border bg-card px-10 text-sm font-medium text-muted-foreground transition-colors hover:border-border hover:text-foreground";
+  "inline-flex h-12 items-center justify-center rounded-xl border border-border bg-parsel-panel px-8 text-sm font-medium text-muted-foreground shadow-sm transition-colors hover:border-primary/25 hover:bg-accent hover:text-foreground";
 
 const PANEL_BUTTON_CLASS =
-  "inline-flex h-11 items-center justify-center rounded-xl bg-parsel-gold px-5 text-sm font-semibold text-zinc-950 shadow-sm transition-colors hover:bg-[#c5a36e]";
-
-const NAV_SIGN_IN_CLASS =
-  "inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold text-muted-foreground transition-colors duration-300 hover:text-foreground";
+  "inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90";
 
 const NAV_SIGN_UP_CLASS =
-  "inline-flex items-center justify-center rounded-lg border border-parsel-gold/30 bg-parsel-gold px-5 py-2.5 text-sm font-semibold text-background transition-colors duration-300 hover:bg-parsel-gold/90";
+  "inline-flex items-center justify-center rounded-xl border border-primary/25 bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors duration-300 hover:bg-primary/90";
+
+const NAV_SIGN_IN_CLASS =
+  "inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold text-muted-foreground transition-colors duration-300 hover:text-foreground";
 
 function AuthNavSkeleton() {
   return <div className="h-10 w-40 animate-pulse rounded-lg bg-foreground/5" />;
@@ -69,10 +69,10 @@ function LoadedNavActions() {
 }
 
 export const HERO_GOLD_BUTTON_CLASS =
-  "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-parsel-gold px-8 font-outfit text-sm font-semibold text-zinc-950 shadow-sm transition-colors hover:bg-[#c5a36e]";
+  "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-primary px-8 font-outfit text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90";
 
 const HERO_DEMO_BUTTON_CLASS =
-  "inline-flex h-12 items-center justify-center rounded-xl border border-border bg-foreground/5 px-8 font-outfit text-sm font-medium text-foreground backdrop-blur-xl transition-all hover:bg-foreground/10 hover:text-foreground";
+  "inline-flex h-12 items-center justify-center rounded-xl border border-border bg-parsel-panel px-8 font-outfit text-sm font-medium text-foreground shadow-sm transition-colors hover:border-primary/25 hover:bg-accent";
 
 function LoadedHeroActions({ align }: { align: "center" | "start" }) {
   const { isSignedIn } = useAuth();

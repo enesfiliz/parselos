@@ -1,8 +1,11 @@
 "use client";
 
 import {
+  Activity,
+  Briefcase,
   Kanban,
   Mail,
+  MapPin,
   MessageCircle,
   Pencil,
   Phone,
@@ -10,7 +13,6 @@ import {
   Search,
   Trash2,
   UserRound,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -71,6 +73,57 @@ function formatDate(iso: string) {
   );
 }
 
+function formatRelativeUpdate(iso: string) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diffMs / 86_400_000);
+  if (days < 1) return "Bugün";
+  if (days === 1) return "Dün";
+  if (days < 7) return `${days} gün önce`;
+  return formatDate(iso);
+}
+
+type CustomerFilter = "all" | "withDeals" | "followUp";
+
+const METRIC_CARD =
+  "parsel-surface flex min-h-[88px] flex-col justify-between rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm";
+
+function getFollowUpStatus(customer: CustomerListItem) {
+  if (customer.aktifFirsatSayisi > 0) {
+    return {
+      label: "Aktif fırsat",
+      className: "border-primary/25 bg-primary/10 text-primary",
+    };
+  }
+  return {
+    label: "Takip bekliyor",
+    className: "border-border/60 bg-parsel-elevated text-muted-foreground",
+  };
+}
+
+function computeCustomerMetrics(customers: CustomerListItem[]) {
+  const withDeals = customers.filter((c) => c.aktifFirsatSayisi > 0).length;
+  const needsFollowUp = customers.filter((c) => c.aktifFirsatSayisi === 0).length;
+  const withBudget = customers.filter((c) => Boolean(c.butce?.trim())).length;
+
+  return {
+    total: customers.length,
+    withDeals,
+    needsFollowUp,
+    withBudget,
+  };
+}
+
+function formatKaynakLabel(kaynak: string | null) {
+  if (!kaynak?.trim()) return null;
+  return kaynak.trim();
+}
+
+function matchesFilter(customer: CustomerListItem, filter: CustomerFilter) {
+  if (filter === "withDeals") return customer.aktifFirsatSayisi > 0;
+  if (filter === "followUp") return customer.aktifFirsatSayisi === 0;
+  return true;
+}
+
 function matchesQuery(customer: CustomerListItem, query: string) {
   const q = query.trim().toLocaleLowerCase("tr-TR");
   if (!q) return true;
@@ -96,6 +149,7 @@ type CustomersPanelProps = {
 export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
   const [customers, setCustomers] = useState(initialCustomers);
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<CustomerFilter>("all");
   const [selected, setSelected] = useState<CustomerListItem | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -103,9 +157,14 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<CustomerFormState>(emptyForm);
 
+  const metrics = useMemo(() => computeCustomerMetrics(customers), [customers]);
+
   const filtered = useMemo(
-    () => customers.filter((c) => matchesQuery(c, query)),
-    [customers, query],
+    () =>
+      customers.filter(
+        (c) => matchesQuery(c, query) && matchesFilter(c, filter),
+      ),
+    [customers, query, filter],
   );
 
   function openProfile(customer: CustomerListItem) {
@@ -252,80 +311,134 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
   }
 
   return (
-    <div className="min-h-full bg-background">
+    <div className="min-h-full bg-parsel-canvas">
       <div className="mx-auto w-full max-w-6xl space-y-6">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Users className="size-4 text-parsel-gold" strokeWidth={1.5} />
-              <h1 className="parsel-page-title text-foreground">
-                Müşteriler ve Yatırımcılar
-              </h1>
-              <span className="inline-flex items-center rounded-full border border-[#b38c56]/35 bg-parsel-gold/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#e8d4b8]">
-                {customers.length} müşteri
+        <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-3">
+            <p className="parsel-section-label text-primary">Müşteri merkezi</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="parsel-page-title text-foreground">Müşteriler</h1>
+              <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-panel px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
+                {customers.length} kayıt
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Kanban fırsatlarıyla konuşan otonom müşteri portföyü — arama,
-              WhatsApp ve profil inceleme tek ekranda.
+            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              Talep, bütçe, bölge ve fırsat takibini tek merkezden yönetin. Arama,
+              WhatsApp ve profil inceleme aynı ekranda.
             </p>
           </div>
           <Button
             type="button"
             onClick={openCreateDialog}
-            className="h-10 shrink-0 gap-1.5 bg-parsel-gold px-4 text-black hover:brightness-110"
+            className="h-11 shrink-0 gap-1.5 bg-primary px-5 text-primary-foreground shadow-parsel-sm hover:bg-primary/90"
           >
             <Plus className="size-4" strokeWidth={2} />
             Yeni Müşteri
           </Button>
         </header>
 
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-            strokeWidth={1.75}
-          />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="İsim veya telefon ile ara..."
-            className="h-10 w-full rounded-xl border border-border/50 bg-parsel-panel pl-10 pr-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-[#b38c56]/35"
-          />
-        </div>
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] font-medium text-muted-foreground">Toplam müşteri</p>
+            <p className="parsel-metric-value mt-2 text-foreground">{metrics.total}</p>
+          </article>
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] font-medium text-muted-foreground">Fırsatlı müşteri</p>
+            <p className="parsel-metric-value mt-2 text-primary">{metrics.withDeals}</p>
+          </article>
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] font-medium text-muted-foreground">Takip bekleyen</p>
+            <p className="parsel-metric-value mt-2 text-foreground">{metrics.needsFollowUp}</p>
+          </article>
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] font-medium text-muted-foreground">Bütçe tanımlı</p>
+            <p className="parsel-metric-value mt-2 text-parsel-gold">{metrics.withBudget}</p>
+          </article>
+        </section>
+
+        <section className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative min-w-0 flex-1">
+              <Search
+                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                strokeWidth={1.75}
+              />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="İsim, telefon, bölge veya bütçe ile ara..."
+                className="h-11 w-full rounded-xl border border-border/60 bg-parsel-elevated pl-10 pr-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/30 focus:ring-2 focus:ring-primary/15"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  { id: "all", label: "Tümü" },
+                  { id: "withDeals", label: "Fırsatlı" },
+                  { id: "followUp", label: "Takip bekleyen" },
+                ] as const
+              ).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setFilter(item.id)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                    filter === item.id
+                      ? "border-primary/25 bg-primary/10 text-primary"
+                      : "border-border/60 bg-parsel-elevated text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            {filtered.length} müşteri listeleniyor
+            {query.trim() ? ` · “${query.trim()}” araması` : ""}
+          </p>
+        </section>
 
         {customers.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border/50 bg-parsel-panel px-6 py-16 text-center">
-            <UserRound className="mx-auto size-10 text-zinc-700" strokeWidth={1.25} />
-            <p className="mt-4 text-sm font-medium text-foreground/90">
+          <div className="parsel-surface rounded-2xl border border-dashed border-border/60 bg-parsel-panel px-6 py-16 text-center shadow-parsel-sm">
+            <UserRound className="mx-auto size-10 text-primary/70" strokeWidth={1.25} />
+            <p className="mt-4 text-sm font-semibold text-foreground">
               Henüz müşteri eklenmedi
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              İlk yatırımcınızı ekleyin; fırsatlar paneliyle otomatik
-              eşleşsin.
+            <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+              İlk müşterinizi ekleyin; talep, bütçe ve fırsat takibi burada başlar.
             </p>
             <Button
               type="button"
               onClick={openCreateDialog}
-              className="mt-6 bg-parsel-gold text-black hover:brightness-110"
+              className="mt-6 bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              + Yeni Müşteri
+              <Plus className="size-4" />
+              Yeni Müşteri
             </Button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-2xl border border-border/50 bg-parsel-panel px-6 py-12 text-center">
-            <p className="text-sm text-muted-foreground">
-              Aramanızla eşleşen müşteri bulunamadı.
+          <div className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel px-6 py-12 text-center shadow-parsel-sm">
+            <p className="text-sm font-medium text-foreground">
+              Eşleşen müşteri bulunamadı
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Arama veya filtreyi değiştirmeyi deneyin.
             </p>
           </div>
         ) : (
           <>
-            <div className="hidden overflow-hidden rounded-2xl border border-border/50 bg-parsel-panel md:block">
-              <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_auto_auto] gap-3 border-b border-border/50 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <div className="hidden overflow-x-auto rounded-2xl border border-border/60 bg-parsel-panel shadow-parsel-sm md:block">
+              <div className="min-w-[920px]">
+              <div className="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1.1fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_auto_auto] gap-3 border-b border-border/60 bg-parsel-elevated/80 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                 <span>Müşteri</span>
-                <span>Bölge & Mülk</span>
+                <span>Bölge & mülk</span>
                 <span>Bütçe</span>
+                <span>Son görüşme</span>
+                <span>Takip</span>
                 <span>Fırsat</span>
-                <span className="text-right">Aksiyon</span>
+                <span className="text-right">İşlem</span>
               </div>
               <ul>
                 {filtered.map((customer) => (
@@ -339,6 +452,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
                   />
                 ))}
               </ul>
+              </div>
             </div>
 
             <ul className="flex flex-col gap-3 md:hidden">
@@ -365,22 +479,47 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
           {selected ? (
             <div className="space-y-6">
               <div className="flex items-start gap-3 border-b border-border/50 pb-4">
-                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-border/50 bg-gradient-to-br from-zinc-800 to-zinc-900 text-sm font-semibold text-foreground">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-border/60 bg-parsel-sunken/80 text-sm font-semibold text-foreground">
                   {getInitials(selected.adSoyad)}
                 </div>
                 <div className="min-w-0">
-                  <h2 className="font-outfit text-lg font-semibold text-foreground">
-                    {selected.adSoyad}
-                  </h2>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="font-outfit text-lg font-semibold text-foreground">
+                      {selected.adSoyad}
+                    </h2>
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                        getFollowUpStatus(selected).className,
+                      )}
+                    >
+                      {getFollowUpStatus(selected).label}
+                    </span>
+                  </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     Kayıt: {formatDate(selected.olusturulmaTarihi)}
                   </p>
+                  {formatKaynakLabel(selected.kaynak) ? (
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      Kaynak: {formatKaynakLabel(selected.kaynak)}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
-              <section className="space-y-3 rounded-2xl border border-border/50 bg-parsel-panel p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  Portföy Kriterleri
+              <section className="parsel-surface space-y-2 rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm">
+                <p className="parsel-section-label text-muted-foreground">Son görüşme</p>
+                <p className="text-sm font-medium text-foreground">
+                  {formatDate(selected.guncellenmeTarihi)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatRelativeUpdate(selected.guncellenmeTarihi)} · kayıt güncellemesine göre
+                </p>
+              </section>
+
+              <section className="parsel-surface space-y-3 rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm">
+                <p className="parsel-section-label text-muted-foreground">
+                  Portföy kriterleri
                 </p>
                 <div className="grid gap-2 text-sm">
                   <div>
@@ -406,8 +545,8 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
                 </div>
               </section>
 
-              <section className="space-y-2 rounded-2xl border border-border/50 bg-parsel-panel p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <section className="parsel-surface space-y-2 rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm">
+                <p className="parsel-section-label text-muted-foreground">
                   İletişim
                 </p>
                 {selected.telefon ? (
@@ -552,7 +691,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
               <Button
                 type="submit"
                 disabled={saving}
-                className="bg-parsel-gold text-black hover:brightness-110"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {saving ? "Kaydediliyor..." : editingId ? "Güncelle" : "Kaydet"}
               </Button>
@@ -578,31 +717,54 @@ function CustomerRow({
   onDelete: () => void;
 }) {
   const waHref = buildWhatsAppUrl(customer.telefon);
+  const status = getFollowUpStatus(customer);
+  const kaynakLabel = formatKaynakLabel(customer.kaynak);
 
   if (variant === "mobile") {
     return (
-      <li className="rounded-2xl border border-border/50 bg-parsel-panel p-4">
+      <li className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm">
         <div className="flex items-start gap-3">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-background text-xs font-semibold text-foreground">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-parsel-sunken/80 text-xs font-semibold text-foreground">
             {getInitials(customer.adSoyad)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-medium text-foreground">{customer.adSoyad}</p>
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="truncate font-medium text-foreground">{customer.adSoyad}</p>
+              <span
+                className={cn(
+                  "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                  status.className,
+                )}
+              >
+                {status.label}
+              </span>
+            </div>
+            <p className="mt-1 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+              <MapPin className="size-3 shrink-0" />
               {customer.region}
             </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {customer.propertyType}
-            </p>
+            <p className="truncate text-xs text-muted-foreground">{customer.propertyType}</p>
+            {kaynakLabel ? (
+              <p className="mt-1 truncate text-[11px] text-muted-foreground/80">
+                Kaynak: {kaynakLabel}
+              </p>
+            ) : null}
             <p className="mt-2 text-sm font-semibold text-parsel-gold">
               {customer.butce ?? "Bütçe belirtilmedi"}
             </p>
-            <span className="mt-2 inline-flex rounded-full border border-border/50 bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-              {customer.aktifFirsatSayisi} Aktif Fırsat
-            </span>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+              <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-parsel-elevated px-2 py-0.5">
+                <Briefcase className="size-3" />
+                {customer.aktifFirsatSayisi} fırsat
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Activity className="size-3" />
+                Son görüşme: {formatRelativeUpdate(customer.guncellenmeTarihi)}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="mt-4 flex justify-end gap-2">
+        <div className="mt-4 flex justify-end gap-2 border-t border-border/50 pt-3">
           <ActionButtons
             waHref={waHref}
             onProfile={onProfile}
@@ -615,9 +777,9 @@ function CustomerRow({
   }
 
   return (
-    <li className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1.2fr)_minmax(0,0.9fr)_auto_auto] items-center gap-3 border-b border-border/50 px-4 py-3 last:border-b-0">
+    <li className="grid grid-cols-[minmax(0,1.35fr)_minmax(0,1.1fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_auto_auto] items-center gap-3 border-b border-border/50 px-5 py-3.5 transition-colors last:border-b-0 hover:bg-foreground/[0.02]">
       <div className="flex min-w-0 items-center gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-background text-xs font-semibold text-foreground">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-parsel-sunken/80 text-xs font-semibold text-foreground">
           {getInitials(customer.adSoyad)}
         </div>
         <div className="min-w-0">
@@ -625,23 +787,39 @@ function CustomerRow({
             {customer.adSoyad}
           </p>
           {customer.telefon ? (
-            <p className="truncate text-[11px] text-muted-foreground">
-              {customer.telefon}
-            </p>
+            <p className="truncate text-xs text-muted-foreground">{customer.telefon}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground/70">Telefon yok</p>
+          )}
+          {kaynakLabel ? (
+            <p className="truncate text-[10px] text-muted-foreground/75">Kaynak: {kaynakLabel}</p>
           ) : null}
         </div>
       </div>
       <div className="min-w-0">
-        <p className="truncate text-xs text-foreground/90">{customer.region}</p>
-        <p className="truncate text-[11px] text-muted-foreground">
-          {customer.propertyType}
+        <p className="truncate text-sm text-foreground/90">{customer.region}</p>
+        <p className="truncate text-xs text-muted-foreground">{customer.propertyType}</p>
+      </div>
+      <p className="text-sm font-semibold text-parsel-gold">{customer.butce ?? "—"}</p>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-foreground/90">
+          {formatRelativeUpdate(customer.guncellenmeTarihi)}
+        </p>
+        <p className="text-[10px] text-muted-foreground">
+          {formatDate(customer.guncellenmeTarihi)}
         </p>
       </div>
-      <p className="text-sm font-semibold text-parsel-gold">
-        {customer.butce ?? "—"}
-      </p>
-      <span className="inline-flex w-fit rounded-full border border-border/50 bg-background px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-        {customer.aktifFirsatSayisi} Aktif
+      <span
+        className={cn(
+          "inline-flex w-fit rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+          status.className,
+        )}
+      >
+        {status.label}
+      </span>
+      <span className="inline-flex w-fit items-center gap-1 rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+        <Kanban className="size-3" />
+        {customer.aktifFirsatSayisi}
       </span>
       <ActionButtons
         waHref={waHref}
@@ -669,7 +847,7 @@ function ActionButtons({
       <button
         type="button"
         onClick={onEdit}
-        className="inline-flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground"
+        className="inline-flex size-8 items-center justify-center rounded-lg border border-border/60 text-muted-foreground transition-colors hover:border-primary/20 hover:bg-accent hover:text-foreground"
         aria-label="Düzenle"
       >
         <Pencil className="size-3.5" />
@@ -677,7 +855,7 @@ function ActionButtons({
       <button
         type="button"
         onClick={onDelete}
-        className="inline-flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-destructive"
+        className="inline-flex size-8 items-center justify-center rounded-lg border border-border/60 text-muted-foreground transition-colors hover:border-destructive/30 hover:text-destructive"
         aria-label="Sil"
       >
         <Trash2 className="size-3.5" />
@@ -703,7 +881,7 @@ function ActionButtons({
       <button
         type="button"
         onClick={onProfile}
-        className="inline-flex h-8 items-center rounded-lg border border-border bg-parsel-panel px-2.5 text-[11px] font-medium text-foreground/90 transition-colors hover:border-white/20 hover:text-foreground"
+        className="inline-flex h-8 items-center rounded-lg border border-border/60 bg-parsel-elevated px-2.5 text-[11px] font-medium text-foreground transition-colors hover:border-primary/20 hover:bg-accent"
       >
         Profili Gör
       </button>

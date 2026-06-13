@@ -4,7 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import {
   createContext,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -12,27 +12,19 @@ import {
 
 import { getClerkAppearance } from "@/lib/clerk-appearance";
 import { parselClerkLocalization } from "@/lib/clerk-localization";
-
-type ParselTheme = "light" | "dark";
+import {
+  applyParselTheme,
+  PARSEL_THEME_STORAGE_KEY,
+  readStoredTheme,
+  type ParselColorScheme,
+} from "@/lib/parsel-theme";
 
 type ParselThemeContextValue = {
-  resolvedTheme: ParselTheme;
-  setTheme: (theme: ParselTheme) => void;
+  resolvedTheme: ParselColorScheme;
+  setTheme: (theme: ParselColorScheme) => void;
 };
 
-const STORAGE_KEY = "parselos-theme";
 const ThemeContext = createContext<ParselThemeContextValue | null>(null);
-
-function readStoredTheme(): ParselTheme {
-  if (typeof window === "undefined") return "dark";
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return stored === "light" || stored === "dark" ? stored : "dark";
-}
-
-function applyTheme(theme: ParselTheme) {
-  document.documentElement.classList.toggle("dark", theme === "dark");
-  document.documentElement.style.colorScheme = theme;
-}
 
 function ClerkWithTheme({ children }: { children: ReactNode }) {
   const { resolvedTheme } = useParselTheme();
@@ -54,23 +46,23 @@ export function useParselTheme() {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [resolvedTheme, setResolvedTheme] = useState<ParselTheme>("dark");
+  const [resolvedTheme, setResolvedTheme] = useState<ParselColorScheme>("light");
 
-  useEffect(() => {
-    queueMicrotask(() => {
-      const nextTheme = readStoredTheme();
-      setResolvedTheme(nextTheme);
-      applyTheme(nextTheme);
-    });
+  useLayoutEffect(() => {
+    const nextTheme = readStoredTheme();
+    applyParselTheme(nextTheme);
+    // Reconcile React/Clerk with the blocking init script (CSS already applied).
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time client theme sync on mount
+    setResolvedTheme(nextTheme);
   }, []);
 
   const value = useMemo<ParselThemeContextValue>(
     () => ({
       resolvedTheme,
       setTheme(theme) {
-        window.localStorage.setItem(STORAGE_KEY, theme);
+        window.localStorage.setItem(PARSEL_THEME_STORAGE_KEY, theme);
         setResolvedTheme(theme);
-        applyTheme(theme);
+        applyParselTheme(theme);
       },
     }),
     [resolvedTheme],

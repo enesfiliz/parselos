@@ -1,11 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Mic, Square } from "lucide-react";
 
 import type { CrmVoicePayload } from "@/lib/types/crm";
 import { cn } from "@/lib/utils";
 
-type RecorderState = "idle" | "recording" | "processing";
+export type RecorderState = "idle" | "recording" | "processing";
+
+export type VoiceRecordResult = {
+  transcript: string;
+  data: CrmVoicePayload;
+};
 
 const MIME_CANDIDATES = [
   "audio/webm;codecs=opus",
@@ -52,7 +58,7 @@ function toCrmPayload(raw: Record<string, unknown>): CrmVoicePayload {
   };
 }
 
-async function sendToVoiceApi(file: File): Promise<CrmVoicePayload> {
+async function sendToVoiceApi(file: File): Promise<VoiceRecordResult> {
   const formData = new FormData();
   formData.append("audio", file);
 
@@ -61,48 +67,42 @@ async function sendToVoiceApi(file: File): Promise<CrmVoicePayload> {
     body: formData,
   });
 
-  const data: unknown = await response.json();
-  console.log("API'den Gelen Yanıt:", data);
+  const payload: unknown = await response.json();
 
   if (!response.ok) {
     const message =
-      data &&
-      typeof data === "object" &&
-      "error" in data &&
-      typeof data.error === "string"
-        ? data.error
+      payload &&
+      typeof payload === "object" &&
+      "error" in payload &&
+      typeof payload.error === "string"
+        ? payload.error
         : "Ses işlenirken bir hata oluştu.";
     throw new Error(message);
   }
 
-  if (!data || typeof data !== "object") {
+  if (!payload || typeof payload !== "object") {
     throw new Error("API yanıtı geçerli bir JSON nesnesi değil.");
   }
 
-  return toCrmPayload(data as Record<string, unknown>);
+  const record = payload as Record<string, unknown>;
+
+  return {
+    transcript: String(record.transcript ?? ""),
+    data: toCrmPayload(record),
+  };
 }
 
 type VoiceRecorderProps = {
-  onRecordSuccess?: (data: CrmVoicePayload) => void;
+  onRecordSuccess?: (result: VoiceRecordResult) => void;
+  onStateChange?: (state: RecorderState) => void;
 };
 
-function DataCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-border bg-card px-5 py-4">
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-3 text-sm font-medium leading-relaxed text-foreground">
-        {value || "—"}
-      </p>
-    </div>
-  );
-}
-
-export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
+export function VoiceRecorder({
+  onRecordSuccess,
+  onStateChange,
+}: VoiceRecorderProps) {
   const [state, setState] = useState<RecorderState>("idle");
   const [duration, setDuration] = useState(0);
-  const [data, setData] = useState<CrmVoicePayload | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -110,6 +110,14 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const durationRef = useRef(0);
+
+  const updateState = useCallback(
+    (next: RecorderState) => {
+      setState(next);
+      onStateChange?.(next);
+    },
+    [onStateChange],
+  );
 
   const releaseStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -133,9 +141,8 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
 
   async function processRecording(file: File) {
     try {
-      const crmData = await sendToVoiceApi(file);
-      setData(crmData);
-      onRecordSuccess?.(crmData);
+      const result = await sendToVoiceApi(file);
+      onRecordSuccess?.(result);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Ses işlenirken bir hata oluştu.";
@@ -144,13 +151,12 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
     } finally {
       setDuration(0);
       durationRef.current = 0;
-      setState("idle");
+      updateState("idle");
     }
   }
 
   async function startRecording() {
     setError(null);
-    setData(null);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -188,7 +194,7 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
       };
 
       recorder.start();
-      setState("recording");
+      updateState("recording");
 
       timerRef.current = setInterval(() => {
         durationRef.current += 1;
@@ -199,7 +205,7 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
       clearTimer();
       releaseStream();
       setError("Mikrofon erişimi reddedildi veya kullanılamıyor.");
-      setState("idle");
+      updateState("idle");
     }
   }
 
@@ -208,7 +214,7 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
 
     if (!recorder || recorder.state !== "recording") return;
 
-    setState("processing");
+    updateState("processing");
     clearTimer();
     recorder.stop();
   }
@@ -228,120 +234,84 @@ export function VoiceRecorder({ onRecordSuccess }: VoiceRecorderProps) {
   const isProcessing = state === "processing";
 
   return (
-    <div className="flex w-full flex-col items-center gap-12">
-      <div className="inline-flex flex-col items-center gap-8">
-        <div className="relative flex items-center justify-center">
-          {isRecording && (
-            <span
-              aria-hidden
-              className="absolute size-28 animate-ping rounded-full bg-foreground/5"
-            />
+    <div className="flex w-full flex-col items-center gap-6">
+      <div className="relative flex items-center justify-center">
+        <span
+          aria-hidden
+          className={cn(
+            "absolute size-28 rounded-full border transition-colors md:size-32",
+            isRecording ? "border-primary/25 bg-primary/5" : "border-border/60",
           )}
-          <span
-            aria-hidden
-            className={cn(
-              "absolute size-24 rounded-full border transition-colors duration-300",
-              isRecording ? "border-foreground/20" : "border-border",
-            )}
-          />
+        />
 
-          <button
-            type="button"
-            onClick={handleToggle}
-            disabled={isProcessing}
-            aria-label={
-              isRecording
-                ? "Kaydı durdur"
-                : isProcessing
-                  ? "Kayıt işleniyor"
-                  : "Ses kaydını başlat"
-            }
-            aria-pressed={isRecording}
-            className={cn(
-              "relative z-10 flex size-20 items-center justify-center rounded-full border transition-all duration-300 outline-none",
-              "focus-visible:ring-3 focus-visible:ring-ring/50",
-              "disabled:pointer-events-none disabled:opacity-60",
-              isRecording
-                ? "border-foreground/30 bg-foreground text-background shadow-lg"
-                : "border-border bg-background text-foreground hover:border-foreground/20 hover:bg-muted/30",
-            )}
-          >
-            <span
-              aria-hidden
-              className={cn(
-                "block transition-all duration-300",
-                isRecording
-                  ? "size-3.5 rounded-sm bg-background"
-                  : "size-5 rounded-full bg-foreground",
-              )}
-            />
-          </button>
-        </div>
-
-        <div className="flex min-w-[220px] flex-col items-center gap-4">
-          <div className="flex items-center gap-3 font-mono text-xs tracking-[0.2em] uppercase">
-            <span
-              aria-hidden
-              className={cn(
-                "size-1.5 rounded-full transition-colors",
-                isRecording
-                  ? "animate-pulse bg-foreground"
-                  : "bg-muted-foreground/40",
-              )}
-            />
-            <span className="text-muted-foreground">
-              {isProcessing ? "Sync" : isRecording ? "Rec" : "Standby"}
-            </span>
-            <span className="text-foreground/80">{formatDuration(duration)}</span>
-          </div>
-
-          <div aria-hidden className="flex h-8 items-end justify-center gap-1">
-            {Array.from({ length: 12 }).map((_, index) => (
-              <span
-                key={index}
-                className={cn(
-                  "w-0.5 rounded-full bg-foreground/15 transition-all duration-300",
-                  isRecording ? "animate-pulse bg-foreground/50" : "h-2",
-                )}
-                style={
-                  isRecording
-                    ? {
-                        height: `${10 + ((index * 7 + duration) % 22)}px`,
-                        animationDelay: `${index * 70}ms`,
-                      }
-                    : undefined
-                }
-              />
-            ))}
-          </div>
-
-          <p className="max-w-xs text-center text-xs leading-relaxed text-muted-foreground">
-            {isProcessing
-              ? "Ses notu API'ye gönderiliyor…"
-              : isRecording
-                ? "Durdurmak için tekrar dokunun."
-                : "Kayda başlamak için dokunun."}
-          </p>
-        </div>
+        <button
+          type="button"
+          onClick={handleToggle}
+          disabled={isProcessing}
+          aria-label={
+            isRecording
+              ? "Kaydı durdur"
+              : isProcessing
+                ? "Kayıt işleniyor"
+                : "Sesli not kaydını başlat"
+          }
+          aria-pressed={isRecording}
+          className={cn(
+            "relative z-10 flex size-24 items-center justify-center rounded-full border shadow-parsel-sm transition-colors outline-none md:size-28",
+            "focus-visible:ring-2 focus-visible:ring-primary/30",
+            "disabled:pointer-events-none disabled:opacity-60",
+            isRecording
+              ? "border-destructive/30 bg-destructive text-destructive-foreground"
+              : "border-primary/30 bg-primary text-primary-foreground hover:bg-primary/90",
+          )}
+        >
+          {isRecording ? (
+            <Square className="size-7 fill-current md:size-8" strokeWidth={0} />
+          ) : (
+            <Mic className="size-9 md:size-10" strokeWidth={1.75} />
+          )}
+        </button>
       </div>
 
-      {error && (
-        <div className="w-full max-w-2xl rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-4 text-sm text-destructive">
+      <div className="flex w-full max-w-sm flex-col items-center gap-3 text-center">
+        <p className="font-mono text-2xl tabular-nums tracking-tight text-foreground">
+          {formatDuration(duration)}
+        </p>
+        <p className="text-sm font-medium text-foreground">
+          {isProcessing
+            ? "Ses notu ayrıştırılıyor…"
+            : isRecording
+              ? "Kayıt devam ediyor — durdurmak için dokunun"
+              : "Saha görüşmesini sesli not olarak kaydedin"}
+        </p>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {isProcessing
+            ? "Transkript ve CRM alanları hazırlanıyor."
+            : isRecording
+              ? "Müşteri adı, bütçe, bölge ve mülk tipini doğal konuşmayla aktarın."
+              : "Tek dokunuşla kayda başlayın; not otomatik müşteri profiline dönüşür."}
+        </p>
+      </div>
+
+      {isRecording ? (
+        <div aria-hidden className="flex h-8 items-end justify-center gap-1">
+          {Array.from({ length: 10 }).map((_, index) => (
+            <span
+              key={index}
+              className="w-1 rounded-full bg-primary/40"
+              style={{
+                height: `${10 + ((index * 5 + duration) % 18)}px`,
+              }}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {error ? (
+        <div className="w-full rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
-      )}
-
-      {data && !onRecordSuccess && (
-        <div className="w-full max-w-2xl pt-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <DataCard label="Müşteri Adı" value={data.musteri_adi} />
-            <DataCard label="Bütçe" value={data.butce} />
-            <DataCard label="Lokasyon" value={data.lokasyon} />
-            <DataCard label="Mülk Tipi" value={data.mulk_tipi} />
-            <DataCard label="Notlar" value={data.notlar} />
-          </div>
-        </div>
-      )}
+      ) : null}
     </div>
   );
 }
