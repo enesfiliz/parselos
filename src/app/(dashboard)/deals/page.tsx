@@ -7,7 +7,6 @@ import {
   TouchSensor,
   pointerWithin,
   rectIntersection,
-  useDroppable,
   useSensor,
   useSensors,
   type CollisionDetection,
@@ -63,8 +62,10 @@ import {
 import { DealAppointmentTimeline } from "@/components/features/deals/DealAppointmentTimeline";
 import { DealDocumentsPanel } from "@/components/features/deals/DealDocumentsPanel";
 import { DealIntelligenceNote } from "@/components/features/deals/DealIntelligenceNote";
+import { DealsEmptyState } from "@/components/features/deals/DealsEmptyState";
+import { DealsLoadingState } from "@/components/features/deals/DealsLoadingState";
 import { DealKanbanCard } from "@/components/features/deals/kanban/DealKanbanCard";
-import { DraggableDealKanbanCard } from "@/components/features/deals/kanban/DraggableDealKanbanCard";
+import { DealKanbanColumn } from "@/components/features/deals/kanban/DealKanbanColumn";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { resolvePropertyType } from "@/lib/deals/deal-display-helpers";
 import { formatFsboMatchPercent } from "@/lib/deals/match-score";
@@ -78,7 +79,6 @@ import {
   DEAL_STAGES,
   DEFAULT_DEAL_TASKS,
   applyOptimisticDealMove,
-  formatCompactTRY,
   formatFullTRY,
   resolveDealBudgetTL,
   taskProgress,
@@ -885,67 +885,6 @@ function DealTasksPanel({
   );
 }
 
-function KanbanColumn({
-  stageId,
-  label,
-  deals,
-  onOpenDeal,
-  onDeleteDeal,
-  onStageChange,
-  enableDrag,
-}: {
-  stageId: DealStageId;
-  label: string;
-  deals: DealCardData[];
-  onOpenDeal: (deal: DealCardData) => void;
-  onDeleteDeal: (dealId: string) => void;
-  onStageChange: (dealId: string, stage: DealStageId) => void;
-  enableDrag: boolean;
-}) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: stageId,
-    disabled: !enableDrag,
-  });
-  const vol = deals.reduce((s, d) => s + resolveDealBudgetTL(d), 0);
-
-  return (
-    <div className="flex w-[min(82vw,280px)] shrink-0 snap-start flex-col md:w-[min(100%,292px)]">
-      <div className="mb-3 px-1">
-        <h2 className="text-sm font-semibold text-foreground">{label}</h2>
-        <p className="mt-0.5 text-[11px] font-medium text-muted-foreground md:text-[10px]">
-          {deals.length} Aktif · {formatCompactTRY(vol)}
-        </p>
-      </div>
-      <div
-        ref={setNodeRef}
-        className={cn(
-          "min-h-[120px] flex-1 rounded-2xl border border-border/50 bg-parsel-sunken p-2.5 transition-colors md:min-h-[520px]",
-          isOver && "border-border bg-parsel-sunken",
-        )}
-      >
-        <div className="flex flex-col gap-3">
-          {deals.length === 0 ? (
-            <p className="px-2 py-6 text-center text-[11px] text-muted-foreground">
-              Bu aşamada fırsat yok
-            </p>
-          ) : (
-            deals.map((deal) => (
-              <DraggableDealKanbanCard
-                key={deal.id}
-                deal={deal}
-                enableDrag={enableDrag}
-                onOpen={() => onOpenDeal(deal)}
-                onDelete={() => onDeleteDeal(deal.id)}
-                onStageChange={(stage) => onStageChange(deal.id, stage)}
-              />
-            ))
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ─── Main Page ─────────────────────────────────────────────────────────── */
 
 export default function DealsPage() {
@@ -1347,11 +1286,7 @@ export default function DealsPage() {
     : DEFAULT_DEAL_TASKS;
 
   if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center bg-background">
-        <Loader2 className="size-6 animate-spin text-parsel-gold" />
-      </div>
-    );
+    return <DealsLoadingState />;
   }
 
   return (
@@ -1403,19 +1338,7 @@ export default function DealsPage() {
       </header>
 
       {deals.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border/50 bg-parsel-panel px-6 py-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            Henüz fırsat yok.{" "}
-            <button
-              type="button"
-              onClick={handleAddDeal}
-              className="font-semibold text-parsel-gold hover:underline"
-            >
-              İlk fırsatı ekleyin
-            </button>{" "}
-            veya FSBO Radarından pipeline&apos;a gönderin.
-          </p>
-        </div>
+        <DealsEmptyState onCreateDeal={handleAddDeal} />
       ) : null}
 
       <DndContext
@@ -1432,7 +1355,7 @@ export default function DealsPage() {
           )}
         >
           {DEAL_STAGES.map((col) => (
-            <KanbanColumn
+            <DealKanbanColumn
               key={col.id}
               stageId={col.id}
               label={col.label}

@@ -47,6 +47,11 @@ export async function touchAgentActivity(clerkUserId: string) {
   });
 }
 
+/**
+ * Tüm agentId: null kayıtlarını verilen agent'a atar.
+ * Yalnızca explicit migration/dev script'lerinden çağrılmalıdır —
+ * signup, webhook veya ensureCurrentAgent akışında otomatik kullanılmaz.
+ */
 export async function assignOrphanRecordsToAgent(agentId: string) {
   await Promise.all([
     prisma.fsboLead.updateMany({
@@ -86,15 +91,7 @@ export async function ensureCurrentAgent() {
     image_url: user.imageUrl,
   };
 
-  const existing = await getAgentForClerkUserId(user.id);
   const agent = await upsertAgentFromClerk(clerkProfile);
-
-  if (!existing) {
-    const agentCount = await prisma.agent.count();
-    if (agentCount === 1) {
-      await assignOrphanRecordsToAgent(agent.id);
-    }
-  }
 
   return agent;
 }
@@ -120,7 +117,5 @@ export async function requireCurrentAgent() {
 }
 
 export function agentOwnershipFilter(agentId: string) {
-  return {
-    OR: [{ agentId }, { agentId: null }],
-  };
+  return { agentId };
 }

@@ -33,6 +33,7 @@
     "db:setup-voice-crm": "node --env-file=.env.local scripts/setup-voice-crm-table.mjs",
     "fsbo:hunt": "node --env-file=.env.local scripts/fsbo-opportunity-hunter.mjs",
     "fsbo:seed": "node --env-file=.env.local scripts/seed-fsbo-local.mjs",
+    "upgrade:test-broker": "node --env-file=.env.local --import tsx scripts/upgrade-test-account-to-broker.ts",
     "fsbo:bot:setup": "node scripts/setup-scraper-bot.mjs",
     "fsbo:bot:install": "npm install --prefix scraper-bot",
     "fsbo:bot:once": "npm run scrape:once --prefix scraper-bot",

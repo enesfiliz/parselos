@@ -2,7 +2,6 @@ import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import type { NextRequest } from "next/server";
 
 import {
-  assignOrphanRecordsToAgent,
   touchAgentActivity,
   upsertAgentFromClerk,
   type ClerkUserLike,
@@ -44,9 +43,6 @@ export async function POST(request: NextRequest) {
           await syncAgentProfileToClerk(event.data.id, profileAgent, tenant);
         }
 
-        if (event.type === "user.created") {
-          await assignOrphanRecordsToAgent(agent.id);
-        }
         break;
       }
 
