@@ -7,7 +7,6 @@ import {
   TouchSensor,
   pointerWithin,
   rectIntersection,
-  useDraggable,
   useDroppable,
   useSensor,
   useSensors,
@@ -15,7 +14,6 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import {
   CheckSquare,
   ChevronDown,
@@ -47,7 +45,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
 } from "react";
 import { toast } from "sonner";
 
@@ -67,6 +64,7 @@ import { DealAppointmentTimeline } from "@/components/features/deals/DealAppoint
 import { DealDocumentsPanel } from "@/components/features/deals/DealDocumentsPanel";
 import { DealIntelligenceNote } from "@/components/features/deals/DealIntelligenceNote";
 import { DealKanbanCard } from "@/components/features/deals/kanban/DealKanbanCard";
+import { DraggableDealKanbanCard } from "@/components/features/deals/kanban/DraggableDealKanbanCard";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { resolvePropertyType } from "@/lib/deals/deal-display-helpers";
 import { formatFsboMatchPercent } from "@/lib/deals/match-score";
@@ -887,58 +885,6 @@ function DealTasksPanel({
   );
 }
 
-function DraggableKanbanCard({
-  deal,
-  onOpen,
-  onDelete,
-  onStageChange,
-  enableDrag,
-}: {
-  deal: DealCardData;
-  onOpen: () => void;
-  onDelete: () => void;
-  onStageChange?: (stage: DealStageId) => void;
-  enableDrag: boolean;
-}) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: deal.id,
-      data: { stage: deal.stage },
-      disabled: !enableDrag,
-    });
-
-  const style: CSSProperties = enableDrag
-    ? {
-        opacity: isDragging ? 0.12 : 1,
-        transform: isDragging ? undefined : CSS.Translate.toString(transform),
-        pointerEvents: isDragging ? "none" : undefined,
-      }
-    : {};
-
-  if (!enableDrag) {
-    return (
-      <DealKanbanCard
-        deal={deal}
-        onOpen={onOpen}
-        onDelete={onDelete}
-        onStageChange={onStageChange}
-        showStageSelect
-      />
-    );
-  }
-
-  return (
-    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      <DealKanbanCard
-        deal={deal}
-        onOpen={onOpen}
-        onDelete={onDelete}
-        isDragging={isDragging}
-      />
-    </div>
-  );
-}
-
 function KanbanColumn({
   stageId,
   label,
@@ -984,7 +930,7 @@ function KanbanColumn({
             </p>
           ) : (
             deals.map((deal) => (
-              <DraggableKanbanCard
+              <DraggableDealKanbanCard
                 key={deal.id}
                 deal={deal}
                 enableDrag={enableDrag}
