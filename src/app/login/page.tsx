@@ -10,9 +10,16 @@ export const metadata: Metadata = {
   title: "Giriş",
 };
 
-export default async function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ redirect_url?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams;
   const { userId } = await auth();
-  if (userId) redirect("/dashboard");
+  if (userId) {
+    redirect(params.redirect_url || "/dashboard");
+  }
 
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-background px-4">

@@ -2,36 +2,28 @@ import "server-only";
 
 import type { Agent, TenantMemberRole } from "@prisma/client";
 
-import { findValidInvite } from "@/lib/account/invite-codes";
+import {
+  canAcceptOfficeInvite,
+  getAgentJoinEligibility,
+  InviteRedeemError,
+  resolveInviteForAccept,
+} from "@/lib/account/invite-accept";
 import { syncAgentProfileToClerk } from "@/lib/account/sync-profile-metadata";
 import { prisma } from "@/lib/prisma";
 
+export { InviteRedeemError } from "@/lib/account/invite-accept";
+
 export async function redeemInviteForAgent(agent: Agent, rawCode: string) {
-  const invite = await findValidInvite(rawCode);
-  if (!invite) {
-    throw new Error("Davet kodu geçersiz, süresi dolmuş veya kullanım limiti aşılmış.");
+  const invite = await resolveInviteForAccept(rawCode);
+
+  const acceptance = await canAcceptOfficeInvite(agent, invite);
+  if (!acceptance.ok) {
+    throw new InviteRedeemError(acceptance.code, acceptance.message);
   }
 
-  if (agent.tenantId === invite.tenantId) {
-    throw new Error("Zaten bu ofisin üyesisiniz.");
-  }
+  const eligibility = await getAgentJoinEligibility(agent);
 
-  if (agent.tenantId) {
-    const currentTenant = await prisma.tenant.findUnique({
-      where: { id: agent.tenantId },
-      include: { agents: { select: { id: true } } },
-    });
-
-    const isSoloOwner =
-      currentTenant?.ownerAgentId === agent.id &&
-      currentTenant.agents.length === 1;
-
-    if (!isSoloOwner) {
-      throw new Error(
-        "Başka bir ofise katılmak için mevcut ofis bağlantınızı kaldırmanız gerekir.",
-      );
-    }
-
+  if (eligibility.willAbandonSoloTenant && agent.tenantId) {
     await prisma.tenant.delete({ where: { id: agent.tenantId } });
   }
 

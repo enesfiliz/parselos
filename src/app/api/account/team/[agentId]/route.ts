@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import {
+  canChangeTeamMemberRole,
+  canManageOfficeInvites,
   canRemoveTeamMember,
-  canManageTeam,
 } from "@/lib/account/permissions";
 import {
   removeAgentFromTenant,
@@ -20,14 +21,17 @@ const patchSchema = z.object({
 
 type RouteContext = { params: Promise<{ agentId: string }> };
 
+const teamDeniedMessage =
+  "Ekip yönetimi yalnızca Broker Ofis paketindeki ofis sahibi veya yönetici tarafından kullanılabilir.";
+
 export async function PATCH(request: Request, context: RouteContext) {
   try {
     const { agentId } = await context.params;
     const actor = await requireCurrentAgent();
     const { tenant } = await getOrCreateTenantForAgent(actor.id);
 
-    if (!canManageTeam(actor)) {
-      return NextResponse.json({ error: "Yetkiniz yok." }, { status: 403 });
+    if (!canManageOfficeInvites(actor, tenant)) {
+      return NextResponse.json({ error: teamDeniedMessage }, { status: 403 });
     }
 
     const body = patchSchema.parse(await request.json());
@@ -40,7 +44,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     if (body.action === "remove") {
-      if (!canRemoveTeamMember(actor, target)) {
+      if (!canRemoveTeamMember(actor, target, tenant)) {
         return NextResponse.json({ error: "Bu üyeyi kaldıramazsınız." }, { status: 403 });
       }
       await removeAgentFromTenant(actor.id, agentId, tenant.id);
@@ -48,7 +52,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     if (body.tenantMemberRole) {
-      if (actor.tenantMemberRole !== "OWNER") {
+      if (!canChangeTeamMemberRole(actor, tenant)) {
         return NextResponse.json({ error: "Rol değiştirme yetkisi yok." }, { status: 403 });
       }
       const updated = await updateTeamMemberRole(

@@ -49,6 +49,7 @@ const isDashboardRoute = createRouteMatcher([
   "/calendar(.*)",
   "/billing(.*)",
   "/account(.*)",
+  "/invite(.*)",
   "/admin(.*)",
 ]);
 
@@ -137,6 +138,7 @@ export const config = {
     "/admin(.*)",
     "/arsiv(.*)",
     "/account(.*)",
+    "/invite(.*)",
     "/billing(.*)",
     "/calculators(.*)",
     "/calendar(.*)",

@@ -47,6 +47,7 @@ type SummaryData = {
   };
   capabilities: {
     canManageTeam: boolean;
+    canManageOfficeInvites: boolean;
     canViewBrokerMetrics: boolean;
   };
   stats: {
@@ -150,7 +151,7 @@ export function MembershipMenu({ className }: { className?: string }) {
     summary?.agent.email ?? user?.primaryEmailAddress?.emailAddress ?? "";
 
   const menuLinks = useMemo(() => {
-    const teamLink: MenuLink = summary?.capabilities.canManageTeam
+    const teamLink: MenuLink = summary?.capabilities.canManageOfficeInvites
       ? {
           href: "/account?tab=ekip",
           label: "Ekip Yönetimi",
@@ -185,7 +186,7 @@ export function MembershipMenu({ className }: { className?: string }) {
       STATIC_LINKS[2]!,
       STATIC_LINKS[3]!,
     ];
-  }, [summary?.capabilities.canManageTeam, summary?.capabilities.canViewBrokerMetrics]);
+  }, [summary?.capabilities.canManageOfficeInvites, summary?.capabilities.canViewBrokerMetrics]);
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>

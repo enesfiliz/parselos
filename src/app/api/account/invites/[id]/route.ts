@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 
-import { canCreateInvites } from "@/lib/account/permissions";
+import { canManageOfficeInvites } from "@/lib/account/permissions";
 import { requireCurrentAgent } from "@/lib/auth/agent";
 import { getOrCreateTenantForAgent } from "@/lib/billing/tenant";
 import { prisma } from "@/lib/prisma";
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+const inviteDeniedMessage =
+  "Davet yönetimi yalnızca Broker Ofis paketindeki ofis sahibi veya yönetici tarafından kullanılabilir.";
 
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
@@ -13,8 +16,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
     const agent = await requireCurrentAgent();
     const { tenant } = await getOrCreateTenantForAgent(agent.id);
 
-    if (!canCreateInvites(agent)) {
-      return NextResponse.json({ error: "Yetkiniz yok." }, { status: 403 });
+    if (!canManageOfficeInvites(agent, tenant)) {
+      return NextResponse.json({ error: inviteDeniedMessage }, { status: 403 });
     }
 
     const invite = await prisma.tenantInvite.findFirst({

@@ -38,7 +38,11 @@ import {
   ORGANIZATION_TYPE_LABELS,
   STATUS_LABELS,
 } from "@/lib/account/labels";
-import { canManageTeam, canViewBrokerMetrics } from "@/lib/account/permissions";
+import {
+  canManageOfficeInvites,
+  canManageTeam,
+  canViewBrokerMetrics,
+} from "@/lib/account/permissions";
 import { getClerkAppearance } from "@/lib/clerk-appearance";
 import { cn } from "@/lib/utils";
 import { TTBS_OFFICIAL_VERIFY_URL } from "@/lib/account/ttbs-constants";
@@ -60,6 +64,7 @@ type ProfileData = {
     imageUrl: string | null;
     roleType: AgentRoleType;
     tenantMemberRole: TenantMemberRole;
+    tenantId: string | null;
     professionalTitle: string | null;
     phone: string | null;
     licenseNumber: string | null;
@@ -123,6 +128,13 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
     initialData.tenant,
   );
   const manageTeam = canManageTeam(initialData.agent);
+  const manageOfficeInvites = canManageOfficeInvites(
+    {
+      tenantId: initialData.agent.tenantId,
+      tenantMemberRole: initialData.agent.tenantMemberRole,
+    },
+    initialData.tenant,
+  );
 
   const tabs = BASE_TABS.filter(
     (tab) => !tab.brokerOnly || showBrokerMetrics,
@@ -553,7 +565,16 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
         </TabsContent>
 
         <TabsContent value="ekip">
-          <TeamPanel canManage={manageTeam} currentAgentId={initialData.agent.id} />
+          <TeamPanel
+            currentAgentId={initialData.agent.id}
+            agent={{
+              id: initialData.agent.id,
+              tenantId: initialData.agent.tenantId,
+              tenantMemberRole: initialData.agent.tenantMemberRole,
+            }}
+            tenant={initialData.tenant}
+            canManageInvites={manageOfficeInvites}
+          />
         </TabsContent>
 
         <TabsContent value="metrikler">

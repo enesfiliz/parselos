@@ -5,9 +5,16 @@ import { redirect } from "next/navigation";
 import { SignUpPanel } from "@/components/features/auth/SignUpPanel";
 import { Logo } from "@/components/ui/Logo";
 
-export default async function SignUpPage() {
+type SignUpPageProps = {
+  searchParams: Promise<{ redirect_url?: string }>;
+};
+
+export default async function SignUpPage({ searchParams }: SignUpPageProps) {
+  const params = await searchParams;
   const { userId } = await auth();
-  if (userId) redirect("/dashboard");
+  if (userId) {
+    redirect(params.redirect_url || "/dashboard");
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-10 bg-background px-4 py-16">

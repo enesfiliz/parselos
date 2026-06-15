@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Copy,
+  Crown,
   Loader2,
   RefreshCw,
   Trash2,
@@ -18,9 +20,23 @@ import {
 } from "@/components/features/account/RoleBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { memberRoleLabel } from "@/lib/account/permissions";
+import {
+  brokerOfficeUpgradeMessage,
+  canShowOfficeJoinForm,
+  isBrokerOfficeTenant,
+  isOfficeInviteAdmin,
+  memberRoleLabel,
+} from "@/lib/account/permissions";
+import { buildInviteAcceptUrl } from "@/lib/account/invite-shared";
 import { cn } from "@/lib/utils";
-import type { AgentRoleType, LicenseVerificationStatus, TenantMemberRole } from "@prisma/client";
+import type {
+  AgentRoleType,
+  LicenseVerificationStatus,
+  TenantMemberRole,
+  TenantOrganizationType,
+  TenantPlanType,
+  TenantStatus,
+} from "@/lib/account/types";
 
 type TeamMember = {
   id: string;
@@ -47,15 +63,32 @@ type Invite = {
 };
 
 type TeamPanelProps = {
-  canManage: boolean;
   currentAgentId: string;
+  agent: {
+    id: string;
+    tenantId: string | null;
+    tenantMemberRole: TenantMemberRole;
+  };
+  tenant: {
+    id: string;
+    name: string;
+    planType: TenantPlanType;
+    status: TenantStatus;
+    organizationType: TenantOrganizationType;
+  };
+  canManageInvites: boolean;
 };
 
-export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
+export function TeamPanel({
+  currentAgentId,
+  agent,
+  tenant,
+  canManageInvites: _initialCanManageInvites,
+}: TeamPanelProps) {
   const searchParams = useSearchParams();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [invites, setInvites] = useState<Invite[]>([]);
-  const [tenantName, setTenantName] = useState("");
+  const [canManageInvites, setCanManageInvites] = useState(_initialCanManageInvites);
   const [loading, setLoading] = useState(true);
   const [creatingInvite, setCreatingInvite] = useState(false);
   const [joinCode, setJoinCode] = useState(
@@ -63,31 +96,39 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
   );
   const [joining, setJoining] = useState(false);
 
+  const showJoinForm = canShowOfficeJoinForm(agent, tenant, members.length);
+  const showInviteUpgrade =
+    isOfficeInviteAdmin(agent) && !isBrokerOfficeTenant(tenant);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [teamRes, inviteRes] = await Promise.all([
-        fetch("/api/account/team"),
-        canManage ? fetch("/api/account/invites") : Promise.resolve(null),
-      ]);
+      const teamRes = await fetch("/api/account/team");
+      if (!teamRes.ok) return;
 
-      if (teamRes.ok) {
-        const data = (await teamRes.json()) as {
-          members: TeamMember[];
-          tenant: { name: string };
-        };
-        setMembers(data.members);
-        setTenantName(data.tenant.name);
-      }
+      const data = (await teamRes.json()) as {
+        members: TeamMember[];
+        tenant: { name: string };
+        canManageInvites: boolean;
+      };
+      setMembers(data.members);
+      setCanManageInvites(data.canManageInvites);
 
-      if (inviteRes?.ok) {
-        const data = (await inviteRes.json()) as { invites: Invite[] };
-        setInvites(data.invites.filter((i) => i.isActive));
+      if (data.canManageInvites) {
+        const inviteRes = await fetch("/api/account/invites");
+        if (inviteRes.ok) {
+          const inviteData = (await inviteRes.json()) as { invites: Invite[] };
+          setInvites(inviteData.invites.filter((i) => i.isActive));
+        } else {
+          setInvites([]);
+        }
+      } else {
+        setInvites([]);
       }
     } finally {
       setLoading(false);
     }
-  }, [canManage]);
+  }, []);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -118,10 +159,13 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
 
   async function revokeInvite(id: string) {
     const res = await fetch(`/api/account/invites/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      toast.message("Davet iptal edildi");
-      void load();
+    const data = (await res.json()) as { error?: string };
+    if (!res.ok) {
+      toast.error(data.error ?? "Davet iptal edilemedi");
+      return;
     }
+    toast.message("Davet iptal edildi");
+    void load();
   }
 
   async function removeMember(agentId: string) {
@@ -152,7 +196,7 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
       if (!res.ok) throw new Error(data.error);
       toast.success(data.message ?? "Ofise katıldınız");
       setJoinCode("");
-      window.location.reload();
+      window.location.href = "/account?tab=ekip";
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Katılım başarısız");
     } finally {
@@ -165,6 +209,12 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
     toast.success("Kopyalandı", { description: code });
   }
 
+  function copyInviteLink(code: string) {
+    const url = buildInviteAcceptUrl(code);
+    void navigator.clipboard.writeText(url);
+    toast.success("Davet linki kopyalandı", { description: url });
+  }
+
   if (loading) {
     return (
       <div className="flex h-48 items-center justify-center">
@@ -175,14 +225,16 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
 
   return (
     <div className="space-y-6">
-      {!canManage ? (
+      {showJoinForm ? (
         <section className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-card p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
             <UserPlus className="size-5 text-primary" />
-            <h3 className="font-outfit text-lg font-semibold">Ofise Katıl</h3>
+            <h3 className="font-outfit text-lg font-semibold">
+              Davet kodu ile ofise katıl
+            </h3>
           </div>
           <p className="mb-4 text-sm text-muted-foreground">
-            Brokerınızdan aldığınız davet kodunu girerek {tenantName || "ofise"}{" "}
+            Brokerınızdan aldığınız davet kodunu veya linki yapıştırarak ofise
             bağlanın.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -204,13 +256,31 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
         </section>
       ) : null}
 
-      {canManage ? (
+      {showInviteUpgrade ? (
+        <section className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-card p-6 shadow-sm">
+          <div className="mb-2 flex items-center gap-2">
+            <Crown className="size-5 text-amber-600" />
+            <h3 className="font-outfit text-lg font-semibold">Broker Ofis Davetleri</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {brokerOfficeUpgradeMessage(tenant.planType)}
+          </p>
+          <Link
+            href="/account?tab=abonelik"
+            className="mt-4 inline-flex h-9 items-center justify-center rounded-md border border-border bg-background px-4 text-sm font-medium hover:bg-muted"
+          >
+            Paketleri incele
+          </Link>
+        </section>
+      ) : null}
+
+      {canManageInvites ? (
         <section className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-card p-6 shadow-sm">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="font-outfit text-lg font-semibold">Davet Kodları</h3>
               <p className="text-sm text-muted-foreground">
-                Danışmanlarınız bu kodla ofisinize katılabilir.
+                Danışmanlarınız bu kod veya link ile ofisinize katılabilir.
               </p>
             </div>
             <Button
@@ -239,9 +309,12 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
                   key={invite.id}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-background/80 px-4 py-3"
                 >
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="font-mono text-base font-bold tracking-widest text-foreground">
                       {invite.code}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {buildInviteAcceptUrl(invite.code)}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {invite.usedCount}/{invite.maxUses} kullanım ·{" "}
@@ -251,7 +324,16 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
                       sona erer
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => copyInviteLink(invite.code)}
+                    >
+                      <Copy className="size-3.5" />
+                      Link
+                    </Button>
                     <Button
                       type="button"
                       size="sm"
@@ -259,7 +341,7 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
                       onClick={() => copyCode(invite.code)}
                     >
                       <Copy className="size-3.5" />
-                      Kopyala
+                      Kod
                     </Button>
                     <Button
                       type="button"
@@ -333,7 +415,7 @@ export function TeamPanel({ canManage, currentAgentId }: TeamPanelProps) {
                       {member._count.deals}
                     </td>
                     <td className="py-3 text-right">
-                      {canManage &&
+                      {canManageInvites &&
                       !isSelf &&
                       member.tenantMemberRole !== "OWNER" ? (
                         <Button

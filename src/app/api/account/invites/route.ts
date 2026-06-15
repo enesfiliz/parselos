@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { createTenantInvite } from "@/lib/account/invite-codes";
-import { canCreateInvites } from "@/lib/account/permissions";
+import { canManageOfficeInvites } from "@/lib/account/permissions";
 import { requireCurrentAgent } from "@/lib/auth/agent";
 import { getOrCreateTenantForAgent } from "@/lib/billing/tenant";
 import { prisma } from "@/lib/prisma";
@@ -12,13 +12,16 @@ const createInviteSchema = z.object({
   expiresInDays: z.number().int().min(1).max(90).optional(),
 });
 
+const inviteDeniedMessage =
+  "Davet yönetimi yalnızca Broker Ofis paketindeki ofis sahibi veya yönetici tarafından kullanılabilir.";
+
 export async function GET() {
   try {
     const agent = await requireCurrentAgent();
     const { tenant } = await getOrCreateTenantForAgent(agent.id);
 
-    if (!canCreateInvites(agent)) {
-      return NextResponse.json({ error: "Davet yönetimi yetkiniz yok." }, { status: 403 });
+    if (!canManageOfficeInvites(agent, tenant)) {
+      return NextResponse.json({ error: inviteDeniedMessage }, { status: 403 });
     }
 
     const invites = await prisma.tenantInvite.findMany({
@@ -39,8 +42,8 @@ export async function POST(request: Request) {
     const agent = await requireCurrentAgent();
     const { tenant } = await getOrCreateTenantForAgent(agent.id);
 
-    if (!canCreateInvites(agent)) {
-      return NextResponse.json({ error: "Davet oluşturma yetkiniz yok." }, { status: 403 });
+    if (!canManageOfficeInvites(agent, tenant)) {
+      return NextResponse.json({ error: inviteDeniedMessage }, { status: 403 });
     }
 
     const body = createInviteSchema.parse(await request.json());

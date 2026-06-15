@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { canManageTeam } from "@/lib/account/permissions";
+import {
+  canManageOfficeInvites,
+  canManageTeam,
+} from "@/lib/account/permissions";
 import { requireCurrentAgent } from "@/lib/auth/agent";
 import { getOrCreateTenantForAgent } from "@/lib/billing/tenant";
 import { prisma } from "@/lib/prisma";
@@ -35,10 +38,12 @@ export async function GET() {
       tenant: {
         id: tenant.id,
         name: tenant.name,
+        planType: tenant.planType,
         organizationType: tenant.organizationType,
       },
       members,
       canManage: canManageTeam(agent),
+      canManageInvites: canManageOfficeInvites(agent, tenant),
     });
   } catch (error) {
     console.error("[GET /api/account/team]", error);

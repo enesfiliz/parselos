@@ -25,10 +25,14 @@ export type TenantStatus = (typeof TENANT_STATUSES)[number];
 
 export type AgentPermissionSlice = {
   id: string;
+  tenantId?: string | null;
   tenantMemberRole: TenantMemberRole;
   roleType?: AgentRoleType;
 };
 
 export type TenantPermissionSlice = {
+  id?: string;
+  planType?: TenantPlanType;
+  status?: TenantStatus;
   organizationType: TenantOrganizationType;
 };

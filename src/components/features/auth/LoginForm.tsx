@@ -2,6 +2,7 @@
 
 import { useSignIn } from "@clerk/nextjs";
 import { Eye, EyeOff, Loader2, Lock } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
@@ -17,6 +18,10 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
 
   const isBusy = submitting || fetchStatus === "fetching";
+  const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
+  const signUpHref = redirectUrl
+    ? `/sign-up?redirect_url=${encodeURIComponent(redirectUrl)}`
+    : "/sign-up";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,7 +42,6 @@ export function LoginForm() {
     }
 
     if (signIn.status === "complete") {
-      const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
       const { error: finalizeError } = await signIn.finalize({
         navigate: async () => {
           router.push(redirectUrl);
@@ -143,6 +147,13 @@ export function LoginForm() {
         <p className="mt-4 flex items-center justify-center gap-1 text-center text-[10px] text-muted-foreground">
           <Lock className="h-3 w-3 shrink-0" strokeWidth={1.75} />
           256-bit SSL Güvenli Bağlantı
+        </p>
+
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Hesabınız yok mu?{" "}
+          <Link href={signUpHref} className="font-medium text-primary hover:underline">
+            Kayıt olun
+          </Link>
         </p>
       </div>
     </div>

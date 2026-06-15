@@ -4,7 +4,11 @@ import { randomBytes } from "crypto";
 
 import type { AgentRoleType, TenantMemberRole } from "@prisma/client";
 
+import { normalizeInviteCode } from "@/lib/account/invite-shared";
 import { prisma } from "@/lib/prisma";
+
+export { normalizeInviteCode, buildInviteAcceptPath, buildInviteAcceptUrl } from "@/lib/account/invite-shared";
+export type { InvitePreview } from "@/lib/account/invite-shared";
 
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -17,11 +21,7 @@ export function generateInviteCode() {
   return `PSL-${suffix}`;
 }
 
-export function normalizeInviteCode(raw: string) {
-  return raw.trim().toUpperCase().replace(/\s+/g, "");
-}
-
-export async function findValidInvite(code: string) {
+export async function lookupInvite(code: string) {
   const normalized = normalizeInviteCode(code);
   const invite = await prisma.tenantInvite.findUnique({
     where: { code: normalized },
@@ -34,11 +34,25 @@ export async function findValidInvite(code: string) {
     },
   });
 
-  if (!invite || !invite.isActive) return null;
-  if (invite.expiresAt && invite.expiresAt < new Date()) return null;
-  if (invite.usedCount >= invite.maxUses) return null;
+  if (!invite) {
+    return { ok: false as const, reason: "NOT_FOUND" as const, code: normalized };
+  }
+  if (!invite.isActive) {
+    return { ok: false as const, reason: "CANCELLED" as const, code: normalized, invite };
+  }
+  if (invite.expiresAt && invite.expiresAt < new Date()) {
+    return { ok: false as const, reason: "EXPIRED" as const, code: normalized, invite };
+  }
+  if (invite.usedCount >= invite.maxUses) {
+    return { ok: false as const, reason: "USED" as const, code: normalized, invite };
+  }
 
-  return invite;
+  return { ok: true as const, invite };
+}
+
+export async function findValidInvite(code: string) {
+  const result = await lookupInvite(code);
+  return result.ok ? result.invite : null;
 }
 
 export async function createTenantInvite(input: {

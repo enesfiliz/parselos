@@ -1,12 +1,28 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { InviteRedeemError } from "@/lib/account/invite-accept";
 import { redeemInviteForAgent } from "@/lib/account/team-service";
 import { requireCurrentAgent } from "@/lib/auth/agent";
 
 const redeemSchema = z.object({
   code: z.string().trim().min(4).max(20),
 });
+
+function statusForInviteError(code: InviteRedeemError["code"]) {
+  switch (code) {
+    case "NOT_FOUND":
+    case "EXPIRED":
+    case "CANCELLED":
+    case "USED":
+    case "NOT_BROKER_OFFICE":
+      return 404;
+    case "ALREADY_MEMBER":
+      return 409;
+    case "BLOCKED":
+      return 403;
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +39,12 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: "Geçersiz davet kodu." }, { status: 400 });
+    }
+    if (error instanceof InviteRedeemError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: statusForInviteError(error.code) },
+      );
     }
     const message =
       error instanceof Error ? error.message : "Davet kodu kullanılamadı.";

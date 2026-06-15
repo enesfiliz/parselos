@@ -22,6 +22,7 @@ export default async function AccountPage() {
             imageUrl: agent.imageUrl,
             roleType: agent.roleType,
             tenantMemberRole: agent.tenantMemberRole,
+            tenantId: agent.tenantId,
             professionalTitle: agent.professionalTitle,
             phone: agent.phone,
             licenseNumber: agent.licenseNumber,

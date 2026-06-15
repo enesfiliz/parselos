@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import {
+  canManageOfficeInvites,
   canManageTeam,
   canViewBrokerMetrics,
 } from "@/lib/account/permissions";
@@ -56,6 +57,7 @@ export async function GET() {
       },
       capabilities: {
         canManageTeam: canManageTeam(agent),
+        canManageOfficeInvites: canManageOfficeInvites(agent, tenant),
         canViewBrokerMetrics: canViewBrokerMetrics(agent, tenant),
       },
       stats: {
