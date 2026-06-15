@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import type { Prisma } from "@prisma/client";
 
+import { agentOwnershipFilter, requireCurrentAgent } from "@/lib/auth/agent";
 import { DEFAULT_FSBO_REGIONS } from "@/lib/fsbo/fsbo-sync-targets";
 import { serializeFsboLead } from "@/lib/fsbo/serialize-lead";
 import { prisma } from "@/lib/prisma";
 
-function buildLeadWhere(searchParams: URLSearchParams): Prisma.FsboLeadWhereInput {
+function buildLeadWhere(
+  searchParams: URLSearchParams,
+  agentId: string,
+): Prisma.FsboLeadWhereInput {
   const islemTipi = searchParams.get("islemTipi");
   const kategori = searchParams.get("kategori");
   const il = searchParams.get("il");
@@ -15,6 +19,7 @@ function buildLeadWhere(searchParams: URLSearchParams): Prisma.FsboLeadWhereInpu
   const region = searchParams.get("region");
 
   const where: Prisma.FsboLeadWhereInput = {
+    ...agentOwnershipFilter(agentId),
     isRead: false,
     isDiscarded: false,
     promotedDealId: null,
@@ -41,12 +46,13 @@ function buildLeadWhere(searchParams: URLSearchParams): Prisma.FsboLeadWhereInpu
 
 export async function GET(request: Request) {
   try {
+    const agent = await requireCurrentAgent();
     const { searchParams } = new URL(request.url);
 
     const [regions, leads] = await Promise.all([
       prisma.fsboWatchRegion.findMany({ orderBy: { label: "asc" } }),
       prisma.fsboLead.findMany({
-        where: buildLeadWhere(searchParams),
+        where: buildLeadWhere(searchParams, agent.id),
         orderBy: { createdAt: "desc" },
         take: 100,
       }),
@@ -65,6 +71,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("[GET /api/fsbo-leads]", error);
+
+    if (error instanceof Error && error.message.includes("Oturum")) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: "FSBO ilanları yüklenemedi." },
       { status: 500 },
@@ -74,6 +85,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    await requireCurrentAgent();
+
     const body = (await request.json()) as { label?: string };
     const label = body.label?.trim();
 
@@ -95,6 +108,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("[POST /api/fsbo-leads]", error);
+
+    if (error instanceof Error && error.message.includes("Oturum")) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: "Bölge eklenemedi." },
       { status: 500 },

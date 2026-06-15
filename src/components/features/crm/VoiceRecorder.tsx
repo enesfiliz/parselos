@@ -67,7 +67,7 @@ async function sendToVoiceApi(file: File): Promise<VoiceRecordResult> {
     body: formData,
   });
 
-  const payload: unknown = await response.json();
+  const payload: unknown = await response.json().catch(() => null);
 
   if (!response.ok) {
     const message =

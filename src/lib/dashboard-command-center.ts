@@ -1,3 +1,5 @@
+import { requireCurrentAgent } from "@/lib/auth/agent";
+import { clientsForAgentWhere } from "@/lib/clients/server-queries";
 import { prisma } from "@/lib/prisma";
 import { MOCK_DEALS } from "@/lib/data/mock-deals";
 import { MOCK_FSBO_PREVIEW_LEADS } from "@/lib/fsbo/mock-fsbo-preview-leads";
@@ -11,7 +13,6 @@ import { resolveDealBudgetTL } from "@/lib/types/deal";
 import type { DealStageId } from "@/lib/types/deal";
 import type { Prisma } from "@prisma/client";
 
-const FSBO_PHANTOM_PREFIX = "FSBO —";
 const COUPON_MIN_PCT_BELOW = 15;
 const MONTHLY_COMMISSION_TARGET_TL = 1_500_000;
 const COMMISSION_RATE = 0.03;
@@ -328,7 +329,7 @@ function buildImarWatchFromAppraisals(
     };
   });
 
-  const merged = [...fromReports, ...DEFAULT_IMAR_WATCH];
+  const merged = [...fromReports];
   const seen = new Set<string>();
 
   return merged
@@ -479,6 +480,42 @@ function buildActivityFeed(input: {
     .slice(0, 24);
 }
 
+function isDemoCommandCenterEnabled() {
+  return process.env.PARSELOS_DEMO_DATA === "1";
+}
+
+function emptyCommandCenterData(): CommandCenterData {
+  return {
+    metrics: {
+      pipelineHacmi: 0,
+      komisyonHedefOrani: 0,
+      aktifMusteriSayisi: 0,
+      kapananFirsatlar: 0,
+      kapananTrendPct: 0,
+      kaybedilenFirsatlar: 0,
+      kaybedilenTrendPct: 0,
+      yeniFsboIlanlari: 0,
+      imarRadarHareketleri: 0,
+    },
+    pipelineFunnel: FUNNEL_STAGES.map((stage) => ({
+      stage: stage.id,
+      label: stage.label,
+      dealCount: 0,
+      volumeTL: 0,
+    })),
+    activityFeed: [],
+    searchIndex: [],
+    imarWatchItems: [],
+    fsboCouponListings: [],
+  };
+}
+
+function resolveCommandCenterFallback(): CommandCenterData {
+  return isDemoCommandCenterEnabled()
+    ? mockCommandCenterData()
+    : emptyCommandCenterData();
+}
+
 function mockCommandCenterData(): CommandCenterData {
   const mock = mockMetrics();
   return {
@@ -492,6 +529,9 @@ function mockCommandCenterData(): CommandCenterData {
 }
 
 export async function getCommandCenterData(): Promise<CommandCenterData> {
+  const agent = await requireCurrentAgent();
+  const agentId = agent.id;
+
   const weekAgo = new Date(Date.now() - 7 * 86_400_000);
   const thisMonth = monthRange(0);
   const lastMonth = monthRange(-1);
@@ -515,20 +555,26 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
       searchDeals,
     ] = await Promise.all([
       prisma.deal.findMany({
-        where: { stage: { notIn: ["WON", "LOST"] } },
+        where: { agentId, stage: { notIn: ["WON", "LOST"] } },
         include: { property: true },
       }),
       prisma.deal.findMany({
-        where: { stage: { in: ["LEAD", "SHOWING", "OFFER", "WON"] } },
+        where: {
+          agentId,
+          stage: { in: ["LEAD", "SHOWING", "OFFER", "WON"] },
+        },
         include: { property: true },
       }),
       prisma.client.count({
-        where: { NOT: { adSoyad: { startsWith: FSBO_PHANTOM_PREFIX } } },
+        where: clientsForAgentWhere(agentId),
       }),
       prisma.fsboLead.count({
-        where: { isDiscarded: false, createdAt: { gte: weekAgo } },
+        where: { agentId, isDiscarded: false, createdAt: { gte: weekAgo } },
       }),
       prisma.appraisalReport.findMany({
+        where: {
+          client: { deals: { some: { agentId } } },
+        },
         orderBy: { olusturulmaTarihi: "desc" },
         take: 4,
         select: {
@@ -540,57 +586,64 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
         },
       }),
       prisma.fsboLead.findMany({
-        where: { isDiscarded: false, promotedDealId: null },
+        where: { agentId, isDiscarded: false, promotedDealId: null },
         orderBy: { createdAt: "desc" },
         take: 24,
       }),
       prisma.deal.count({
         where: {
+          agentId,
           stage: "WON",
           guncellenmeTarihi: { gte: thisMonth.start, lte: thisMonth.end },
         },
       }),
       prisma.deal.count({
         where: {
+          agentId,
           stage: "WON",
           guncellenmeTarihi: { gte: lastMonth.start, lte: lastMonth.end },
         },
       }),
       prisma.deal.count({
         where: {
+          agentId,
           stage: "LOST",
           guncellenmeTarihi: { gte: thisMonth.start, lte: thisMonth.end },
         },
       }),
       prisma.deal.count({
         where: {
+          agentId,
           stage: "LOST",
           guncellenmeTarihi: { gte: lastMonth.start, lte: lastMonth.end },
         },
       }),
       prisma.dealNote.findMany({
+        where: { deal: { agentId } },
         orderBy: { olusturulmaTarihi: "desc" },
         take: 8,
         include: { deal: { include: { client: true } } },
       }),
       prisma.deal.findMany({
+        where: { agentId },
         orderBy: { guncellenmeTarihi: "desc" },
         take: 8,
         include: { client: true },
       }),
       prisma.client.findMany({
-        where: { NOT: { adSoyad: { startsWith: FSBO_PHANTOM_PREFIX } } },
+        where: clientsForAgentWhere(agentId),
         orderBy: { olusturulmaTarihi: "desc" },
         take: 5,
         select: { id: true, adSoyad: true, olusturulmaTarihi: true },
       }),
       prisma.client.findMany({
-        where: { NOT: { adSoyad: { startsWith: FSBO_PHANTOM_PREFIX } } },
+        where: clientsForAgentWhere(agentId),
         orderBy: { adSoyad: "asc" },
         take: 40,
         select: { id: true, adSoyad: true, telefon: true },
       }),
       prisma.deal.findMany({
+        where: { agentId },
         orderBy: { guncellenmeTarihi: "desc" },
         take: 30,
         include: { client: true, property: true },
@@ -604,6 +657,7 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
 
     const wonVolumeThisMonth = await prisma.deal.findMany({
       where: {
+        agentId,
         stage: "WON",
         guncellenmeTarihi: { gte: thisMonth.start, lte: thisMonth.end },
       },
@@ -622,10 +676,7 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
     );
 
     const serializedLeads = fsboLeads.map(serializeFsboLead);
-    let fsboCouponListings = buildFsboCoupons(serializedLeads);
-    if (fsboCouponListings.length === 0) {
-      fsboCouponListings = mockFsboCoupons();
-    }
+    const fsboCouponListings = buildFsboCoupons(serializedLeads);
 
     const imarWatchItems = buildImarWatchFromAppraisals(appraisalReports);
     const imarRadarHareketleri = imarWatchItems.filter(
@@ -633,7 +684,6 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
     ).length;
 
     const pipelineFunnel = buildFunnelFromDeals(funnelDeals);
-    const hasFunnelData = pipelineFunnel.some((s) => s.dealCount > 0);
 
     const activityFeed = buildActivityFeed({
       notes: recentNotes,
@@ -660,13 +710,13 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
       activityFeed.length > 0;
 
     if (!hasLiveData) {
-      return mockCommandCenterData();
+      return resolveCommandCenterFallback();
     }
 
     return {
       metrics: {
-        pipelineHacmi: pipelineHacmi || mockMetrics().pipelineHacmi,
-        komisyonHedefOrani: komisyonHedefOrani || 75,
+        pipelineHacmi,
+        komisyonHedefOrani,
         aktifMusteriSayisi,
         kapananFirsatlar: wonThisMonth,
         kapananTrendPct: calcTrendPct(wonThisMonth, wonLastMonth),
@@ -675,16 +725,14 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
         yeniFsboIlanlari,
         imarRadarHareketleri,
       },
-      pipelineFunnel: hasFunnelData ? pipelineFunnel : mockFunnel(),
-      activityFeed:
-        activityFeed.length > 0 ? activityFeed : mockActivityFeed(),
-      searchIndex:
-        searchIndex.length > 0 ? searchIndex : mockSearchIndex(),
+      pipelineFunnel,
+      activityFeed,
+      searchIndex,
       imarWatchItems,
       fsboCouponListings,
     };
   } catch {
-    return mockCommandCenterData();
+    return resolveCommandCenterFallback();
   }
 }
 

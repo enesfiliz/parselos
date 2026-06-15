@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { DealStage } from "@prisma/client";
 
+import { requireCurrentAgent } from "@/lib/auth/agent";
+import {
+  createStandaloneClientForAgent,
+  clientsForAgentWhere,
+} from "@/lib/clients/server-queries";
 import { prisma } from "@/lib/prisma";
 
 const ACTIVE_DEAL_STAGES: DealStage[] = ["LEAD", "SHOWING", "OFFER"];
@@ -14,6 +19,8 @@ interface CreateClientBody {
   birthDate?: string | null;
   butce?: string;
   mulkTipi?: string;
+  /** Mevcut agent-owned deal — client bu fırsata bağlanır (ownership). */
+  dealId?: string;
 }
 
 type ClientRecord = {
@@ -82,18 +89,19 @@ function parseBirthDate(value: string | null | undefined) {
 
 export async function GET() {
   try {
+    const agent = await requireCurrentAgent();
+
     const clients = await prisma.client.findMany({
-      where: {
-        NOT: {
-          adSoyad: { startsWith: "FSBO —" },
-        },
-      },
+      where: clientsForAgentWhere(agent.id),
       orderBy: { olusturulmaTarihi: "desc" },
       include: {
         _count: {
           select: {
             deals: {
-              where: { stage: { in: ACTIVE_DEAL_STAGES } },
+              where: {
+                agentId: agent.id,
+                stage: { in: ACTIVE_DEAL_STAGES },
+              },
             },
           },
         },
@@ -104,6 +112,10 @@ export async function GET() {
   } catch (error) {
     console.error("[GET /api/clients]", error);
 
+    if (error instanceof Error && error.message.includes("Oturum")) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: "Müşteriler listelenirken bir hata oluştu." },
       { status: 500 },
@@ -113,7 +125,11 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const agent = await requireCurrentAgent();
+
     const body = (await req.json()) as CreateClientBody;
+
+    const dealId = body.dealId?.trim();
 
     const adSoyad = body.adSoyad?.trim();
     const telefon = body.telefon?.trim() || null;
@@ -138,22 +154,60 @@ export async function POST(req: Request) {
       );
     }
 
-    const client = await prisma.client.create({
-      data: {
-        adSoyad,
-        telefon,
-        email,
-        notlar,
-        kaynak,
-        birthDate,
-        butce,
-        mulkTipi,
-      },
-    });
+    const client = dealId
+      ? await prisma.$transaction(async (tx) => {
+          const deal = await tx.deal.findFirst({
+            where: { id: dealId, agentId: agent.id },
+            select: { id: true },
+          });
+
+          if (!deal) {
+            throw new Error("DEAL_NOT_FOUND");
+          }
+
+          const created = await tx.client.create({
+            data: {
+              adSoyad,
+              telefon,
+              email,
+              notlar,
+              kaynak,
+              birthDate,
+              butce,
+              mulkTipi,
+            },
+          });
+
+          await tx.deal.update({
+            where: { id: dealId },
+            data: { clientId: created.id },
+          });
+
+          return created;
+        })
+      : await createStandaloneClientForAgent(agent.id, {
+          adSoyad,
+          telefon,
+          email,
+          notlar,
+          kaynak,
+          birthDate,
+          butce,
+          mulkTipi,
+        });
 
     return NextResponse.json({ data: serializeClient(client) }, { status: 201 });
   } catch (error) {
     console.error("PRISMA KAYIT HATASI:", error);
+
+    if (error instanceof Error && error.message === "DEAL_NOT_FOUND") {
+      return NextResponse.json({ error: "Fırsat bulunamadı." }, { status: 404 });
+    }
+
+    if (error instanceof Error && error.message.includes("Oturum")) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+
     const details = error instanceof Error ? error.message : "Bilinmeyen hata";
 
     return NextResponse.json(

@@ -91,6 +91,53 @@ Bu liste, dev/test ortamında `enesfiliz7@gmail.com` (veya script ile yükseltil
 
 ---
 
+## 11. Üyelikler arası veri izolasyonu (P0 — canlı test)
+
+İki ayrı Clerk hesabı kullanın: **Hesap A** (veri dolu), **Hesap B** (yeni/boş).
+
+- [ ] **Dashboard** (`/dashboard`): B, A'nın metrik/funnel/activity/search verisini görmüyor
+- [ ] **Customers** (`/customers`): B yalnızca kendi deal'li müşterilerini görüyor (veya boş)
+- [ ] **Deals** (`/deals`): B, A'nın kanban kartlarını görmüyor
+- [ ] **FSBO Radar** (`/fsbo-radar`): B, A'nın FSBO lead'lerini görmüyor
+- [ ] **Sesli CRM** (`/sesli-crm`): B, A'nın sesli not geçmişini görmüyor
+- [ ] `agentId: null` orphan kayıtlar hiçbir normal kullanıcıda görünmüyor
+- [ ] Yeni kayıt (signup) sonrası eski orphan kayıtlar B'ye otomatik atanmıyor
+
+## 12. API izolasyonu (opsiyonel — DevTools)
+
+Oturum cookie'si ile:
+
+- [ ] `GET /api/clients` → yalnızca current agent deal'li müşteriler
+- [ ] `GET /api/fsbo-leads` → yalnızca `agentId = currentAgent.id`
+- [ ] Oturumsuz istek → 401
+
+## 13. Sesli CRM canlı test
+
+- [ ] `/sesli-crm` alt kırmızı banner yok (tablo + env doğruysa)
+- [ ] Kayıt → transkript + AI önizleme oluşuyor
+- [ ] İkinci hesapta birinci hesabın sesli notları listelenmiyor
+- [ ] `GROQ_API_KEY` yoksa: "Sesli CRM sağlayıcısı yapılandırılmamış" (sayfa crash etmez)
+- [ ] Supabase tablo yoksa: "Sesli CRM kayıt tablosu henüz kurulmamış"
+
+## 14. Broker plan + izolasyon birlikte
+
+- [ ] Broker OWNER dashboard'da yalnızca kendi agent verisini görüyor (ofis paylaşımı henüz yok)
+- [ ] Ekip MEMBER farklı agentId ile kendi verisini görüyor; başka üyenin verisi karışmıyor
+- [ ] Davet kabul eden yeni üye boş/bağımsız veri seti ile başlıyor
+
+## 15. Production mock/demo kontrolü
+
+- [ ] `PARSELOS_DEMO_DATA` production Vercel env'de **tanımlı değil**
+- [ ] Boş hesapta dashboard demo deal/FSBO göstermiyor
+- [ ] FSBO radar boş DB'de mock preview göstermiyorsa (bilinçli karar) not alın
+
+## 16. Mobil veri izolasyonu smoke test
+
+- [ ] Mobilde farklı hesaplarla giriş/çıkış sonrası önceki hesap verisi kalmıyor
+- [ ] Customers / Deals / FSBO mobilde de ayrışıyor
+
+---
+
 ## Hızlı doğrulama komutları
 
 ```bash

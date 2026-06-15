@@ -4,6 +4,7 @@ import {
   agentOwnershipFilter,
   requireCurrentAgent,
 } from "@/lib/auth/agent";
+import { assertClientUsableForPromote } from "@/lib/clients/server-queries";
 import { runBuyerMatchForDeal } from "@/lib/deals/deal-matching";
 import { prisma } from "@/lib/prisma";
 import { serializeFsboLead } from "@/lib/fsbo/serialize-lead";
@@ -66,16 +67,20 @@ export async function promoteFsboLeadToClient(
 ): Promise<{ lead: FsboLeadData; deal: DealCardData }> {
   const agent = await requireCurrentAgent();
 
-  const [lead, client] = await Promise.all([
-    prisma.fsboLead.findFirst({
-      where: { id: leadId, ...agentOwnershipFilter(agent.id) },
-    }),
-    prisma.client.findUnique({ where: { id: clientId } }),
-  ]);
+  const lead = await prisma.fsboLead.findFirst({
+    where: { id: leadId, ...agentOwnershipFilter(agent.id) },
+  });
 
   if (!lead || lead.isDiscarded) {
     throw new Error("FSBO ilanı bulunamadı.");
   }
+
+  const clientAccess = await assertClientUsableForPromote(clientId, agent.id);
+  if (clientAccess === "not_found" || clientAccess === "forbidden") {
+    throw new Error("Müşteri bulunamadı.");
+  }
+
+  const client = await prisma.client.findUnique({ where: { id: clientId } });
 
   if (!client) {
     throw new Error("Müşteri bulunamadı.");

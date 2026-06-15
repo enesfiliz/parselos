@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 
+import { requireCurrentAgent } from "@/lib/auth/agent";
+import {
+  CLIENT_DELETE_DISABLED_ERROR,
+  CLIENT_SHARED_MUTATION_ERROR,
+  resolveClientAgentAccess,
+} from "@/lib/clients/server-queries";
 import { prisma } from "@/lib/prisma";
 
 interface UpdateClientBody {
@@ -72,6 +78,7 @@ interface RouteContext {
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
+    const agent = await requireCurrentAgent();
     const { id } = await context.params;
     const body = (await request.json()) as UpdateClientBody;
 
@@ -82,6 +89,16 @@ export async function PATCH(request: Request, context: RouteContext) {
         { error: "Müşteri adı soyadı zorunludur." },
         { status: 400 },
       );
+    }
+
+    const access = await resolveClientAgentAccess(id, agent.id);
+
+    if (access === "not_found" || access === "not_owned") {
+      return NextResponse.json({ error: "Müşteri bulunamadı." }, { status: 404 });
+    }
+
+    if (access === "shared") {
+      return NextResponse.json({ error: CLIENT_SHARED_MUTATION_ERROR }, { status: 409 });
     }
 
     const existing = await prisma.client.findUnique({ where: { id } });
@@ -115,6 +132,10 @@ export async function PATCH(request: Request, context: RouteContext) {
   } catch (error) {
     console.error("[PATCH /api/clients/[id]]", error);
 
+    if (error instanceof Error && error.message.includes("Oturum")) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+
     return NextResponse.json(
       { error: "Müşteri güncellenirken bir hata oluştu." },
       { status: 500 },
@@ -124,19 +145,25 @@ export async function PATCH(request: Request, context: RouteContext) {
 
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
+    const agent = await requireCurrentAgent();
     const { id } = await context.params;
 
-    const existing = await prisma.client.findUnique({ where: { id } });
+    const access = await resolveClientAgentAccess(id, agent.id);
 
-    if (!existing) {
+    if (access === "not_found" || access === "not_owned") {
       return NextResponse.json({ error: "Müşteri bulunamadı." }, { status: 404 });
     }
 
-    await prisma.client.delete({ where: { id } });
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json(
+      { error: CLIENT_DELETE_DISABLED_ERROR },
+      { status: 409 },
+    );
   } catch (error) {
     console.error("[DELETE /api/clients/[id]]", error);
+
+    if (error instanceof Error && error.message.includes("Oturum")) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
 
     return NextResponse.json(
       { error: "Müşteri silinirken bir hata oluştu." },

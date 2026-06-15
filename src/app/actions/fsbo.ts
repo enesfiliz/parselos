@@ -6,6 +6,7 @@ import {
   agentOwnershipFilter,
   requireCurrentAgent,
 } from "@/lib/auth/agent";
+import { clientsForAgentWhere, createStandaloneClientForAgent } from "@/lib/clients/server-queries";
 import { promoteFsboLeadToClient } from "@/lib/fsbo/promote-fsbo-lead";
 import { serializeFsboLead } from "@/lib/fsbo/serialize-lead";
 import { prisma } from "@/lib/prisma";
@@ -41,14 +42,10 @@ export async function listClientsForFsboPromoteAction(): Promise<
   ActionResult<FsboPromoteClientOption[]>
 > {
   try {
-    await requireCurrentAgent();
+    const agent = await requireCurrentAgent();
 
     const clients = await prisma.client.findMany({
-      where: {
-        NOT: {
-          adSoyad: { startsWith: FSBO_PHANTOM_CLIENT_PREFIX },
-        },
-      },
+      where: clientsForAgentWhere(agent.id),
       orderBy: { adSoyad: "asc" },
       select: {
         id: true,
@@ -77,7 +74,7 @@ export async function createClientForFsboPromoteAction(input: {
   telefon?: string;
 }): Promise<ActionResult<FsboPromoteClientOption>> {
   try {
-    await requireCurrentAgent();
+    const agent = await requireCurrentAgent();
 
     const adSoyad = input.adSoyad.trim();
     if (adSoyad.length < 2) {
@@ -91,20 +88,19 @@ export async function createClientForFsboPromoteAction(input: {
       };
     }
 
-    const client = await prisma.client.create({
-      data: {
-        adSoyad,
-        telefon: input.telefon?.trim() || null,
-        kaynak: "FSBO Radarı",
-      },
-      select: {
-        id: true,
-        adSoyad: true,
-        telefon: true,
-        butce: true,
-        mulkTipi: true,
-      },
+    const created = await createStandaloneClientForAgent(agent.id, {
+      adSoyad,
+      telefon: input.telefon?.trim() || null,
+      kaynak: "FSBO Radarı",
     });
+
+    const client = {
+      id: created.id,
+      adSoyad: created.adSoyad,
+      telefon: created.telefon,
+      butce: created.butce,
+      mulkTipi: created.mulkTipi,
+    };
 
     revalidatePath("/customers");
 

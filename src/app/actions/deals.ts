@@ -6,7 +6,9 @@ import {
   agentOwnershipFilter,
   requireCurrentAgent,
 } from "@/lib/auth/agent";
+import { assertClientLinkableByAgent } from "@/lib/clients/server-queries";
 import { findOrCreateClient } from "@/lib/deals/find-or-create-client";
+import { resolvePropertyAgentAccess } from "@/lib/properties/ownership";
 import {
   fsboPlatformDisplayName,
   matchFsboLeadsForDeal,
@@ -410,16 +412,29 @@ export async function createDeal(
       return { success: false, error: "Müşteri ve portföy seçimi zorunludur." };
     }
 
+    const agent = await requireCurrentAgent();
+
+    const [clientAccess, propertyAccess] = await Promise.all([
+      assertClientLinkableByAgent(input.clientId.trim(), agent.id),
+      resolvePropertyAgentAccess(input.propertyId.trim(), agent.id),
+    ]);
+
+    if (clientAccess === "not_found" || clientAccess === "forbidden") {
+      return { success: false, error: "Müşteri bulunamadı." };
+    }
+
+    if (propertyAccess === "not_found" || propertyAccess === "not_linked") {
+      return { success: false, error: "Portföy bulunamadı." };
+    }
+
     const [client, property] = await Promise.all([
-      prisma.client.findUnique({ where: { id: input.clientId } }),
-      prisma.property.findUnique({ where: { id: input.propertyId } }),
+      prisma.client.findUnique({ where: { id: input.clientId.trim() } }),
+      prisma.property.findUnique({ where: { id: input.propertyId.trim() } }),
     ]);
 
     if (!client || !property) {
       return { success: false, error: "Müşteri veya portföy bulunamadı." };
     }
-
-    const agent = await requireCurrentAgent();
 
     const deal = await prisma.deal.create({
       data: {

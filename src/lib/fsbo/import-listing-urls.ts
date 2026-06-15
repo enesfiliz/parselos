@@ -4,6 +4,7 @@ import {
   assertCanCreatePortfolio,
   assertCanImportListing,
 } from "@/lib/billing/enforce-limits";
+import { agentOwnershipFilter } from "@/lib/auth/agent";
 import { findOrCreateClient } from "@/lib/deals/find-or-create-client";
 import { parsePriceToInteger } from "@/lib/fsbo/price-parser";
 import { serializeFsboLead } from "@/lib/fsbo/serialize-lead";
@@ -150,9 +151,67 @@ export async function importListingItemsForAgent(
 
       const imageUrls = scraped.images?.length ? scraped.images : [];
 
-      const lead = await prisma.fsboLead.upsert({
+      const existingLead = await prisma.fsboLead.findUnique({
         where: { url },
-        create: {
+        select: { id: true, agentId: true },
+      });
+
+      if (existingLead) {
+        if (existingLead.agentId !== agentId) {
+          results.push({
+            url,
+            success: false,
+            error:
+              existingLead.agentId === null
+                ? "Bu ilan sahipsiz kayıt; otomatik sahiplenme devre dışı."
+                : "Bu ilan başka bir hesap tarafından içe aktarılmış.",
+          });
+          continue;
+        }
+
+        const lead = await prisma.fsboLead.update({
+          where: { url },
+          data: {
+            title: scraped.title,
+            price,
+            location: scraped.location,
+            il: loc.il,
+            ilce: loc.ilce,
+            region: loc.region,
+            ...(imageUrls.length > 0 ? { images: imageUrls } : {}),
+          },
+        });
+
+        let portfolioId: string | undefined;
+
+        if (options?.addToPortfolio) {
+          portfolioId = await createPortfolioFromScraped(
+            agentId,
+            {
+              title: scraped.title,
+              price,
+              location: scraped.location,
+              m2: scraped.m2,
+              url,
+              images: scraped.images,
+            },
+            planType,
+          );
+        }
+
+        imported += 1;
+        results.push({
+          url,
+          success: true,
+          mocked: scraped.mocked,
+          leadId: lead.id,
+          portfolioId,
+        });
+        continue;
+      }
+
+      const lead = await prisma.fsboLead.create({
+        data: {
           title: scraped.title,
           price,
           url,
@@ -168,16 +227,6 @@ export async function importListingItemsForAgent(
               : null,
           agentId,
           isRead: false,
-        },
-        update: {
-          title: scraped.title,
-          price,
-          location: scraped.location,
-          il: loc.il,
-          ilce: loc.ilce,
-          region: loc.region,
-          agentId,
-          ...(imageUrls.length > 0 ? { images: imageUrls } : {}),
         },
       });
 
@@ -226,7 +275,7 @@ export async function listImportedLeadsForAgent(agentId: string, limit = 100) {
     where: {
       isDiscarded: false,
       promotedDealId: null,
-      OR: [{ agentId }, { agentId: null }],
+      ...agentOwnershipFilter(agentId),
     },
     orderBy: { createdAt: "desc" },
     take: limit,

@@ -371,7 +371,7 @@ export function SesliCrmView({
           {fetchError ? (
             <div className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm text-destructive">
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
-              <p>Kayıtlar yüklenemedi: {fetchError}</p>
+              <p>{fetchError}</p>
             </div>
           ) : logs.length === 0 ? (
             <div className="parsel-surface rounded-2xl border border-dashed border-border/60 bg-parsel-panel px-6 py-14 text-center shadow-parsel-sm">

@@ -1,8 +1,11 @@
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 
+import { requireCurrentAgent } from "@/lib/auth/agent";
 import { createSupabaseAdmin } from "@/lib/supabase";
 import type { CrmVoicePayload } from "@/lib/types/crm";
+import { voiceLogPayloadForAgent } from "@/lib/voice-crm/agent-scope";
+import { mapVoiceUserError } from "@/lib/voice-crm/errors";
 
 const WHISPER_MODEL = "whisper-large-v3";
 const LLM_MODEL = "llama-3.1-8b-instant";
@@ -38,11 +41,14 @@ function parseCrmPayload(content: string): CrmVoicePayload {
   };
 }
 
-async function saveVoiceCrmLog(crmData: CrmVoicePayload): Promise<void> {
+async function saveVoiceCrmLog(
+  agentId: string,
+  crmData: CrmVoicePayload,
+): Promise<void> {
   const supabase = createSupabaseAdmin();
 
   const { error } = await supabase.from("voice_crm_logs").insert({
-    parsed_json_data: crmData,
+    parsed_json_data: voiceLogPayloadForAgent(agentId, crmData),
   });
 
   if (error) {
@@ -52,6 +58,8 @@ async function saveVoiceCrmLog(crmData: CrmVoicePayload): Promise<void> {
 
 export async function POST(request: Request) {
   try {
+    const agent = await requireCurrentAgent();
+
     const formData = await request.formData();
     const audio = formData.get("audio");
 
@@ -99,7 +107,7 @@ export async function POST(request: Request) {
 
     const crmData = parseCrmPayload(rawContent);
 
-    await saveVoiceCrmLog(crmData);
+    await saveVoiceCrmLog(agent.id, crmData);
 
     return NextResponse.json({
       transcript,
@@ -108,18 +116,23 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[POST /api/voice]", error);
 
-    const message =
+    if (error instanceof Error && error.message.includes("Oturum")) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+
+    const rawMessage =
       error instanceof Error
         ? error.message
         : "Ses işleme sırasında beklenmeyen bir hata oluştu.";
 
-    const status = message.includes("GROQ_API_KEY")
-      ? 500
-      : message.includes("JSON")
+    const message = mapVoiceUserError(rawMessage);
+    const status = rawMessage.includes("GROQ_API_KEY") ||
+      rawMessage.includes("SUPABASE") ||
+      rawMessage.includes("NEXT_PUBLIC_SUPABASE")
+      ? 503
+      : rawMessage.includes("JSON")
         ? 502
-        : message.includes("Supabase")
-          ? 500
-          : 500;
+        : 500;
 
     return NextResponse.json({ error: message }, { status });
   }
