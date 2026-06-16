@@ -11,9 +11,11 @@ import {
 import { FsboImageCarousel } from "@/components/features/fsbo/FsboImageCarousel";
 import { FsboSourceBadge } from "@/components/features/fsbo/FsboSourceBadge";
 import {
-  getFsboLeadBadge,
-  getFsboLeadPriceInsight,
-} from "@/lib/fsbo/fsbo-price-insight";
+  FSBO_PRIORITY_LABELS,
+  FSBO_PRODUCT_DISCLAIMER,
+  FSBO_TRACKING_STATUS_LABELS,
+  formatFsboRelativeTime,
+} from "@/lib/fsbo/fsbo-tracking";
 import type { FsboLeadData } from "@/lib/types/fsbo-lead";
 import { cn } from "@/lib/utils";
 
@@ -39,32 +41,24 @@ export function FsboDetailPanel({
           "flex min-h-[320px] flex-col items-center justify-center p-6 text-center sm:min-h-[560px] sm:p-8",
         )}
       >
-        <Radar className="mb-3 size-8 text-zinc-700" strokeWidth={1.25} />
+        <Radar className="mb-3 size-8 text-muted-foreground" strokeWidth={1.25} />
         <p className="text-sm text-muted-foreground">
-          Detay görmek için soldan bir FSBO sinyali seçin.
+          Detay görmek için soldan bir fırsat kaydı seçin.
         </p>
       </div>
     );
   }
 
-  const priceInsight = getFsboLeadPriceInsight(lead);
-  const badge = getFsboLeadBadge(priceInsight);
-
   const specItems = [
-    { label: "İlan No", value: lead.specs.ilanNo },
+    { label: "Takip durumu", value: FSBO_TRACKING_STATUS_LABELS[lead.trackingStatus] },
+    { label: "Öncelik", value: FSBO_PRIORITY_LABELS[lead.priority] },
     {
-      label: "Brüt m²",
-      value: lead.specs.brutM2 ? `${lead.specs.brutM2} m²` : "—",
+      label: "Sonraki takip",
+      value: formatFsboRelativeTime(lead.nextFollowUpAt),
     },
-    {
-      label: "Net m²",
-      value: lead.specs.netM2 ? `${lead.specs.netM2} m²` : "—",
-    },
-    { label: "Oda Sayısı", value: lead.specs.odaSayisi ?? "—" },
-    { label: "Bina Yaşı", value: lead.specs.binaYasi ?? "—" },
-    { label: "Isıtma Tipi", value: lead.specs.isitmaTipi ?? "—" },
+    { label: "m²", value: lead.metrekare ? `${lead.metrekare} m²` : "—" },
     { label: "Bölge", value: lead.region },
-    { label: "Kaynak", value: lead.source },
+    { label: "Kaynak", value: lead.isManualEntry ? "Manuel kayıt" : lead.source },
   ];
 
   return (
@@ -83,14 +77,17 @@ export function FsboDetailPanel({
               </h2>
             </div>
           </div>
-          <a
-            href={lead.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 rounded-lg border border-border p-2 text-muted-foreground transition-all duration-300 hover:border-parsel-gold/30 hover:text-parsel-gold"
-          >
-            <ExternalLink className="size-4" />
-          </a>
+          {lead.hasPublicSourceUrl ? (
+            <a
+              href={lead.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded-lg border border-border/60 p-2 text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
+              title="Kaynağı aç"
+            >
+              <ExternalLink className="size-4" />
+            </a>
+          ) : null}
         </div>
 
         <FsboImageCarousel images={lead.images} title={lead.title} />
@@ -101,16 +98,6 @@ export function FsboDetailPanel({
           <p className="text-2xl font-bold tabular-nums text-parsel-gold">
             {lead.priceFormatted}
           </p>
-          {badge ? (
-            <span
-              className={cn(
-                "inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold",
-                badge.className,
-              )}
-            >
-              {badge.label}
-            </span>
-          ) : null}
         </div>
 
         <div className="grid grid-cols-2 gap-3 rounded-xl border border-border/50 bg-background p-4 md:grid-cols-4">
@@ -131,12 +118,19 @@ export function FsboDetailPanel({
 
         <div className="mt-4 rounded-xl border border-border/50 bg-background p-4">
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            İlan Açıklaması
+            Not / özet
           </p>
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-sm leading-relaxed text-foreground/85">
             {lead.description}
           </p>
           <p className="mt-3 text-xs text-muted-foreground">{lead.location}</p>
+          {!lead.hasPublicSourceUrl ? (
+            <p className="mt-2 text-xs text-muted-foreground">Kaynak linki eklenmedi.</p>
+          ) : null}
+        </div>
+
+        <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs text-foreground/80">
+          {FSBO_PRODUCT_DISCLAIMER}
         </div>
 
         <div className="mt-auto flex flex-wrap gap-2 pt-6">
@@ -152,7 +146,7 @@ export function FsboDetailPanel({
           <button
             type="button"
             onClick={() => onSendToDeals(lead)}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-parsel-gold px-5 py-2.5 text-sm font-bold text-black transition-all duration-300 hover:bg-[#c9a06a] sm:flex-none"
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:flex-none"
           >
             <Plus className="size-4" strokeWidth={2.5} />
             Fırsatlara Gönder

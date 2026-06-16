@@ -85,5 +85,8 @@ export async function resolvePropertyAgentAccess(
 export const PROPERTY_SHARED_MUTATION_ERROR =
   "Bu portföy başka kayıtlarla paylaşıldığı için düzenlenemez.";
 
+export const PROPERTY_SHARED_DELETE_ERROR =
+  "Bu portföy başka danışmanlarla paylaşıldığı için silinemez.";
+
 export const PROPERTY_SWITCH_ERROR =
   "Bu portföy başka bir kayıtla ilişkilendirilemez.";

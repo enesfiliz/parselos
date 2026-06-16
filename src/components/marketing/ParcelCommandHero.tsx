@@ -1,7 +1,6 @@
 import {
   Activity,
   Briefcase,
-  CheckCircle2,
   FileText,
   Mic,
   Radar,
@@ -35,37 +34,46 @@ const PIPELINE_ROWS = [
 ] as const;
 
 const ACTIVITY_ROWS = [
-  { icon: Mic, text: "Saha notu — Kadıköy 3+1 görüşmesi" },
-  { icon: CheckCircle2, text: "Müşteri eşleşmesi — Bütçe 6M ₺" },
+  { icon: Mic, text: "Sesli not — Kadıköy 3+1 görüşmesi işlendi" },
+  { icon: Sparkles, text: "ParselAI — 3 portföy eşleşmesi önerildi" },
 ] as const;
 
 const PANEL_EVENTS = [
   {
-    id: "voice",
-    icon: Mic,
-    title: "Saha notu işlendi",
-    body: "Sesli CRM → müşteri profiline aktarıldı",
-    placement: "bottom",
-  },
-  {
-    id: "match",
-    icon: CheckCircle2,
-    title: "Müşteri eşleşmesi bulundu",
-    body: "Konut · 5–7M ₺ · Moda",
+    id: "portfolio",
+    icon: Briefcase,
+    title: "Portföy kartı güncellendi",
+    body: "Moda 3+1 · Aktif vitrin · ₺6.2M",
     placement: "left",
+    accent: "primary",
   },
   {
     id: "imar",
     icon: Radar,
-    title: "İmar radarı güncellendi",
-    body: "126 Ada 58 Parsel · Konut",
+    title: "İmar uyarısı",
+    body: "126 Ada 58 Parsel · Konut · Askı izlemede",
     placement: "right",
+    accent: "gold",
+  },
+  {
+    id: "voice",
+    icon: Mic,
+    title: "Sesli CRM notu",
+    body: "Saha görüşmesi → müşteri profiline aktarıldı",
+    placement: "bottom",
+    accent: "primary",
+  },
+  {
+    id: "parselai",
+    icon: Sparkles,
+    title: "ParselAI önerisi",
+    body: "3 müşteri için portföy eşleşmesi hazır",
+    placement: "bottom",
+    accent: "gold",
   },
 ] as const;
 
-const MOBILE_PANEL_EVENT = PANEL_EVENTS[0];
-
-const DESKTOP_PANEL_EVENTS = PANEL_EVENTS.filter((event) => event.placement !== "left");
+const DESKTOP_FLOAT_EVENTS = PANEL_EVENTS.filter((event) => event.id !== "parselai");
 
 function LiveStatusBadge() {
   return (
@@ -253,6 +261,46 @@ function CommandCenterPanel({ showAtlasInline = false }: { showAtlasInline?: boo
   );
 }
 
+function ProductSignalGrid() {
+  const signals = PANEL_EVENTS.slice(0, 4);
+  return (
+    <div className="mb-3 grid grid-cols-2 gap-2 sm:gap-2.5 lg:hidden">
+      {signals.map((signal) => {
+        const Icon = signal.icon;
+        const isGold = signal.accent === "gold";
+        return (
+          <div
+            key={signal.id}
+            className={cn(
+              "landing-hero-float-card rounded-xl border bg-parsel-panel/95 p-2.5 shadow-parsel-sm backdrop-blur-sm",
+              isGold ? "border-parsel-gold/25" : "border-primary/20",
+            )}
+          >
+            <div className="flex items-start gap-2">
+              <span
+                className={cn(
+                  "flex size-7 shrink-0 items-center justify-center rounded-lg border",
+                  isGold
+                    ? "border-parsel-gold/25 bg-parsel-gold/10 text-parsel-gold"
+                    : "border-primary/20 bg-primary/10 text-primary",
+                )}
+              >
+                <Icon className="size-3.5" strokeWidth={1.75} aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold text-foreground">{signal.title}</p>
+                <p className="mt-0.5 text-[10px] leading-snug text-muted-foreground">
+                  {signal.body}
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function PanelEventRail({
   event,
   inline = false,
@@ -261,6 +309,7 @@ function PanelEventRail({
   inline?: boolean;
 }) {
   const Icon = event.icon;
+  const isGold = event.accent === "gold";
 
   if (inline) {
     return (
@@ -279,13 +328,21 @@ function PanelEventRail({
   return (
     <div
       className={cn(
-        "hero-panel-event z-30 flex max-w-[220px] items-start gap-2.5 rounded-xl border border-border/60 bg-parsel-panel px-3.5 py-3 shadow-parsel-md backdrop-blur-sm",
+        "hero-panel-event z-30 flex max-w-[220px] items-start gap-2.5 rounded-xl border bg-parsel-panel px-3.5 py-3 shadow-parsel-md backdrop-blur-sm",
+        isGold ? "border-parsel-gold/25" : "border-border/60",
         event.placement === "left" && "hero-panel-event-left",
         event.placement === "right" && "hero-panel-event-right",
         event.placement === "bottom" && "hero-panel-event-bottom",
       )}
     >
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-primary/15 bg-primary/10">
+      <span
+        className={cn(
+          "flex size-7 shrink-0 items-center justify-center rounded-lg border",
+          isGold
+            ? "border-parsel-gold/25 bg-parsel-gold/10 text-parsel-gold"
+            : "border-primary/15 bg-primary/10 text-primary",
+        )}
+      >
         <Icon className="size-3.5 text-primary" strokeWidth={1.75} aria-hidden />
       </span>
       <div className="min-w-0">
@@ -323,10 +380,8 @@ function BackLayerCard() {
 function MobileCommandDeck() {
   return (
     <div className="relative">
+      <ProductSignalGrid />
       <CommandCenterPanel showAtlasInline />
-      <div className="mt-2.5">
-        <PanelEventRail event={MOBILE_PANEL_EVENT} inline />
-      </div>
     </div>
   );
 }
@@ -351,9 +406,9 @@ function DesktopCommandDeck() {
         </div>
       </div>
 
-      <div className="hero-command-layer-front relative z-20 pb-4 pt-4 lg:pt-8 lg:pb-6 xl:pt-10">
+      <div className="hero-command-layer-front relative z-20 pb-4 pt-2 lg:pt-6 lg:pb-6 xl:pt-8">
         <CommandCenterPanel />
-        {DESKTOP_PANEL_EVENTS.map((event) => (
+        {DESKTOP_FLOAT_EVENTS.map((event) => (
           <PanelEventRail key={event.id} event={event} />
         ))}
       </div>

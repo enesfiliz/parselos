@@ -1,7 +1,13 @@
-import type { CrmVoicePayload } from "@/lib/types/crm";
+import type { CrmVoicePayload, VoiceCrmConfigStatus } from "@/lib/types/crm";
 
 export const METRIC_CARD =
   "parsel-surface flex min-h-[88px] flex-col justify-between rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm";
+
+export const VOICE_ERROR_BANNER =
+  "flex items-start gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 px-4 py-3.5 text-sm text-foreground";
+
+export const VOICE_INFO_BANNER =
+  "flex items-start gap-3 rounded-2xl border border-border/60 bg-parsel-elevated px-4 py-3.5 text-sm text-muted-foreground";
 
 export type WorkflowStep = 1 | 2 | 3 | 4;
 
@@ -80,4 +86,23 @@ export function computeVoiceMetrics(logs: { parsed_json_data: CrmVoicePayload }[
     withLocation,
     urgent,
   };
+}
+
+export function describeConfigStatus(status: VoiceCrmConfigStatus) {
+  return [
+    {
+      key: "groq",
+      label: "Ses sağlayıcısı",
+      ready: status.groqReady,
+      readyLabel: "Hazır",
+      missingLabel: "Eksik",
+    },
+    {
+      key: "storage",
+      label: "Kayıt altyapısı",
+      ready: status.storageReady,
+      readyLabel: "Hazır",
+      missingLabel: "Eksik",
+    },
+  ] as const;
 }

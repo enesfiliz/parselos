@@ -1,3 +1,8 @@
+import type {
+  FsboPriority,
+  FsboTrackingStatus,
+} from "@/lib/fsbo/fsbo-tracking";
+
 export type FsboIslemTipi = "SATILIK" | "KIRALIK";
 export type FsboKategori = "KONUT" | "ARSA" | "TICARI";
 
@@ -36,6 +41,11 @@ export type FsboLeadData = {
   promotedDealId: string | null;
   listedAt: string | null;
   olusturulmaTarihi: string;
+  priority: FsboPriority;
+  trackingStatus: FsboTrackingStatus;
+  isManualEntry: boolean;
+  nextFollowUpAt: string | null;
+  hasPublicSourceUrl: boolean;
 };
 
 export type FsboWatchRegionData = {

@@ -3,7 +3,6 @@
 import {
   Briefcase,
   Eye,
-  FileText,
   Loader2,
   MoreHorizontal,
   Pencil,
@@ -27,8 +26,9 @@ import { PortfolioDeleteDialog } from "@/components/features/portfolios/Portfoli
 import { PortfolioDetailDrawer } from "@/components/features/portfolios/PortfolioDetailDrawer";
 import {
   computePortfolioMetrics,
-  extractAdaParsel,
   extractImarLabel,
+  formatPortfolioLastActivity,
+  getDealStageBadge,
   getListingBadge,
   getYetkiStatus,
   isMockPortfolio,
@@ -126,10 +126,17 @@ export function PortfoliosView({
     setFormOpen(true);
   }, []);
 
-  const openDetails = useCallback((portfolio: AuthorizedPortfolioItem) => {
-    setDetailPortfolio(portfolio);
-    setDetailOpen(true);
-  }, []);
+  const openDetails = useCallback(
+    (portfolio: AuthorizedPortfolioItem) => {
+      if (isMockPortfolio(portfolio.id)) {
+        setDetailPortfolio(portfolio);
+        setDetailOpen(true);
+        return;
+      }
+      router.push(`/portfolios/${portfolio.id}`);
+    },
+    [router],
+  );
 
   const openDeleteDialog = useCallback((portfolio: AuthorizedPortfolioItem) => {
     setDeletePortfolio(portfolio);
@@ -381,16 +388,17 @@ export function PortfoliosView({
         ) : (
           <>
             <div className="hidden overflow-x-auto rounded-2xl border border-border/60 bg-parsel-panel shadow-parsel-sm md:block">
-              <div className="min-w-[1040px]">
-                <div className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_minmax(0,0.55fr)_minmax(0,0.8fr)_minmax(0,0.75fr)_minmax(0,0.65fr)_auto] gap-3 border-b border-border/60 bg-parsel-elevated/80 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <div className="min-w-[1120px]">
+                <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)_minmax(0,0.75fr)_minmax(0,0.65fr)_minmax(0,0.55fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_minmax(0,0.65fr)_minmax(0,0.6fr)_auto] gap-3 border-b border-border/60 bg-parsel-elevated/80 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                   <span>Portföy</span>
                   <span>Bölge</span>
                   <span>Tür / İmar</span>
-                  <span>Ada / Parsel</span>
+                  <span>Mal sahibi</span>
                   <span>m²</span>
                   <span>Fiyat</span>
                   <span>Durum</span>
-                  <span>Aktivite</span>
+                  <span>Fırsat</span>
+                  <span>Son aktivite</span>
                   <span className="text-right">İşlem</span>
                 </div>
                 <ul>
@@ -477,7 +485,8 @@ function PortfolioTableRow({
   const listing = getListingBadge(item.listingType);
   const yetki = getYetkiStatus(item.yetkiRemainingDays);
   const imar = extractImarLabel(item.title, item.propertyKind);
-  const adaParsel = extractAdaParsel(item.title, item.description);
+  const dealStage = getDealStageBadge(item.dealStageLabel);
+  const lastActivity = formatPortfolioLastActivity(item.lastActivityAt);
   const mock = isMockPortfolio(item.id);
 
   useEffect(() => {
@@ -494,7 +503,7 @@ function PortfolioTableRow({
   }, [menuOpen]);
 
   return (
-    <li className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_minmax(0,0.55fr)_minmax(0,0.8fr)_minmax(0,0.75fr)_minmax(0,0.65fr)_auto] items-center gap-3 border-b border-border/50 px-5 py-3.5 transition-colors last:border-b-0 hover:bg-foreground/[0.02]">
+    <li className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)_minmax(0,0.75fr)_minmax(0,0.65fr)_minmax(0,0.55fr)_minmax(0,0.75fr)_minmax(0,0.7fr)_minmax(0,0.65fr)_minmax(0,0.6fr)_auto] items-center gap-3 border-b border-border/50 px-5 py-3.5 transition-colors last:border-b-0 hover:bg-foreground/[0.02]">
       <button
         type="button"
         onClick={() => onDetails(item)}
@@ -527,7 +536,14 @@ function PortfolioTableRow({
         </p>
       </div>
 
-      <p className="text-xs text-muted-foreground">{adaParsel ?? "—"}</p>
+      <div className="min-w-0">
+        <p className="truncate text-sm text-foreground/90">{item.ownerName}</p>
+        {item.ownerPhone ? (
+          <p className="truncate text-[10px] text-muted-foreground">
+            +{item.ownerPhone}
+          </p>
+        ) : null}
+      </div>
 
       <p className="text-sm tabular-nums text-foreground/90">
         {item.sqm > 0 ? item.sqm.toLocaleString("tr-TR") : "—"}
@@ -555,16 +571,18 @@ function PortfolioTableRow({
         </span>
       </div>
 
-      <div className="min-w-0 text-xs text-muted-foreground">
-        <p className="inline-flex items-center gap-1">
-          <Eye className="size-3" />
-          {item.showingsCount} gösterim
-        </p>
-        <p className="mt-0.5 inline-flex items-center gap-1">
-          <FileText className="size-3" />
-          {item.offersCount} teklif
-        </p>
+      <div className="min-w-0 space-y-1">
+        <span
+          className={cn(
+            "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium",
+            dealStage.className,
+          )}
+        >
+          {dealStage.label}
+        </span>
       </div>
+
+      <p className="min-w-0 text-xs text-muted-foreground">{lastActivity}</p>
 
       <div ref={menuRef} className="relative flex justify-end">
         <button

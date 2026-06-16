@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { runFsboScraperSync } from "@/lib/fsbo/fsbo-sync-service";
+import { FSBO_AUTO_SYNC_DISABLED_MESSAGE } from "@/lib/fsbo/fsbo-tracking";
 
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -13,29 +13,25 @@ function isAuthorized(request: Request): boolean {
   return headerSecret === secret;
 }
 
+function disabledResponse() {
+  return NextResponse.json(
+    {
+      success: false,
+      disabled: true,
+      synced: 0,
+      error: FSBO_AUTO_SYNC_DISABLED_MESSAGE,
+      note: "Agent-scoped FSBO sync tasarlanana kadar kapalı.",
+    },
+    { status: 410 },
+  );
+}
+
 export async function GET(request: Request) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Yetkisiz istek." }, { status: 401 });
   }
 
-  try {
-    const { leads, stats, message } = await runFsboScraperSync();
-
-    return NextResponse.json({
-      success: leads.length > 0,
-      synced: leads.length,
-      leads,
-      stats,
-      message,
-      note: "ScraperAPI + Cheerio ile canlı FSBO senkronizasyonu.",
-    });
-  } catch (error) {
-    console.error("[GET /api/cron/fsbo-sync]", error);
-    return NextResponse.json(
-      { error: "FSBO senkronizasyonu başarısız." },
-      { status: 500 },
-    );
-  }
+  return disabledResponse();
 }
 
 export async function POST(request: Request) {

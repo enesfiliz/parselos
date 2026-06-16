@@ -78,6 +78,12 @@ export function formValuesToPortfolioItem(
     yetkiRemainingDays: existing?.yetkiRemainingDays ?? 60,
     ownerName: values.ownerName.trim() || "Mal Sahibi",
     ownerPhone: values.ownerPhone.trim(),
+    ownerClientId: existing?.ownerClientId,
+    primaryDealId: existing?.primaryDealId,
+    dealStage: existing?.dealStage,
+    dealStageLabel: existing?.dealStageLabel,
+    updatedAt: existing?.updatedAt ?? new Date().toISOString(),
+    lastActivityAt: existing?.lastActivityAt ?? new Date().toISOString(),
   };
 }
 

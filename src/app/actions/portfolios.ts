@@ -8,6 +8,11 @@ import { getTenantPlanForClerkUser } from "@/lib/billing/tenant";
 import { findOrCreateClient } from "@/lib/deals/find-or-create-client";
 import { findAuthorizedPropertyForAgent } from "@/lib/portfolios/portfolio-access";
 import {
+  PROPERTY_SHARED_DELETE_ERROR,
+  PROPERTY_SHARED_MUTATION_ERROR,
+  resolvePropertyMutationAccess,
+} from "@/lib/properties/ownership";
+import {
   mapPropertyToPortfolio,
   parseLocationInput,
   parsePriceTL,
@@ -98,6 +103,16 @@ export async function updatePortfolioAction(
     }
 
     const agent = await requireCurrentAgent();
+    const access = await resolvePropertyMutationAccess(propertyId, agent.id);
+
+    if (!access.exists || !access.ownedByAgent) {
+      return { success: false, error: "Portföy bulunamadı veya erişim yok." };
+    }
+
+    if (!access.canMutate) {
+      return { success: false, error: PROPERTY_SHARED_MUTATION_ERROR };
+    }
+
     const existing = await findAuthorizedPropertyForAgent(agent.id, propertyId);
 
     if (!existing) {
@@ -107,21 +122,26 @@ export async function updatePortfolioAction(
     const propertyData = buildPropertyData(values);
     const primaryDeal = existing.deals[0];
 
+    if (!primaryDeal) {
+      return {
+        success: false,
+        error: "Portföy kaydı güncellenemiyor: danışman bağlantısı bulunamadı.",
+      };
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.property.update({
         where: { id: propertyId },
         data: propertyData,
       });
 
-      if (primaryDeal) {
-        await tx.client.update({
-          where: { id: primaryDeal.client.id },
-          data: {
-            adSoyad: values.ownerName.trim() || primaryDeal.client.adSoyad,
-            telefon: values.ownerPhone.trim() || primaryDeal.client.telefon,
-          },
-        });
-      }
+      await tx.client.update({
+        where: { id: primaryDeal.client.id },
+        data: {
+          adSoyad: values.ownerName.trim() || primaryDeal.client.adSoyad,
+          telefon: values.ownerPhone.trim() || primaryDeal.client.telefon,
+        },
+      });
     });
 
     const saved = await findAuthorizedPropertyForAgent(agent.id, propertyId);
@@ -130,6 +150,7 @@ export async function updatePortfolioAction(
     }
 
     revalidatePath(PORTFOLIOS_PATH);
+    revalidatePath(`${PORTFOLIOS_PATH}/${propertyId}`);
     return { success: true, data: mapPropertyToPortfolio(saved) };
   } catch (error) {
     console.error("[updatePortfolioAction]", error);
@@ -149,6 +170,16 @@ export async function deletePortfolioAction(
     }
 
     const agent = await requireCurrentAgent();
+    const access = await resolvePropertyMutationAccess(propertyId, agent.id);
+
+    if (!access.exists || !access.ownedByAgent) {
+      return { success: false, error: "Portföy bulunamadı veya erişim yok." };
+    }
+
+    if (!access.canMutate) {
+      return { success: false, error: PROPERTY_SHARED_DELETE_ERROR };
+    }
+
     const existing = await findAuthorizedPropertyForAgent(agent.id, propertyId);
 
     if (!existing) {

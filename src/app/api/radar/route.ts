@@ -111,7 +111,7 @@ function buildAnalysis(
 
   const summary =
     announcements.length > 0
-      ? `${region} için ${announcements.length} doğrulanmış duyuru (${scannedSources} kaynak tarandı).`
+      ? `${region} için ${announcements.length} eşleşen duyuru (${scannedSources} kaynak tarandı).`
       : `${region} için ${scannedSources} resmi kaynak tarandı; eşleşen duyuru bulunamadı.`;
 
   return {

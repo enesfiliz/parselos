@@ -1,18 +1,6 @@
 import { NextResponse } from "next/server";
-import type { Prisma } from "@prisma/client";
 
-import { getMostRecentlyActiveAgent } from "@/lib/auth/agent";
-import { prisma } from "@/lib/prisma";
-
-type BotSyncSpecs = {
-  m2?: number;
-  brutM2?: number;
-  netM2?: number;
-  odaSayisi?: string;
-  ilanNo?: string;
-  binaYasi?: string;
-  isitmaTipi?: string;
-};
+import { FSBO_BOT_IMPORT_DISABLED_MESSAGE } from "@/lib/fsbo/fsbo-tracking";
 
 type BotSyncListingInput = {
   title?: string;
@@ -20,7 +8,7 @@ type BotSyncListingInput = {
   url?: string;
   source?: string;
   images?: string[];
-  specs?: BotSyncSpecs | null;
+  specs?: Record<string, unknown> | null;
   region?: string;
   il?: string;
   ilce?: string;
@@ -35,6 +23,7 @@ type BotSyncListingInput = {
 type BotSyncRequestBody = {
   listings?: BotSyncListingInput[];
   listing?: BotSyncListingInput;
+  agentId?: string;
 };
 
 function getBotSecret(): string | null {
@@ -59,70 +48,6 @@ function isAuthorized(request: Request): boolean {
   return authHeader === `Bearer ${secret}`;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function normalizeSpecs(specs: BotSyncSpecs | null | undefined): Prisma.InputJsonValue | undefined {
-  if (!isRecord(specs)) return undefined;
-
-  return {
-    ...specs,
-    brutM2: specs.brutM2 ?? specs.m2 ?? undefined,
-    odaSayisi: specs.odaSayisi ?? undefined,
-  };
-}
-
-function parseRegionParts(region: string): { il: string | null; ilce: string | null } {
-  const parts = region
-    .split(/[\/,]/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length >= 2) {
-    return { il: parts[0], ilce: parts[1] };
-  }
-
-  return { il: null, ilce: parts[0] ?? null };
-}
-
-function normalizeListing(raw: BotSyncListingInput): BotSyncListingInput | null {
-  const title = raw.title?.trim();
-  const url = raw.url?.trim();
-  const region = raw.region?.trim();
-  const price = Number(raw.price);
-
-  if (!title || !url || !region || !Number.isFinite(price) || price <= 0) {
-    return null;
-  }
-
-  const images = Array.isArray(raw.images)
-    ? raw.images.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
-    : [];
-
-  const regionParts = parseRegionParts(region);
-
-  return {
-    title,
-    url,
-    region,
-    price: Math.round(price),
-    source: raw.source?.trim() || "sahibinden",
-    images,
-    specs: raw.specs ?? null,
-    il: raw.il?.trim() || regionParts.il || undefined,
-    ilce: raw.ilce?.trim() || regionParts.ilce || undefined,
-    location: raw.location?.trim() || region,
-    metrekare:
-      raw.metrekare ??
-      (typeof raw.specs?.m2 === "number" ? raw.specs.m2 : raw.specs?.brutM2),
-    odaSayisi: raw.odaSayisi ?? raw.specs?.odaSayisi,
-    listingNo: raw.listingNo,
-    islemTipi: raw.islemTipi ?? "SATILIK",
-    kategori: raw.kategori ?? "KONUT",
-  };
-}
-
 function extractListings(body: BotSyncRequestBody): BotSyncListingInput[] {
   if (Array.isArray(body.listings)) return body.listings;
   if (body.listing) return [body.listing];
@@ -144,93 +69,20 @@ export async function POST(request: Request) {
         inserted: 0,
         updated: 0,
         skipped: 0,
+        fsboAutoImport: "disabled",
         message: "Boş ilan listesi alındı.",
       });
     }
 
-    let inserted = 0;
-    let updated = 0;
-    let skipped = 0;
-    const activeAgent = await getMostRecentlyActiveAgent();
-    const assignAgentId = activeAgent?.id ?? null;
-
-    for (const raw of rawListings) {
-      const listing = normalizeListing(raw);
-
-      if (!listing?.url || !listing.title || !listing.price || !listing.region) {
-        skipped += 1;
-        console.error("[bot-sync] Geçersiz ilan atlandı:", raw.url ?? raw.title);
-        continue;
-      }
-
-      try {
-        const specs = normalizeSpecs(listing.specs);
-        const existing = await prisma.fsboLead.findUnique({
-          where: { url: listing.url },
-          select: { id: true },
-        });
-
-        await prisma.fsboLead.upsert({
-          where: { url: listing.url },
-          update: {
-            price: listing.price,
-            ...(listing.images && listing.images.length > 0
-              ? { images: listing.images }
-              : {}),
-            ...(specs ? { specs } : {}),
-            title: listing.title,
-            source: listing.source,
-            region: listing.region,
-            metrekare: listing.metrekare ?? undefined,
-            odaSayisi: listing.odaSayisi ?? undefined,
-            listingNo: listing.listingNo ?? undefined,
-            islemTipi: listing.islemTipi ?? undefined,
-            kategori: listing.kategori ?? undefined,
-            location: listing.location,
-            il: listing.il,
-            ilce: listing.ilce,
-          },
-          create: {
-            title: listing.title,
-            price: listing.price,
-            url: listing.url,
-            source: listing.source ?? "sahibinden",
-            images: listing.images ?? [],
-            specs,
-            region: listing.region,
-            isRead: false,
-            location: listing.location,
-            il: listing.il,
-            ilce: listing.ilce,
-            metrekare: listing.metrekare ?? null,
-            odaSayisi: listing.odaSayisi ?? null,
-            listingNo: listing.listingNo ?? null,
-            islemTipi: listing.islemTipi ?? "SATILIK",
-            kategori: listing.kategori ?? "KONUT",
-            description: `${listing.title}. ${listing.region} bölgesinde scraper-bot kaydı.`,
-            isDiscarded: false,
-            listedAt: new Date(),
-            agentId: assignAgentId,
-          },
-        });
-
-        if (existing) {
-          updated += 1;
-        } else {
-          inserted += 1;
-        }
-      } catch (error) {
-        skipped += 1;
-        console.error("[bot-sync] upsert başarısız:", listing.url, error);
-      }
-    }
-
     return NextResponse.json({
-      success: inserted + updated > 0,
-      inserted,
-      updated,
-      skipped,
+      success: false,
+      inserted: 0,
+      updated: 0,
+      skipped: rawListings.length,
       total: rawListings.length,
+      fsboAutoImport: "disabled",
+      message: FSBO_BOT_IMPORT_DISABLED_MESSAGE,
+      manualEndpoint: "/api/fsbo-leads/manual",
     });
   } catch (error) {
     console.error("[POST /api/bot-sync]", error);

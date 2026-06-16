@@ -3,18 +3,22 @@ import "server-only";
 import { agentOwnershipFilter } from "@/lib/auth/agent";
 import { prisma } from "@/lib/prisma";
 
-const propertyInclude = {
-  deals: {
-    select: {
-      id: true,
-      stage: true,
-      client: {
-        select: { id: true, adSoyad: true, telefon: true },
-      },
-    },
-    orderBy: { olusturulmaTarihi: "asc" as const },
+const agentDealSelect = {
+  id: true,
+  stage: true,
+  guncellenmeTarihi: true,
+  client: {
+    select: { id: true, adSoyad: true, telefon: true },
   },
 } as const;
+
+function agentScopedDealsInclude(agentId: string) {
+  return {
+    where: agentOwnershipFilter(agentId),
+    select: agentDealSelect,
+    orderBy: { olusturulmaTarihi: "asc" as const },
+  };
+}
 
 export async function findAuthorizedPropertyForAgent(
   agentId: string,
@@ -28,7 +32,9 @@ export async function findAuthorizedPropertyForAgent(
         some: agentOwnershipFilter(agentId),
       },
     },
-    include: propertyInclude,
+    include: {
+      deals: agentScopedDealsInclude(agentId),
+    },
   });
 }
 
@@ -42,15 +48,7 @@ export async function listAuthorizedPropertiesForAgent(agentId: string) {
     },
     orderBy: { guncellenmeTarihi: "desc" },
     include: {
-      deals: {
-        where: agentOwnershipFilter(agentId),
-        select: {
-          stage: true,
-          client: {
-            select: { adSoyad: true, telefon: true },
-          },
-        },
-      },
+      deals: agentScopedDealsInclude(agentId),
     },
   });
 }

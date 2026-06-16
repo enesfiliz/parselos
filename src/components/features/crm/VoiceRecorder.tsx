@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Mic, Square } from "lucide-react";
+import { AlertCircle, Mic, Square } from "lucide-react";
 
-import type { CrmVoicePayload } from "@/lib/types/crm";
+import type { CrmVoicePayload, VoiceCrmLog } from "@/lib/types/crm";
+import { VOICE_ERROR_BANNER } from "@/components/features/crm/voice-crm-ui-helpers";
 import { cn } from "@/lib/utils";
 
 export type RecorderState = "idle" | "recording" | "processing";
@@ -11,6 +12,7 @@ export type RecorderState = "idle" | "recording" | "processing";
 export type VoiceRecordResult = {
   transcript: string;
   data: CrmVoicePayload;
+  log?: VoiceCrmLog;
 };
 
 const MIME_CANDIDATES = [
@@ -19,6 +21,9 @@ const MIME_CANDIDATES = [
   "audio/mp4",
   "audio/ogg;codecs=opus",
 ] as const;
+
+const MIN_RECORDING_SECONDS = 1;
+const MIN_BLOB_BYTES = 800;
 
 function resolveMimeType(): string {
   if (typeof MediaRecorder === "undefined") return "";
@@ -43,6 +48,22 @@ function formatDuration(seconds: number): string {
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
+function mapMicrophoneError(error: unknown): string {
+  if (error instanceof DOMException) {
+    if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
+      return "Mikrofon izni reddedildi. Tarayıcı ayarlarından mikrofon erişimine izin verin.";
+    }
+    if (error.name === "NotFoundError" || error.name === "DevicesNotFoundError") {
+      return "Mikrofon bulunamadı. Cihazınızda mikrofon olduğundan emin olun.";
+    }
+    if (error.name === "NotReadableError" || error.name === "TrackStartError") {
+      return "Mikrofon başka bir uygulama tarafından kullanılıyor olabilir.";
+    }
+  }
+
+  return "Mikrofon erişimi sağlanamadı.";
+}
+
 function toCrmPayload(raw: Record<string, unknown>): CrmVoicePayload {
   const source =
     raw.data && typeof raw.data === "object"
@@ -55,6 +76,18 @@ function toCrmPayload(raw: Record<string, unknown>): CrmVoicePayload {
     lokasyon: String(source.lokasyon ?? ""),
     mulk_tipi: String(source.mulk_tipi ?? ""),
     notlar: String(source.notlar ?? ""),
+  };
+}
+
+function toVoiceLog(raw: unknown): VoiceCrmLog | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const record = raw as Record<string, unknown>;
+  if (!record.id || !record.created_at) return undefined;
+
+  return {
+    id: String(record.id),
+    created_at: String(record.created_at),
+    parsed_json_data: toCrmPayload(record.parsed_json_data as Record<string, unknown>),
   };
 }
 
@@ -81,7 +114,7 @@ async function sendToVoiceApi(file: File): Promise<VoiceRecordResult> {
   }
 
   if (!payload || typeof payload !== "object") {
-    throw new Error("API yanıtı geçerli bir JSON nesnesi değil.");
+    throw new Error("Sesli CRM yanıtı işlenemedi.");
   }
 
   const record = payload as Record<string, unknown>;
@@ -89,17 +122,20 @@ async function sendToVoiceApi(file: File): Promise<VoiceRecordResult> {
   return {
     transcript: String(record.transcript ?? ""),
     data: toCrmPayload(record),
+    log: toVoiceLog(record.log),
   };
 }
 
 type VoiceRecorderProps = {
   onRecordSuccess?: (result: VoiceRecordResult) => void;
   onStateChange?: (state: RecorderState) => void;
+  disabled?: boolean;
 };
 
 export function VoiceRecorder({
   onRecordSuccess,
   onStateChange,
+  disabled = false,
 }: VoiceRecorderProps) {
   const [state, setState] = useState<RecorderState>("idle");
   const [duration, setDuration] = useState(0);
@@ -110,6 +146,9 @@ export function VoiceRecorder({
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const durationRef = useRef(0);
+  const isStartingRef = useRef(false);
+  const isStoppingRef = useRef(false);
+  const isUploadingRef = useRef(false);
 
   const updateState = useCallback(
     (next: RecorderState) => {
@@ -140,15 +179,21 @@ export function VoiceRecorder({
   }, [clearTimer, releaseStream]);
 
   async function processRecording(file: File) {
+    if (isUploadingRef.current) return;
+    isUploadingRef.current = true;
+
     try {
       const result = await sendToVoiceApi(file);
       onRecordSuccess?.(result);
+      setError(null);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Ses işlenirken bir hata oluştu.";
       setError(message);
       console.error("[VoiceRecorder]", err);
     } finally {
+      isUploadingRef.current = false;
+      isStoppingRef.current = false;
       setDuration(0);
       durationRef.current = 0;
       updateState("idle");
@@ -156,10 +201,25 @@ export function VoiceRecorder({
   }
 
   async function startRecording() {
+    if (
+      disabled ||
+      isStartingRef.current ||
+      isUploadingRef.current ||
+      state !== "idle"
+    ) {
+      return;
+    }
+
     setError(null);
+    isStartingRef.current = true;
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+        },
+      });
       const mimeType = resolveMimeType();
 
       streamRef.current = stream;
@@ -182,18 +242,31 @@ export function VoiceRecorder({
       recorder.onstop = () => {
         const type = recorder.mimeType || mimeType || "audio/webm";
         const blob = new Blob(chunksRef.current, { type });
+        const recordedSeconds = durationRef.current;
+
+        clearTimer();
+        releaseStream();
+        isStoppingRef.current = false;
+
+        if (recordedSeconds < MIN_RECORDING_SECONDS || blob.size < MIN_BLOB_BYTES) {
+          setError("Kayıt çok kısa. En az 1 saniye net konuşun.");
+          setDuration(0);
+          durationRef.current = 0;
+          updateState("idle");
+          return;
+        }
+
         const file = new File(
           [blob],
           `ses-kaydi-${Date.now()}.${extensionFromMime(type)}`,
           { type },
         );
 
-        clearTimer();
-        releaseStream();
         void processRecording(file);
       };
 
       recorder.start();
+      isStartingRef.current = false;
       updateState("recording");
 
       timerRef.current = setInterval(() => {
@@ -201,10 +274,11 @@ export function VoiceRecorder({
         setDuration(durationRef.current);
       }, 1000);
     } catch (err) {
-      console.error("[VoiceRecorder] Mikrofon erişimi reddedildi:", err);
+      console.error("[VoiceRecorder] Mikrofon erişimi:", err);
       clearTimer();
       releaseStream();
-      setError("Mikrofon erişimi reddedildi veya kullanılamıyor.");
+      isStartingRef.current = false;
+      setError(mapMicrophoneError(err));
       updateState("idle");
     }
   }
@@ -212,26 +286,37 @@ export function VoiceRecorder({
   function stopRecording() {
     const recorder = mediaRecorderRef.current;
 
-    if (!recorder || recorder.state !== "recording") return;
+    if (
+      !recorder ||
+      recorder.state !== "recording" ||
+      isStoppingRef.current ||
+      isUploadingRef.current
+    ) {
+      return;
+    }
 
+    isStoppingRef.current = true;
     updateState("processing");
     clearTimer();
     recorder.stop();
   }
 
   function handleToggle() {
+    if (disabled) return;
+
     if (state === "recording") {
       stopRecording();
       return;
     }
 
-    if (state === "idle") {
+    if (state === "idle" && !isStartingRef.current && !isUploadingRef.current) {
       void startRecording();
     }
   }
 
   const isRecording = state === "recording";
   const isProcessing = state === "processing";
+  const isDisabled = disabled || isProcessing;
 
   return (
     <div className="flex w-full flex-col items-center gap-6">
@@ -247,7 +332,7 @@ export function VoiceRecorder({
         <button
           type="button"
           onClick={handleToggle}
-          disabled={isProcessing}
+          disabled={isDisabled}
           aria-label={
             isRecording
               ? "Kaydı durdur"
@@ -257,7 +342,7 @@ export function VoiceRecorder({
           }
           aria-pressed={isRecording}
           className={cn(
-            "relative z-10 flex size-24 items-center justify-center rounded-full border shadow-parsel-sm transition-colors outline-none md:size-28",
+            "relative z-10 flex size-24 touch-manipulation items-center justify-center rounded-full border shadow-parsel-sm transition-colors outline-none md:size-28",
             "focus-visible:ring-2 focus-visible:ring-primary/30",
             "disabled:pointer-events-none disabled:opacity-60",
             isRecording
@@ -267,6 +352,8 @@ export function VoiceRecorder({
         >
           {isRecording ? (
             <Square className="size-7 fill-current md:size-8" strokeWidth={0} />
+          ) : isProcessing ? (
+            <span className="size-7 animate-pulse rounded-full bg-primary-foreground/80 md:size-8" />
           ) : (
             <Mic className="size-9 md:size-10" strokeWidth={1.75} />
           )}
@@ -278,18 +365,22 @@ export function VoiceRecorder({
           {formatDuration(duration)}
         </p>
         <p className="text-sm font-medium text-foreground">
-          {isProcessing
-            ? "Ses notu ayrıştırılıyor…"
-            : isRecording
-              ? "Kayıt devam ediyor — durdurmak için dokunun"
-              : "Saha görüşmesini sesli not olarak kaydedin"}
+          {disabled
+            ? "Yapılandırma tamamlanana kadar kayıt kullanılamaz."
+            : isProcessing
+              ? "Ses notu ayrıştırılıyor…"
+              : isRecording
+                ? "Kayıt devam ediyor — durdurmak için dokunun"
+                : "Saha görüşmesini CRM notuna dönüştürün"}
         </p>
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {isProcessing
-            ? "Transkript ve CRM alanları hazırlanıyor."
-            : isRecording
-              ? "Müşteri adı, bütçe, bölge ve mülk tipini doğal konuşmayla aktarın."
-              : "Tek dokunuşla kayda başlayın; not otomatik müşteri profiline dönüşür."}
+          {disabled
+            ? "Ses sağlayıcısı ve kayıt altyapısı hazır olduğunda kayıt başlatabilirsiniz."
+            : isProcessing
+              ? "Transkript ve CRM alanları hazırlanıyor."
+              : isRecording
+                ? "Müşteri adı, bütçe, bölge ve mülk tipini doğal konuşmayla aktarın."
+                : "Tek dokunuşla kayda başlayın; not otomatik müşteri profiline dönüşür."}
         </p>
       </div>
 
@@ -308,8 +399,9 @@ export function VoiceRecorder({
       ) : null}
 
       {error ? (
-        <div className="w-full rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          {error}
+        <div className={cn(VOICE_ERROR_BANNER, "w-full")}>
+          <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
+          <p>{error}</p>
         </div>
       ) : null}
     </div>

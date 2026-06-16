@@ -5,6 +5,7 @@ import {
   FeaturesSection,
   FinalCtaSection,
   PricingSection,
+  TrustSection,
   WorkflowSection,
 } from "@/components/marketing/LandingSections";
 import { LandingNavAuth } from "@/components/marketing/LandingAuthButtons";
@@ -44,6 +45,7 @@ export function LandingPage() {
 
       <WorkflowSection />
       <FeaturesSection />
+      <TrustSection />
       <PricingSection />
       <FinalCtaSection />
 

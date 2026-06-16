@@ -20,6 +20,11 @@ function buildPreviewLead(
     | "promotedDealId"
     | "listedAt"
     | "olusturulmaTarihi"
+    | "priority"
+    | "trackingStatus"
+    | "isManualEntry"
+    | "nextFollowUpAt"
+    | "hasPublicSourceUrl"
   > & {
     specs?: Partial<FsboLeadData["specs"]>;
     description?: string;
@@ -57,6 +62,11 @@ function buildPreviewLead(
     promotedDealId: null,
     listedAt: daysAgo(partial.listedDaysAgo ?? 1),
     olusturulmaTarihi: daysAgo(partial.listedDaysAgo ?? 1),
+    priority: "medium",
+    trackingStatus: "watching",
+    isManualEntry: false,
+    nextFollowUpAt: daysAgo(partial.listedDaysAgo ?? 1),
+    hasPublicSourceUrl: true,
   };
 }
 

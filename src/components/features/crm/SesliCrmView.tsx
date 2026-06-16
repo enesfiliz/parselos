@@ -7,6 +7,7 @@ import {
   Loader2,
   MapPin,
   Mic,
+  Settings2,
   Sparkles,
   UserRound,
   Wallet,
@@ -18,14 +19,18 @@ import type { RecorderState } from "@/components/features/crm/VoiceRecorder";
 import {
   computeVoiceMetrics,
   CRM_PREVIEW_FIELDS,
+  describeConfigStatus,
   formatRelativeVoiceDate,
   formatVoiceLogDate,
   inferAciliyet,
   METRIC_CARD,
+  VOICE_ERROR_BANNER,
+  VOICE_INFO_BANNER,
   WORKFLOW_STEPS,
   type WorkflowStep,
 } from "@/components/features/crm/voice-crm-ui-helpers";
-import type { CrmVoicePayload, VoiceCrmLog } from "@/lib/types/crm";
+import type { CrmVoicePayload, VoiceCrmConfigStatus, VoiceCrmLog } from "@/lib/types/crm";
+import { isVoiceCrmOperational } from "@/lib/types/crm";
 import { cn } from "@/lib/utils";
 
 function resolveWorkflowStep(
@@ -163,21 +168,73 @@ function VoiceCrmLogCard({ log }: { log: VoiceCrmLog }) {
   );
 }
 
+function ConfigStatusPanel({ status }: { status: VoiceCrmConfigStatus }) {
+  const items = describeConfigStatus(status);
+  const operational = isVoiceCrmOperational(status);
+
+  return (
+    <section className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm sm:p-5">
+      <div className="mb-3 flex items-center gap-2">
+        <Settings2 className="size-4 text-muted-foreground" strokeWidth={1.5} />
+        <p className="parsel-section-label text-muted-foreground">Yapılandırma durumu</p>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {items.map((item) => (
+          <div
+            key={item.key}
+            className="flex items-center justify-between rounded-xl border border-border/60 bg-parsel-elevated px-3 py-2.5"
+          >
+            <span className="text-sm text-foreground">{item.label}</span>
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                item.ready
+                  ? "border-primary/25 bg-primary/10 text-primary"
+                  : "border-border/60 bg-parsel-sunken text-muted-foreground",
+              )}
+            >
+              {item.ready ? (
+                <CheckCircle2 className="size-3" />
+              ) : (
+                <AlertCircle className="size-3" />
+              )}
+              {item.ready ? item.readyLabel : item.missingLabel}
+            </span>
+          </div>
+        ))}
+      </div>
+      {!operational ? (
+        <p className={cn(VOICE_INFO_BANNER, "mt-3")}>
+          <AlertCircle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <span>
+            Sesli CRM tam çalışması için ses sağlayıcısı ve kayıt altyapısı yapılandırılmalıdır.
+            Secret değerler arayüzde gösterilmez.
+          </span>
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 type SesliCrmViewProps = {
   initialLogs: VoiceCrmLog[];
   initialError?: string | null;
+  configStatus: VoiceCrmConfigStatus;
 };
 
 export function SesliCrmView({
   initialLogs,
   initialError = null,
+  configStatus,
 }: SesliCrmViewProps) {
   const [logs, setLogs] = useState<VoiceCrmLog[]>(initialLogs);
   const [fetchError] = useState<string | null>(initialError);
   const [recorderState, setRecorderState] = useState<RecorderState>("idle");
   const [transcript, setTranscript] = useState<string | null>(null);
   const [preview, setPreview] = useState<CrmVoicePayload | null>(null);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
 
+  const operational = isVoiceCrmOperational(configStatus);
   const metrics = useMemo(() => computeVoiceMetrics(logs), [logs]);
   const workflowStep = resolveWorkflowStep(recorderState, Boolean(preview));
   const previewAciliyet = preview ? inferAciliyet(preview.notlar) : null;
@@ -187,25 +244,34 @@ export function SesliCrmView({
     if (state === "recording") {
       setTranscript(null);
       setPreview(null);
+      setSavedAt(null);
     }
   }
 
-  function handleRecordSuccess(result: { transcript: string; data: CrmVoicePayload }) {
+  function handleRecordSuccess(result: {
+    transcript: string;
+    data: CrmVoicePayload;
+    log?: VoiceCrmLog;
+  }) {
     setTranscript(result.transcript);
     setPreview(result.data);
-    setLogs((prev) => [
-      {
-        id: crypto.randomUUID(),
-        parsed_json_data: result.data,
-        created_at: new Date().toISOString(),
-      },
-      ...prev,
-    ]);
+
+    const nextLog: VoiceCrmLog = result.log ?? {
+      id: crypto.randomUUID(),
+      parsed_json_data: result.data,
+      created_at: new Date().toISOString(),
+    };
+
+    setSavedAt(nextLog.created_at);
+    setLogs((prev) => {
+      if (prev.some((item) => item.id === nextLog.id)) return prev;
+      return [nextLog, ...prev];
+    });
   }
 
   return (
     <div className="min-h-full bg-parsel-canvas">
-      <div className="mx-auto w-full max-w-6xl space-y-6">
+      <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6">
         <header className="space-y-3">
           <p className="parsel-section-label text-primary">Saha operasyonu</p>
           <div className="flex flex-wrap items-center gap-3">
@@ -215,10 +281,19 @@ export function SesliCrmView({
             </span>
           </div>
           <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Saha görüşmesini sesli not olarak kaydedin; transkript ve müşteri profili otomatik
-            ayrıştırılsın, takip listesine eklensin.
+            Saha görüşmesini CRM notuna dönüştürün. Ses kaydı transkripte çevrilir; müşteri,
+            bütçe ve bölge alanları otomatik ayrıştırılır.
           </p>
         </header>
+
+        <ConfigStatusPanel status={configStatus} />
+
+        {fetchError ? (
+          <div className={VOICE_ERROR_BANNER}>
+            <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
+            <p>{fetchError}</p>
+          </div>
+        ) : null}
 
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <article className={METRIC_CARD}>
@@ -255,11 +330,12 @@ export function SesliCrmView({
               <div>
                 <h2 className="text-base font-semibold text-foreground">Sesli not ekle</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Büyük kayıt butonu ile sahadan tek elle not alın.
+                  Mikrofon durumunu izleyin; sahadan tek elle not alın.
                 </p>
               </div>
             </div>
             <VoiceRecorder
+              disabled={!operational}
               onStateChange={handleStateChange}
               onRecordSuccess={handleRecordSuccess}
             />
@@ -283,9 +359,16 @@ export function SesliCrmView({
               </div>
 
               {transcript ? (
-                <p className="rounded-xl border border-border/60 bg-parsel-elevated px-4 py-4 text-sm leading-relaxed text-foreground">
-                  {transcript}
-                </p>
+                <div className="space-y-2">
+                  <p className="rounded-xl border border-border/60 bg-parsel-elevated px-4 py-4 text-sm leading-relaxed text-foreground">
+                    {transcript}
+                  </p>
+                  {savedAt ? (
+                    <p className="text-xs text-muted-foreground">
+                      Kayıt zamanı: {formatVoiceLogDate(savedAt)}
+                    </p>
+                  ) : null}
+                </div>
               ) : (
                 <div className="rounded-xl border border-dashed border-border/60 bg-parsel-elevated/60 px-4 py-10 text-center">
                   <p className="text-sm text-muted-foreground">
@@ -305,7 +388,7 @@ export function SesliCrmView({
                   </span>
                   <div>
                     <h2 className="text-base font-semibold text-foreground">
-                      AI ayrıştırma önizlemesi
+                      CRM ayrıştırma önizlemesi
                     </h2>
                     <p className="mt-1 text-sm text-muted-foreground">
                       Müşteri profili alanları
@@ -337,8 +420,13 @@ export function SesliCrmView({
                   <div className="sm:col-span-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
                     <p className="flex items-center gap-2 text-xs font-medium text-primary">
                       <CheckCircle2 className="size-3.5" />
-                      CRM kaydı oluşturuldu ve takip listesine eklendi
+                      CRM kaydı oluşturuldu ve hesabınıza kaydedildi
                     </p>
+                    {savedAt ? (
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {formatVoiceLogDate(savedAt)}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               ) : (
@@ -360,7 +448,7 @@ export function SesliCrmView({
             <div>
               <h2 className="text-base font-semibold text-foreground">Son sesli notlar</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Geçmiş saha kayıtları ve takip özeti
+                Geçmiş saha kayıtları — yalnızca sizin hesabınıza ait
               </p>
             </div>
             {!fetchError ? (
@@ -368,12 +456,7 @@ export function SesliCrmView({
             ) : null}
           </div>
 
-          {fetchError ? (
-            <div className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm text-destructive">
-              <AlertCircle className="mt-0.5 size-4 shrink-0" />
-              <p>{fetchError}</p>
-            </div>
-          ) : logs.length === 0 ? (
+          {fetchError ? null : logs.length === 0 ? (
             <div className="parsel-surface rounded-2xl border border-dashed border-border/60 bg-parsel-panel px-6 py-14 text-center shadow-parsel-sm">
               <Mic className="mx-auto size-10 text-primary/70" strokeWidth={1.25} />
               <p className="mt-4 text-sm font-semibold text-foreground">Henüz sesli not yok</p>

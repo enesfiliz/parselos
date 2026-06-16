@@ -7,6 +7,7 @@ import type { VoiceCrmLog } from "@/lib/types/crm";
 
 import { isVoiceLogOwnedByAgent, VOICE_LOG_AGENT_ID_KEY } from "./agent-scope";
 import { mapVoiceLoadError } from "./errors";
+import { getVoiceCrmConfigStatus } from "./config";
 
 export type VoiceLogsLoadResult = {
   logs: VoiceCrmLog[];
@@ -15,6 +16,14 @@ export type VoiceLogsLoadResult = {
 
 export async function loadVoiceLogsForCurrentAgent(): Promise<VoiceLogsLoadResult> {
   const agent = await requireCurrentAgent();
+  const config = getVoiceCrmConfigStatus();
+
+  if (!config.storageReady) {
+    return {
+      logs: [],
+      error: mapVoiceLoadError("SUPABASE_SERVICE_ROLE_KEY ortam değişkeni tanımlı değil."),
+    };
+  }
 
   try {
     const supabase = createSupabaseAdmin();

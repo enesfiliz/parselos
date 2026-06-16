@@ -3,17 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Eye,
-  FileText,
   MapPin,
   MoreHorizontal,
   Pencil,
   Trash2,
+  User,
 } from "lucide-react";
 
 import { PortfolioCoverImage } from "@/components/features/portfolios/PortfolioCoverImage";
 import {
   extractAdaParsel,
   extractImarLabel,
+  formatPortfolioLastActivity,
+  getDealStageBadge,
   getListingBadge,
   getYetkiStatus,
   isMockPortfolio,
@@ -41,6 +43,8 @@ export function PortfolioCard({
   const yetki = getYetkiStatus(item.yetkiRemainingDays);
   const imar = extractImarLabel(item.title, item.propertyKind);
   const adaParsel = extractAdaParsel(item.title, item.description);
+  const dealStage = getDealStageBadge(item.dealStageLabel);
+  const lastActivity = formatPortfolioLastActivity(item.lastActivityAt);
   const mock = isMockPortfolio(item.id);
 
   useEffect(() => {
@@ -112,6 +116,18 @@ export function PortfolioCard({
                     className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-foreground/75 transition-colors hover:bg-foreground/5"
                     onClick={() => {
                       setMenuOpen(false);
+                      onDetails(item);
+                    }}
+                  >
+                    <Eye className="size-3.5" strokeWidth={1.75} />
+                    Detay
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-foreground/75 transition-colors hover:bg-foreground/5"
+                    onClick={() => {
+                      setMenuOpen(false);
                       onEdit(item);
                     }}
                   >
@@ -155,7 +171,15 @@ export function PortfolioCard({
                 yetki.className,
               )}
             >
-              {yetki.detail} · {yetki.label}
+              {yetki.detail}
+            </span>
+            <span
+              className={cn(
+                "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                dealStage.className,
+              )}
+            >
+              {dealStage.label}
             </span>
           </div>
 
@@ -163,19 +187,15 @@ export function PortfolioCard({
             <span>İmar: {imar}</span>
             <span>Ada/Parsel: {adaParsel ?? "—"}</span>
             <span>m²: {item.sqm > 0 ? item.sqm.toLocaleString("tr-TR") : "—"}</span>
-            <span>Oda: {item.rooms}</span>
+            <span className="inline-flex items-center gap-1">
+              <User className="size-3" strokeWidth={1.5} />
+              {item.ownerName}
+            </span>
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <Eye className="size-3" strokeWidth={1.5} />
-              {item.showingsCount}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <FileText className="size-3" strokeWidth={1.5} />
-              {item.offersCount} teklif
-            </span>
-          </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Son aktivite: {lastActivity}
+          </p>
         </div>
       </div>
     </li>

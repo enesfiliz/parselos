@@ -1,8 +1,16 @@
-import type { PropertyListingStatus } from "@prisma/client";
+import type { DealStage, PropertyListingStatus } from "@prisma/client";
 
 import { formatFullTRY } from "@/lib/types/deal";
 
 import type { AuthorizedPortfolioItem } from "./portfolio-types";
+
+const DEAL_STAGE_LABELS: Record<DealStage, string> = {
+  LEAD: "Aday",
+  SHOWING: "Gösterim",
+  OFFER: "Teklif",
+  WON: "Kazanıldı",
+  LOST: "Kaybedildi",
+};
 
 export function locationLabel(property: {
   il: string;
@@ -89,15 +97,28 @@ export function mapPropertyToPortfolio(
     kapakGorseli: string | null;
     durum: PropertyListingStatus;
     olusturulmaTarihi: Date;
+    guncellenmeTarihi: Date;
     deals: Array<{
-      stage: string;
-      client: { adSoyad: string; telefon: string | null };
+      id: string;
+      stage: DealStage;
+      guncellenmeTarihi: Date;
+      client: { id: string; adSoyad: string; telefon: string | null };
     }>;
   },
 ): AuthorizedPortfolioItem {
   const priceTL = property.fiyat ? Number(property.fiyat) : 0;
   const yetki = yetkiFromPropertyId(property.id, property.olusturulmaTarihi);
-  const primaryClient = property.deals[0]?.client;
+  const agentDeals = property.deals ?? [];
+  const primaryDeal = agentDeals[0] ?? null;
+  const primaryClient = primaryDeal?.client ?? null;
+  const lastActivityAt = primaryDeal
+    ? new Date(
+        Math.max(
+          property.guncellenmeTarihi.getTime(),
+          primaryDeal.guncellenmeTarihi.getTime(),
+        ),
+      )
+    : property.guncellenmeTarihi;
 
   return {
     id: property.id,
@@ -114,12 +135,18 @@ export function mapPropertyToPortfolio(
       inferBuildingAge(property.ilanBasligi),
     description: property.aciklama?.trim() || undefined,
     coverImageUrl: property.kapakGorseli?.trim() || undefined,
-    showingsCount: countDealStages(property.deals, "SHOWING"),
-    offersCount: countDealStages(property.deals, "OFFER"),
+    showingsCount: countDealStages(agentDeals, "SHOWING"),
+    offersCount: countDealStages(agentDeals, "OFFER"),
     yetkiTotalDays: yetki.totalDays,
     yetkiRemainingDays: yetki.remaining,
     ownerName: primaryClient?.adSoyad ?? "Mal Sahibi",
     ownerPhone: primaryClient?.telefon?.replace(/\D/g, "") ?? "",
+    ownerClientId: primaryClient?.id,
+    primaryDealId: primaryDeal?.id,
+    dealStage: primaryDeal?.stage,
+    dealStageLabel: primaryDeal ? DEAL_STAGE_LABELS[primaryDeal.stage] : undefined,
+    updatedAt: property.guncellenmeTarihi.toISOString(),
+    lastActivityAt: lastActivityAt.toISOString(),
   };
 }
 

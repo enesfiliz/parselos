@@ -2,16 +2,33 @@
 
 import {
   Activity,
-  BarChart3,
+  AlertTriangle,
   Bell,
-  ExternalLink,
+  Bookmark,
+  MapPinned,
+  Plus,
   Radar,
   RefreshCw,
-  ShieldAlert,
+  ShieldCheck,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
+import { ImarAnnouncementCard } from "@/components/features/radar/ImarAnnouncementCard";
+import { ImarManualEntryDrawer } from "@/components/features/radar/ImarManualEntryDrawer";
+import { ImarRadarDetailDrawer } from "@/components/features/radar/ImarRadarDetailDrawer";
 import { ImarRegionSearch } from "@/components/features/radar/ImarRegionSearch";
+import {
+  IMAR_OFFICIAL_DISCLAIMER,
+  IMAR_TRUST_LABELS,
+  apiAnnouncementToItem,
+  computeImarMetrics,
+  formatImarRelativeTime,
+  manualRecordToItem,
+  matchesImarFilters,
+} from "@/components/features/radar/imar-radar-ui-helpers";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,223 +45,76 @@ import {
   loadImarRadarConfig,
   saveImarRadarConfig,
 } from "@/lib/radar/imar-radar-config";
+import {
+  loadManualImarRecords,
+  loadTrackedRegions,
+  loadTrackingEnabled,
+  loadTrackingMeta,
+  registerTrackedRegion,
+  saveManualImarRecord,
+  saveTrackingEnabled,
+  saveTrackingMeta,
+} from "@/lib/radar/imar-radar-store";
+import type {
+  ImarRadarApiResponse,
+  ImarRadarFilters,
+  ImarRadarItem,
+  ManualImarRecordInput,
+} from "@/lib/radar/imar-radar-types";
 import { cn } from "@/lib/utils";
 
-interface RadarAnnouncement {
-  id: string;
-  title: string;
-  summary: string;
-  region: string;
-  source: string;
-  sourceUrl?: string;
-  verified?: boolean;
-  publishedAt: string;
-  matchedKeywords: string[];
-  isNew: boolean;
-  category: "aski" | "plan-degisikligi" | "parsel" | "sanayi" | "diger";
-}
+const METRIC_CARD =
+  "parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm";
 
-interface RadarAnalysis {
-  summary: string;
-  totalMatches: number;
-  newCount: number;
-  categories: { id: string; label: string; count: number }[];
-  trackedKeywords: string[];
-  lastScannedAt: string;
-  activityLevel: "dusuk" | "orta" | "yuksek";
-  scannedSources?: number;
-}
+const CATEGORY_FILTER_OPTIONS = [
+  { value: "all", label: "Tüm türler" },
+  { value: "aski", label: "Askı ilanı" },
+  { value: "plan-degisikligi", label: "Plan değişikliği" },
+  { value: "duyuru", label: "Duyuru" },
+  { value: "parsel", label: "Parsel" },
+  { value: "sanayi", label: "Sanayi" },
+  { value: "manuel", label: "Manuel" },
+] as const;
 
-interface RadarResponse {
-  region: string;
-  keywords: string[];
-  mode: "live" | "empty";
-  announcements: RadarAnnouncement[];
-  analysis: RadarAnalysis;
-}
-
-const CATEGORY_LABELS: Record<RadarAnnouncement["category"], string> = {
-  aski: "Plan Askısı",
-  "plan-degisikligi": "Plan Değişikliği",
-  parsel: "Parsel",
-  sanayi: "Sanayi",
-  diger: "Duyuru",
-};
-
-const ACTIVITY_STYLES: Record<
-  RadarAnalysis["activityLevel"],
-  { label: string; className: string }
-> = {
-  dusuk: {
-    label: "Düşük aktivite",
-    className: "border-border/60 bg-border/40 text-muted-foreground",
-  },
-  orta: {
-    label: "Orta aktivite",
-    className: "border-amber-500/30 bg-amber-500/10 text-amber-400",
-  },
-  yuksek: {
-    label: "Yüksek aktivite",
-    className: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
-  },
-};
-
-function formatRelativeTime(value: string) {
-  const date = new Date(value);
-  const diffMs = Date.now() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-  if (diffMinutes < 60) {
-    return `${Math.max(diffMinutes, 1)} dk önce`;
-  }
-
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) {
-    return `${diffHours} sa önce`;
-  }
-
-  return new Intl.DateTimeFormat("tr-TR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function AnnouncementCard({ item }: { item: RadarAnnouncement }) {
-  const sourceHref = item.sourceUrl?.startsWith("http") ? item.sourceUrl : null;
-
-  return (
-    <Card className="parsel-surface border-border/60 shadow-parsel-sm">
-      <CardHeader className="gap-3 border-b border-border/50 pb-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="font-normal text-[10px]">
-                {CATEGORY_LABELS[item.category]}
-              </Badge>
-              {item.verified ? (
-                <Badge className="border-primary/30 bg-primary/10 font-normal text-[10px] text-primary">
-                  Doğrulanmış kaynak
-                </Badge>
-              ) : null}
-            </div>
-            <CardTitle className="text-base font-semibold leading-snug tracking-tight">
-              {item.title}
-            </CardTitle>
-          </div>
-          {item.isNew ? (
-            <Badge className="shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
-              Yeni
-            </Badge>
-          ) : null}
-        </div>
-        <CardDescription className="flex flex-wrap items-center gap-2 text-xs">
-          <span>{formatRelativeTime(item.publishedAt)}</span>
-          <span className="text-border">·</span>
-          <span>{item.source}</span>
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-4 pt-5">
-        <p className="text-sm leading-relaxed text-muted-foreground">{item.summary}</p>
-
-        <div className="flex flex-wrap gap-2">
-          {item.matchedKeywords.map((keyword) => (
-            <Badge key={keyword} variant="outline" className="font-normal">
-              {keyword}
-            </Badge>
-          ))}
-        </div>
-
-        {sourceHref ? (
-          <a
-            href={sourceHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-border/60 bg-muted/20 px-3 text-xs font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-primary/5"
-          >
-            <ExternalLink className="size-3.5" strokeWidth={1.75} />
-            Kaynağa git
-          </a>
-        ) : null}
-      </CardContent>
-    </Card>
-  );
-}
-
-function AnalysisPanel({ analysis }: { analysis: RadarAnalysis }) {
-  const activity = ACTIVITY_STYLES[analysis.activityLevel];
-
-  return (
-    <Card className="border-[#b38c56]/20 bg-parsel-gold/[0.04] shadow-sm">
-      <CardHeader className="gap-3 border-b border-border/40 pb-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="size-4 text-parsel-gold" strokeWidth={1.75} />
-            <CardTitle className="text-base font-medium">Bölge Analizi</CardTitle>
-          </div>
-          <Badge className={cn("font-normal", activity.className)}>
-            {activity.label}
-          </Badge>
-        </div>
-        <CardDescription>{analysis.summary}</CardDescription>
-      </CardHeader>
-
-      <CardContent className="grid gap-4 pt-5 sm:grid-cols-3">
-        <div className="rounded-xl border border-border/50 bg-muted/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            Toplam eşleşme
-          </p>
-          <p className="mt-1 text-2xl font-semibold text-foreground">
-            {analysis.totalMatches}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border/50 bg-muted/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            Yeni duyuru
-          </p>
-          <p className="mt-1 text-2xl font-semibold text-emerald-400">
-            {analysis.newCount}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border/50 bg-muted/10 px-4 py-3">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            Duyuru tipi
-          </p>
-          <p className="mt-1 text-2xl font-semibold text-foreground">
-            {analysis.categories.length}
-          </p>
-        </div>
-
-        {analysis.categories.length > 0 ? (
-          <div className="flex flex-wrap gap-2 sm:col-span-3">
-            {analysis.categories.map((category) => (
-              <Badge key={category.id} variant="secondary">
-                {category.label} · {category.count}
-              </Badge>
-            ))}
-          </div>
-        ) : null}
-      </CardContent>
-    </Card>
-  );
-}
+const TRUST_FILTER_OPTIONS = [
+  { value: "all", label: "Tüm durumlar" },
+  { value: "verified", label: IMAR_TRUST_LABELS.verified },
+  { value: "needs_official_check", label: IMAR_TRUST_LABELS.needs_official_check },
+  { value: "source_pending", label: IMAR_TRUST_LABELS.source_pending },
+  { value: "manual", label: IMAR_TRUST_LABELS.manual },
+] as const;
 
 export function ImarRadariView() {
+  const router = useRouter();
   const [region, setRegion] = useState(DEFAULT_IMAR_REGION);
-  const [keywords, setKeywords] = useState<string[]>([
-    ...DEFAULT_IMAR_KEYWORDS,
-  ]);
+  const [keywords, setKeywords] = useState<string[]>([...DEFAULT_IMAR_KEYWORDS]);
   const [configReady, setConfigReady] = useState(false);
-  const [data, setData] = useState<RadarResponse | null>(null);
+  const [data, setData] = useState<ImarRadarApiResponse | null>(null);
+  const [manualRecords, setManualRecords] = useState(loadManualImarRecords);
+  const [trackingMeta, setTrackingMeta] = useState(loadTrackingMeta);
+  const [trackedRegions, setTrackedRegions] = useState(loadTrackedRegions);
+  const [isTrackingEnabled, setIsTrackingEnabled] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isTracking, setIsTracking] = useState(true);
+  const [manualOpen, setManualOpen] = useState(false);
+  const [isSavingManual, setIsSavingManual] = useState(false);
+  const [detailItem, setDetailItem] = useState<ImarRadarItem | null>(null);
+  const [filters, setFilters] = useState<ImarRadarFilters>({
+    category: "all",
+    trust: "all",
+    trackedOnly: false,
+    query: "",
+  });
 
   useEffect(() => {
     const saved = loadImarRadarConfig();
     queueMicrotask(() => {
       setRegion(saved.region);
       setKeywords(saved.keywords);
+      setIsTrackingEnabled(loadTrackingEnabled());
+      setManualRecords(loadManualImarRecords());
+      setTrackingMeta(loadTrackingMeta());
+      setTrackedRegions(loadTrackedRegions());
       setConfigReady(true);
     });
   }, []);
@@ -273,8 +143,10 @@ export function ImarRadariView() {
         throw new Error(message);
       }
 
-      setData(payload as RadarResponse);
+      setData(payload as ImarRadarApiResponse);
       saveImarRadarConfig({ region, keywords });
+      registerTrackedRegion(region);
+      setTrackedRegions(loadTrackedRegions());
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Radar verisi alınamadı.";
@@ -286,13 +158,30 @@ export function ImarRadariView() {
 
   useEffect(() => {
     if (!configReady) return;
-
     const timeoutId = window.setTimeout(() => {
       void fetchRadar();
     }, 0);
-
     return () => window.clearTimeout(timeoutId);
   }, [fetchRadar, configReady]);
+
+  const allItems = useMemo(() => {
+    const apiItems =
+      data?.announcements.map((item) =>
+        apiAnnouncementToItem(item, trackingMeta[item.id]),
+      ) ?? [];
+    const manualItems = manualRecords.map(manualRecordToItem);
+    return [...manualItems, ...apiItems];
+  }, [data?.announcements, manualRecords, trackingMeta]);
+
+  const filteredItems = useMemo(
+    () => allItems.filter((item) => matchesImarFilters(item, filters)),
+    [allItems, filters],
+  );
+
+  const metrics = useMemo(
+    () => computeImarMetrics(allItems, trackedRegions),
+    [allItems, trackedRegions],
+  );
 
   function toggleKeyword(keyword: string) {
     setKeywords((current) => {
@@ -308,37 +197,151 @@ export function ImarRadariView() {
     setRegion(next.label);
   }
 
+  function refreshLocalState() {
+    setManualRecords(loadManualImarRecords());
+    setTrackingMeta(loadTrackingMeta());
+    setTrackedRegions(loadTrackedRegions());
+  }
+
+  function handleToggleTrack(item: ImarRadarItem) {
+    const nextTracked = !item.isTracked;
+    saveTrackingMeta(item.id, {
+      tracked: nextTracked,
+      userVerified: trackingMeta[item.id]?.userVerified,
+      note: trackingMeta[item.id]?.note,
+    });
+    refreshLocalState();
+    toast.success(nextTracked ? "Takibe alındı" : "Takip kaldırıldı", {
+      description: item.title,
+    });
+    if (detailItem?.id === item.id) {
+      setDetailItem({ ...item, isTracked: nextTracked });
+    }
+  }
+
+  function handleMarkVerified(item: ImarRadarItem) {
+    saveTrackingMeta(item.id, {
+      tracked: true,
+      userVerified: true,
+      note: item.verificationNote,
+    });
+    refreshLocalState();
+    toast.success("Kayıt doğrulandı olarak işaretlendi");
+    if (detailItem?.id === item.id) {
+      setDetailItem({
+        ...item,
+        isTracked: true,
+        trustStatus: "verified",
+      });
+    }
+  }
+
+  function handleCreateTask(item: ImarRadarItem) {
+    router.push(`/calendar?note=${encodeURIComponent(`İmar takibi: ${item.title}`)}`);
+  }
+
+  async function handleManualSubmit(values: ManualImarRecordInput) {
+    setIsSavingManual(true);
+    try {
+      const record = saveManualImarRecord(values);
+      if (values.tracking) {
+        saveTrackingMeta(record.id, {
+          tracked: true,
+          note: values.verificationNote,
+        });
+      }
+      refreshLocalState();
+      toast.success("Manuel imar kaydı eklendi");
+    } finally {
+      setIsSavingManual(false);
+    }
+  }
+
+  function handleTrackingToggle() {
+    const next = !isTrackingEnabled;
+    setIsTrackingEnabled(next);
+    saveTrackingEnabled(next);
+  }
+
+  const lastScannedAt = data?.analysis.lastScannedAt;
+
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-10">
-      <header className="space-y-2">
-        <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground">
-          İmar Radarı
-        </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Bölge seçin; askı ilanları, plan değişiklikleri ve parsel duyuruları
-          otomatik taranır, analiz edilir ve takip edilir.
-        </p>
+    <div className="mx-auto w-full max-w-7xl space-y-8">
+      <header className="space-y-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-3">
+            <p className="parsel-section-label text-primary">İstihbarat merkezi</p>
+            <h1 className="parsel-page-title text-foreground">İmar Radarı</h1>
+            <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              Bölgesel askı ilanları, plan değişiklikleri ve resmi duyuruları tek
+              panelde izleyin. Manuel takip kayıtları ekleyin, doğrulama durumunu
+              yönetin ve kritik kayıtları ajandaya taşıyın.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" onClick={() => setManualOpen(true)}>
+              <Plus className="size-4" />
+              Manuel kayıt ekle
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void fetchRadar()}
+              disabled={isLoading}
+            >
+              <RefreshCw className={cn("size-4", isLoading && "animate-spin")} />
+              Taramayı güncelle
+            </Button>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-foreground/85">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <p>{IMAR_OFFICIAL_DISCLAIMER}</p>
+          </div>
+        </div>
       </header>
 
-      <div className="grid gap-10 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-14">
-        <aside>
-          <Card className="border-border/60 shadow-sm ring-border/60">
-            <CardHeader className="border-b border-border/50 pb-5">
-              <div className="flex items-center gap-2">
-                <Radar className="size-4 text-muted-foreground" strokeWidth={1.75} />
-                <CardTitle className="text-base font-medium">
-                  Radar Konfigürasyonu
-                </CardTitle>
-              </div>
-              <CardDescription>
-                Bölge ve anahtar kelimeleri seçerek taramayı başlatın
-              </CardDescription>
-            </CardHeader>
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-5">
+        <article className={METRIC_CARD}>
+          <p className="text-[11px] font-medium text-muted-foreground">Takip edilen bölge</p>
+          <p className="parsel-metric-value mt-2 text-foreground">{metrics.trackedRegions}</p>
+        </article>
+        <article className={METRIC_CARD}>
+          <p className="text-[11px] font-medium text-muted-foreground">Aktif askı / plan</p>
+          <p className="parsel-metric-value mt-2 text-parsel-gold">{metrics.activeSuspension}</p>
+        </article>
+        <article className={METRIC_CARD}>
+          <p className="text-[11px] font-medium text-muted-foreground">Son tarama</p>
+          <p className="mt-2 text-sm font-medium text-foreground">
+            {lastScannedAt ? formatImarRelativeTime(lastScannedAt) : "—"}
+          </p>
+        </article>
+        <article className={METRIC_CARD}>
+          <p className="text-[11px] font-medium text-muted-foreground">Doğrulanmış kayıt</p>
+          <p className="parsel-metric-value mt-2 text-primary">{metrics.verifiedCount}</p>
+        </article>
+        <article className={METRIC_CARD}>
+          <p className="text-[11px] font-medium text-muted-foreground">Kritik takip</p>
+          <p className="parsel-metric-value mt-2 text-foreground">{metrics.criticalCount}</p>
+        </article>
+      </section>
 
+      <div className="grid gap-8 xl:grid-cols-[340px_minmax(0,1fr)]">
+        <aside className="space-y-4">
+          <Card className="border-border/60 shadow-parsel-sm">
+            <CardHeader className="border-b border-border/50 pb-4">
+              <div className="flex items-center gap-2">
+                <Radar className="size-4 text-primary" strokeWidth={1.75} />
+                <CardTitle className="text-base font-medium">Radar ayarları</CardTitle>
+              </div>
+              <CardDescription>Bölge ve anahtar kelime taraması</CardDescription>
+            </CardHeader>
             <CardContent className="space-y-6 pt-6">
               <div className="space-y-3">
                 <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                  Bölge Seçimi
+                  Bölge seçimi
                 </p>
                 <ImarRegionSearch
                   value={region}
@@ -349,12 +352,11 @@ export function ImarRadariView() {
 
               <div className="space-y-3">
                 <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                  Takip Edilen Kelimeler
+                  Takip kelimeleri
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {IMAR_KEYWORD_OPTIONS.map((option) => {
                     const active = keywords.includes(option.label);
-
                     return (
                       <button
                         key={option.id}
@@ -363,8 +365,8 @@ export function ImarRadariView() {
                         className={cn(
                           "rounded-full border px-3 py-1 text-xs transition-colors",
                           active
-                            ? "border-[#b38c56]/40 bg-parsel-gold/15 text-[#d4b07a]"
-                            : "border-border/60 bg-muted/10 text-muted-foreground hover:text-foreground/90",
+                            ? "border-primary/30 bg-primary/10 text-primary"
+                            : "border-border/60 bg-parsel-elevated text-muted-foreground hover:text-foreground",
                         )}
                       >
                         {option.label}
@@ -372,126 +374,231 @@ export function ImarRadariView() {
                     );
                   })}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setKeywords([...DEFAULT_IMAR_KEYWORDS])}
-                  className="text-[11px] text-muted-foreground underline-offset-2 hover:text-foreground/90 hover:underline"
-                >
-                  Varsayılana sıfırla
-                </button>
               </div>
 
               <div className="flex flex-col gap-2">
                 <Button
                   type="button"
-                  onClick={() => void fetchRadar()}
-                  disabled={isLoading}
-                  className="w-full bg-[#547236] hover:bg-[#547236]/90"
-                >
-                  <RefreshCw
-                    className={cn("size-4", isLoading && "animate-spin")}
-                  />
-                  {isLoading ? "Taranıyor…" : "Taramayı Güncelle"}
-                </Button>
-
-                <Button
-                  type="button"
-                  variant={isTracking ? "secondary" : "outline"}
-                  onClick={() => setIsTracking((current) => !current)}
+                  onClick={handleTrackingToggle}
+                  variant={isTrackingEnabled ? "secondary" : "outline"}
                   className="w-full"
                 >
                   <Bell className="size-4" />
-                  {isTracking ? "Takip aktif" : "Takip duraklatıldı"}
+                  {isTrackingEnabled ? "Takip aktif" : "Takip duraklatıldı"}
                 </Button>
               </div>
 
-              <div className="flex items-center gap-2 rounded-xl border border-border/60 px-4 py-3">
+              <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-parsel-elevated px-4 py-3">
                 <Activity
                   className={cn(
                     "size-4",
                     isLoading
                       ? "animate-pulse text-muted-foreground"
-                      : isTracking
-                        ? "text-emerald-400"
-                        : "text-amber-400",
+                      : isTrackingEnabled
+                        ? "text-primary"
+                        : "text-amber-600 dark:text-amber-400",
                   )}
-                  strokeWidth={1.75}
                 />
-                <span className="font-mono text-xs tracking-[0.14em] uppercase text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {isLoading
                     ? "Tarama sürüyor"
-                    : isTracking
-                      ? "Radar aktif"
+                    : isTrackingEnabled
+                      ? `${region} izleniyor`
                       : "Takip beklemede"}
                 </span>
               </div>
+            </CardContent>
+          </Card>
 
-              {isTracking ? (
-                <div className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2.5">
-                  <ShieldAlert className="mt-0.5 size-3.5 shrink-0 text-emerald-400" />
-                  <p className="text-[11px] leading-relaxed text-muted-foreground">
-                    <span className="font-medium text-foreground/90">{region}</span>{" "}
-                    için imar askısı ve plan değişikliği duyuruları izleniyor.
-                  </p>
+          <Card className="border-border/60 shadow-parsel-sm">
+            <CardHeader className="border-b border-border/50 pb-4">
+              <CardTitle className="text-base font-medium">Filtreler</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-5">
+              <input
+                value={filters.query}
+                onChange={(event) =>
+                  setFilters((current) => ({ ...current, query: event.target.value }))
+                }
+                placeholder="Başlık, özet veya bölge ara..."
+                className="h-10 w-full rounded-xl border border-border/60 bg-parsel-elevated px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+              />
+
+              <div className="space-y-2">
+                <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                  Kayıt tipi
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORY_FILTER_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() =>
+                        setFilters((current) => ({
+                          ...current,
+                          category: option.value,
+                        }))
+                      }
+                      className={cn(
+                        "rounded-full border px-2.5 py-1 text-[11px]",
+                        filters.category === option.value
+                          ? "border-primary/30 bg-primary/10 text-primary"
+                          : "border-border/60 text-muted-foreground",
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
                 </div>
-              ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                  Güvenilirlik
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {TRUST_FILTER_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() =>
+                        setFilters((current) => ({ ...current, trust: option.value }))
+                      }
+                      className={cn(
+                        "rounded-full border px-2.5 py-1 text-[11px]",
+                        filters.trust === option.value
+                          ? "border-primary/30 bg-primary/10 text-primary"
+                          : "border-border/60 text-muted-foreground",
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2 text-sm text-foreground/85">
+                <input
+                  type="checkbox"
+                  checked={filters.trackedOnly}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      trackedOnly: event.target.checked,
+                    }))
+                  }
+                  className="size-4 rounded border-border"
+                />
+                Yalnızca takiptekiler
+              </label>
             </CardContent>
           </Card>
         </aside>
 
         <section className="space-y-6">
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="space-y-1">
-              <h2 className="text-xl font-semibold tracking-tight">
-                {region} · Canlı Akış
+              <h2 className="text-xl font-semibold tracking-tight text-foreground">
+                {region} · İmar akışı
               </h2>
               <p className="text-sm text-muted-foreground">
-                Askı, plan değişikliği ve parsel duyuruları
+                {filteredItems.length} kayıt listeleniyor
+                {data?.analysis.scannedSources
+                  ? ` · ${data.analysis.scannedSources} resmi kaynak tarandı`
+                  : ""}
               </p>
             </div>
             {data ? (
-              <p className="font-mono text-xs tracking-[0.14em] uppercase text-muted-foreground">
-                {data.mode === "live" ? "Doğrulanmış kaynak" : "Kayıt bulunamadı"}
-              </p>
+              <Badge variant="outline" className="font-normal">
+                {data.mode === "live" ? "Canlı tarama" : "Eşleşme yok"}
+              </Badge>
             ) : null}
           </div>
 
-          {error && (
+          {data?.analysis ? (
+            <Card className="border-border/60 bg-parsel-panel shadow-parsel-sm">
+              <CardHeader className="gap-2 border-b border-border/50 pb-4">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="size-4 text-primary" />
+                  <CardTitle className="text-base font-medium">Bölge özeti</CardTitle>
+                </div>
+                <CardDescription>{data.analysis.summary}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2 pt-4">
+                {data.analysis.categories.map((category) => (
+                  <Badge key={category.id} variant="secondary">
+                    {category.label} · {category.count}
+                  </Badge>
+                ))}
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {error ? (
             <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-4 text-sm text-destructive">
               {error}
             </div>
-          )}
-
-          {data?.analysis && !isLoading ? (
-            <AnalysisPanel analysis={data.analysis} />
           ) : null}
 
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Duyurular taranıyor…</p>
-          ) : data && data.announcements.length === 0 ? (
-            <div className="parsel-surface rounded-2xl border border-dashed border-border px-8 py-16 text-center">
-              <p className="text-sm font-medium text-foreground">
-                Doğrulanmış duyuru bulunamadı
+          ) : filteredItems.length === 0 ? (
+            <div className="parsel-surface rounded-2xl border border-dashed border-border/60 px-8 py-16 text-center">
+              <MapPinned className="mx-auto size-8 text-primary/70" />
+              <p className="mt-4 text-sm font-medium text-foreground">
+                Eşleşen imar kaydı bulunamadı
               </p>
-              <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                {data.analysis.scannedSources
-                  ? `${data.analysis.scannedSources} resmi kaynak tarandı; eşleşen duyuru yok.`
-                  : "Resmi belediye ve kamu sitelerinden eşleşme bulunamadı."}{" "}
-                Bölge veya anahtar kelime seçimini genişletip tekrar tarayın.
+              <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
+                Bölge veya filtreleri genişletin ya da manuel takip kaydı ekleyin.
               </p>
+              <Button type="button" className="mt-6" onClick={() => setManualOpen(true)}>
+                <Plus className="size-4" />
+                Manuel kayıt ekle
+              </Button>
             </div>
           ) : (
-            <div className="relative space-y-5 pl-6 before:absolute before:top-2 before:bottom-2 before:left-[7px] before:w-px before:bg-border/80">
-              {data?.announcements.map((item) => (
-                <div key={item.id} className="relative">
-                  <span className="absolute top-6 -left-6 size-2 rounded-full bg-foreground/30 ring-4 ring-background" />
-                  <AnnouncementCard item={item} />
-                </div>
+            <div className="space-y-5">
+              {filteredItems.map((item) => (
+                <ImarAnnouncementCard
+                  key={item.id}
+                  item={item}
+                  onOpenDetail={setDetailItem}
+                  onToggleTrack={handleToggleTrack}
+                  onCreateTask={handleCreateTask}
+                />
               ))}
             </div>
           )}
+
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+            <Bookmark className="size-3.5" />
+            <span>{metrics.trackedItems} kayıt aktif takipte</span>
+            <span className="text-border">·</span>
+            <Link href="/calendar" className="text-primary hover:underline">
+              Ajandada görevleri yönet
+            </Link>
+          </div>
         </section>
       </div>
+
+      <ImarManualEntryDrawer
+        open={manualOpen}
+        defaultRegion={region}
+        isSubmitting={isSavingManual}
+        onOpenChange={setManualOpen}
+        onSubmit={handleManualSubmit}
+      />
+
+      <ImarRadarDetailDrawer
+        open={detailItem !== null}
+        item={detailItem}
+        onOpenChange={(open) => {
+          if (!open) setDetailItem(null);
+        }}
+        onToggleTrack={handleToggleTrack}
+        onMarkVerified={handleMarkVerified}
+        onCreateTask={handleCreateTask}
+      />
     </div>
   );
 }

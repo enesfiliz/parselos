@@ -1,11 +1,42 @@
+export type VoiceErrorCode =
+  | "config_groq"
+  | "config_storage"
+  | "validation"
+  | "provider"
+  | "auth"
+  | "internal";
+
+export const VOICE_ERROR_MESSAGES = {
+  config_groq: "Sesli CRM sağlayıcısı yapılandırılmamış.",
+  config_storage: "Sesli CRM kayıt altyapısı yapılandırılmamış.",
+  validation: "Gönderilen ses kaydı geçersiz veya çok kısa.",
+  provider: "Ses tanıma servisi şu an yanıt vermiyor. Biraz sonra tekrar deneyin.",
+  auth: "Oturum doğrulanamadı.",
+  internal: "Sesli CRM işlemi tamamlanamadı.",
+  load: "Kayıtlar yüklenemedi.",
+  empty_transcript: "Ses kaydından metin çıkarılamadı. Daha net konuşmayı deneyin.",
+  table_missing: "Sesli CRM kayıt tablosu henüz kurulmamış.",
+} as const;
+
+export function voiceErrorBody(
+  code: VoiceErrorCode,
+  status: number,
+): { body: { error: string; code: VoiceErrorCode }; status: number } {
+  return {
+    body: { error: VOICE_ERROR_MESSAGES[code], code },
+    status,
+  };
+}
+
 export function mapVoiceConfigError(message: string): string | null {
   const lower = message.toLowerCase();
 
   if (
-    message.includes("GROQ_API_KEY") ||
-    (lower.includes("groq") && lower.includes("tanımlı değil"))
+    lower.includes("ai provider is not configured") ||
+    lower.includes("provider is not configured") ||
+    lower.includes("sağlayıcısı yapılandırılmamış")
   ) {
-    return "Sesli CRM sağlayıcısı yapılandırılmamış.";
+    return VOICE_ERROR_MESSAGES.config_groq;
   }
 
   if (
@@ -13,7 +44,7 @@ export function mapVoiceConfigError(message: string): string | null {
     message.includes("NEXT_PUBLIC_SUPABASE_ANON_KEY") ||
     message.includes("SUPABASE_SERVICE_ROLE_KEY")
   ) {
-    return "Sesli CRM kayıt servisi yapılandırılmamış.";
+    return VOICE_ERROR_MESSAGES.config_storage;
   }
 
   if (
@@ -22,18 +53,32 @@ export function mapVoiceConfigError(message: string): string | null {
       lower.includes("could not find the table") ||
       lower.includes("schema cache"))
   ) {
-    return "Sesli CRM kayıt tablosu henüz kurulmamış.";
+    return VOICE_ERROR_MESSAGES.table_missing;
   }
 
   return null;
 }
 
 export function mapVoiceUserError(message: string): string {
-  return mapVoiceConfigError(message) ?? "Sesli CRM işlemi tamamlanamadı.";
+  return mapVoiceConfigError(message) ?? VOICE_ERROR_MESSAGES.internal;
 }
 
 export function mapVoiceLoadError(message: string): string {
   const mapped = mapVoiceConfigError(message);
   if (mapped) return mapped;
-  return "Kayıtlar yüklenemedi.";
+  return VOICE_ERROR_MESSAGES.load;
+}
+
+export function mapGroqProviderError(message: string): string {
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("rate limit") ||
+    lower.includes("timeout") ||
+    lower.includes("503") ||
+    lower.includes("502") ||
+    lower.includes("overloaded")
+  ) {
+    return VOICE_ERROR_MESSAGES.provider;
+  }
+  return VOICE_ERROR_MESSAGES.provider;
 }

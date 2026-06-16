@@ -5,6 +5,10 @@ import {
   buildDefaultSpecs,
   pickImagesForLead,
 } from "@/lib/fsbo/fsbo-media";
+import {
+  isPublicSourceUrl,
+  parseTrackingMeta,
+} from "@/lib/fsbo/fsbo-tracking";
 import type {
   FsboIslemTipi,
   FsboKategori,
@@ -86,6 +90,7 @@ export function serializeFsboLead(lead: FsboLead): FsboLeadData {
   const price = lead.price > 0 ? lead.price : null;
   const images = parseImages(lead.images, lead.id);
   const location = lead.location ?? lead.region;
+  const tracking = parseTrackingMeta(lead.specs, lead.source);
 
   return {
     id: lead.id,
@@ -106,7 +111,7 @@ export function serializeFsboLead(lead: FsboLead): FsboLeadData {
     listingNo: lead.listingNo,
     description:
       lead.description ??
-      `${lead.title}. ${location} bölgesinde FSBO istihbarat kaydı.`,
+      `${lead.title}. ${location} bölgesinde manuel fırsat takip kaydı.`,
     images,
     coverImage: images[0],
     specs: parseSpecs(lead.specs, lead),
@@ -115,5 +120,10 @@ export function serializeFsboLead(lead: FsboLead): FsboLeadData {
     promotedDealId: lead.promotedDealId,
     listedAt: lead.listedAt?.toISOString() ?? null,
     olusturulmaTarihi: lead.createdAt.toISOString(),
+    priority: tracking.priority,
+    trackingStatus: tracking.trackingStatus,
+    isManualEntry: tracking.manualEntry,
+    nextFollowUpAt: lead.listedAt?.toISOString() ?? null,
+    hasPublicSourceUrl: isPublicSourceUrl(lead.url),
   };
 }

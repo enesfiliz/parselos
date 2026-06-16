@@ -116,6 +116,22 @@ function parseAppointmentDate(value: string): string {
   return toDateKey(new Date());
 }
 
+function isDemoDataEnabled() {
+  return process.env.PARSELOS_DEMO_DATA === "1";
+}
+
+function mapMockPendingDeals() {
+  return MOCK_DEALS.filter((deal) =>
+    ["LEAD", "SHOWING", "OFFER"].includes(deal.stage),
+  ).map((deal) => ({
+    id: deal.id,
+    stage: deal.stage,
+    clientName: deal.client.adSoyad,
+    propertyTitle: deal.property.ilanBasligi,
+    budgetTL: deal.budgetTL ?? 0,
+  }));
+}
+
 export async function getPortfolioSummaryForAgent(agentId: string) {
   const portfolios = await getAuthorizedPortfolios();
 
@@ -150,28 +166,13 @@ export async function getPortfolioSummaryForAgent(agentId: string) {
         deal.budgetTL ??
         (deal.property.fiyat ? Number(deal.property.fiyat) : 0),
     }));
-  } catch {
-    pendingDeals = MOCK_DEALS.filter((deal) =>
-      ["LEAD", "SHOWING", "OFFER"].includes(deal.stage),
-    ).map((deal) => ({
-      id: deal.id,
-      stage: deal.stage,
-      clientName: deal.client.adSoyad,
-      propertyTitle: deal.property.ilanBasligi,
-      budgetTL: deal.budgetTL ?? 0,
-    }));
+  } catch (error) {
+    console.error("[copilot/getPortfolioSummaryForAgent]", error);
+    pendingDeals = isDemoDataEnabled() ? mapMockPendingDeals() : [];
   }
 
-  if (pendingDeals.length === 0) {
-    pendingDeals = MOCK_DEALS.filter((deal) =>
-      ["LEAD", "SHOWING", "OFFER"].includes(deal.stage),
-    ).map((deal) => ({
-      id: deal.id,
-      stage: deal.stage,
-      clientName: deal.client.adSoyad,
-      propertyTitle: deal.property.ilanBasligi,
-      budgetTL: deal.budgetTL ?? 0,
-    }));
+  if (pendingDeals.length === 0 && isDemoDataEnabled()) {
+    pendingDeals = mapMockPendingDeals();
   }
 
   const totalPortfolioVolumeTL = portfolios.reduce(
@@ -191,6 +192,9 @@ export async function getPortfolioSummaryForAgent(agentId: string) {
     {},
   );
 
+  const hasOperationalData =
+    portfolios.length > 0 || pendingDeals.length > 0;
+
   return {
     activePortfolioCount: portfolios.length,
     totalPortfolioVolumeTL,
@@ -199,6 +203,9 @@ export async function getPortfolioSummaryForAgent(agentId: string) {
     pendingPipelineVolumeTL,
     pendingPipelineVolumeFormatted: formatTRY(pendingPipelineVolumeTL),
     stageBreakdown,
+    note: hasOperationalData
+      ? undefined
+      : "Kayıtlı portföy veya bekleyen fırsat bulunamadı.",
     topPortfolios: portfolios.slice(0, 5).map((item) => ({
       title: item.title,
       location: item.location,

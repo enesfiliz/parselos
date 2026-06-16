@@ -3,9 +3,11 @@ import "server-only";
 import { requireCurrentAgent } from "@/lib/auth/agent";
 import { formatFullTRY } from "@/lib/types/deal";
 
-import { listAuthorizedPropertiesForAgent } from "./portfolio-access";
+import { findAuthorizedPropertyForAgent, listAuthorizedPropertiesForAgent } from "./portfolio-access";
 import { mapPropertyToPortfolio } from "./portfolio-mapper";
 import type { AuthorizedPortfolioItem } from "./portfolio-types";
+
+const MOCK_NOW = "2026-06-14T12:00:00.000Z";
 
 const MOCK_PORTFOLIOS: AuthorizedPortfolioItem[] = [
   {
@@ -25,6 +27,9 @@ const MOCK_PORTFOLIOS: AuthorizedPortfolioItem[] = [
     yetkiRemainingDays: 28,
     ownerName: "Murat Yılmaz",
     ownerPhone: "905321234567",
+    dealStageLabel: "Gösterim",
+    updatedAt: MOCK_NOW,
+    lastActivityAt: MOCK_NOW,
   },
   {
     id: "portfolio-mock-2",
@@ -43,6 +48,9 @@ const MOCK_PORTFOLIOS: AuthorizedPortfolioItem[] = [
     yetkiRemainingDays: 11,
     ownerName: "Selin Demir",
     ownerPhone: "905339876543",
+    dealStageLabel: "Teklif",
+    updatedAt: MOCK_NOW,
+    lastActivityAt: MOCK_NOW,
   },
   {
     id: "portfolio-mock-3",
@@ -61,6 +69,9 @@ const MOCK_PORTFOLIOS: AuthorizedPortfolioItem[] = [
     yetkiRemainingDays: 62,
     ownerName: "Caner Aktaş",
     ownerPhone: "905551112233",
+    dealStageLabel: "Aday",
+    updatedAt: MOCK_NOW,
+    lastActivityAt: MOCK_NOW,
   },
   {
     id: "portfolio-mock-4",
@@ -79,6 +90,9 @@ const MOCK_PORTFOLIOS: AuthorizedPortfolioItem[] = [
     yetkiRemainingDays: 8,
     ownerName: "Ahmet Kaya",
     ownerPhone: "905447778899",
+    dealStageLabel: "Teklif",
+    updatedAt: MOCK_NOW,
+    lastActivityAt: MOCK_NOW,
   },
   {
     id: "portfolio-mock-5",
@@ -97,17 +111,37 @@ const MOCK_PORTFOLIOS: AuthorizedPortfolioItem[] = [
     yetkiRemainingDays: 214,
     ownerName: "Zeynep Arslan",
     ownerPhone: "905366554433",
+    dealStageLabel: "Gösterim",
+    updatedAt: MOCK_NOW,
+    lastActivityAt: MOCK_NOW,
   },
 ];
 
 export type { AuthorizedPortfolioItem } from "./portfolio-types";
+
+function isPortfolioDemoDataEnabled() {
+  return process.env.PARSELOS_DEMO_DATA === "1";
+}
 
 export async function getAuthorizedPortfolios(): Promise<AuthorizedPortfolioItem[]> {
   try {
     const agent = await requireCurrentAgent();
     const properties = await listAuthorizedPropertiesForAgent(agent.id);
     return properties.map(mapPropertyToPortfolio);
-  } catch {
-    return MOCK_PORTFOLIOS;
+  } catch (error) {
+    console.error("[getAuthorizedPortfolios]", error);
+    if (isPortfolioDemoDataEnabled()) {
+      return MOCK_PORTFOLIOS;
+    }
+    return [];
   }
+}
+
+export async function getAuthorizedPortfolioById(
+  propertyId: string,
+): Promise<AuthorizedPortfolioItem | null> {
+  const agent = await requireCurrentAgent();
+  const property = await findAuthorizedPropertyForAgent(agent.id, propertyId);
+  if (!property) return null;
+  return mapPropertyToPortfolio(property);
 }

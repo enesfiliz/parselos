@@ -632,41 +632,254 @@
 
 .landing-parcel-field {
   background-image:
-    linear-gradient(rgba(84, 114, 54, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(84, 114, 54, 0.12) 1px, transparent 1px),
-    radial-gradient(circle at 20% 30%, rgba(179, 140, 86, 0.18), transparent 45%),
-    radial-gradient(circle at 80% 70%, rgba(84, 114, 54, 0.2), transparent 40%);
+    linear-gradient(color-mix(in srgb, var(--primary) 12%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--primary) 12%, transparent) 1px, transparent 1px),
+    radial-gradient(
+      circle at 20% 30%,
+      color-mix(in srgb, var(--parsel-gold) 14%, transparent),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      color-mix(in srgb, var(--primary) 16%, transparent),
+      transparent 40%
+    );
   background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%;
   animation: landing-parcel-drift 18s ease-in-out infinite;
 }
 
 .landing-hero-mesh {
   background:
-    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(77, 107, 53, 0.1), transparent 55%),
-    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(179, 140, 86, 0.08), transparent 50%),
-    radial-gradient(ellipse 70% 45% at 50% 100%, rgba(84, 114, 54, 0.06), transparent 55%);
+    radial-gradient(
+      ellipse 80% 50% at 20% 20%,
+      color-mix(in srgb, var(--primary) 12%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 10%,
+      color-mix(in srgb, var(--parsel-gold) 10%, transparent),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 70% 45% at 50% 100%,
+      color-mix(in srgb, var(--primary) 8%, transparent),
+      transparent 55%
+    );
 }
 
 html:not(.dark) .landing-hero-mesh {
   background:
-    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(74, 107, 47, 0.08), transparent 55%),
-    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(138, 100, 40, 0.06), transparent 50%),
-    radial-gradient(ellipse 70% 45% at 50% 100%, rgba(84, 114, 54, 0.05), transparent 55%);
+    radial-gradient(
+      ellipse 80% 50% at 20% 20%,
+      color-mix(in srgb, var(--primary) 9%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 10%,
+      color-mix(in srgb, var(--parsel-gold) 7%, transparent),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 70% 45% at 50% 100%,
+      color-mix(in srgb, var(--primary) 6%, transparent),
+      transparent 55%
+    );
 }
 
-html:not(.dark) .landing-hero-gradient-text {
-  background: linear-gradient(135deg, #8a6428 0%, #4a6b2f 48%, #547236 100%);
+.landing-hero-parcel-grid {
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 75%);
+  animation: landing-parcel-drift 24s ease-in-out infinite;
+}
+
+.landing-hero-cadastre-sweep {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--primary) 18%, transparent) 48%,
+    transparent 100%
+  );
+  animation: landing-hero-scan-sweep 7s ease-in-out infinite;
+}
+
+.landing-feature-card {
+  position: relative;
+  isolation: isolate;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.landing-feature-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    520px circle at 50% 0%,
+    color-mix(in srgb, var(--primary) 14%, transparent),
+    transparent 58%
+  );
+  transition: opacity 0.35s ease;
+  z-index: 0;
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--primary) 28%, var(--border));
+  box-shadow:
+    0 22px 48px -28px color-mix(in srgb, var(--primary) 32%, transparent),
+    var(--shadow-parsel-md, 0 8px 24px rgba(0, 0, 0, 0.08));
+}
+
+.landing-feature-card:hover::before {
+  opacity: 1;
+}
+
+.landing-feature-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-workflow-connector {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--parsel-gold) 35%, transparent),
+    transparent
+  );
+}
+
+.landing-hero-contour {
+  background-image:
+    repeating-linear-gradient(
+      12deg,
+      transparent,
+      transparent 38px,
+      color-mix(in srgb, var(--primary) 6%, transparent) 38px,
+      color-mix(in srgb, var(--primary) 6%, transparent) 39px
+    ),
+    repeating-linear-gradient(
+      -18deg,
+      transparent,
+      transparent 52px,
+      color-mix(in srgb, var(--parsel-gold) 5%, transparent) 52px,
+      color-mix(in srgb, var(--parsel-gold) 5%, transparent) 53px
+    );
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 15%, transparent 78%);
+  animation: landing-contour-drift 28s ease-in-out infinite;
+}
+
+.landing-hero-coord-dots {
+  background-image:
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--parsel-gold) 70%, transparent) 1.5px,
+      transparent 2px
+    ),
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--primary) 55%, transparent) 1px,
+      transparent 1.5px
+    );
+  background-size: 96px 96px, 144px 144px;
+  background-position: 0 0, 48px 72px;
+  animation: landing-coord-drift 36s linear infinite;
+  mask-image: radial-gradient(ellipse 72% 58% at 48% 38%, black 10%, transparent 76%);
+}
+
+.landing-hero-light-bloom {
+  background:
+    radial-gradient(
+      ellipse 45% 35% at 18% 22%,
+      color-mix(in srgb, var(--parsel-gold) 12%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 82% 28%,
+      color-mix(in srgb, var(--primary) 10%, transparent),
+      transparent 68%
+    );
+  animation: landing-hero-glow-pulse 10s ease-in-out infinite;
+}
+
+.landing-workflow-timeline {
+  position: relative;
+}
+
+.landing-workflow-timeline::before {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--primary) 28%, transparent) 12%,
+    color-mix(in srgb, var(--parsel-gold) 32%, transparent) 88%,
+    transparent
+  );
+}
+
+@media (min-width: 768px) {
+  .landing-workflow-timeline::before {
+    left: 0;
+    right: 0;
+    top: 2.85rem;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--primary) 28%, transparent) 8%,
+      color-mix(in srgb, var(--parsel-gold) 32%, transparent) 92%,
+      transparent
+    );
+  }
+}
+
+.landing-workflow-step-index {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--parsel-canvas) 88%, transparent);
+}
+
+.landing-feature-visual {
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--parsel-sunken) 80%, transparent);
+}
+
+.landing-trust-panel {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--parsel-panel) 96%, transparent),
+      color-mix(in srgb, var(--parsel-sunken) 70%, transparent)
+    );
+}
+
+.landing-hero-gradient-text {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--parsel-gold) 92%, white) 0%,
+    var(--parsel-gold) 42%,
+    color-mix(in srgb, var(--primary) 78%, white) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-.landing-hero-parcel-grid {
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 75%);
-}
-
-.landing-hero-gradient-text {
-  background: linear-gradient(135deg, #d4a574 0%, #b38c56 45%, #8fb86a 100%);
+html:not(.dark) .landing-hero-gradient-text {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--parsel-gold) 88%, black) 0%,
+    color-mix(in srgb, var(--parsel-gold) 70%, black) 46%,
+    color-mix(in srgb, var(--primary) 82%, black) 100%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -865,6 +1078,27 @@ html:not(.dark) .landing-hero-gradient-text {
   }
 }
 
+@keyframes landing-coord-drift {
+  from {
+    background-position: 0 0, 48px 72px;
+  }
+  to {
+    background-position: 96px 96px, 144px 216px;
+  }
+}
+
+@keyframes landing-contour-drift {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-8px);
+  }
+}
+
 @keyframes landing-hero-dot-pulse {
   0%,
   100% {
@@ -899,11 +1133,22 @@ html:not(.dark) .landing-hero-gradient-text {
   .landing-hero-scan,
   .landing-hero-float-card,
   .landing-hero-parcel-dot,
+  .landing-hero-parcel-grid,
+  .landing-hero-cadastre-sweep,
+  .landing-hero-contour,
+  .landing-hero-coord-dots,
+  .landing-hero-light-bloom,
+  .landing-feature-card,
   .hero-command-glow,
   .landing-capsule-float,
   .landing-capsule-float-2,
   .landing-capsule-float-3 {
     animation: none;
+    transform: none;
+  }
+
+  .landing-feature-card:hover {
+    transform: none;
   }
 }
 

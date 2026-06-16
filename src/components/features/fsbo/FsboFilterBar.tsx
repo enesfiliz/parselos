@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Radar } from "lucide-react";
+import { ListFilter } from "lucide-react";
 
 import { KOCAELI_ILCELER } from "@/lib/fsbo/fsbo-media";
 import {
@@ -11,22 +11,22 @@ import {
 import { cn } from "@/lib/utils";
 
 const selectClass =
-  "h-9 min-w-[120px] rounded-lg border border-border bg-background px-2.5 text-xs text-foreground outline-none focus:border-[#b38c56]/40";
+  "h-9 min-w-[120px] rounded-lg border border-border/60 bg-parsel-elevated px-2.5 text-xs text-foreground outline-none focus:border-primary/30";
 
 const inputClass =
-  "h-9 w-full min-w-[100px] rounded-lg border border-border bg-background px-2.5 text-xs text-foreground outline-none focus:border-[#b38c56]/40";
+  "h-9 w-full min-w-[100px] rounded-lg border border-border/60 bg-parsel-elevated px-2.5 text-xs text-foreground outline-none focus:border-primary/30";
 
 type FsboFilterBarProps = {
   draft: FsboRadarFilters;
   onDraftChange: (filters: FsboRadarFilters) => void;
-  onRun: () => void;
+  onApply: () => void;
   isRunning?: boolean;
 };
 
 export function FsboFilterBar({
   draft,
   onDraftChange,
-  onRun,
+  onApply,
   isRunning = false,
 }: FsboFilterBarProps) {
   function patch(partial: Partial<FsboRadarFilters>) {
@@ -34,11 +34,11 @@ export function FsboFilterBar({
   }
 
   return (
-    <section className="rounded-2xl border border-border/50 bg-parsel-panel p-4">
+    <section className="rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm">
       <div className="mb-3 flex items-center gap-2">
-        <Radar className="size-4 text-parsel-gold" strokeWidth={1.5} />
+        <ListFilter className="size-4 text-primary" strokeWidth={1.5} />
         <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          İstihbarat Filtreleri
+          Liste filtreleri
         </p>
       </div>
 
@@ -130,18 +130,18 @@ export function FsboFilterBar({
           <button
             type="button"
             onClick={() => onDraftChange(EMPTY_FSBO_FILTERS)}
-            className="h-9 rounded-lg border border-border px-3 text-xs text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground"
+            className="h-9 rounded-lg border border-border/60 px-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
             Sıfırla
           </button>
           <button
             type="button"
             disabled={isRunning}
-            onClick={onRun}
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-parsel-gold px-5 text-xs font-bold text-black transition-colors hover:bg-[#c9a06a] disabled:opacity-60"
+            onClick={onApply}
+            className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
           >
-            <Radar className={cn("size-4", isRunning && "animate-spin")} />
-            Radarı Çalıştır
+            <ListFilter className={cn("size-4", isRunning && "animate-pulse")} />
+            Filtrele
           </button>
         </div>
       </div>

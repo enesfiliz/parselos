@@ -1,5 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
 import { createGroq } from "@ai-sdk/groq";
+
+import {
+  AI_PROVIDER_MISSING_MESSAGE,
+  getGroqApiKey,
+  isGroqConfigured,
+  logGroqConfigDebug,
+} from "@/lib/ai/groq-env";
 import {
   convertToModelMessages,
   stepCountIs,
@@ -19,24 +26,17 @@ import {
   getSubscriptionInfoForAgent,
   scheduleAppointmentForAgent,
 } from "@/lib/copilot/copilot-tool-handlers";
+import { buildParselAiSystemPrompt } from "@/lib/copilot/parsel-ai-persona";
+import { normalizeParselAiProfile } from "@/lib/copilot/parsel-ai-profile";
 
+export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const SYSTEM_PROMPT = `Sen Parsel AI'sın. Üst düzey gayrimenkul danışmanı Enes'in otonom sağ kolusun.
-DİL KURALLARI (ÇOK ÖNEMLİ):
-1. ANA DİLİN TÜRKÇE: C2 seviyesinde, kusursuz, akıcı ve doğal bir Türkçe kullanacaksın. Asla İngilizceden çevrilmiş gibi duran yapay ve robotik cümleler kurma.
-2. EMLAK JARGONU: 'Yer gösterme, kapora, tapu dairesi, rayiç bedel, krediye uygunluk' gibi Türkiye emlak sektörünün yerel terimlerine tamamen hakimsin ve bunları doğal bir şekilde kullanırsın.
-3. BAĞLAM VE KAVRAMA: Enes'in ne demek istediğini sadece kelime düzeyinde değil, niyet düzeyinde anla. Eğer kısa veya imalı bir şey söylerse, satır arasını oku. Zeki bir insan gibi tepki ver.
-
-KARAKTER VE TAVIR:
-- Asla 'Size nasıl yardımcı olabilirim?', 'Bir yapay zeka olarak...' gibi ezberlenmiş, ucuz müşteri hizmetleri kalıplarına girme.
-- Enes sana gündelik bir şey sorarsa, kısa, zekice ve doğal bir Türkçe ile yanıt ver. (Örn: 'Bugün piyasa durgun, ne yapacağız?' sorusuna 'O zaman biz de bekleyen portföyleri elden geçiririz. Kimi arayalım?' gibi gerçekçi bir cevap ver).
-- İşlem istenmediği sürece Tool (Araç) tetiklemeye kalkma. Sadece muhabbet et.
-- Kod bloğu (\`\`\`) yazman veya teknik kodlar vermen KESİNLİKLE YASAKTIR.`;
-
-const groq = createGroq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+function createGroqProvider() {
+  const apiKey = getGroqApiKey();
+  if (!apiKey) return null;
+  return createGroq({ apiKey });
+}
 
 function proFeatureBlocked(feature: "whatsapp" | "listing-analysis") {
   const label =
@@ -165,9 +165,19 @@ export async function POST(req: Request) {
     });
   }
 
-  if (!process.env.GROQ_API_KEY) {
-    return new Response(JSON.stringify({ error: "GROQ_API_KEY tanımlı değil." }), {
-      status: 500,
+  if (!isGroqConfigured()) {
+    logGroqConfigDebug("POST /api/chat");
+    return new Response(JSON.stringify({ error: AI_PROVIDER_MISSING_MESSAGE }), {
+      status: 503,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const groq = createGroqProvider();
+  if (!groq) {
+    logGroqConfigDebug("POST /api/chat");
+    return new Response(JSON.stringify({ error: AI_PROVIDER_MISSING_MESSAGE }), {
+      status: 503,
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -175,8 +185,12 @@ export async function POST(req: Request) {
   const agent = await getAgentForClerkUserId(userId);
   const agentId = agent?.id ?? userId;
 
-  const body = (await req.json()) as { messages?: UIMessage[] };
+  const body = (await req.json()) as {
+    messages?: UIMessage[];
+    parselAiProfile?: unknown;
+  };
   const messages = Array.isArray(body.messages) ? body.messages : [];
+  const parselAiProfile = normalizeParselAiProfile(body.parselAiProfile);
 
   if (messages.length === 0) {
     return new Response(JSON.stringify({ error: "Mesaj geçmişi boş." }), {
@@ -194,7 +208,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: groq("llama-3.3-70b-versatile"),
-    system: SYSTEM_PROMPT,
+    system: buildParselAiSystemPrompt(parselAiProfile),
     messages: modelMessages,
     tools,
     stopWhen: stepCountIs(5),

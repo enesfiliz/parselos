@@ -120,3 +120,67 @@ export function matchesPortfolioFilters(
   if (kindFilter !== "ALL" && item.propertyKind !== kindFilter) return false;
   return true;
 }
+
+export function formatPortfolioLastActivity(isoDate: string) {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  const now = Date.now();
+  const diffMs = now - date.getTime();
+  const diffMinutes = Math.floor(diffMs / 60_000);
+
+  if (diffMinutes < 1) return "Az önce";
+  if (diffMinutes < 60) return `${diffMinutes} dk önce`;
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} sa önce`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays} gün önce`;
+
+  return date.toLocaleDateString("tr-TR", {
+    day: "numeric",
+    month: "short",
+    year: date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
+  });
+}
+
+export function getDealStageBadge(stageLabel?: string) {
+  if (!stageLabel) {
+    return {
+      label: "Fırsat yok",
+      className: "border-border/60 bg-parsel-elevated text-muted-foreground",
+    };
+  }
+
+  const normalized = stageLabel.toLocaleLowerCase("tr-TR");
+  if (normalized.includes("kazan")) {
+    return {
+      label: stageLabel,
+      className: "border-primary/25 bg-primary/10 text-primary",
+    };
+  }
+  if (normalized.includes("kayb")) {
+    return {
+      label: stageLabel,
+      className: "border-destructive/25 bg-destructive/10 text-destructive",
+    };
+  }
+  if (normalized.includes("teklif")) {
+    return {
+      label: stageLabel,
+      className: "border-parsel-gold/30 bg-parsel-gold/15 text-parsel-gold",
+    };
+  }
+  if (normalized.includes("gösterim") || normalized.includes("gosterim")) {
+    return {
+      label: stageLabel,
+      className: "border-primary/20 bg-primary/10 text-primary",
+    };
+  }
+
+  return {
+    label: stageLabel,
+    className: "border-border/60 bg-parsel-elevated text-muted-foreground",
+  };
+}

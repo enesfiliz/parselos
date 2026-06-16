@@ -1,7 +1,8 @@
 "use client";
 
-import { Radar } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -13,31 +14,32 @@ import {
 import { FsboDetailPanel } from "@/components/features/fsbo/FsboDetailPanel";
 import { FsboEmptyState } from "@/components/features/fsbo/FsboEmptyState";
 import { FsboFilterBar } from "@/components/features/fsbo/FsboFilterBar";
-import { FsboImportPanel } from "@/components/features/fsbo/FsboImportPanel";
 import { FsboInboxCard } from "@/components/features/fsbo/FsboInboxCard";
 import { FsboSendToDealsDialog } from "@/components/features/fsbo/FsboSendToDealsDialog";
+import { FsboTrackEntryPanel } from "@/components/features/fsbo/FsboTrackEntryPanel";
 import { appendMockDeal } from "@/lib/deals/deal-persistence";
 import { filterFsboLeads } from "@/lib/fsbo/fsbo-media";
 import { promoteMockFsboLeadToClient } from "@/lib/fsbo/fsbo-to-deal";
 import {
+  FSBO_PRODUCT_DISCLAIMER,
+  computeFsboTrackMetrics,
+} from "@/lib/fsbo/fsbo-tracking";
+import {
   EMPTY_FSBO_FILTERS,
   type FsboLeadData,
   type FsboRadarFilters,
-  type FsboWatchRegionData,
 } from "@/lib/types/fsbo-lead";
 
 type FsboRadarViewProps = {
   initialLeads: FsboLeadData[];
-  initialRegions: FsboWatchRegionData[];
-  useMock?: boolean;
-  dbLeadCount?: number;
   fetchError?: string | null;
 };
 
+const METRIC_CARD =
+  "parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm";
+
 export function FsboRadarView({
   initialLeads,
-  useMock = false,
-  dbLeadCount = 0,
   fetchError = null,
 }: FsboRadarViewProps) {
   const router = useRouter();
@@ -50,7 +52,6 @@ export function FsboRadarView({
     initialLeads[0]?.id ?? null,
   );
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
-  const [isScanning, setIsScanning] = useState(false);
   const [sendLead, setSendLead] = useState<FsboLeadData | null>(null);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -72,12 +73,12 @@ export function FsboRadarView({
     [allLeads, appliedFilters],
   );
 
+  const metrics = useMemo(() => computeFsboTrackMetrics(allLeads), [allLeads]);
+
   const selectedLead =
     filteredLeads.find((lead) => lead.id === selectedId) ??
     allLeads.find((lead) => lead.id === selectedId) ??
     null;
-
-  const showListeningBanner = useMock && dbLeadCount === 0;
 
   function animateRemove(id: string, onDone: () => void) {
     setRemovingIds((current) => new Set(current).add(id));
@@ -96,29 +97,20 @@ export function FsboRadarView({
     }, 280);
   }
 
-  function handleRunRadar() {
+  function handleApplyFilters() {
     setAppliedFilters(draftFilters);
-    setIsScanning(true);
-
-    startTransition(() => {
-      router.refresh();
-      window.setTimeout(() => {
-        const count = filterFsboLeads(allLeads, draftFilters).length;
-        setIsScanning(false);
-        toast.success(`${count} sinyal listelendi.`);
-      }, 350);
-    });
+    toast.message(`${filterFsboLeads(allLeads, draftFilters).length} kayıt listelendi.`);
   }
 
   function handleDiscard(lead: FsboLeadData) {
+    if (lead.id.startsWith("fsbo-mock-")) {
+      toast.message("Önizleme kaydı kaldırıldı.");
+      return;
+    }
+
     animateRemove(lead.id, () => {
       setAllLeads((current) => current.filter((item) => item.id !== lead.id));
     });
-
-    if (useMock || lead.id.startsWith("fsbo-mock-")) {
-      toast.message("Önizleme: İlan çöpe atıldı.");
-      return;
-    }
 
     startTransition(async () => {
       const result = await discardFsboLeadAction(lead.id);
@@ -130,7 +122,7 @@ export function FsboRadarView({
       }
 
       router.refresh();
-      toast.message("İlan çöpe atıldı.");
+      toast.message("Takip kaydı arşivlendi.");
     });
   }
 
@@ -142,10 +134,10 @@ export function FsboRadarView({
   async function handlePromoteToClient(leadId: string, clientId: string) {
     const lead = allLeads.find((item) => item.id === leadId);
     if (!lead) {
-      return { success: false, error: "İlan bulunamadı." };
+      return { success: false, error: "Kayıt bulunamadı." };
     }
 
-    if (useMock || leadId.startsWith("fsbo-mock-")) {
+    if (leadId.startsWith("fsbo-mock-")) {
       const clientsResult = await listClientsForFsboPromoteAction();
       if (!clientsResult.success) {
         return { success: false, error: clientsResult.error };
@@ -177,7 +169,7 @@ export function FsboRadarView({
       setAllLeads((current) => current.filter((item) => item.id !== leadId));
     });
 
-    if (!useMock && !leadId.startsWith("fsbo-mock-")) {
+    if (!leadId.startsWith("fsbo-mock-")) {
       startTransition(() => {
         router.refresh();
       });
@@ -185,69 +177,72 @@ export function FsboRadarView({
   }
 
   return (
-    <div className="min-h-full bg-background">
+    <div className="min-h-full bg-parsel-canvas">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <header>
-          <div className="mb-2 flex items-center gap-2 text-parsel-gold">
-            <Radar className="size-4" strokeWidth={1.5} />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.2em]">
-              FSBO Komuta Merkezi
-            </span>
+        <header className="space-y-4">
+          <div className="space-y-2">
+            <p className="parsel-section-label text-primary">Fırsat operasyonu</p>
+            <h1 className="parsel-page-title text-foreground">Fırsat Takip Merkezi</h1>
+            <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              Sahibinden ve diğer kaynaklardaki ilanları manuel olarak takip edin.
+              Link arşivlenir; başlık, fiyat ve notları siz girersiniz. Otomatik veri
+              çekme bu modülde kullanılmaz.
+            </p>
           </div>
-          <h1 className="parsel-page-title text-foreground">
-            İstihbarat Radarı — Medya Odaklı Inbox
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium text-muted-foreground">
-            Veritabanından gelen FSBO ilanları; link içe aktarma veya scraper-bot
-            ile beslenir. Otomatik Sahibinden taraması yapılmaz.
-          </p>
+
+          <div className="rounded-2xl border border-border/60 bg-parsel-elevated px-4 py-3 text-sm text-foreground/85">
+            {FSBO_PRODUCT_DISCLAIMER}
+          </div>
         </header>
 
-        {!useMock ? (
-          <FsboImportPanel
-            onImported={(leads) => {
-              setAllLeads(leads);
-              setSelectedId(leads[0]?.id ?? null);
-              router.refresh();
-            }}
-          />
-        ) : null}
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] text-muted-foreground">Toplam kayıt</p>
+            <p className="parsel-metric-value mt-2 text-foreground">{metrics.total}</p>
+          </article>
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] text-muted-foreground">Aktif takip</p>
+            <p className="parsel-metric-value mt-2 text-primary">{metrics.active}</p>
+          </article>
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] text-muted-foreground">Yüksek öncelik</p>
+            <p className="parsel-metric-value mt-2 text-parsel-gold">{metrics.highPriority}</p>
+          </article>
+          <article className={METRIC_CARD}>
+            <p className="text-[11px] text-muted-foreground">Takip zamanı gelen</p>
+            <p className="parsel-metric-value mt-2 text-foreground">{metrics.followUpDue}</p>
+          </article>
+        </section>
+
+        <FsboTrackEntryPanel
+          onCreated={(leads) => {
+            setAllLeads(leads);
+            setSelectedId(leads[0]?.id ?? null);
+            router.refresh();
+          }}
+        />
 
         {fetchError ? (
-          <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-            Veritabanı uyarısı: {fetchError}. Önizleme modu aktif.
-          </div>
-        ) : null}
-
-        {showListeningBanner ? (
-          <div className="overflow-hidden rounded-2xl border border-border/50 bg-parsel-panel">
-            <FsboEmptyState variant="listening" />
+          <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            Kayıtlar yüklenemedi. Sayfayı yenileyin veya yeni takip kaydı ekleyin.
           </div>
         ) : null}
 
         <FsboFilterBar
           draft={draftFilters}
           onDraftChange={setDraftFilters}
-          onRun={handleRunRadar}
-          isRunning={isScanning || isPending}
+          onApply={handleApplyFilters}
+          isRunning={isPending}
         />
 
-        {useMock ? (
-          <p className="text-[11px] text-muted-foreground">
-            Önizleme modu: {allLeads.length} mock kart yüklü (veritabanında{" "}
-            {dbLeadCount} kayıt).
-          </p>
-        ) : null}
-
         <section className="grid min-h-0 grid-cols-1 gap-4 lg:min-h-[600px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
-          <div className="min-w-0 overflow-hidden rounded-2xl border border-border/50 bg-parsel-panel">
+          <div className="min-w-0 overflow-hidden rounded-2xl border border-border/60 bg-parsel-panel shadow-parsel-sm">
             <div className="border-b border-border/50 px-4 py-3">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                Gelen Kutusu
+                Takip listesi
               </p>
               <p className="text-sm text-muted-foreground">
-                {filteredLeads.length} aktif sinyal
-                {useMock ? " (önizleme)" : ""}
+                {filteredLeads.length} kayıt
               </p>
             </div>
 
@@ -255,7 +250,7 @@ export function FsboRadarView({
               {filteredLeads.length === 0 ? (
                 <li>
                   <FsboEmptyState
-                    variant={allLeads.length === 0 ? "listening" : "filtered"}
+                    variant={allLeads.length === 0 ? "empty" : "filtered"}
                   />
                 </li>
               ) : (
@@ -279,6 +274,19 @@ export function FsboRadarView({
             onSendToDeals={handleOpenSendToDeals}
           />
         </section>
+
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+          <Bookmark className="size-3.5" />
+          <span>Manuel takip kayıtları yalnızca sizin hesabınıza bağlıdır.</span>
+          <span className="text-border">·</span>
+          <Link href="/deals" className="text-primary hover:underline">
+            Fırsatlar kanbanı
+          </Link>
+          <span className="text-border">·</span>
+          <Link href="/portfolios" className="text-primary hover:underline">
+            Portföy vitrini
+          </Link>
+        </div>
       </div>
 
       <FsboSendToDealsDialog

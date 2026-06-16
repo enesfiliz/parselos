@@ -5,8 +5,7 @@ export const SAHIBINDEN_POLICY = {
   summary:
     "Sahibinden.com kullanım şartları otomatik tarama ve toplu veri çekimini yasaklar. ParselOS bu nedenle siteye karşı bot çalıştırmaz.",
   allowed: [
-    "Sizin tarayıcıda açtığınız ilan linkini tek tek içe aktarmak",
-    "Kendi sunucunuzda çalışan scraper-bot ile BOT_SECRET üzerinden gönderim (sorumluluk sizde)",
+    "Fırsat Takip Merkezi üzerinden manuel kayıt ve kaynak link arşivleme",
     "Manuel lead girişi ve müşteri notları",
   ],
   notAllowed: [
@@ -14,7 +13,7 @@ export const SAHIBINDEN_POLICY = {
     "CAPTCHA veya erişim kontrolünü aşmaya yönelik otomasyon",
   ],
   alternative:
-    "Önerilen yol: FSBO Radarı → «İlan Linki Ekle» veya scraper-bot (targets.json) + bot-sync.",
+    "Önerilen yol: Fırsat Takip Merkezi → manuel fırsat ekleme (başlık, fiyat, konum, kaynak link).",
 } as const;
 
 export const TTBS_POLICY = {

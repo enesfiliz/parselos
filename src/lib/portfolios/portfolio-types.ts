@@ -1,4 +1,4 @@
-import type { PropertyListingStatus } from "@prisma/client";
+import type { DealStage, PropertyListingStatus } from "@prisma/client";
 
 export type AuthorizedPortfolioItem = {
   id: string;
@@ -19,4 +19,10 @@ export type AuthorizedPortfolioItem = {
   yetkiRemainingDays: number;
   ownerName: string;
   ownerPhone: string;
+  ownerClientId?: string;
+  primaryDealId?: string;
+  dealStage?: DealStage;
+  dealStageLabel?: string;
+  updatedAt: string;
+  lastActivityAt: string;
 };
