@@ -56,7 +56,7 @@ export async function GET() {
         organizationType: tenant.organizationType,
       },
       capabilities: {
-        canManageTeam: canManageTeam(agent),
+        canManageTeam: canManageTeam(agent, tenant),
         canManageOfficeInvites: canManageOfficeInvites(agent, tenant),
         canViewBrokerMetrics: canViewBrokerMetrics(agent, tenant),
       },

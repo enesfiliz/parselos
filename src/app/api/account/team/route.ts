@@ -42,7 +42,7 @@ export async function GET() {
         organizationType: tenant.organizationType,
       },
       members,
-      canManage: canManageTeam(agent),
+      canManage: canManageTeam(agent, tenant),
       canManageInvites: canManageOfficeInvites(agent, tenant),
     });
   } catch (error) {

@@ -41,7 +41,10 @@ import {
 import {
   canManageOfficeInvites,
   canManageTeam,
+  canSelectAgentRoleType,
   canViewBrokerMetrics,
+  isBrokerOfficeTenant,
+  memberRoleLabel,
 } from "@/lib/account/permissions";
 import { getClerkAppearance } from "@/lib/clerk-appearance";
 import { cn } from "@/lib/utils";
@@ -127,7 +130,11 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
     initialData.agent,
     initialData.tenant,
   );
-  const manageTeam = canManageTeam(initialData.agent);
+  const manageTeam = canManageTeam(initialData.agent, initialData.tenant);
+  const selectAgentRole = canSelectAgentRoleType(
+    initialData.agent,
+    initialData.tenant,
+  );
   const manageOfficeInvites = canManageOfficeInvites(
     {
       tenantId: initialData.agent.tenantId,
@@ -319,8 +326,13 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
               sub={form.licenseNumber || "Numara girilmedi"}
             />
             <OverviewCard
-              title="Ofis Rolü"
-              value={memberRoleLabelShort(initialData.agent.tenantMemberRole)}
+              title={
+                isBrokerOfficeTenant(initialData.tenant) ? "Ofis Rolü" : "Hesap Türü"
+              }
+              value={memberRoleLabel(
+                initialData.agent.tenantMemberRole,
+                initialData.tenant,
+              )}
               sub={AGENT_ROLE_LABELS[form.roleType]}
             />
           </div>
@@ -391,7 +403,7 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
             </div>
           </CardSection>
 
-          {manageTeam ? (
+          {selectAgentRole ? (
             <CardSection title="Sistem Rolü" icon={BadgeCheck}>
               <div className="grid gap-3 md:grid-cols-3">
                 {(Object.keys(AGENT_ROLE_LABELS) as AgentRoleType[]).map((role) => {
@@ -637,12 +649,6 @@ const LICENSE_SHORT: Record<LicenseVerificationStatus, string> = {
   VERIFIED: "Onaylı",
   REJECTED: "Reddedildi",
 };
-
-function memberRoleLabelShort(role: TenantMemberRole) {
-  if (role === "OWNER") return "Ofis Sahibi";
-  if (role === "MANAGER") return "Yönetici";
-  return "Ekip Üyesi";
-}
 
 function OverviewCard({
   title,

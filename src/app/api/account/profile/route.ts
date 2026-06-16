@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { syncAgentProfileToClerk } from "@/lib/account/sync-profile-metadata";
-import { ROLE_TO_ORG_DEFAULT } from "@/lib/account/labels";
+import {
+  assertAllowedOrganizationTypeChange,
+  assertAllowedRoleTypeChange,
+  ProfileUpgradeBlockedError,
+} from "@/lib/account/profile-guards";
 import { canEditTenantProfile, canManageTeam } from "@/lib/account/permissions";
 import { requireCurrentAgent } from "@/lib/auth/agent";
 import { getOrCreateTenantForAgent } from "@/lib/billing/tenant";
@@ -83,6 +87,19 @@ export async function PATCH(request: Request) {
     const { tenant } = await getOrCreateTenantForAgent(agent.id);
     const body = updateProfileSchema.parse(await request.json());
 
+    assertAllowedRoleTypeChange(
+      agent.email,
+      tenant,
+      body.roleType,
+      agent.roleType,
+    );
+    assertAllowedOrganizationTypeChange(
+      agent.email,
+      tenant,
+      body.organizationType,
+      tenant.organizationType,
+    );
+
     const teamSize = await prisma.agent.count({ where: { tenantId: tenant.id } });
     const roleType = body.roleType ?? agent.roleType;
 
@@ -107,7 +124,7 @@ export async function PATCH(request: Request) {
       body.tenantCity !== undefined ||
       body.website !== undefined;
 
-    if (hasTenantFields && !canEditTenantProfile(agent)) {
+    if (hasTenantFields && !canEditTenantProfile(agent, tenant)) {
       return NextResponse.json(
         { error: "Kurumsal bilgileri yalnızca ofis yöneticisi düzenleyebilir." },
         { status: 403 },
@@ -116,8 +133,12 @@ export async function PATCH(request: Request) {
 
     const organizationType =
       body.organizationType ??
-      (body.roleType && canManageTeam(agent)
-        ? ROLE_TO_ORG_DEFAULT[body.roleType]
+      (body.roleType && canManageTeam(agent, tenant)
+        ? body.roleType === "BROKER"
+          ? "BROKERLIK"
+          : body.roleType === "KURULUS"
+            ? "KURULUS"
+            : "BIREYSEL"
         : tenant.organizationType);
 
     const licenseChanged =
@@ -157,7 +178,7 @@ export async function PATCH(request: Request) {
 
     if (
       body.roleType === "BROKER" &&
-      canManageTeam(agent) &&
+      canManageTeam(agent, tenant) &&
       tenant.ownerAgentId !== agent.id
     ) {
       tenantUpdate.ownerAgentId = agent.id;
@@ -183,6 +204,10 @@ export async function PATCH(request: Request) {
       tenant: updatedTenant,
     });
   } catch (error) {
+    if (error instanceof ProfileUpgradeBlockedError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Geçersiz profil verisi.", details: error.flatten() },

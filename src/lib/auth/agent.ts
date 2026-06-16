@@ -28,6 +28,8 @@ export async function upsertAgentFromClerk(user: ClerkUserLike) {
       firstName: user.first_name ?? null,
       lastName: user.last_name ?? null,
       imageUrl: user.image_url ?? null,
+      roleType: "DANISMAN",
+      tenantMemberRole: "MEMBER",
       lastActiveAt: now,
     },
     update: {

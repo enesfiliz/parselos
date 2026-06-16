@@ -39,7 +39,7 @@ export async function syncAgentProfileToClerk(
         licenseStatus: agent.licenseStatus,
         licenseLabel: LICENSE_STATUS_LABELS[agent.licenseStatus],
         tenantMemberRole: agent.tenantMemberRole,
-        tenantMemberLabel: memberRoleLabel(agent.tenantMemberRole),
+        tenantMemberLabel: memberRoleLabel(agent.tenantMemberRole, tenant),
         city: agent.city ?? null,
         organizationName: tenant?.name ?? null,
         organizationType: tenant?.organizationType ?? null,

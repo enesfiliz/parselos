@@ -9,6 +9,7 @@ import {
   resolveInviteForAccept,
 } from "@/lib/account/invite-accept";
 import { syncAgentProfileToClerk } from "@/lib/account/sync-profile-metadata";
+import { soloFreeTenantDisplayName } from "@/lib/account/tenant-provisioning";
 import { prisma } from "@/lib/prisma";
 
 export { InviteRedeemError } from "@/lib/account/invite-accept";
@@ -65,7 +66,7 @@ export async function removeAgentFromTenant(
 
   const soloTenant = await prisma.tenant.create({
     data: {
-      name: [target.firstName, target.lastName].filter(Boolean).join(" ") + " Ofisi",
+      name: soloFreeTenantDisplayName(target),
       planType: "FREE",
       status: "ACTIVE",
       organizationType: "BIREYSEL",

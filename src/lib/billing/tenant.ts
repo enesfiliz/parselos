@@ -1,32 +1,16 @@
 import "server-only";
 
+import type { TenantPlanType, TenantStatus } from "@prisma/client";
 import { clerkClient } from "@clerk/nextjs/server";
-import type {
-  AgentRoleType,
-  TenantOrganizationType,
-  TenantPlanType,
-  TenantStatus,
-} from "@prisma/client";
 
-import { ROLE_TO_ORG_DEFAULT } from "@/lib/account/labels";
+import { syncAgentProfileToClerk } from "@/lib/account/sync-profile-metadata";
+import {
+  createDefaultFreeTenantForAgent,
+  ensureBrokerOfficeForAllowlistedAgent,
+  ensureSoloFreeTenantIntegrity,
+  revertUnauthorizedBrokerProvisioning,
+} from "@/lib/account/tenant-provisioning";
 import { prisma } from "@/lib/prisma";
-
-function tenantDisplayName(agent: {
-  firstName: string | null;
-  lastName: string | null;
-  email: string | null;
-  roleType?: AgentRoleType;
-}) {
-  const fullName = [agent.firstName, agent.lastName].filter(Boolean).join(" ").trim();
-  if (agent.roleType === "BROKER" && fullName) return `${fullName} Brokerlık`;
-  if (fullName) return `${fullName} Ofisi`;
-  if (agent.email) return agent.email.split("@")[0] ?? "ParselOS Ofisi";
-  return "ParselOS Ofisi";
-}
-
-function defaultOrgType(roleType: AgentRoleType): TenantOrganizationType {
-  return ROLE_TO_ORG_DEFAULT[roleType];
-}
 
 export async function syncTenantPlanToClerk(
   clerkUserId: string,
@@ -57,35 +41,63 @@ export async function getOrCreateTenantForAgent(agentId: string) {
     throw new Error("Danışman kaydı bulunamadı.");
   }
 
-  if (agent.tenant) {
-    return { agent, tenant: agent.tenant };
+  if (!agent.tenant) {
+    const provisioned = await createDefaultFreeTenantForAgent(agent);
+    await syncTenantPlanToClerk(
+      provisioned.agent.clerkUserId,
+      provisioned.tenant.planType,
+      provisioned.tenant.status,
+    );
+    await syncAgentProfileToClerk(
+      provisioned.agent.clerkUserId,
+      provisioned.agent,
+      provisioned.tenant,
+    );
+
+    const allowlisted = await ensureBrokerOfficeForAllowlistedAgent(
+      provisioned.agent,
+      provisioned.tenant,
+    );
+    if (allowlisted.changed) {
+      await syncTenantPlanToClerk(
+        allowlisted.agent.clerkUserId,
+        allowlisted.tenant.planType,
+        allowlisted.tenant.status,
+      );
+      await syncAgentProfileToClerk(
+        allowlisted.agent.clerkUserId,
+        allowlisted.agent,
+        allowlisted.tenant,
+      );
+      return { agent: allowlisted.agent, tenant: allowlisted.tenant };
+    }
+
+    return provisioned;
   }
 
-  const isOfficeLead = agent.roleType === "BROKER" || agent.roleType === "KURULUS";
-  const organizationType = defaultOrgType(agent.roleType);
+  const reverted = await revertUnauthorizedBrokerProvisioning(agent, agent.tenant);
+  const integrity = await ensureSoloFreeTenantIntegrity(
+    reverted.agent,
+    reverted.tenant,
+  );
+  const brokered = await ensureBrokerOfficeForAllowlistedAgent(
+    integrity.agent,
+    integrity.tenant,
+  );
 
-  const tenant = await prisma.tenant.create({
-    data: {
-      name: tenantDisplayName(agent),
-      planType: "FREE",
-      status: "ACTIVE",
-      organizationType,
-      ownerAgentId: isOfficeLead ? agent.id : null,
-    },
-  });
+  const finalAgent = brokered.agent;
+  const finalTenant = brokered.tenant;
 
-  const updatedAgent = await prisma.agent.update({
-    where: { id: agent.id },
-    data: {
-      tenantId: tenant.id,
-      tenantMemberRole: isOfficeLead ? "OWNER" : "OWNER",
-    },
-    include: { tenant: true },
-  });
+  if (reverted.changed || integrity.changed || brokered.changed) {
+    await syncTenantPlanToClerk(
+      finalAgent.clerkUserId,
+      finalTenant.planType,
+      finalTenant.status,
+    );
+    await syncAgentProfileToClerk(finalAgent.clerkUserId, finalAgent, finalTenant);
+  }
 
-  await syncTenantPlanToClerk(agent.clerkUserId, tenant.planType, tenant.status);
-
-  return { agent: updatedAgent, tenant };
+  return { agent: finalAgent, tenant: finalTenant };
 }
 
 export async function getTenantPlanForClerkUser(clerkUserId: string) {

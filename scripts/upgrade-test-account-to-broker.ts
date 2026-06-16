@@ -166,7 +166,13 @@ function assertSafetyGuards(databaseUrl: string) {
 
   if (process.env.NODE_ENV === "production") {
     throw new Error(
-      "Bu script yalnızca development/test ortamında çalışır (NODE_ENV=production).",
+      "Bu script production ortamında çalışmaz. NODE_ENV=production engellendi.",
+    );
+  }
+
+  if (process.env.VERCEL === "1" || process.env.VERCEL_ENV === "production") {
+    throw new Error(
+      "Bu script Vercel production runtime'da çalışmaz.",
     );
   }
 

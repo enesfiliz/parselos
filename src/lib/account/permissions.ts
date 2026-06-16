@@ -30,8 +30,12 @@ export function isOfficeManager(agent: Pick<AgentPermissionSlice, "tenantMemberR
   return isOfficeInviteAdmin(agent);
 }
 
-export function canManageTeam(agent: Pick<AgentPermissionSlice, "tenantMemberRole">) {
-  return isOfficeManager(agent);
+export function canManageTeam(
+  agent: Pick<AgentPermissionSlice, "tenantMemberRole">,
+  tenant: TenantPermissionSlice | null,
+) {
+  if (!isBrokerOfficeTenant(tenant)) return false;
+  return isOfficeInviteAdmin(agent);
 }
 
 /**
@@ -60,17 +64,22 @@ export function canViewBrokerMetrics(
   agent: Pick<AgentPermissionSlice, "tenantMemberRole">,
   tenant: TenantPermissionSlice | null,
 ) {
-  if (!tenant) return false;
-  if (!isOfficeManager(agent)) return false;
-  return (
-    tenant.organizationType === "BROKERLIK" ||
-    tenant.organizationType === "OFIS" ||
-    tenant.organizationType === "KURULUS"
-  );
+  if (!tenant || !isBrokerOfficeTenant(tenant)) return false;
+  return isOfficeInviteAdmin(agent);
 }
 
-export function canEditTenantProfile(agent: Pick<AgentPermissionSlice, "tenantMemberRole">) {
-  return isOfficeManager(agent);
+export function canEditTenantProfile(
+  agent: Pick<AgentPermissionSlice, "tenantMemberRole">,
+  tenant: TenantPermissionSlice | null,
+) {
+  return canManageTeam(agent, tenant);
+}
+
+export function canSelectAgentRoleType(
+  agent: Pick<AgentPermissionSlice, "tenantMemberRole">,
+  tenant: TenantPermissionSlice | null,
+) {
+  return canManageTeam(agent, tenant);
 }
 
 export function canRemoveTeamMember(
@@ -131,7 +140,19 @@ export function brokerOfficeUpgradeMessage(planType: TenantPlanType | undefined)
   return "Ekip davetleri Broker Ofis paketinde kullanılabilir.";
 }
 
-export function memberRoleLabel(role: TenantMemberRole) {
+export function memberRoleLabel(
+  role: TenantMemberRole,
+  tenant?: Pick<TenantPermissionSlice, "planType" | "organizationType"> | null,
+) {
+  if (
+    role === "OWNER" &&
+    tenant &&
+    !isBrokerOfficeTenant(tenant) &&
+    tenant.organizationType === "BIREYSEL"
+  ) {
+    return "Bireysel Hesap";
+  }
+
   switch (role) {
     case "OWNER":
       return "Ofis Sahibi";
