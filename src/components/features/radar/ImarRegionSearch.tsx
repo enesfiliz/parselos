@@ -150,7 +150,7 @@ export function ImarRegionSearch({
         ) : null}
       </div>
 
-      <div className="flex items-center gap-2 rounded-xl border border-[#b38c56]/20 bg-parsel-gold/5 px-3 py-2.5">
+      <div className="flex items-center gap-2 rounded-xl border border-parsel-gold/20 bg-parsel-gold/5 px-3 py-2.5">
         <MapPin className="size-4 shrink-0 text-parsel-gold" strokeWidth={1.75} />
         <span className="min-w-0 truncate text-sm font-medium text-foreground">
           {value}
@@ -168,7 +168,7 @@ export function ImarRegionSearch({
             onClick={() => handleSelect({ label: region.label })}
             className={cn(
               "h-7 rounded-full px-2.5 text-[11px]",
-              value === region.label && "border-[#b38c56]/40 bg-parsel-gold/10",
+              value === region.label && "border-parsel-gold/40 bg-parsel-gold/10",
             )}
           >
             {region.label}

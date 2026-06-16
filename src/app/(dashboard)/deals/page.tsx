@@ -74,6 +74,17 @@ import {
   type FsboDealMatch,
   type FsboPriceInsightKind,
 } from "@/lib/deals/match-fsbo";
+import {
+  applyStageRollback,
+  applyStageSuccessMerge,
+  beginStageMutation,
+  dealPayloadWithLatestStage,
+  finishStageMutation,
+  mergeSavedDealWithLocalStage,
+  resolveStageMutationFailure,
+  resolveStageMutationSuccess,
+  type StageMutationMeta,
+} from "@/lib/deals/kanban-sync";
 import type { Client } from "@/lib/types/client";
 import {
   DEAL_STAGES,
@@ -903,6 +914,8 @@ export default function DealsPage() {
   const [creatingDeal, setCreatingDeal] = useState(false);
   const [, setPromotingId] = useState<string | null>(null);
   const dealsRef = useRef(deals);
+  const stageMutationVersionRef = useRef<Record<string, number>>({});
+  const stageMutationMetaRef = useRef<Record<string, StageMutationMeta>>({});
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   useEffect(() => {
@@ -1005,12 +1018,14 @@ export default function DealsPage() {
     );
     commit(optimistic);
 
-    const result = await saveDealCard(nextDeal);
+    const payload = dealPayloadWithLatestStage(nextDeal, dealsRef.current);
+    const result = await saveDealCard(payload);
     if (result.success) {
       commit(
-        dealsRef.current.map((d) =>
-          d.id === result.data.id ? result.data : d,
-        ),
+        dealsRef.current.map((d) => {
+          if (d.id !== result.data.id) return d;
+          return mergeSavedDealWithLocalStage(d, result.data);
+        }),
       );
       if (selectedId === result.data.id) {
         setSelectedId(result.data.id);
@@ -1087,29 +1102,60 @@ export default function DealsPage() {
     if (!currentDeal || currentDeal.stage === nextStage) return;
 
     const previousStage = currentDeal.stage;
-    const nextDeals = applyOptimisticDealMove(dealsRef.current, {
+    const mutationVersion = beginStageMutation(
+      stageMutationVersionRef.current,
+      stageMutationMetaRef.current,
       dealId,
-      stage: nextStage,
-    });
-    commit(nextDeals);
+      previousStage,
+      nextStage,
+    );
+
+    commit(
+      applyOptimisticDealMove(dealsRef.current, {
+        dealId,
+        stage: nextStage,
+      }),
+    );
 
     void (async () => {
       const result = await updateDealStage(dealId, nextStage);
+
       if (!result.success) {
-        toast.error(result.error);
-        commit(
-          applyOptimisticDealMove(dealsRef.current, {
-            dealId,
-            stage: previousStage,
-          }),
+        const rollbackStage = resolveStageMutationFailure(
+          stageMutationVersionRef.current,
+          stageMutationMetaRef.current,
+          dealId,
+          mutationVersion,
+          dealsRef.current,
+        );
+        if (rollbackStage) {
+          toast.error(result.error);
+          commit(
+            applyStageRollback(dealsRef.current, dealId, rollbackStage),
+          );
+        }
+        finishStageMutation(
+          stageMutationMetaRef.current,
+          dealId,
+          mutationVersion,
         );
         return;
       }
 
-      commit(
-        dealsRef.current.map((d) =>
-          d.id === result.data.id ? result.data : d,
-        ),
+      const merged = resolveStageMutationSuccess(
+        stageMutationVersionRef.current,
+        dealId,
+        mutationVersion,
+        dealsRef.current,
+        result.data,
+      );
+      if (merged) {
+        commit(applyStageSuccessMerge(dealsRef.current, merged));
+      }
+      finishStageMutation(
+        stageMutationMetaRef.current,
+        dealId,
+        mutationVersion,
       );
     })();
   }

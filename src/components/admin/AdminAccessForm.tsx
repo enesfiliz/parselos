@@ -7,7 +7,11 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 
-export function AdminAccessForm() {
+export function AdminAccessForm({
+  passwordConfigured = true,
+}: {
+  passwordConfigured?: boolean;
+}) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -77,7 +81,7 @@ export function AdminAccessForm() {
 
       <Button
         type="submit"
-        disabled={loading || !password.trim()}
+        disabled={loading || !password.trim() || !passwordConfigured}
         className="h-11 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-500"
       >
         {loading ? (

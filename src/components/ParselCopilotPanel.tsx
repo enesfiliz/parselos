@@ -52,9 +52,9 @@ function CopilotEmptyState({
 }) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center py-8 text-center">
-      <div className="relative mb-6 flex size-16 items-center justify-center rounded-2xl border border-[#b38c56]/30 bg-[#b38c56]/10">
-        <Sparkles className="size-7 text-[#b38c56]" strokeWidth={1.5} />
-        <span className="absolute -inset-1 rounded-2xl bg-[#b38c56]/10 blur-xl" aria-hidden />
+      <div className="relative mb-6 flex size-16 items-center justify-center rounded-2xl border border-parsel-gold/30 bg-parsel-gold/10">
+        <Sparkles className="size-7 text-parsel-gold" strokeWidth={1.5} />
+        <span className="absolute -inset-1 rounded-2xl bg-parsel-gold/10 blur-xl" aria-hidden />
       </div>
       <h2 className="font-outfit text-xl font-semibold text-foreground">
         Parsel AI
@@ -70,9 +70,9 @@ function CopilotEmptyState({
             type="button"
             disabled={disabled}
             onClick={() => onPick(chip.prompt)}
-            className="rounded-xl border border-border/60 bg-[#111]/60 px-4 py-3 text-left text-sm text-foreground/90 transition-colors hover:border-[#b38c56]/35 hover:bg-[#b38c56]/5 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl border border-border/60 bg-parsel-panel/60 px-4 py-3 text-left text-sm text-foreground/90 transition-colors hover:border-parsel-gold/35 hover:bg-parsel-gold/5 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <span className="block text-[10px] font-medium uppercase tracking-wider text-[#b38c56]/80">
+            <span className="block text-[10px] font-medium uppercase tracking-wider text-parsel-gold/80">
               Öneri
             </span>
             <span className="mt-1 block">{chip.label}</span>
@@ -115,7 +115,7 @@ function ToolDoneBadge({
 function UserMessage({ text }: { text: string }) {
   return (
     <div className="flex justify-end">
-      <p className="max-w-[75%] rounded-lg bg-[#111] px-4 py-2.5 text-right text-[15px] leading-relaxed text-foreground/80">
+      <p className="max-w-[75%] rounded-lg bg-parsel-sunken px-4 py-2.5 text-right text-[15px] leading-relaxed text-foreground/80">
         {text}
       </p>
     </div>
@@ -259,10 +259,10 @@ export function ParselCopilotPanel({ onClose }: ParselCopilotPanelProps) {
         role="dialog"
         aria-label="Parsel AI Workspace"
         aria-modal="true"
-        className="relative flex h-[90vh] w-[95%] max-w-5xl flex-col overflow-hidden rounded-2xl border border-border/80 bg-parsel-admin shadow-[0_0_80px_rgba(0,0,0,0.8)] ring-1 ring-[#b38c56]/20"
+        className="relative flex h-[90vh] w-[95%] max-w-5xl flex-col overflow-hidden rounded-2xl border border-border/80 bg-parsel-admin shadow-[0_0_80px_rgba(0,0,0,0.8)] ring-1 ring-parsel-gold/20"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="shrink-0 border-t-2 border-[#b38c56]" aria-hidden />
+        <div className="shrink-0 border-t-2 border-parsel-gold" aria-hidden />
 
         <header className="flex shrink-0 items-center justify-between gap-3 border-b border-border/40 px-6 py-4">
           <div className="flex min-w-0 items-center gap-2.5">
@@ -349,7 +349,7 @@ export function ParselCopilotPanel({ onClose }: ParselCopilotPanelProps) {
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-[#111] px-4 py-2 transition-colors focus-within:border-white/20">
+            <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-parsel-panel px-4 py-2 transition-colors focus-within:border-border">
               <input
                 ref={inputRef}
                 value={input}

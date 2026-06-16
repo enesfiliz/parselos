@@ -6,9 +6,16 @@ import {
   agentOwnershipFilter,
   requireCurrentAgent,
 } from "@/lib/auth/agent";
-import { assertClientLinkableByAgent } from "@/lib/clients/server-queries";
-import { findOrCreateClient } from "@/lib/deals/find-or-create-client";
-import { resolvePropertyAgentAccess } from "@/lib/properties/ownership";
+import {
+  assertClientLinkableByAgent,
+  resolveClientAgentAccess,
+} from "@/lib/clients/server-queries";
+import {
+  PROPERTY_SHARED_MUTATION_ERROR,
+  PROPERTY_SWITCH_ERROR,
+  resolvePropertyAgentAccess,
+  resolvePropertyMutationAccess,
+} from "@/lib/properties/ownership";
 import {
   fsboPlatformDisplayName,
   matchFsboLeadsForDeal,
@@ -259,19 +266,58 @@ export async function saveDealCard(
       return { success: false, error: "Fırsat bulunamadı." };
     }
 
-    const client = await findOrCreateClient({
-      adSoyad: deal.client.adSoyad,
-      telefon: deal.client.telefon,
-      kaynak: deal.client.kaynak,
-      butce: deal.client.butce,
-      mulkTipi: deal.client.mulkTipi,
-    });
+    const clientAccess = await resolveClientAgentAccess(
+      existingDeal.clientId,
+      agent.id,
+    );
+
+    if (clientAccess === "not_found" || clientAccess === "not_owned") {
+      return { success: false, error: "Müşteri bulunamadı." };
+    }
+
+    if (clientAccess === "shared") {
+      return {
+        success: false,
+        error: "Bu müşteri başka kayıtlarla paylaşıldığı için düzenlenemez.",
+      };
+    }
+
+    if (deal.client.id !== existingDeal.clientId) {
+      return { success: false, error: "Müşteri bağlantısı değiştirilemez." };
+    }
+
+    if (deal.property.id !== existingDeal.propertyId) {
+      return { success: false, error: PROPERTY_SWITCH_ERROR };
+    }
+
+    const propertyAccess = await resolvePropertyMutationAccess(
+      existingDeal.propertyId,
+      agent.id,
+    );
+
+    if (!propertyAccess.exists || !propertyAccess.ownedByAgent) {
+      return { success: false, error: "Portföy bulunamadı." };
+    }
+
+    if (!propertyAccess.canMutate) {
+      return { success: false, error: PROPERTY_SHARED_MUTATION_ERROR };
+    }
 
     const propertyPrice = parsePropertyPrice(deal.property.fiyat);
 
     await prisma.$transaction([
+      prisma.client.update({
+        where: { id: existingDeal.clientId },
+        data: {
+          adSoyad: deal.client.adSoyad.trim(),
+          telefon: deal.client.telefon?.trim() || null,
+          kaynak: deal.client.kaynak?.trim() || null,
+          butce: deal.client.butce?.trim() || null,
+          mulkTipi: deal.client.mulkTipi?.trim() || null,
+        },
+      }),
       prisma.property.update({
-        where: { id: deal.property.id },
+        where: { id: existingDeal.propertyId },
         data: {
           ilanBasligi: deal.property.ilanBasligi.trim(),
           fiyat: propertyPrice,
@@ -288,7 +334,6 @@ export async function saveDealCard(
         data: {
           stage: deal.stage,
           notlar: deal.notlar,
-          clientId: client.id,
           etiket: deal.etiket ?? null,
           sonIletisim: deal.sonIletisim ?? null,
           budgetTL: deal.budgetTL ?? null,
@@ -473,6 +518,8 @@ export async function createProperty(
   input: CreatePropertyInput,
 ): Promise<ActionResult<{ id: string }>> {
   try {
+    await requireCurrentAgent();
+
     const property = await prisma.property.create({
       data: {
         ilanBasligi: input.ilanBasligi.trim(),

@@ -12,7 +12,7 @@ export function Sidebar({ mobileOpen, onMobileOpenChange }: SidebarProps) {
   return (
     <>
       <aside
-        className="hidden h-full w-[17rem] shrink-0 flex-col border-r border-border/60 bg-sidebar shadow-parsel-sm dark:bg-[#11181c] md:flex"
+        className="hidden h-full w-[17rem] shrink-0 flex-col border-r border-border/60 bg-sidebar shadow-parsel-sm md:flex"
         aria-label="Ana menü"
       >
         <SidebarNav />

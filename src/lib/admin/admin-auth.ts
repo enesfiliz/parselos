@@ -16,6 +16,17 @@ export function getConfiguredAdminPassword(): string | null {
   return password || null;
 }
 
+export function logAdminPasswordMisconfiguration(context: string) {
+  if (getConfiguredAdminPassword()) return;
+
+  const message = `[admin] ${context}: ADMIN_ACCESS_PASSWORD is not set; super admin login is disabled.`;
+  if (process.env.NODE_ENV === "production") {
+    console.error(message);
+  } else {
+    console.warn(message);
+  }
+}
+
 function safeEqual(a: string, b: string) {
   if (a.length !== b.length) return false;
   return timingSafeEqual(Buffer.from(a), Buffer.from(b));

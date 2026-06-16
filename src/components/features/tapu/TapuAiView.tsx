@@ -139,7 +139,7 @@ function IntelligenceReport({ result }: { result: DeedAnalysis | null }) {
   return (
     <aside className="bg-parsel-panel border border-border p-5 rounded-2xl">
       <div className="mb-5 flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#b38c56]/25 bg-parsel-gold/10 text-parsel-gold">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-parsel-gold/25 bg-parsel-gold/10 text-parsel-gold">
           <Brain className="size-5" strokeWidth={1.75} />
         </span>
         <div>
@@ -313,7 +313,7 @@ export function TapuAiView() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.78fr)]">
         <div className="space-y-6">
-          <Card className="border-border bg-[#0d0d10]">
+          <Card className="border-border bg-parsel-panel">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <UploadCloud className="size-4 text-parsel-gold" strokeWidth={1.75} />
@@ -336,10 +336,10 @@ export function TapuAiView() {
                 onDrop={handleDrop}
                 className={cn(
                   "flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-5 rounded-xl border border-dashed px-8 py-12 text-center transition-colors outline-none",
-                  "focus-visible:ring-3 focus-visible:ring-[#b38c56]/30",
+                  "focus-visible:ring-3 focus-visible:ring-parsel-gold/30",
                   isDragging
-                    ? "border-[#b38c56] bg-parsel-gold/10"
-                    : "border-white/15 bg-background hover:border-parsel-gold/60 hover:bg-[#111114]",
+                    ? "border-parsel-gold bg-parsel-gold/10"
+                    : "border-border bg-background hover:border-parsel-gold/60 hover:bg-parsel-sunken",
                   isAnalyzing && "pointer-events-none opacity-70",
                 )}
               >
@@ -395,7 +395,7 @@ export function TapuAiView() {
             </CardContent>
           </Card>
 
-          <Card className="border-border bg-[#0d0d10]">
+          <Card className="border-border bg-parsel-panel">
             <CardHeader className="flex flex-row items-center justify-between gap-4">
               <CardTitle className="text-base">Çıkarılan Tapu Verileri</CardTitle>
               <Button

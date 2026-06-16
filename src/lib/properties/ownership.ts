@@ -14,17 +14,76 @@ export async function isPropertyLinkedToAgent(
   return deal !== null;
 }
 
-export async function resolvePropertyAgentAccess(
+export type PropertyMutationAccess = {
+  exists: boolean;
+  ownedByAgent: boolean;
+  linkedToOtherAgents: boolean;
+  canMutate: boolean;
+};
+
+/**
+ * Property satırını güncellemeden önce — başka agent deal'ları veya orphan bağlantılar var mı?
+ */
+export async function resolvePropertyMutationAccess(
   propertyId: string,
   agentId: string,
-): Promise<"not_found" | "not_linked" | "linked"> {
+): Promise<PropertyMutationAccess> {
   const property = await prisma.property.findUnique({
     where: { id: propertyId },
     select: { id: true },
   });
 
-  if (!property) return "not_found";
+  if (!property) {
+    return {
+      exists: false,
+      ownedByAgent: false,
+      linkedToOtherAgents: false,
+      canMutate: false,
+    };
+  }
 
-  const linked = await isPropertyLinkedToAgent(propertyId, agentId);
-  return linked ? "linked" : "not_linked";
+  const deals = await prisma.deal.findMany({
+    where: { propertyId },
+    select: { agentId: true },
+  });
+
+  if (deals.length === 0) {
+    return {
+      exists: true,
+      ownedByAgent: false,
+      linkedToOtherAgents: false,
+      canMutate: false,
+    };
+  }
+
+  const ownedByAgent = deals.some((deal) => deal.agentId === agentId);
+  const linkedToOtherAgents = deals.some(
+    (deal) => deal.agentId !== null && deal.agentId !== agentId,
+  );
+  const canMutate =
+    ownedByAgent && deals.every((deal) => deal.agentId === agentId);
+
+  return {
+    exists: true,
+    ownedByAgent,
+    linkedToOtherAgents,
+    canMutate,
+  };
 }
+
+export async function resolvePropertyAgentAccess(
+  propertyId: string,
+  agentId: string,
+): Promise<"not_found" | "not_linked" | "linked"> {
+  const access = await resolvePropertyMutationAccess(propertyId, agentId);
+
+  if (!access.exists) return "not_found";
+  if (!access.ownedByAgent) return "not_linked";
+  return "linked";
+}
+
+export const PROPERTY_SHARED_MUTATION_ERROR =
+  "Bu portföy başka kayıtlarla paylaşıldığı için düzenlenemez.";
+
+export const PROPERTY_SWITCH_ERROR =
+  "Bu portföy başka bir kayıtla ilişkilendirilemez.";

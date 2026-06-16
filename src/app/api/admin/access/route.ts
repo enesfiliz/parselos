@@ -6,6 +6,7 @@ import {
   ADMIN_SESSION_COOKIE,
   createAdminSessionToken,
   getConfiguredAdminPassword,
+  logAdminPasswordMisconfiguration,
   verifyAdminPassword,
   verifyAdminSessionToken,
 } from "@/lib/admin/admin-auth";
@@ -17,8 +18,12 @@ export async function POST(request: Request) {
   }
 
   if (!getConfiguredAdminPassword()) {
+    logAdminPasswordMisconfiguration("POST /api/admin/access");
     return NextResponse.json(
-      { error: "ADMIN_ACCESS_PASSWORD ortam değişkeni tanımlı değil." },
+      {
+        error:
+          "ADMIN_ACCESS_PASSWORD ortam değişkeni tanımlı değil. Vercel veya .env.local içine güvenli bir parola ekleyin.",
+      },
       { status: 503 },
     );
   }
