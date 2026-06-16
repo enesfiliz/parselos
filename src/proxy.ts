@@ -1,6 +1,7 @@
 import { clerkClient, clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+import { getSafeInternalRedirect } from "@/lib/auth/redirect-url";
 import { isProFeaturePlan } from "@/lib/billing/plans";
 import type { TenantPlanType } from "@prisma/client";
 
@@ -95,15 +96,25 @@ async function resolvePlanTypeForUser(userId: string): Promise<TenantPlanType> {
   return "FREE";
 }
 
-export default clerkMiddleware(async (auth, request) => {
-  if (isPublicRoute(request) && !isAuthPage(request)) {
-    return;
-  }
+function redirectFromAuthPage(request: Request) {
+  const url = new URL(request.url);
+  const redirectTarget = getSafeInternalRedirect(
+    url.searchParams.get("redirect_url"),
+  );
 
+  return NextResponse.redirect(new URL(redirectTarget, request.url));
+}
+
+export default clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
 
   if (userId && isAuthPage(request)) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return redirectFromAuthPage(request);
+  }
+
+  // Public routes (including /login, /sign-in, /sign-up) must not hit auth.protect().
+  if (isPublicRoute(request)) {
+    return;
   }
 
   if (!userId) {

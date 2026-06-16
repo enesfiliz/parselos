@@ -5,6 +5,7 @@ import { Suspense } from "react";
 
 import { LoginForm } from "@/components/features/auth/LoginForm";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { getSafeInternalRedirect } from "@/lib/auth/redirect-url";
 
 export const metadata: Metadata = {
   title: "Giriş",
@@ -16,9 +17,10 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
+  const redirectUrl = getSafeInternalRedirect(params.redirect_url);
   const { userId } = await auth();
   if (userId) {
-    redirect(params.redirect_url || "/dashboard");
+    redirect(redirectUrl);
   }
 
   return (

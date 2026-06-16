@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
+import { getSafeInternalRedirect } from "@/lib/auth/redirect-url";
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,7 +20,7 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
 
   const isBusy = submitting || fetchStatus === "fetching";
-  const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
+  const redirectUrl = getSafeInternalRedirect(searchParams.get("redirect_url"));
   const signUpHref = redirectUrl
     ? `/sign-up?redirect_url=${encodeURIComponent(redirectUrl)}`
     : "/sign-up";

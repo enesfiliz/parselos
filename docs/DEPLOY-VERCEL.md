@@ -18,6 +18,7 @@ Project → **Settings → Environment Variables** — hepsini **Production** i�
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk **Live** key (`pk_live_...`) |
 | `CLERK_SECRET_KEY` | Clerk **Live** secret (`sk_live_...`) |
 | `CLERK_WEBHOOK_SIGNING_SECRET` | Clerk webhook secret |
+| `ADMIN_ACCESS_PASSWORD` | Admin access parolası (zorunlu) |
 | `NEXT_PUBLIC_APP_URL` | `https://parselos.com` |
 | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | `/sign-in` |
 | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` | `/sign-up` |

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { SignUpPanel } from "@/components/features/auth/SignUpPanel";
 import { Logo } from "@/components/ui/Logo";
+import { getSafeInternalRedirect } from "@/lib/auth/redirect-url";
 
 type SignUpPageProps = {
   searchParams: Promise<{ redirect_url?: string }>;
@@ -11,9 +12,10 @@ type SignUpPageProps = {
 
 export default async function SignUpPage({ searchParams }: SignUpPageProps) {
   const params = await searchParams;
+  const redirectUrl = getSafeInternalRedirect(params.redirect_url);
   const { userId } = await auth();
   if (userId) {
-    redirect(params.redirect_url || "/dashboard");
+    redirect(redirectUrl);
   }
 
   return (

@@ -7,12 +7,13 @@ import { useSearchParams } from "next/navigation";
 import { useParselTheme } from "@/components/providers/ThemeProvider";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { getClerkAppearance } from "@/lib/clerk-appearance";
+import { getSafeInternalRedirect } from "@/lib/auth/redirect-url";
 
 export function SignUpPanel() {
   const { resolvedTheme } = useParselTheme();
   const appearance = getClerkAppearance(resolvedTheme);
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
+  const redirectUrl = getSafeInternalRedirect(searchParams.get("redirect_url"));
   const loginHref = redirectUrl
     ? `/login?redirect_url=${encodeURIComponent(redirectUrl)}`
     : "/login";
