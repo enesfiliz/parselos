@@ -22,6 +22,8 @@ const ACTIONS: VoiceApplyAction[] = [
   "later",
   "dismiss",
   "archive",
+  "unarchive",
+  "append_info",
 ];
 
 function isApplyAction(value: unknown): value is VoiceApplyAction {
@@ -37,6 +39,12 @@ function parsePayload(raw: unknown): CrmVoicePayload | undefined {
     lokasyon: String(record.lokasyon ?? ""),
     mulk_tipi: String(record.mulk_tipi ?? ""),
     notlar: String(record.notlar ?? ""),
+    telefon: record.telefon != null ? String(record.telefon) : undefined,
+    eposta: record.eposta != null ? String(record.eposta) : undefined,
+    niyet: record.niyet != null ? String(record.niyet) : undefined,
+    aciliyet: record.aciliyet != null ? String(record.aciliyet) : undefined,
+    takip_tarihi:
+      record.takip_tarihi != null ? String(record.takip_tarihi) : undefined,
   };
 }
 
@@ -86,6 +94,7 @@ export async function POST(
       action?: unknown;
       clientId?: unknown;
       payload?: unknown;
+      appendTranscript?: unknown;
     };
 
     if (!isApplyAction(body.action)) {
@@ -98,6 +107,10 @@ export async function POST(
       action: body.action,
       clientId: typeof body.clientId === "string" ? body.clientId : undefined,
       payload: parsePayload(body.payload),
+      appendTranscript:
+        typeof body.appendTranscript === "string"
+          ? body.appendTranscript
+          : undefined,
     });
 
     if (!log) {

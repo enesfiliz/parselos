@@ -81,6 +81,12 @@ function toCrmPayload(raw: Record<string, unknown>): CrmVoicePayload {
     lokasyon: String(source.lokasyon ?? ""),
     mulk_tipi: String(source.mulk_tipi ?? ""),
     notlar: String(source.notlar ?? ""),
+    telefon: source.telefon != null ? String(source.telefon) : undefined,
+    eposta: source.eposta != null ? String(source.eposta) : undefined,
+    niyet: source.niyet != null ? String(source.niyet) : undefined,
+    aciliyet: source.aciliyet != null ? String(source.aciliyet) : undefined,
+    takip_tarihi:
+      source.takip_tarihi != null ? String(source.takip_tarihi) : undefined,
   };
 }
 
@@ -96,9 +102,15 @@ function toVoiceLog(raw: unknown): VoiceCrmLog | undefined {
   };
 }
 
-async function sendToVoiceApi(file: File): Promise<VoiceRecordResult> {
+async function sendToVoiceApi(
+  file: File,
+  appendToLogId?: string | null,
+): Promise<VoiceRecordResult> {
   const formData = new FormData();
   formData.append("audio", file);
+  if (appendToLogId) {
+    formData.append("appendToLogId", appendToLogId);
+  }
 
   const response = await fetch("/api/voice", {
     method: "POST",
@@ -138,12 +150,14 @@ type VoiceRecorderProps = {
   onRecordSuccess?: (result: VoiceRecordResult) => void;
   onStateChange?: (state: RecorderState) => void;
   disabled?: boolean;
+  appendToLogId?: string | null;
 };
 
 export function VoiceRecorder({
   onRecordSuccess,
   onStateChange,
   disabled = false,
+  appendToLogId = null,
 }: VoiceRecorderProps) {
   const [state, setState] = useState<RecorderState>("idle");
   const [duration, setDuration] = useState(0);
@@ -191,7 +205,7 @@ export function VoiceRecorder({
     isUploadingRef.current = true;
 
     try {
-      const result = await sendToVoiceApi(file);
+      const result = await sendToVoiceApi(file, appendToLogId);
       onRecordSuccess?.(result);
       setError(null);
     } catch (err) {

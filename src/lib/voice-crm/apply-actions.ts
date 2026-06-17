@@ -19,6 +19,10 @@ import {
 } from "./voice-applied-action-ledger";
 import { reconcileVoiceLogFromLedger, syncVoiceLogAfterClientCreate } from "./reconcile-voice-log";
 import {
+  mergeVoicePayload,
+  mergeVoiceTranscript,
+} from "./merge-voice-payload";
+import {
   VOICE_IN_PROGRESS_USER_MESSAGE,
   VOICE_RETRY_USER_MESSAGE,
 } from "./voice-processing-policy";
@@ -30,7 +34,9 @@ export type VoiceApplyAction =
   | "note_only"
   | "later"
   | "dismiss"
-  | "archive";
+  | "archive"
+  | "unarchive"
+  | "append_info";
 
 export type VoiceApplyInput = {
   logId: string;
@@ -38,6 +44,7 @@ export type VoiceApplyInput = {
   action: VoiceApplyAction;
   clientId?: string;
   payload?: CrmVoicePayload;
+  appendTranscript?: string;
 };
 
 const ALREADY_TRANSFERRED = "Bu kayıt zaten müşteriye aktarıldı.";
@@ -108,6 +115,8 @@ async function runCreateClientFlow(
     voiceLogId: input.logId,
     clientInput: {
       adSoyad,
+      telefon: payload.telefon?.trim() || null,
+      email: payload.eposta?.trim() || null,
       butce: payload.butce || null,
       mulkTipi: payload.mulk_tipi || payload.lokasyon || null,
       notlar: mergeNotes(null, payload.notlar),
@@ -165,6 +174,47 @@ export async function applyVoiceLogAction(input: VoiceApplyInput) {
         status: "archived",
         appliedAction: "archive",
       });
+
+    case "unarchive":
+      return updateVoiceLogForAgent(input.logId, input.agentId, {
+        status: "pending",
+        appliedAction: null,
+      });
+
+    case "append_info": {
+      const incoming = input.payload ?? log.parsed_json_data;
+      const mergedPayload = mergeVoicePayload(log.parsed_json_data, incoming);
+      const mergedTranscript = input.appendTranscript
+        ? mergeVoiceTranscript(log.transcript, input.appendTranscript)
+        : log.transcript ?? undefined;
+
+      const updated = await updateVoiceLogForAgent(input.logId, input.agentId, {
+        parsed_json_data: mergedPayload as unknown as Record<string, unknown>,
+        transcript: mergedTranscript,
+        status:
+          log.status === "archived" || log.status === "dismissed"
+            ? "pending"
+            : log.status ?? "pending",
+      });
+
+      if (updated?.client_id && incoming.notlar?.trim()) {
+        const existing = await prisma.client.findUnique({
+          where: { id: updated.client_id },
+        });
+        if (existing) {
+          await prisma.client.update({
+            where: { id: updated.client_id },
+            data: {
+              notlar: mergeNotes(existing.notlar, incoming.notlar),
+              butce: mergedPayload.butce?.trim() || existing.butce,
+              mulkTipi: mergedPayload.mulk_tipi?.trim() || existing.mulkTipi,
+            },
+          });
+        }
+      }
+
+      return updated;
+    }
 
     case "note_only":
       return updateVoiceLogForAgent(input.logId, input.agentId, {

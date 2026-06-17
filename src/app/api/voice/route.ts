@@ -16,8 +16,14 @@ import { getVoiceCrmConfigStatus } from "@/lib/voice-crm/config";
 import {
   buildVoiceIdempotencyKey,
   findVoiceLogByIdempotencyKey,
+  getVoiceLogForAgent,
   insertPendingVoiceLog,
+  updateVoiceLogForAgent,
 } from "@/lib/voice-crm/voice-log-store";
+import {
+  mergeVoicePayload,
+  mergeVoiceTranscript,
+} from "@/lib/voice-crm/merge-voice-payload";
 import {
   mapGroqProviderError,
   mapVoiceUserError,
@@ -33,7 +39,7 @@ const MIN_AUDIO_BYTES = 800;
 export const runtime = "nodejs";
 
 const SYSTEM_PROMPT =
-  'Sen bir emlak CRM asistanısın. Kullanıcının sesli notunu alıp SADECE ve SADECE şu JSON objesine dönüştür: { "musteri_adi": "", "butce": "", "lokasyon": "", "mulk_tipi": "", "notlar": "" }. Başka hiçbir açıklama, markdown veya ekstra metin kullanma.';
+  'Sen bir emlak CRM asistanısın. Kullanıcının sesli notunu alıp SADECE ve SADECE şu JSON objesine dönüştür: { "musteri_adi": "", "telefon": "", "eposta": "", "butce": "", "lokasyon": "", "mulk_tipi": "", "niyet": "", "aciliyet": "", "takip_tarihi": "", "notlar": "" }. niyet: satılık/kiralık/arayış/satış niyeti. aciliyet: düşük/orta/yüksek. Başka hiçbir açıklama, markdown veya ekstra metin kullanma.';
 
 function jsonError(code: VoiceErrorCode, status: number) {
   const { body, status: httpStatus } = voiceErrorBody(code, status);
@@ -63,6 +69,12 @@ function parseCrmPayload(content: string): CrmVoicePayload {
     lokasyon: String(record.lokasyon ?? ""),
     mulk_tipi: String(record.mulk_tipi ?? ""),
     notlar: String(record.notlar ?? ""),
+    telefon: record.telefon != null ? String(record.telefon) : undefined,
+    eposta: record.eposta != null ? String(record.eposta) : undefined,
+    niyet: record.niyet != null ? String(record.niyet) : undefined,
+    aciliyet: record.aciliyet != null ? String(record.aciliyet) : undefined,
+    takip_tarihi:
+      record.takip_tarihi != null ? String(record.takip_tarihi) : undefined,
   };
 }
 
@@ -102,6 +114,7 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const audio = formData.get("audio");
+    const appendToLogId = formData.get("appendToLogId");
 
     if (!(audio instanceof File)) {
       return jsonError("validation", 400);
@@ -186,6 +199,43 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error("[POST /api/voice] CRM JSON parse", error);
       return jsonError("provider", 502);
+    }
+
+    if (typeof appendToLogId === "string" && appendToLogId.trim()) {
+      const existing = await getVoiceLogForAgent(appendToLogId.trim(), agent.id);
+      if (!existing) {
+        return NextResponse.json(
+          { error: "Sesli not bulunamadı." },
+          { status: 404 },
+        );
+      }
+
+      const mergedPayload = mergeVoicePayload(existing.parsed_json_data, crmData);
+      const mergedTranscript = mergeVoiceTranscript(existing.transcript, transcript);
+      const log = await updateVoiceLogForAgent(appendToLogId.trim(), agent.id, {
+        parsed_json_data: mergedPayload as unknown as Record<string, unknown>,
+        transcript: mergedTranscript,
+        status:
+          existing.status === "archived" || existing.status === "dismissed"
+            ? "pending"
+            : existing.status ?? "pending",
+      });
+
+      if (!log) {
+        return jsonError("internal", 500);
+      }
+
+      const candidates = await findVoiceClientCandidates(agent.id, mergedPayload);
+      return NextResponse.json({
+        transcript: mergedTranscript,
+        data: mergedPayload,
+        log,
+        candidates: candidates.map((candidate) => ({
+          ...candidate,
+          confidenceLabel: confidenceLabel(candidate.confidence),
+        })),
+        appended: true,
+      });
     }
 
     const log = await savePendingVoiceLog(agent.id, transcript, crmData, audio.size);

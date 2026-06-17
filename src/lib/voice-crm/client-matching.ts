@@ -34,10 +34,11 @@ export async function findVoiceClientCandidates(
   agentId: string,
   payload: CrmVoicePayload,
 ): Promise<VoiceClientCandidate[]> {
-  const phone = normalizePhone(
-    payload.notlar.match(/(\+?90|0)?\s*5\d{2}[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}/)?.[0] ??
-      null,
-  );
+  const phone = normalizePhone(payload.telefon ?? null) ??
+    normalizePhone(
+      payload.notlar.match(/(\+?90|0)?\s*5\d{2}[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}/)?.[0] ??
+        null,
+    );
   const name = normalizeName(payload.musteri_adi);
   const where = clientsForAgentWhere(agentId);
 

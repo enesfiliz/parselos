@@ -284,5 +284,25 @@ export async function deleteVoiceLogForAgent(
   return !error;
 }
 
+export async function listVoiceLogsForClient(
+  agentId: string,
+  clientId: string,
+): Promise<VoiceCrmLog[]> {
+  const supabase = createSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("voice_crm_logs")
+    .select("*")
+    .eq("client_id", clientId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error || !data) return [];
+
+  return data
+    .map((row) => row as VoiceLogRow)
+    .filter((row) => isVoiceLogOwnedByAgent(row.parsed_json_data, agentId))
+    .map(normalizeVoiceCrmLog);
+}
+
 // Re-export transcript idempotency helper used by voice route
 export { buildVoiceIdempotencyKey } from "./voice-log-idempotency";

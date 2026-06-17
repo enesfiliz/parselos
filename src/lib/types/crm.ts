@@ -4,6 +4,11 @@ export interface CrmVoicePayload {
   lokasyon: string;
   mulk_tipi: string;
   notlar: string;
+  telefon?: string;
+  eposta?: string;
+  niyet?: string;
+  aciliyet?: string;
+  takip_tarihi?: string;
 }
 
 export interface VoiceCrmLog {

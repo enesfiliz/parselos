@@ -26,13 +26,20 @@ type VoiceCrmReviewPanelProps = {
   onPayloadChange?: (payload: CrmVoicePayload) => void;
 };
 
-const FIELD_LABELS: Record<keyof CrmVoicePayload, string> = {
+const FIELD_LABELS: Partial<Record<keyof CrmVoicePayload, string>> = {
   musteri_adi: "Müşteri",
+  telefon: "Telefon",
+  eposta: "E-posta",
   butce: "Bütçe",
   lokasyon: "Bölge",
   mulk_tipi: "Mülk tipi",
+  niyet: "Niyet",
+  aciliyet: "Aciliyet",
+  takip_tarihi: "Takip tarihi",
   notlar: "Not",
 };
+
+const DISPLAY_FIELD_KEYS = Object.keys(FIELD_LABELS) as Array<keyof CrmVoicePayload>;
 
 export function VoiceCrmReviewPanel({
   log,
@@ -77,7 +84,8 @@ export function VoiceCrmReviewPanel({
       | "note_only"
       | "later"
       | "dismiss"
-      | "archive",
+      | "archive"
+      | "unarchive",
   ) {
     if (submitting) return;
 
@@ -119,7 +127,9 @@ export function VoiceCrmReviewPanel({
               ? "Not kaydedildi"
               : action === "archive"
                 ? "Kayıt arşivlendi"
-                : "İşlem kaydedildi";
+                : action === "unarchive"
+                  ? "Kayıt arşivden çıkarıldı"
+                  : "İşlem kaydedildi";
 
       toast.success(successMessage);
     } catch (error) {
@@ -155,16 +165,21 @@ export function VoiceCrmReviewPanel({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {(Object.keys(FIELD_LABELS) as Array<keyof CrmVoicePayload>).map((key) => (
+        {DISPLAY_FIELD_KEYS.map((key) => (
           <div
             key={key}
-            className="rounded-xl border border-border/60 bg-parsel-elevated px-3 py-3"
+            className={cn(
+              "rounded-xl border border-border/60 bg-parsel-elevated px-3 py-3",
+              key === "notlar" && "sm:col-span-2",
+            )}
           >
-            <Label className="text-[10px] text-muted-foreground">{FIELD_LABELS[key]}</Label>
+            <Label className="text-[10px] text-muted-foreground">
+              {FIELD_LABELS[key]}
+            </Label>
             {editing && !isProcessed ? (
               <Input
                 className="mt-2 h-9"
-                value={displayPayload[key]}
+                value={displayPayload[key] ?? ""}
                 onChange={(event) => updateField(key, event.target.value)}
               />
             ) : (
@@ -240,11 +255,13 @@ export function VoiceCrmReviewPanel({
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      <div className="sticky bottom-0 z-10 -mx-1 border-t border-border/60 bg-parsel-panel/95 px-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-sm sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         {!isProcessed ? (
           <>
             <Button
               type="button"
+              className="min-h-11"
               disabled={Boolean(submitting) || isActiveProcessing}
               onClick={() => void apply("create_client")}
             >
@@ -256,6 +273,7 @@ export function VoiceCrmReviewPanel({
             <Button
               type="button"
               variant="secondary"
+              className="min-h-11"
               disabled={Boolean(submitting) || !selectedClientId}
               onClick={() => void apply("match_client")}
             >
@@ -264,6 +282,7 @@ export function VoiceCrmReviewPanel({
             <Button
               type="button"
               variant="outline"
+              className="min-h-11"
               disabled={Boolean(submitting) || !selectedClientId}
               onClick={() => void apply("update_client")}
             >
@@ -272,6 +291,7 @@ export function VoiceCrmReviewPanel({
             <Button
               type="button"
               variant="ghost"
+              className="min-h-11"
               disabled={Boolean(submitting)}
               onClick={() => void apply("note_only")}
             >
@@ -280,6 +300,7 @@ export function VoiceCrmReviewPanel({
             <Button
               type="button"
               variant="ghost"
+              className="min-h-11"
               disabled={Boolean(submitting)}
               onClick={() => void apply("later")}
             >
@@ -287,22 +308,37 @@ export function VoiceCrmReviewPanel({
             </Button>
           </>
         ) : null}
-        <Button
-          type="button"
-          variant="outline"
-          disabled={Boolean(submitting) || log.status === "archived"}
-          onClick={() => void apply("archive")}
-        >
-          Arşivle
-        </Button>
+        {log.status === "archived" ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            disabled={Boolean(submitting)}
+            onClick={() => void apply("unarchive")}
+          >
+            Arşivden çıkar
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            disabled={Boolean(submitting)}
+            onClick={() => void apply("archive")}
+          >
+            Arşivle
+          </Button>
+        )}
         <Button
           type="button"
           variant="ghost"
+          className="min-h-11"
           disabled={Boolean(submitting)}
           onClick={() => void apply("dismiss")}
         >
-          Sil
+          İşlenmedi olarak işaretle
         </Button>
+        </div>
       </div>
     </div>
   );

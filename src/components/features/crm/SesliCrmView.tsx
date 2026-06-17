@@ -146,10 +146,12 @@ function VoiceCrmLogCard({
   log,
   onReview,
   onDelete,
+  onAppendInfo,
 }: {
   log: VoiceCrmLog;
   onReview?: (log: VoiceCrmLog) => void;
   onDelete?: (log: VoiceCrmLog) => void;
+  onAppendInfo?: (log: VoiceCrmLog) => void;
 }) {
   const data = log.parsed_json_data;
   const title = data.musteri_adi?.trim() || "İsimsiz müşteri";
@@ -211,6 +213,11 @@ function VoiceCrmLogCard({
         {isPending && onReview ? (
           <Button type="button" size="sm" variant="secondary" onClick={() => onReview(log)}>
             CRM&apos;e işle
+          </Button>
+        ) : null}
+        {onAppendInfo ? (
+          <Button type="button" size="sm" variant="outline" onClick={() => onAppendInfo(log)}>
+            Bilgi ekle
           </Button>
         ) : null}
         {onDelete ? (
@@ -295,6 +302,7 @@ export function SesliCrmView({
   const [transcript, setTranscript] = useState<string | null>(null);
   const [preview, setPreview] = useState<CrmVoicePayload | null>(null);
   const [reviewLog, setReviewLog] = useState<VoiceCrmLog | null>(null);
+  const [appendTargetLog, setAppendTargetLog] = useState<VoiceCrmLog | null>(null);
   const [candidates, setCandidates] = useState<VoiceClientCandidateResponse[]>([]);
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
@@ -308,7 +316,9 @@ export function SesliCrmView({
     if (state === "recording") {
       setTranscript(null);
       setPreview(null);
-      setReviewLog(null);
+      if (!appendTargetLog) {
+        setReviewLog(null);
+      }
       setCandidates([]);
       setSavedAt(null);
     }
@@ -328,9 +338,25 @@ export function SesliCrmView({
 
     setReviewLog(result.log);
     setSavedAt(result.log.created_at);
+    setAppendTargetLog(null);
     setLogs((prev) => {
-      if (prev.some((item) => item.id === result.log!.id)) return prev;
+      if (prev.some((item) => item.id === result.log!.id)) {
+        return prev.map((item) => (item.id === result.log!.id ? result.log! : item));
+      }
       return [result.log!, ...prev];
+    });
+  }
+
+  function handleAppendInfo(log: VoiceCrmLog) {
+    setAppendTargetLog(log);
+    setReviewLog(log);
+    setPreview(log.parsed_json_data);
+    setTranscript(log.transcript ?? "");
+    setSavedAt(log.created_at);
+    setCandidates([]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    toast.message("Mevcut kayda bilgi ekleniyor", {
+      description: "Yeni ses kaydınız bu notun devamı olarak işlenecek.",
     });
   }
 
@@ -445,9 +471,23 @@ export function SesliCrmView({
             </div>
             <VoiceRecorder
               disabled={!operational}
+              appendToLogId={appendTargetLog?.id ?? null}
               onStateChange={handleStateChange}
               onRecordSuccess={handleRecordSuccess}
             />
+            {appendTargetLog ? (
+              <p className="mt-3 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-foreground">
+                <span className="font-medium">Bilgi ekleme modu:</span>{" "}
+                {appendTargetLog.parsed_json_data.musteri_adi?.trim() || "Sesli not"}
+                <button
+                  type="button"
+                  className="ml-2 text-primary underline-offset-2 hover:underline"
+                  onClick={() => setAppendTargetLog(null)}
+                >
+                  İptal
+                </button>
+              </p>
+            ) : null}
           </section>
 
           <div className="space-y-6">
@@ -517,6 +557,25 @@ export function SesliCrmView({
               </div>
 
               {preview && reviewLog && transcript ? (
+                <div className="fixed inset-0 z-40 flex flex-col bg-parsel-canvas sm:static sm:z-auto sm:block">
+                  <div className="flex items-center justify-between border-b border-border/60 px-4 py-3 sm:hidden">
+                    <p className="text-sm font-semibold text-foreground">Kayıt inceleme</p>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setReviewLog(null);
+                        setPreview(null);
+                        setTranscript(null);
+                        setCandidates([]);
+                        setAppendTargetLog(null);
+                      }}
+                    >
+                      Kapat
+                    </Button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-0">
                 <VoiceCrmReviewPanel
                   log={reviewLog}
                   transcript={transcript}
@@ -533,15 +592,19 @@ export function SesliCrmView({
                     setPreview(null);
                     setTranscript(null);
                     setCandidates([]);
+                    setAppendTargetLog(null);
                   }}
+                  onPayloadChange={setPreview}
                 />
+                  </div>
+                </div>
               ) : preview ? (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {CRM_PREVIEW_FIELDS.map(({ key, label }) => (
                     <PreviewField
                       key={key}
                       label={label}
-                      value={preview[key]}
+                      value={preview[key] ?? ""}
                       highlight={key === "butce"}
                     />
                   ))}
@@ -589,6 +652,7 @@ export function SesliCrmView({
                   log={log}
                   onReview={handleReviewLog}
                   onDelete={handleDeleteLog}
+                  onAppendInfo={handleAppendInfo}
                 />
               ))}
             </ul>

@@ -1,11 +1,14 @@
 "use client";
 
-import { Cake, Gift, Mail, Pencil, Phone, Trash2 } from "lucide-react";
+import { Cake, Gift, Mail, Mic, Pencil, Phone, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getBirthdayInfo, getInitials } from "@/lib/client-birthday";
 import type { Client } from "@/lib/types/client";
+import type { VoiceCrmLog } from "@/lib/types/crm";
 import { panelCardHover } from "@/lib/glass-panel";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +39,22 @@ export function ClientProfileCard({
 }: ClientProfileCardProps) {
   const birthday = client.birthDate ? getBirthdayInfo(client.birthDate) : null;
   const showBirthdayGlow = birthday?.isWithinWeek ?? false;
+  const [voiceLogs, setVoiceLogs] = useState<VoiceCrmLog[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch(`/api/clients/${client.id}/voice-logs`)
+      .then((res) => res.json())
+      .then((json: { data?: VoiceCrmLog[] }) => {
+        if (!cancelled) setVoiceLogs(json.data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setVoiceLogs([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [client.id]);
 
   return (
     <article
@@ -143,8 +162,37 @@ export function ClientProfileCard({
           {client.notlar}
         </p>
       ) : (
-        <p className="mt-4 text-sm italic text-muted-foreground">Portföy notu eklenmemiş</p>
+        <p className="mt-4 text-sm italic text-muted-foreground">Not eklenmemiş</p>
       )}
+
+      {client.kaynak ? (
+        <p className="mt-3 text-xs text-muted-foreground">
+          Kaynak: <span className="font-medium text-foreground">{client.kaynak}</span>
+        </p>
+      ) : null}
+
+      {voiceLogs.length > 0 ? (
+        <div className="mt-4 space-y-2 rounded-xl border border-border/60 bg-parsel-elevated/60 p-3">
+          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <Mic className="size-3" />
+            Sesli notlar ({voiceLogs.length})
+          </p>
+          <ul className="space-y-1.5">
+            {voiceLogs.slice(0, 3).map((log) => (
+              <li key={log.id}>
+                <Link
+                  href="/sesli-crm"
+                  className="block truncate text-xs text-primary hover:underline"
+                >
+                  {log.parsed_json_data.notlar?.trim() ||
+                    log.parsed_json_data.musteri_adi?.trim() ||
+                    "Sesli kayıt"}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4">
         <Badge
