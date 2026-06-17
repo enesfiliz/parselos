@@ -223,14 +223,12 @@ export function IntelligenceRadarMap({
 
   if (!mapboxToken) {
     return (
-      <div className="flex min-h-[80vh] flex-col items-center justify-center gap-3 rounded-3xl border border-amber-500/20 bg-background px-6 text-center">
+      <div className="flex min-h-[80vh] flex-col items-center justify-center gap-3 rounded-3xl border border-border/60 bg-background px-6 text-center">
         <p className="text-sm font-medium text-foreground">
-          Mapbox token bulunamadı
+          Harita görünümü yakında ücretsiz harita altyapısına geçirilecek.
         </p>
         <p className="max-w-md text-xs text-muted-foreground">
-          `.env.local` dosyasına{" "}
-          <code className="text-parsel-gold">NEXT_PUBLIC_MAPBOX_TOKEN</code>{" "}
-          ekleyin ve sunucuyu yeniden başlatın.
+          Katman özeti, filtreler ve bölge detayları harita olmadan da kullanılabilir.
         </p>
       </div>
     );
