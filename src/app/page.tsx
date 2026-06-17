@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import { LandingPage } from "@/components/marketing/LandingPage";
 
 export const metadata: Metadata = {
-  title: "ParselOS — Gayrimenkulde Yapay Zeka Devrimi",
+  title: "ParselOS — Gayrimenkul Operasyon Platformu",
   description:
-    "SPK standartlarında ekspertiz, yapay zeka destekli müşteri yönetimi ve TKGM entegrasyonu.",
+    "Portföy, müşteri, imar radarı, sesli CRM ve ParselAI asistanını broker ofis düzeninde tek merkezden yönetin.",
 };
 
 export default function HomePage() {
