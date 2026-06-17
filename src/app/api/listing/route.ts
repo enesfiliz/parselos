@@ -75,7 +75,7 @@ export async function POST(request: Request) {
 
     if (!listing) {
       return NextResponse.json(
-        { error: "Gemini ilan metni üretemedi." },
+        { error: "İlan metni oluşturulamadı." },
         { status: 502 },
       );
     }
@@ -90,11 +90,12 @@ export async function POST(request: Request) {
         : "İlan metni oluşturulurken beklenmeyen bir hata oluştu.";
 
     const status = message.includes("GEMINI_API_KEY")
-      ? 500
-      : message.includes("Gemini")
-        ? 502
-        : 500;
+      ? 503
+      : 502;
 
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json(
+      { error: "İlan metni oluşturulamadı." },
+      { status },
+    );
   }
 }

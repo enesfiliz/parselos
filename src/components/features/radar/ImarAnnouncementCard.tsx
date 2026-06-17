@@ -13,7 +13,7 @@ import {
   IMAR_TRUST_LABELS,
   IMAR_TRUST_STYLES,
   formatImarRelativeTime,
-  isValidSourceUrl,
+  isSourceLinkClickable,
   parseRegionParts,
 } from "@/components/features/radar/imar-radar-ui-helpers";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +42,7 @@ export function ImarAnnouncementCard({
   onCreateTask,
 }: ImarAnnouncementCardProps) {
   const { district, city } = parseRegionParts(item.region);
-  const sourceHref = isValidSourceUrl(item.sourceUrl) ? item.sourceUrl : null;
+  const sourceHref = isSourceLinkClickable(item) ? item.sourceUrl : null;
 
   return (
     <Card className="parsel-surface border-border/60 shadow-parsel-sm transition-colors hover:border-primary/15">
@@ -113,7 +113,9 @@ export function ImarAnnouncementCard({
             </a>
           ) : (
             <span className="inline-flex h-9 items-center rounded-lg border border-dashed border-border/60 px-3 text-xs text-muted-foreground">
-              Kaynak eklenmedi
+              {item.trustStatus === "source_unavailable"
+                ? "Kaynak erişilemiyor"
+                : "Kaynak eklenmedi"}
             </span>
           )}
 

@@ -6,7 +6,6 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MOCK_CLIENTS } from "@/lib/data/mock-clients";
 import type { Client } from "@/lib/types/client";
 import type { DealCardData } from "@/lib/types/deal";
 import { cn } from "@/lib/utils";
@@ -63,7 +62,7 @@ export function ClientCombobox({
 }: ClientComboboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [clients, setClients] = useState<Client[]>(MOCK_CLIENTS);
+  const [clients, setClients] = useState<Client[]>([]);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
@@ -80,7 +79,7 @@ export function ClientCombobox({
           .filter((c): c is Client => c !== null);
         if (fetched.length > 0) setClients(fetched);
       })
-      .catch(() => setClients(MOCK_CLIENTS));
+      .catch(() => setClients([]));
   }, [useMock]);
 
   useEffect(() => {

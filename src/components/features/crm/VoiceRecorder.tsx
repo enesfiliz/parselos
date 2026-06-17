@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertCircle, Mic, Square } from "lucide-react";
 
-import type { CrmVoicePayload, VoiceCrmLog } from "@/lib/types/crm";
+import type {
+  CrmVoicePayload,
+  VoiceClientCandidateResponse,
+  VoiceCrmLog,
+} from "@/lib/types/crm";
 import { VOICE_ERROR_BANNER } from "@/components/features/crm/voice-crm-ui-helpers";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +17,7 @@ export type VoiceRecordResult = {
   transcript: string;
   data: CrmVoicePayload;
   log?: VoiceCrmLog;
+  candidates?: VoiceClientCandidateResponse[];
 };
 
 const MIME_CANDIDATES = [
@@ -123,6 +128,9 @@ async function sendToVoiceApi(file: File): Promise<VoiceRecordResult> {
     transcript: String(record.transcript ?? ""),
     data: toCrmPayload(record),
     log: toVoiceLog(record.log),
+    candidates: Array.isArray(record.candidates)
+      ? (record.candidates as VoiceClientCandidateResponse[])
+      : undefined,
   };
 }
 

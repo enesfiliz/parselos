@@ -1,5 +1,6 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import {
   Activity,
   AlertTriangle,
@@ -86,13 +87,16 @@ const TRUST_FILTER_OPTIONS = [
 
 export function ImarRadariView() {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
+  const storageUserId = user?.id ?? null;
+
   const [region, setRegion] = useState(DEFAULT_IMAR_REGION);
   const [keywords, setKeywords] = useState<string[]>([...DEFAULT_IMAR_KEYWORDS]);
   const [configReady, setConfigReady] = useState(false);
   const [data, setData] = useState<ImarRadarApiResponse | null>(null);
-  const [manualRecords, setManualRecords] = useState(loadManualImarRecords);
-  const [trackingMeta, setTrackingMeta] = useState(loadTrackingMeta);
-  const [trackedRegions, setTrackedRegions] = useState(loadTrackedRegions);
+  const [manualRecords, setManualRecords] = useState<ReturnType<typeof loadManualImarRecords>>([]);
+  const [trackingMeta, setTrackingMeta] = useState<ReturnType<typeof loadTrackingMeta>>({});
+  const [trackedRegions, setTrackedRegions] = useState<string[]>([]);
   const [isTrackingEnabled, setIsTrackingEnabled] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -107,17 +111,19 @@ export function ImarRadariView() {
   });
 
   useEffect(() => {
-    const saved = loadImarRadarConfig();
+    if (!isLoaded || !storageUserId) return;
+
+    const saved = loadImarRadarConfig(storageUserId);
     queueMicrotask(() => {
       setRegion(saved.region);
       setKeywords(saved.keywords);
-      setIsTrackingEnabled(loadTrackingEnabled());
-      setManualRecords(loadManualImarRecords());
-      setTrackingMeta(loadTrackingMeta());
-      setTrackedRegions(loadTrackedRegions());
+      setIsTrackingEnabled(loadTrackingEnabled(storageUserId));
+      setManualRecords(loadManualImarRecords(storageUserId));
+      setTrackingMeta(loadTrackingMeta(storageUserId));
+      setTrackedRegions(loadTrackedRegions(storageUserId));
       setConfigReady(true);
     });
-  }, []);
+  }, [isLoaded, storageUserId]);
 
   const fetchRadar = useCallback(async () => {
     setIsLoading(true);
@@ -144,9 +150,11 @@ export function ImarRadariView() {
       }
 
       setData(payload as ImarRadarApiResponse);
-      saveImarRadarConfig({ region, keywords });
-      registerTrackedRegion(region);
-      setTrackedRegions(loadTrackedRegions());
+      if (storageUserId) {
+        saveImarRadarConfig({ region, keywords }, storageUserId);
+        registerTrackedRegion(storageUserId, region);
+        setTrackedRegions(loadTrackedRegions(storageUserId));
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Radar verisi alınamadı.";
@@ -154,7 +162,7 @@ export function ImarRadariView() {
     } finally {
       setIsLoading(false);
     }
-  }, [region, keywords]);
+  }, [region, keywords, storageUserId]);
 
   useEffect(() => {
     if (!configReady) return;
@@ -198,14 +206,16 @@ export function ImarRadariView() {
   }
 
   function refreshLocalState() {
-    setManualRecords(loadManualImarRecords());
-    setTrackingMeta(loadTrackingMeta());
-    setTrackedRegions(loadTrackedRegions());
+    if (!storageUserId) return;
+    setManualRecords(loadManualImarRecords(storageUserId));
+    setTrackingMeta(loadTrackingMeta(storageUserId));
+    setTrackedRegions(loadTrackedRegions(storageUserId));
   }
 
   function handleToggleTrack(item: ImarRadarItem) {
+    if (!storageUserId) return;
     const nextTracked = !item.isTracked;
-    saveTrackingMeta(item.id, {
+    saveTrackingMeta(storageUserId, item.id, {
       tracked: nextTracked,
       userVerified: trackingMeta[item.id]?.userVerified,
       note: trackingMeta[item.id]?.note,
@@ -220,7 +230,8 @@ export function ImarRadariView() {
   }
 
   function handleMarkVerified(item: ImarRadarItem) {
-    saveTrackingMeta(item.id, {
+    if (!storageUserId) return;
+    saveTrackingMeta(storageUserId, item.id, {
       tracked: true,
       userVerified: true,
       note: item.verificationNote,
@@ -241,11 +252,12 @@ export function ImarRadariView() {
   }
 
   async function handleManualSubmit(values: ManualImarRecordInput) {
+    if (!storageUserId) return;
     setIsSavingManual(true);
     try {
-      const record = saveManualImarRecord(values);
+      const record = saveManualImarRecord(storageUserId, values);
       if (values.tracking) {
-        saveTrackingMeta(record.id, {
+        saveTrackingMeta(storageUserId, record.id, {
           tracked: true,
           note: values.verificationNote,
         });
@@ -258,9 +270,10 @@ export function ImarRadariView() {
   }
 
   function handleTrackingToggle() {
+    if (!storageUserId) return;
     const next = !isTrackingEnabled;
     setIsTrackingEnabled(next);
-    saveTrackingEnabled(next);
+    saveTrackingEnabled(storageUserId, next);
   }
 
   const lastScannedAt = data?.analysis.lastScannedAt;

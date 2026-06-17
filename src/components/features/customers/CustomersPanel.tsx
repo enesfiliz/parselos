@@ -269,7 +269,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
       }
 
       const saved = payload.data;
-      if (!saved) throw new Error("Geçersiz API yanıtı.");
+      if (!saved) throw new Error("Kayıt kaydedilemedi. Lütfen tekrar deneyin.");
 
       const hints = resolveClientRegionAndType(saved.mulkTipi);
 

@@ -50,8 +50,7 @@ export const PLAN_CATALOG: Record<TenantPlanType, PlanCatalogEntry> = {
     priceLabel: "₺549",
     periodLabel: "/ ay · 1 kullanıcı · KDV dahil",
     annualNote: "Yıllık ödemede ₺459/ay",
-    highlighted: true,
-    badge: "En Popüler",
+    highlighted: false,
     features: [
       "1 danışman lisansı (sınırsız portföy)",
       "Tapu AI, ilan asistanı, FSBO",

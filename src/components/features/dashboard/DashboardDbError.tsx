@@ -20,37 +20,15 @@ export function DashboardDbError() {
                 Veritabanı bağlantısı kurulamadı
               </h1>
               <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                Dashboard verileri yüklenemedi. Supabase veritabanı kimlik
-                bilgileri geçersiz veya bağlantı dizesi hatalı olabilir.
+                Dashboard verileri yüklenemedi. Veritabanı bağlantısı geçici olarak
+                kullanılamıyor olabilir.
               </p>
             </div>
 
             <ol className="list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
-              <li>
-                Supabase → Project Settings → Database →{" "}
-                <strong>Reset database password</strong>
-              </li>
-              <li>
-                <strong>Session pooler</strong> URI&apos;yi kopyalayın (port{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">5432</code>)
-              </li>
-              <li>
-                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">.env.local</code>{" "}
-                içindeki{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">DATABASE_URL</code>{" "}
-                değerini güncelleyin
-              </li>
-              <li>
-                Şifrede{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">@ # / ?</code>{" "}
-                gibi karakterler varsa URL encode edin (
-                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">@</code> →{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">%40</code>)
-              </li>
-              <li>
-                Dev sunucusunu yeniden başlatın:{" "}
-                <code className="rounded bg-parsel-border/50 px-1 text-muted-foreground">npm run dev</code>
-              </li>
+              <li>Oturumu kapatıp tekrar giriş yapın</li>
+              <li>Sayfayı yenileyin</li>
+              <li>Sorun devam ederse destek ekibiyle iletişime geçin</li>
             </ol>
 
             {hints.length > 0 ? (

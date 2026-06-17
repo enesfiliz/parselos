@@ -7,15 +7,15 @@ export type VoiceErrorCode =
   | "internal";
 
 export const VOICE_ERROR_MESSAGES = {
-  config_groq: "Sesli CRM sağlayıcısı yapılandırılmamış.",
-  config_storage: "Sesli CRM kayıt altyapısı yapılandırılmamış.",
+  config_groq: "Yapay zekâ hizmeti şu anda kullanılamıyor.",
+  config_storage: "Kayıt geçmişi şu anda görüntülenemiyor.",
   validation: "Gönderilen ses kaydı geçersiz veya çok kısa.",
   provider: "Ses tanıma servisi şu an yanıt vermiyor. Biraz sonra tekrar deneyin.",
   auth: "Oturum doğrulanamadı.",
   internal: "Sesli CRM işlemi tamamlanamadı.",
   load: "Kayıtlar yüklenemedi.",
   empty_transcript: "Ses kaydından metin çıkarılamadı. Daha net konuşmayı deneyin.",
-  table_missing: "Sesli CRM kayıt tablosu henüz kurulmamış.",
+  table_missing: "Kayıt geçmişi şu anda görüntülenemiyor.",
 } as const;
 
 export function voiceErrorBody(

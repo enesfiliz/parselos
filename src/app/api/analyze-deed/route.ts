@@ -207,7 +207,7 @@ export async function POST(request: Request) {
 
     if (!text) {
       return NextResponse.json(
-        { error: "Gemini analiz yanıtı üretemedi." },
+        { error: "Belge analizi tamamlanamadı." },
         { status: 502 },
       );
     }

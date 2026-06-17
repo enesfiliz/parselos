@@ -220,7 +220,7 @@ export async function POST(request: Request) {
 
     if (!rawContent) {
       return NextResponse.json(
-        { error: "Gemini değerleme raporu üretemedi." },
+        { error: "Değerleme raporu oluşturulamadı." },
         { status: 502 },
       );
     }
@@ -256,12 +256,9 @@ export async function POST(request: Request) {
         ? error.message
         : "Değerleme raporu oluşturulurken beklenmeyen bir hata oluştu.";
 
-    const status = message.includes("GEMINI_API_KEY")
-      ? 500
-      : message.includes("JSON") || message.includes("Gemini")
-        ? 502
-        : 500;
-
-    return NextResponse.json({ error: message }, { status });
+    return NextResponse.json(
+      { error: "Değerleme raporu oluşturulamadı." },
+      { status: message.includes("GEMINI_API_KEY") ? 503 : 502 },
+    );
   }
 }

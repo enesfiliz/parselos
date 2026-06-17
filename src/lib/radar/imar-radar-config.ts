@@ -1,3 +1,8 @@
+import {
+  IMAR_RADAR_STORAGE_SUFFIXES,
+  imarRadarScopedKey,
+} from "@/lib/radar/imar-radar-storage-scope";
+
 export const IMAR_RADAR_STORAGE_KEY = "parselos-imar-radar-config";
 
 export const DEFAULT_IMAR_REGION = "Bilecik Söğüt";
@@ -57,13 +62,17 @@ export function parseRegionParts(region: string) {
   return { district: single, city: single, label: single };
 }
 
-export function loadImarRadarConfig(): ImarRadarConfig {
+export function loadImarRadarConfig(userId?: string | null): ImarRadarConfig {
   if (typeof window === "undefined") {
     return { region: DEFAULT_IMAR_REGION, keywords: [...DEFAULT_IMAR_KEYWORDS] };
   }
 
+  const storageKey = userId
+    ? imarRadarScopedKey(userId, IMAR_RADAR_STORAGE_SUFFIXES.config)
+    : IMAR_RADAR_STORAGE_KEY;
+
   try {
-    const raw = localStorage.getItem(IMAR_RADAR_STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey);
     if (!raw) {
       return { region: DEFAULT_IMAR_REGION, keywords: [...DEFAULT_IMAR_KEYWORDS] };
     }
@@ -81,7 +90,10 @@ export function loadImarRadarConfig(): ImarRadarConfig {
   }
 }
 
-export function saveImarRadarConfig(config: ImarRadarConfig) {
+export function saveImarRadarConfig(config: ImarRadarConfig, userId?: string | null) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(IMAR_RADAR_STORAGE_KEY, JSON.stringify(config));
+  const storageKey = userId
+    ? imarRadarScopedKey(userId, IMAR_RADAR_STORAGE_SUFFIXES.config)
+    : IMAR_RADAR_STORAGE_KEY;
+  localStorage.setItem(storageKey, JSON.stringify(config));
 }

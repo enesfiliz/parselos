@@ -1,15 +1,11 @@
 "use client";
 
-import { Bell, Clock, FileText, MapPin } from "lucide-react";
+import { Bell, Clock, FileText, Loader2, MapPin } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  INITIAL_NOTIFICATIONS,
-  type AppNotification,
-  type NotificationKind,
-} from "@/lib/notifications/mock-notifications";
+import type { AppNotification, NotificationKind } from "@/lib/notifications/types";
 import { cn } from "@/lib/utils";
 
 const KIND_META: Record<
@@ -39,11 +35,45 @@ const KIND_META: Record<
 
 export function NotificationCenter() {
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] =
-    useState<AppNotification[]>(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((item) => !item.read).length;
+
+  const loadNotifications = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/notifications");
+      const json = (await response.json()) as {
+        data?: AppNotification[];
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(json.error ?? "Bildirimler yüklenemedi.");
+      }
+      setNotifications(json.data ?? []);
+    } catch (fetchError) {
+      setError(
+        fetchError instanceof Error
+          ? fetchError.message
+          : "Bildirimler yüklenemedi.",
+      );
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  function toggleOpen() {
+    setOpen((current) => {
+      const next = !current;
+      if (next) void loadNotifications();
+      return next;
+    });
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -69,19 +99,32 @@ export function NotificationCenter() {
     };
   }, [open]);
 
-  function markAllRead() {
+  async function markAllRead() {
+    await fetch("/api/notifications", { method: "PATCH" });
     setNotifications((current) =>
       current.map((item) => ({ ...item, read: true })),
     );
   }
 
-  function markRead(id: string) {
+  async function markRead(id: string) {
+    await fetch(`/api/notifications/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "read" }),
+    });
     setNotifications((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, read: true } : item,
-      ),
+      current.map((item) => (item.id === id ? { ...item, read: true } : item)),
     );
     setOpen(false);
+  }
+
+  async function dismissNotification(id: string) {
+    await fetch(`/api/notifications/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "dismiss" }),
+    });
+    setNotifications((current) => current.filter((item) => item.id !== id));
   }
 
   return (
@@ -91,7 +134,7 @@ export function NotificationCenter() {
         variant="ghost"
         size="icon-sm"
         className="relative text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
-        onClick={() => setOpen((current) => !current)}
+        onClick={toggleOpen}
         aria-label="Bildirimler"
         aria-expanded={open}
         aria-haspopup="dialog"
@@ -99,8 +142,7 @@ export function NotificationCenter() {
         <Bell className="size-[18px]" strokeWidth={1.75} />
         {unreadCount > 0 ? (
           <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
-            <span className="relative inline-flex h-2 w-2 animate-pulse rounded-full bg-red-500" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
           </span>
         ) : null}
       </Button>
@@ -116,31 +158,34 @@ export function NotificationCenter() {
             {unreadCount > 0 ? (
               <button
                 type="button"
-                onClick={markAllRead}
+                onClick={() => void markAllRead()}
                 className="text-[10px] text-muted-foreground transition-colors hover:text-foreground"
               >
-                Tümünü Okundu İşaretle
+                Tümünü okundu işaretle
               </button>
             ) : (
               <span className="text-[10px] text-muted-foreground">Güncel</span>
             )}
           </div>
 
-          <ul className="flex max-h-80 flex-col overflow-y-auto">
-            {notifications.map((notification) => {
-              const meta = KIND_META[notification.kind];
-              const Icon = meta.icon;
-
-              return (
-                <li key={notification.id}>
-                  <Link
-                    href={notification.href}
-                    onClick={() => markRead(notification.id)}
-                    className={cn(
-                      "flex gap-3 px-4 py-3 transition-colors hover:bg-foreground/[0.04]",
-                      !notification.read && "bg-white/[0.02]",
-                    )}
-                  >
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" />
+              Yükleniyor…
+            </div>
+          ) : error ? (
+            <p className="px-4 py-10 text-center text-sm text-muted-foreground">{error}</p>
+          ) : notifications.length === 0 ? (
+            <p className="px-4 py-10 text-center text-sm text-muted-foreground">
+              Henüz bildirim yok.
+            </p>
+          ) : (
+            <ul className="flex max-h-80 flex-col overflow-y-auto">
+              {notifications.map((notification) => {
+                const meta = KIND_META[notification.kind];
+                const Icon = meta.icon;
+                const content = (
+                  <>
                     <span
                       className={cn(
                         "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border",
@@ -154,18 +199,62 @@ export function NotificationCenter() {
                     </span>
 
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                      <p className="text-xs font-medium text-foreground">
+                        {notification.title}
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                         {notification.message}
                       </p>
-                      <p className="mt-1 text-right text-[9px] text-muted-foreground">
-                        {notification.timeAgo}
-                      </p>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <p className="text-[9px] text-muted-foreground">
+                          {notification.timeAgo}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            void dismissNotification(notification.id);
+                          }}
+                          className="text-[10px] text-muted-foreground hover:text-foreground"
+                        >
+                          Arşivle
+                        </button>
+                      </div>
                     </div>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                  </>
+                );
+
+                return (
+                  <li key={notification.id}>
+                    {notification.href ? (
+                      <Link
+                        href={notification.href}
+                        onClick={() => void markRead(notification.id)}
+                        className={cn(
+                          "flex gap-3 px-4 py-3 transition-colors hover:bg-foreground/[0.04]",
+                          !notification.read && "bg-white/[0.02]",
+                        )}
+                      >
+                        {content}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => void markRead(notification.id)}
+                        className={cn(
+                          "flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-foreground/[0.04]",
+                          !notification.read && "bg-white/[0.02]",
+                        )}
+                      >
+                        {content}
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       ) : null}
     </div>

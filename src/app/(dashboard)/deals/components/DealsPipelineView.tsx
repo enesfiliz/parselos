@@ -67,7 +67,7 @@ export function DealsPipelineView({
           <button
             type="button"
             onClick={() =>
-              toast.info("Yeni fırsat formu yakında — mock pipeline aktif.")
+              toast.info("Yeni fırsat formu yakında.")
             }
             className="inline-flex items-center gap-2 rounded-xl bg-parsel-gold px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:brightness-110"
           >
@@ -79,7 +79,7 @@ export function DealsPipelineView({
 
       {useMock ? (
         <p className="text-[11px] text-muted-foreground">
-          Önizleme modu: {pipelineDeals.length} mock fırsat yüklendi.
+          Önizleme modu: {pipelineDeals.length} örnek fırsat yüklendi.
         </p>
       ) : null}
 

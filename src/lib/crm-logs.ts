@@ -27,6 +27,20 @@ export function normalizeVoiceCrmLog(row: Record<string, unknown>): VoiceCrmLog 
     id: String(row.id ?? ""),
     parsed_json_data: normalizeCrmPayload(row.parsed_json_data),
     created_at: String(row.created_at ?? new Date().toISOString()),
+    transcript: typeof row.transcript === "string" ? row.transcript : null,
+    status:
+      row.status === "pending" ||
+      row.status === "processing" ||
+      row.status === "processed" ||
+      row.status === "archived" ||
+      row.status === "dismissed"
+        ? row.status
+        : "pending",
+    updated_at:
+      typeof row.updated_at === "string" ? row.updated_at : null,
+    client_id: typeof row.client_id === "string" ? row.client_id : null,
+    applied_action:
+      typeof row.applied_action === "string" ? row.applied_action : null,
   };
 }
 

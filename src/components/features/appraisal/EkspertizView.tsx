@@ -864,7 +864,7 @@ export function EkspertizView() {
         !("data" in payload) ||
         !payload.data
       ) {
-        throw new Error("API yanıtı geçerli bir rapor verisi içermiyor.");
+        throw new Error("Rapor verisi alınamadı. Lütfen tekrar deneyin.");
       }
 
       setReport(payload.data as AppraisalReport);

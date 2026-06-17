@@ -78,7 +78,7 @@ export function IlanAsistaniView() {
         !("listing" in payload) ||
         typeof payload.listing !== "string"
       ) {
-        throw new Error("API yanıtı geçerli bir ilan metni içermiyor.");
+        throw new Error("İlan metni oluşturulamadı. Lütfen tekrar deneyin.");
       }
 
       setListing(payload.listing);

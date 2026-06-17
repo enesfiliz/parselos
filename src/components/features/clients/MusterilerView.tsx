@@ -237,7 +237,7 @@ export function MusterilerView() {
       ) {
         const saved = normalizeClient(payload.data);
         if (!saved) {
-          throw new Error("API yanıtı geçerli bir müşteri kaydı içermiyor.");
+          throw new Error("Müşteri kaydı alınamadı. Lütfen tekrar deneyin.");
         }
 
         if (editingClient) {

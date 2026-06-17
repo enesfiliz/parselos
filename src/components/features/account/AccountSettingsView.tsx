@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 import { useParselTheme } from "@/components/providers/ThemeProvider";
 import { BrokerMetricsPanel } from "@/components/features/account/BrokerMetricsPanel";
+import { OfficeAssignmentPanel } from "@/components/features/account/OfficeAssignmentPanel";
 import {
   LicenseBadge,
   PlanBadge,
@@ -147,10 +148,8 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
     (tab) => !tab.brokerOnly || showBrokerMetrics,
   );
 
-  const initialTab = (searchParams.get("tab") as TabId | null) ?? "genel";
-  const [activeTab, setActiveTab] = useState<TabId>(
-    tabs.some((t) => t.id === initialTab) ? initialTab : "genel",
-  );
+  const tabFromUrl = (searchParams.get("tab") as TabId | null) ?? "genel";
+  const activeTab: TabId = tabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : "genel";
   const [saving, setSaving] = useState(false);
   const [verifyingLicense, setVerifyingLicense] = useState(false);
 
@@ -177,7 +176,6 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
   const onTabChange = useCallback(
     (value: string) => {
       const tab = value as TabId;
-      setActiveTab(tab);
       const params = new URLSearchParams(searchParams.toString());
       params.set("tab", tab);
       router.replace(`/account?${params.toString()}`, { scroll: false });
@@ -589,8 +587,9 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
           />
         </TabsContent>
 
-        <TabsContent value="metrikler">
+        <TabsContent value="metrikler" className="space-y-6">
           <BrokerMetricsPanel />
+          {manageTeam ? <OfficeAssignmentPanel /> : null}
         </TabsContent>
 
         <TabsContent value="abonelik">

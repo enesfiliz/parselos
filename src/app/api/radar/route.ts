@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { buildScrapeTargetsForRegion } from "@/lib/radar/scrape-targets";
+import { getCachedSourceHealth } from "@/lib/radar/source-health";
 import {
   fetchListingHtmlDirect,
   fetchListingViaJinaReader,
@@ -23,6 +24,8 @@ export interface RadarAnnouncement {
   matchedKeywords: string[];
   isNew: boolean;
   category: "aski" | "plan-degisikligi" | "parsel" | "sanayi" | "diger";
+  sourceHealth?: "healthy" | "unavailable" | "expired" | "unchecked";
+  lastCheckedAt?: string;
 }
 
 export interface RadarAnalysis {
@@ -271,13 +274,26 @@ export async function GET(request: Request) {
     );
 
     const { announcements, scannedSources } = await scrapeCached();
-    const analysis = buildAnalysis(region, keywords, announcements, scannedSources);
+
+    const enriched = await Promise.all(
+      announcements.map(async (item) => {
+        if (!item.sourceUrl) return item;
+        const health = await getCachedSourceHealth(item.sourceUrl);
+        return {
+          ...item,
+          sourceHealth: health.status,
+          lastCheckedAt: health.lastCheckedAt,
+        };
+      }),
+    );
+
+    const analysis = buildAnalysis(region, keywords, enriched, scannedSources);
 
     return NextResponse.json({
       region,
       keywords,
-      mode: announcements.length > 0 ? "live" : "empty",
-      announcements,
+      mode: enriched.length > 0 ? "live" : "empty",
+      announcements: enriched,
       analysis,
     });
   } catch (error) {

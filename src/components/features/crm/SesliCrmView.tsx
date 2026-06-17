@@ -3,18 +3,22 @@
 import {
   AlertCircle,
   CheckCircle2,
+  ClipboardList,
   Clock3,
   Loader2,
   MapPin,
   Mic,
   Settings2,
-  Sparkles,
+  Trash2,
   UserRound,
   Wallet,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { VoiceRecorder } from "@/components/features/crm/VoiceRecorder";
+import { VoiceCrmReviewPanel } from "@/components/features/crm/VoiceCrmReviewPanel";
 import type { RecorderState } from "@/components/features/crm/VoiceRecorder";
 import {
   computeVoiceMetrics,
@@ -29,7 +33,12 @@ import {
   WORKFLOW_STEPS,
   type WorkflowStep,
 } from "@/components/features/crm/voice-crm-ui-helpers";
-import type { CrmVoicePayload, VoiceCrmConfigStatus, VoiceCrmLog } from "@/lib/types/crm";
+import type {
+  CrmVoicePayload,
+  VoiceClientCandidateResponse,
+  VoiceCrmConfigStatus,
+  VoiceCrmLog,
+} from "@/lib/types/crm";
 import { isVoiceCrmOperational } from "@/lib/types/crm";
 import { cn } from "@/lib/utils";
 
@@ -118,10 +127,35 @@ function PreviewField({
   );
 }
 
-function VoiceCrmLogCard({ log }: { log: VoiceCrmLog }) {
+function voiceLogStatusLabel(status?: VoiceCrmLog["status"]) {
+  switch (status) {
+    case "processing":
+      return { label: "İşleniyor", className: "border-sky-500/20 bg-sky-500/10 text-sky-300" };
+    case "processed":
+      return { label: "İşlendi", className: "border-emerald-500/20 bg-emerald-500/10 text-emerald-300" };
+    case "archived":
+      return { label: "Arşiv", className: "border-border/60 bg-parsel-elevated text-muted-foreground" };
+    case "dismissed":
+      return { label: "Silindi", className: "border-border/60 bg-parsel-elevated text-muted-foreground" };
+    default:
+      return { label: "İşlem bekliyor", className: "border-amber-500/20 bg-amber-500/10 text-amber-300" };
+  }
+}
+
+function VoiceCrmLogCard({
+  log,
+  onReview,
+  onDelete,
+}: {
+  log: VoiceCrmLog;
+  onReview?: (log: VoiceCrmLog) => void;
+  onDelete?: (log: VoiceCrmLog) => void;
+}) {
   const data = log.parsed_json_data;
   const title = data.musteri_adi?.trim() || "İsimsiz müşteri";
   const aciliyet = inferAciliyet(data.notlar);
+  const status = voiceLogStatusLabel(log.status);
+  const isPending = !log.status || log.status === "pending";
 
   return (
     <li className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm">
@@ -129,6 +163,14 @@ function VoiceCrmLogCard({ log }: { log: VoiceCrmLog }) {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="truncate font-medium text-foreground">{title}</p>
+            <span
+              className={cn(
+                "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                status.className,
+              )}
+            >
+              {status.label}
+            </span>
             <span
               className={cn(
                 "inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium",
@@ -164,6 +206,26 @@ function VoiceCrmLogCard({ log }: { log: VoiceCrmLog }) {
           {data.notlar}
         </p>
       ) : null}
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {isPending && onReview ? (
+          <Button type="button" size="sm" variant="secondary" onClick={() => onReview(log)}>
+            CRM&apos;e işle
+          </Button>
+        ) : null}
+        {onDelete ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="text-muted-foreground"
+            onClick={() => onDelete(log)}
+          >
+            <Trash2 className="size-3.5" />
+            Sil
+          </Button>
+        ) : null}
+      </div>
     </li>
   );
 }
@@ -207,8 +269,8 @@ function ConfigStatusPanel({ status }: { status: VoiceCrmConfigStatus }) {
         <p className={cn(VOICE_INFO_BANNER, "mt-3")}>
           <AlertCircle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           <span>
-            Sesli CRM tam çalışması için ses sağlayıcısı ve kayıt altyapısı yapılandırılmalıdır.
-            Secret değerler arayüzde gösterilmez.
+            Sesli CRM tam çalışması için ses tanıma ve kayıt altyapısı hazır olmalıdır.
+            Yapılandırma bilgileri güvenlik nedeniyle burada gösterilmez.
           </span>
         </p>
       ) : null}
@@ -232,6 +294,8 @@ export function SesliCrmView({
   const [recorderState, setRecorderState] = useState<RecorderState>("idle");
   const [transcript, setTranscript] = useState<string | null>(null);
   const [preview, setPreview] = useState<CrmVoicePayload | null>(null);
+  const [reviewLog, setReviewLog] = useState<VoiceCrmLog | null>(null);
+  const [candidates, setCandidates] = useState<VoiceClientCandidateResponse[]>([]);
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
   const operational = isVoiceCrmOperational(configStatus);
@@ -244,6 +308,8 @@ export function SesliCrmView({
     if (state === "recording") {
       setTranscript(null);
       setPreview(null);
+      setReviewLog(null);
+      setCandidates([]);
       setSavedAt(null);
     }
   }
@@ -252,21 +318,64 @@ export function SesliCrmView({
     transcript: string;
     data: CrmVoicePayload;
     log?: VoiceCrmLog;
+    candidates?: VoiceClientCandidateResponse[];
   }) {
     setTranscript(result.transcript);
     setPreview(result.data);
+    setCandidates(result.candidates ?? []);
 
-    const nextLog: VoiceCrmLog = result.log ?? {
-      id: crypto.randomUUID(),
-      parsed_json_data: result.data,
-      created_at: new Date().toISOString(),
-    };
+    if (!result.log) return;
 
-    setSavedAt(nextLog.created_at);
+    setReviewLog(result.log);
+    setSavedAt(result.log.created_at);
     setLogs((prev) => {
-      if (prev.some((item) => item.id === nextLog.id)) return prev;
-      return [nextLog, ...prev];
+      if (prev.some((item) => item.id === result.log!.id)) return prev;
+      return [result.log!, ...prev];
     });
+  }
+
+  async function handleDeleteLog(log: VoiceCrmLog) {
+    if (!window.confirm("Bu sesli notu silmek istediğinize emin misiniz?")) return;
+
+    try {
+      const response = await fetch(`/api/voice/${log.id}`, { method: "DELETE" });
+      const json = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(json.error ?? "Silme işlemi başarısız.");
+      }
+      setLogs((prev) => prev.filter((item) => item.id !== log.id));
+      if (reviewLog?.id === log.id) {
+        setReviewLog(null);
+        setPreview(null);
+        setTranscript(null);
+        setCandidates([]);
+      }
+      toast.success("Sesli not silindi");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Silme işlemi başarısız.");
+    }
+  }
+
+  async function handleReviewLog(log: VoiceCrmLog) {
+    setReviewLog(log);
+    setPreview(log.parsed_json_data);
+    setTranscript(log.transcript ?? "");
+    setSavedAt(log.created_at);
+    setCandidates([]);
+
+    try {
+      const response = await fetch(`/api/voice/${log.id}`);
+      const json = (await response.json()) as {
+        candidates?: VoiceClientCandidateResponse[];
+      };
+      if (response.ok && json.candidates) {
+        setCandidates(json.candidates);
+      }
+    } catch {
+      // Review can continue without match suggestions.
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   return (
@@ -384,7 +493,7 @@ export function SesliCrmView({
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
-                    <Sparkles className="size-5" strokeWidth={1.75} />
+                    <ClipboardList className="size-5" strokeWidth={1.75} />
                   </span>
                   <div>
                     <h2 className="text-base font-semibold text-foreground">
@@ -407,7 +516,26 @@ export function SesliCrmView({
                 ) : null}
               </div>
 
-              {preview ? (
+              {preview && reviewLog && transcript ? (
+                <VoiceCrmReviewPanel
+                  log={reviewLog}
+                  transcript={transcript}
+                  payload={preview}
+                  candidates={candidates}
+                  onApplied={(log) => {
+                    setReviewLog(null);
+                    setLogs((prev) =>
+                      prev.map((item) => (item.id === log.id ? log : item)),
+                    );
+                  }}
+                  onDismissed={() => {
+                    setReviewLog(null);
+                    setPreview(null);
+                    setTranscript(null);
+                    setCandidates([]);
+                  }}
+                />
+              ) : preview ? (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {CRM_PREVIEW_FIELDS.map(({ key, label }) => (
                     <PreviewField
@@ -417,17 +545,6 @@ export function SesliCrmView({
                       highlight={key === "butce"}
                     />
                   ))}
-                  <div className="sm:col-span-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
-                    <p className="flex items-center gap-2 text-xs font-medium text-primary">
-                      <CheckCircle2 className="size-3.5" />
-                      CRM kaydı oluşturuldu ve hesabınıza kaydedildi
-                    </p>
-                    {savedAt ? (
-                      <p className="mt-1 text-[11px] text-muted-foreground">
-                        {formatVoiceLogDate(savedAt)}
-                      </p>
-                    ) : null}
-                  </div>
                 </div>
               ) : (
                 <div className="rounded-xl border border-dashed border-border/60 bg-parsel-elevated/60 px-4 py-10 text-center">
@@ -467,7 +584,12 @@ export function SesliCrmView({
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {logs.map((log) => (
-                <VoiceCrmLogCard key={log.id} log={log} />
+                <VoiceCrmLogCard
+                  key={log.id}
+                  log={log}
+                  onReview={handleReviewLog}
+                  onDelete={handleDeleteLog}
+                />
               ))}
             </ul>
           )}

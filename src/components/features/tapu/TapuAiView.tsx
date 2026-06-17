@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   FileText,
   RotateCcw,
-  Sparkles,
   UploadCloud,
 } from "lucide-react";
 import {
@@ -154,14 +153,14 @@ function IntelligenceReport({ result }: { result: DeedAnalysis | null }) {
 
       {!result ? (
         <div className="rounded-xl border border-border/60 bg-white/[0.03] p-4 text-sm leading-relaxed text-muted-foreground">
-          Görsel yüklendiğinde Gemini belgeyi okuyacak, hisse/nitelik sinyallerini
+          Görsel yüklendiğinde TapuAI belgeyi okuyacak, hisse/nitelik sinyallerini
           yorumlayacak ve yatırım odaklı risk-avantaj raporunu burada açacak.
         </div>
       ) : (
         <div className="space-y-5">
           <div className="rounded-xl border border-border/60 bg-background/70 p-4">
             <div className="mb-2 flex items-center gap-2 text-parsel-gold">
-              <Sparkles className="size-4" strokeWidth={1.75} />
+              <FileText className="size-4" strokeWidth={1.75} />
               <h3 className="text-sm font-semibold">Jilet Özet</h3>
             </div>
             <p className="text-sm leading-relaxed text-foreground/90">
@@ -306,7 +305,7 @@ export function TapuAiView() {
           TapuAI Analiz Sistemi
         </h1>
         <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Tapu veya ekspertiz görselini yükleyin; Gemini belge verilerini çıkarıp
+          Tapu veya ekspertiz görselini yükleyin; TapuAI belge verilerini çıkarıp
           nitelik, hisse ve yatırım sinyallerini profesyonel rapora dönüştürsün.
         </p>
       </header>
@@ -364,7 +363,7 @@ export function TapuAiView() {
                     Tapu veya ekspertiz görselini sürükleyin ya da seçin
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    JPG, PNG, WEBP · analiz Gemini 1.5 Flash ile yapılır
+                    JPG, PNG, WEBP · belge analizi TapuAI ile yapılır
                   </p>
                 </div>
               </div>

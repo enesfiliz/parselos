@@ -85,46 +85,54 @@ export async function createStandaloneClientForAgent(
   agentId: string,
   input: StandaloneClientInput,
 ) {
-  return prisma.$transaction(async (tx) => {
-    const client = await tx.client.create({
-      data: {
-        adSoyad: input.adSoyad,
-        telefon: input.telefon ?? null,
-        email: input.email ?? null,
-        notlar: input.notlar ?? null,
-        kaynak: input.kaynak ?? null,
-        birthDate: input.birthDate ?? null,
-        butce: input.butce ?? null,
-        mulkTipi: input.mulkTipi ?? null,
-      },
-    });
+  return prisma.$transaction(async (tx) =>
+    createStandaloneClientInTransaction(tx, agentId, input),
+  );
+}
 
-    const property = await tx.property.create({
-      data: {
-        ilanBasligi: `${input.adSoyad} — Müşteri kaydı`,
-        il: "—",
-        ilce: "—",
-        durum: "SATILIK",
-        tur: "YETKILI",
-        aciklama: "Bağımsız müşteri sahiplik kaydı",
-      },
-    });
-
-    await tx.deal.create({
-      data: {
-        clientId: client.id,
-        propertyId: property.id,
-        agentId,
-        stage: "LEAD",
-        etiket: "Müşteri",
-        sonIletisim: "Bugün",
-        notlar: "Bağımsız müşteri kaydı",
-        tasks: DEFAULT_DEAL_TASKS,
-      },
-    });
-
-    return client;
+export async function createStandaloneClientInTransaction(
+  tx: Prisma.TransactionClient,
+  agentId: string,
+  input: StandaloneClientInput,
+) {
+  const client = await tx.client.create({
+    data: {
+      adSoyad: input.adSoyad,
+      telefon: input.telefon ?? null,
+      email: input.email ?? null,
+      notlar: input.notlar ?? null,
+      kaynak: input.kaynak ?? null,
+      birthDate: input.birthDate ?? null,
+      butce: input.butce ?? null,
+      mulkTipi: input.mulkTipi ?? null,
+    },
   });
+
+  const property = await tx.property.create({
+    data: {
+      ilanBasligi: `${input.adSoyad} — Müşteri kaydı`,
+      il: "—",
+      ilce: "—",
+      durum: "SATILIK",
+      tur: "YETKILI",
+      aciklama: "Bağımsız müşteri sahiplik kaydı",
+    },
+  });
+
+  await tx.deal.create({
+    data: {
+      clientId: client.id,
+      propertyId: property.id,
+      agentId,
+      stage: "LEAD",
+      etiket: "Müşteri",
+      sonIletisim: "Bugün",
+      notlar: "Bağımsız müşteri kaydı",
+      tasks: DEFAULT_DEAL_TASKS,
+    },
+  });
+
+  return client;
 }
 
 /** Yeni deal/promote bağlamında client kullanılabilir mi (foreign/orphan değil). */

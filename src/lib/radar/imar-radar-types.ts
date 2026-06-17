@@ -10,7 +10,14 @@ export type ImarTrustStatus =
   | "verified"
   | "source_pending"
   | "manual"
-  | "needs_official_check";
+  | "needs_official_check"
+  | "source_unavailable";
+
+export type ImarSourceHealth =
+  | "healthy"
+  | "unavailable"
+  | "expired"
+  | "unchecked";
 
 export type ImarRecordOrigin = "api" | "manual";
 
@@ -26,6 +33,8 @@ export type ImarRadarApiAnnouncement = {
   matchedKeywords: string[];
   isNew: boolean;
   category: "aski" | "plan-degisikligi" | "parsel" | "sanayi" | "diger";
+  sourceHealth?: ImarSourceHealth;
+  lastCheckedAt?: string;
 };
 
 export type ImarRadarApiAnalysis = {
@@ -84,6 +93,8 @@ export type ImarRadarItem = {
   isNew: boolean;
   isTracked: boolean;
   verificationNote?: string;
+  sourceHealth?: ImarSourceHealth;
+  lastCheckedAt?: string;
 };
 
 export type ImarRadarFilters = {

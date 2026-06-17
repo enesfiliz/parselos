@@ -3,6 +3,7 @@ import type {
   ImarRadarFilters,
   ImarRadarItem,
   ImarRecordCategory,
+  ImarSourceHealth,
   ImarTrustStatus,
   ManualImarRecord,
 } from "@/lib/radar/imar-radar-types";
@@ -21,6 +22,7 @@ export const IMAR_TRUST_LABELS: Record<ImarTrustStatus, string> = {
   source_pending: "Kaynak bekliyor",
   manual: "Manuel takip",
   needs_official_check: "Resmi kaynaktan kontrol edilmeli",
+  source_unavailable: "Kaynak erişilemiyor",
 };
 
 export const IMAR_TRUST_STYLES: Record<ImarTrustStatus, string> = {
@@ -28,6 +30,7 @@ export const IMAR_TRUST_STYLES: Record<ImarTrustStatus, string> = {
   source_pending: "border-border/60 bg-parsel-elevated text-muted-foreground",
   manual: "border-parsel-gold/30 bg-parsel-gold/10 text-parsel-gold",
   needs_official_check: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  source_unavailable: "border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-300",
 };
 
 export const IMAR_OFFICIAL_DISCLAIMER =
@@ -54,11 +57,22 @@ export function resolveTrustStatus(input: {
   origin: ImarRadarItem["origin"];
   sourceUrl?: string;
   userVerified?: boolean;
+  sourceHealth?: ImarSourceHealth;
 }): ImarTrustStatus {
   if (input.origin === "manual") return "manual";
   if (input.userVerified) return "verified";
+  if (input.sourceHealth === "unavailable" || input.sourceHealth === "expired") {
+    return "source_unavailable";
+  }
   if (isValidSourceUrl(input.sourceUrl)) return "needs_official_check";
   return "source_pending";
+}
+
+export function isSourceLinkClickable(item: Pick<ImarRadarItem, "sourceUrl" | "sourceHealth" | "trustStatus">) {
+  if (!isValidSourceUrl(item.sourceUrl)) return false;
+  if (item.sourceHealth === "unavailable" || item.sourceHealth === "expired") return false;
+  if (item.trustStatus === "source_unavailable") return false;
+  return true;
 }
 
 export function buildCardSummary(item: {
@@ -94,6 +108,8 @@ export function apiAnnouncementToItem(
 ): ImarRadarItem {
   const category = normalizeApiCategory(item.category);
   const sourceUrl = isValidSourceUrl(item.sourceUrl) ? item.sourceUrl : undefined;
+  const sourceHealth = item.sourceHealth;
+  const lastCheckedAt = item.lastCheckedAt;
 
   return {
     id: item.id,
@@ -115,12 +131,15 @@ export function apiAnnouncementToItem(
       origin: "api",
       sourceUrl,
       userVerified: trackingMeta?.userVerified,
+      sourceHealth,
     }),
     publishedAt: item.publishedAt,
     matchedKeywords: item.matchedKeywords,
     isNew: item.isNew,
     isTracked: trackingMeta?.tracked ?? false,
     verificationNote: trackingMeta?.note,
+    sourceHealth,
+    lastCheckedAt,
   };
 }
 

@@ -6,12 +6,18 @@ import {
   isGroqConfigured,
   logGroqConfigDebug,
 } from "@/lib/ai/groq-env";
-import { normalizeVoiceCrmLog } from "@/lib/crm-logs";
 import { requireCurrentAgent } from "@/lib/auth/agent";
-import { createSupabaseAdmin } from "@/lib/supabase";
 import type { CrmVoicePayload } from "@/lib/types/crm";
-import { voiceLogPayloadForAgent } from "@/lib/voice-crm/agent-scope";
+import {
+  confidenceLabel,
+  findVoiceClientCandidates,
+} from "@/lib/voice-crm/client-matching";
 import { getVoiceCrmConfigStatus } from "@/lib/voice-crm/config";
+import {
+  buildVoiceIdempotencyKey,
+  findVoiceLogByIdempotencyKey,
+  insertPendingVoiceLog,
+} from "@/lib/voice-crm/voice-log-store";
 import {
   mapGroqProviderError,
   mapVoiceUserError,
@@ -60,22 +66,24 @@ function parseCrmPayload(content: string): CrmVoicePayload {
   };
 }
 
-async function saveVoiceCrmLog(agentId: string, crmData: CrmVoicePayload) {
-  const supabase = createSupabaseAdmin();
-
-  const { data, error } = await supabase
-    .from("voice_crm_logs")
-    .insert({
-      parsed_json_data: voiceLogPayloadForAgent(agentId, crmData),
-    })
-    .select("*")
-    .single();
-
-  if (error) {
-    throw new Error(`Supabase kayıt hatası: ${error.message}`);
+async function savePendingVoiceLog(
+  agentId: string,
+  transcript: string,
+  crmData: CrmVoicePayload,
+  audioSize: number,
+) {
+  const idempotencyKey = buildVoiceIdempotencyKey(agentId, transcript, audioSize);
+  const existing = await findVoiceLogByIdempotencyKey(agentId, idempotencyKey);
+  if (existing) {
+    return existing;
   }
 
-  return normalizeVoiceCrmLog(data as Record<string, unknown>);
+  return insertPendingVoiceLog({
+    agentId,
+    transcript,
+    payload: crmData,
+    idempotencyKey,
+  });
 }
 
 export async function POST(request: Request) {
@@ -180,12 +188,17 @@ export async function POST(request: Request) {
       return jsonError("provider", 502);
     }
 
-    const log = await saveVoiceCrmLog(agent.id, crmData);
+    const log = await savePendingVoiceLog(agent.id, transcript, crmData, audio.size);
+    const candidates = await findVoiceClientCandidates(agent.id, crmData);
 
     return NextResponse.json({
       transcript,
       data: crmData,
       log,
+      candidates: candidates.map((candidate) => ({
+        ...candidate,
+        confidenceLabel: confidenceLabel(candidate.confidence),
+      })),
     });
   } catch (error) {
     console.error("[POST /api/voice]", error);

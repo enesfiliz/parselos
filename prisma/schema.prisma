@@ -112,6 +112,8 @@ model Agent {
   createdInvites       TenantInvite[]            @relation("InviteCreator")
   fsboLeads            FsboLead[]
   deals                Deal[]
+  notifications        AgentNotification[]
+  voiceCrmAppliedActions VoiceCrmAppliedAction[]
 
   @@index([lastActiveAt])
   @@index([tenantId])
@@ -155,6 +157,7 @@ model Client {
   guncellenmeTarihi  DateTime          @updatedAt
   appraisals         AppraisalReport[]
   deals              Deal[]
+  voiceCrmAppliedActions VoiceCrmAppliedAction[] @relation("VoiceCrmTargetClient")
 }
 
 /// Portföy / ilan kaydı
@@ -418,6 +421,70 @@ model FsboLead {
   @@index([isRead, isDiscarded])
   @@index([createdAt])
   @@index([agentId])
+}
+
+/// Kullanıcıya özel uygulama bildirimi — agent/tenant scoped
+model AgentNotification {
+  id          String   @id @default(uuid())
+  agentId     String
+  tenantId    String?
+  type        String
+  priority    String   @default("normal")
+  title       String
+  message     String
+  href        String?
+  read        Boolean  @default(false)
+  dismissed   Boolean  @default(false)
+  dedupeKey   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  agent       Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([agentId, dedupeKey])
+  @@index([agentId, dismissed, read])
+  @@index([agentId, createdAt])
+}
+
+enum VoiceCrmActionStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+/// Sesli CRM işlem defteri — Prisma tarafında create_client idempotency
+model VoiceCrmAppliedAction {
+  id             String               @id @default(uuid())
+  agentId        String
+  voiceLogId     String
+  actionType     String
+  targetClientId String?
+  status         VoiceCrmActionStatus @default(PROCESSING)
+  idempotencyKey String               @unique
+  lastError      String?
+  completedAt    DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  agent          Agent                @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  targetClient   Client?              @relation("VoiceCrmTargetClient", fields: [targetClientId], references: [id], onDelete: SetNull)
+
+  @@unique([agentId, voiceLogId, actionType])
+  @@index([agentId, status])
+}
+
+/// Ofis içi kaynak atama denetim kaydı
+model AssignmentAudit {
+  id           String   @id @default(uuid())
+  tenantId     String
+  actorAgentId String
+  fromAgentId  String?
+  toAgentId    String
+  resourceType String
+  resourceId   String
+  createdAt    DateTime @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([toAgentId])
+  @@index([resourceType, resourceId])
 }
 
 /// FSBO takip bölgeleri

@@ -7,7 +7,6 @@ import {
   FileText,
   Loader2,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -139,18 +138,23 @@ export function BillingView({
       <section className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-5 shadow-parsel-sm sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
-                <Sparkles className="size-5" strokeWidth={1.75} />
-              </span>
-              <div>
-                <h2 className="text-base font-semibold text-foreground">Mevcut abonelik</h2>
-                <p className="text-sm text-muted-foreground">{currentCatalog.tagline}</p>
-              </div>
+            <div>
+              <p className="text-[11px] font-medium text-muted-foreground">Mevcut abonelik</p>
+              <h2 className="mt-1 text-lg font-semibold text-foreground">
+                {currentCatalog.marketingName}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">{currentCatalog.tagline}</p>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              <PlanBadge plan={currentPlan} />
-              <span>·</span>
+              <span
+                className={cn(
+                  "inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-medium",
+                  statusBadge.className,
+                )}
+              >
+                {statusBadge.label}
+              </span>
+              <span aria-hidden>·</span>
               <span>{currentCatalog.periodLabel}</span>
             </div>
             {currentCatalog.annualNote ? (
@@ -201,14 +205,8 @@ export function BillingView({
                   isCurrent && "ring-2 ring-primary/20",
                 )}
               >
-                {catalog.badge ? (
-                  <span className="absolute right-4 top-4 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                    {catalog.badge}
-                  </span>
-                ) : null}
-
                 {isCurrent ? (
-                  <span className="mb-3 inline-flex w-fit rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-primary">
+                  <span className="mb-3 inline-flex w-fit rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                     Mevcut planınız
                   </span>
                 ) : null}
