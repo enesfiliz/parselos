@@ -3,12 +3,12 @@
 import { ClerkLoaded, ClerkLoading, useAuth } from "@clerk/nextjs";
 import {
   ArrowRight,
+  Bot,
   Briefcase,
   Building2,
   Check,
   Mic,
   Radar,
-  Sparkles,
   Target,
   Users,
 } from "lucide-react";
@@ -67,7 +67,7 @@ const FEATURE_MODULES = [
     id: "parselai",
     title: "ParselAI",
     benefit: "Ofis verinizle bağlamlı AI asistan; özet, aksiyon ve takip önerileri.",
-    icon: Sparkles,
+    icon: Bot,
     tag: "AI",
     accent: "primary",
   },
@@ -104,7 +104,7 @@ const WORKFLOW_STEPS = [
     step: "04",
     title: "AI ile aksiyon üret",
     description: "ParselAI özetler, hatırlatır ve bir sonraki operasyon adımını önerir.",
-    icon: Sparkles,
+    icon: Bot,
   },
 ] as const;
 
@@ -210,7 +210,7 @@ function FeatureModuleVisual({ moduleId }: { moduleId: (typeof FEATURE_MODULES)[
       return (
         <div className="landing-feature-visual mt-5 rounded-xl p-3" aria-hidden>
           <div className="flex items-start gap-2">
-            <Sparkles className="mt-0.5 size-3.5 shrink-0 text-parsel-gold" strokeWidth={1.75} />
+            <Bot className="mt-0.5 size-3.5 shrink-0 text-parsel-gold" strokeWidth={1.75} />
             <div>
               <p className="text-[11px] font-medium text-foreground">Önerilen aksiyon</p>
               <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
@@ -337,7 +337,10 @@ function WorkflowStepCard({
 
 export function WorkflowSection() {
   return (
-    <section className="relative border-y border-border/40 bg-parsel-sunken/35 px-6 py-20 sm:px-8 lg:px-12 lg:py-24">
+    <section
+      id="workflow"
+      className="relative scroll-mt-28 border-y border-border/40 bg-parsel-sunken/35 px-6 py-20 sm:px-8 lg:px-12 lg:py-24"
+    >
       <div className="pointer-events-none absolute inset-0 opacity-[0.08]" aria-hidden>
         <div className="landing-parcel-field absolute inset-0" />
       </div>
@@ -408,7 +411,7 @@ function PricingCard({
       className={cn(
         "parsel-surface relative flex flex-col overflow-hidden rounded-2xl border bg-parsel-panel shadow-parsel-sm",
         plan.highlighted
-          ? "border-primary/25 shadow-parsel-md"
+          ? "border-primary/25 shadow-parsel-md landing-pricing-featured"
           : "border-border/60",
       )}
     >

@@ -4,6 +4,7 @@ import { ClerkLoaded, ClerkLoading, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 
 import { SignUpShineButton } from "@/components/marketing/LandingAuthButtons";
+import { HeroCinematicBackdrop } from "@/components/marketing/HeroCinematicBackdrop";
 import { ParcelCommandHero } from "@/components/marketing/ParcelCommandHero";
 import { RevealOnMount } from "@/components/marketing/landing-motion";
 
@@ -21,20 +22,7 @@ const PANEL_BUTTON_CLASS =
   "inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-8 text-sm font-semibold text-primary-foreground shadow-parsel-md transition-all hover:-translate-y-0.5 hover:bg-primary/90 sm:w-auto";
 
 function HeroBackdrop() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-      <div className="landing-hero-mesh absolute inset-0" />
-      <div className="landing-hero-light-bloom absolute inset-0 opacity-80" />
-      <div className="landing-parcel-field landing-hero-parcel-grid absolute inset-0 opacity-[0.18] dark:opacity-[0.15]" />
-      <div className="landing-hero-contour absolute inset-0 opacity-50 dark:opacity-40" />
-      <div className="landing-hero-coord-dots absolute inset-0 opacity-70 dark:opacity-55" />
-      <div className="landing-hero-orbit absolute left-1/2 top-[12%] size-[min(880px,115vw)] -translate-x-1/2 rounded-full border border-primary/12" />
-      <div className="landing-hero-orbit-reverse absolute left-1/2 top-[20%] size-[min(680px,96vw)] -translate-x-1/2 rounded-full border border-parsel-gold/12" />
-      <div className="landing-hero-cadastre-sweep absolute inset-x-[6%] top-[16%] h-[min(460px,58vh)] opacity-30 dark:opacity-22" />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/12 to-transparent" />
-    </div>
-  );
+  return <HeroCinematicBackdrop />;
 }
 
 function HeroCtaActions() {
@@ -125,6 +113,13 @@ export function HeroShowcase() {
 
       <div className="hero-bottom-fade pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 sm:h-32" aria-hidden />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" aria-hidden />
+
+      <div className="landing-scroll-hint pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center" aria-hidden>
+        <span className="flex flex-col items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/70">
+          Keşfet
+          <span className="landing-scroll-hint-chevron block h-6 w-px bg-gradient-to-b from-muted-foreground/50 to-transparent" />
+        </span>
+      </div>
     </section>
   );
 }

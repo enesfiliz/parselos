@@ -48,22 +48,23 @@ export function getListingBadge(listingType: AuthorizedPortfolioItem["listingTyp
 }
 
 export function getYetkiStatus(remaining: number) {
-  if (remaining < 15) {
+  const days = Number.isFinite(remaining) ? Math.max(0, Math.round(remaining)) : 0;
+  if (days < 15) {
     return {
-      label: `${remaining} gün`,
+      label: `${days} gün`,
       detail: "Yetki kritik",
       className: "border-destructive/30 bg-destructive/10 text-destructive",
     };
   }
-  if (remaining < 30) {
+  if (days < 30) {
     return {
-      label: `${remaining} gün`,
+      label: `${days} gün`,
       detail: "Yetki yakın",
       className: "border-parsel-gold/30 bg-parsel-gold/10 text-parsel-gold",
     };
   }
   return {
-    label: `${remaining} gün`,
+    label: `${days} gün`,
     detail: "Yetki aktif",
     className: "border-border/60 bg-parsel-elevated text-muted-foreground",
   };

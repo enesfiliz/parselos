@@ -1,10 +1,10 @@
 import {
   Activity,
+  Bot,
   Briefcase,
   FileText,
   Mic,
   Radar,
-  Sparkles,
   Users,
 } from "lucide-react";
 
@@ -35,7 +35,7 @@ const PIPELINE_ROWS = [
 
 const ACTIVITY_ROWS = [
   { icon: Mic, text: "Sesli not — Kadıköy 3+1 görüşmesi işlendi" },
-  { icon: Sparkles, text: "ParselAI — 3 portföy eşleşmesi önerildi" },
+  { icon: Bot, text: "ParselAI — 3 portföy eşleşmesi önerildi" },
 ] as const;
 
 const PANEL_EVENTS = [
@@ -65,7 +65,7 @@ const PANEL_EVENTS = [
   },
   {
     id: "parselai",
-    icon: Sparkles,
+    icon: Bot,
     title: "ParselAI önerisi",
     body: "3 müşteri için portföy eşleşmesi hazır",
     placement: "bottom",
@@ -77,8 +77,8 @@ const DESKTOP_FLOAT_EVENTS = PANEL_EVENTS.filter((event) => event.id !== "parsel
 
 function LiveStatusBadge() {
   return (
-    <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
-      <span className="size-1.5 rounded-full bg-primary" aria-hidden />
+    <span className="landing-live-badge inline-flex shrink-0 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+      <span className="landing-live-badge-dot size-1.5 rounded-full bg-primary" aria-hidden />
       Canlı
     </span>
   );
@@ -111,8 +111,7 @@ function ParcelAtlasCanvas({ compact = false }: { compact?: boolean }) {
         <span className="hero-atlas-block hero-atlas-block-c" />
         <span className="hero-atlas-highlight" />
       </div>
-      <div
-        className={cn("hero-atlas-radar absolute inset-0", compact ? "opacity-20" : "opacity-30")}
+      <div className={cn("hero-atlas-radar landing-radar-sweep absolute inset-0", compact ? "opacity-20" : "opacity-30")}
         style={{
           background:
             "conic-gradient(from 200deg at 68% 42%, transparent 0deg, color-mix(in srgb, var(--primary) 40%, transparent) 36deg, transparent 70deg)",
@@ -148,7 +147,7 @@ function CommandCenterPanel({ showAtlasInline = false }: { showAtlasInline?: boo
       <div className={cn("mb-4 flex items-start justify-between gap-3", showAtlasInline && "mb-3")}>
         <div>
           <p className="parsel-section-label flex items-center gap-2 text-primary">
-            <Sparkles className="size-3.5" strokeWidth={2} aria-hidden />
+            <Bot className="size-3.5" strokeWidth={2} aria-hidden />
             Komuta Merkezi
           </p>
           <p className="font-outfit mt-1 text-lg font-semibold tracking-tight text-foreground sm:text-xl">
@@ -208,7 +207,7 @@ function CommandCenterPanel({ showAtlasInline = false }: { showAtlasInline?: boo
             Pipeline
           </p>
           <div className="mt-3 space-y-2.5">
-            {PIPELINE_ROWS.map((row) => {
+            {PIPELINE_ROWS.map((row, index) => {
               const isGold = "gold" in row && row.gold;
               return (
               <div key={row.stage} className="space-y-1">
@@ -228,6 +227,9 @@ function CommandCenterPanel({ showAtlasInline = false }: { showAtlasInline?: boo
                     className={cn(
                       "h-full rounded-full",
                       isGold ? "bg-parsel-gold/70" : "bg-primary/35",
+                      index === 0 && "landing-pipeline-bar",
+                      index === 1 && "landing-pipeline-bar landing-pipeline-bar-2",
+                      index === 2 && "landing-pipeline-bar landing-pipeline-bar-3",
                     )}
                     style={{ width: row.width }}
                   />
@@ -274,6 +276,10 @@ function ProductSignalGrid() {
             className={cn(
               "landing-hero-float-card rounded-xl border bg-parsel-panel/95 p-2.5 shadow-parsel-sm backdrop-blur-sm",
               isGold ? "border-parsel-gold/25" : "border-primary/20",
+              signal.id === "portfolio" && "landing-glass-float",
+              signal.id === "imar" && "landing-glass-float-alt",
+              signal.id === "voice" && "landing-glass-float-slow",
+              signal.id === "parselai" && "landing-capsule-float",
             )}
           >
             <div className="flex items-start gap-2">
@@ -406,7 +412,7 @@ function DesktopCommandDeck() {
         </div>
       </div>
 
-      <div className="hero-command-layer-front relative z-20 pb-4 pt-2 lg:pt-6 lg:pb-6 xl:pt-8">
+      <div className="hero-command-layer-front landing-command-front relative z-20 pb-4 pt-2 lg:pt-6 lg:pb-6 xl:pt-8">
         <CommandCenterPanel />
         {DESKTOP_FLOAT_EVENTS.map((event) => (
           <PanelEventRail key={event.id} event={event} />

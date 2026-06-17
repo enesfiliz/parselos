@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 48" role="img" aria-label="iyzico ile Öde">
+  <rect width="420" height="48" rx="8" fill="#ffffff"/>
+  <g transform="translate(16,12)">
+    <circle cx="10" cy="12" r="8" fill="#1E64FF"/>
+    <text x="24" y="17" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="16" font-weight="700" fill="#1E64FF">iyzico</text>
+    <text x="92" y="17" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="14" font-weight="600" fill="#333333">ile Öde</text>
+  </g>
+  <g transform="translate(200,10)">
+    <rect x="0" y="0" width="56" height="28" rx="4" fill="#1A1F71"/>
+    <text x="28" y="19" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="700" font-style="italic" fill="#ffffff">VISA</text>
+  </g>
+  <g transform="translate(268,10)">
+    <circle cx="10" cy="14" r="9" fill="#EB001B" opacity="0.95"/>
+    <circle cx="22" cy="14" r="9" fill="#F79E1B" opacity="0.95"/>
+  </g>
+  <g transform="translate(310,12)">
+    <text x="0" y="16" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#00A0E4">troy</text>
+  </g>
+</svg>

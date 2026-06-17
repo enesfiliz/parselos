@@ -1,20 +1,17 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type MouseEvent,
-  type ReactNode,
-} from "react";
+import { useRef, useState, type MouseEvent, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+
+const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
 export function NoiseTexture() {
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-[1] opacity-[0.05] mix-blend-soft-light"
+      className="pointer-events-none fixed inset-0 z-[1] opacity-[0.04] mix-blend-soft-light dark:opacity-[0.06]"
       aria-hidden
     >
       <svg className="h-full w-full" preserveAspectRatio="none">
@@ -43,42 +40,26 @@ export function RevealOnScroll({
   delay?: number;
   once?: boolean;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          if (once) observer.disconnect();
-        } else if (!once) {
-          setVisible(false);
-        }
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [once]);
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
-    <div
-      ref={ref}
-      className={cn(
-        className,
-        visible
-          ? "animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-300"
-          : "opacity-0",
-      )}
-      style={{ animationDelay: visible ? `${delay}ms` : undefined }}
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once, amount: 0.14, margin: "0px 0px -40px 0px" }}
+      transition={{
+        duration: 0.55,
+        delay: delay / 1000,
+        ease: EASE_OUT,
+      }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -91,16 +72,25 @@ export function RevealOnMount({
   className?: string;
   delay?: number;
 }) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   return (
-    <div
-      className={cn(
-        "animate-in fade-in fill-mode-both duration-300",
-        className,
-      )}
-      style={{ animationDelay: `${delay}ms` }}
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 22 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.6,
+        delay: delay / 1000,
+        ease: EASE_OUT,
+      }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 

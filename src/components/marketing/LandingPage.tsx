@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { HeroShowcase } from "@/components/marketing/HeroShowcase";
+import { LandingHeader } from "@/components/marketing/LandingHeader";
 import {
   FeaturesSection,
   FinalCtaSection,
@@ -9,14 +10,17 @@ import {
   WorkflowSection,
 } from "@/components/marketing/LandingSections";
 import { LandingNavAuth } from "@/components/marketing/LandingAuthButtons";
+import { NoiseTexture } from "@/components/marketing/landing-motion";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Logo } from "@/components/ui/Logo";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 
 export function LandingPage() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-parsel-canvas font-sans text-foreground">
-      <header className="parsel-shell-header landing-shell-header fixed inset-x-0 top-0 z-50">
+    <div className="landing-page-root relative min-h-screen overflow-x-hidden bg-parsel-canvas font-sans text-foreground">
+      <NoiseTexture />
+
+      <LandingHeader>
         <div className="mx-auto flex h-[4.25rem] max-w-[1400px] items-center justify-between gap-4 px-6 sm:px-8 lg:px-12">
           <Link
             href="/"
@@ -29,6 +33,9 @@ export function LandingPage() {
             <a href="#features" className="landing-nav-link">
               Özellikler
             </a>
+            <a href="#workflow" className="landing-nav-link">
+              Akış
+            </a>
             <a href="#pricing" className="landing-nav-link">
               Fiyatlandırma
             </a>
@@ -39,7 +46,7 @@ export function LandingPage() {
             <LandingNavAuth />
           </div>
         </div>
-      </header>
+      </LandingHeader>
 
       <HeroShowcase />
 

@@ -39,6 +39,7 @@ import {
   type ListingFilter,
 } from "@/components/features/portfolios/portfolio-ui-helpers";
 import { Button } from "@/components/ui/button";
+import { isDemoDataEnabledClient } from "@/lib/demo-mode";
 import { propertyKindLabel } from "@/lib/portfolios/portfolio-form";
 import type { PortfolioFormValues } from "@/lib/portfolios/portfolio-form";
 import type { AuthorizedPortfolioItem } from "@/lib/portfolios/portfolio-types";
@@ -367,8 +368,8 @@ export function PortfoliosView({
             <p className="mt-3 text-xs text-muted-foreground">
               {filtered.length} portföy listeleniyor
               {query.trim() ? ` · “${query.trim()}” araması` : ""}
-              {items.some((item) => isMockPortfolio(item.id))
-                ? " · örnek kayıtlar vitrinde gösteriliyor"
+              {items.some((item) => isMockPortfolio(item.id)) && isDemoDataEnabledClient()
+                ? " · demo kayıtları gösteriliyor"
                 : ""}
             </p>
           </section>
