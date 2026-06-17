@@ -61,7 +61,7 @@ async function collectNotificationSeeds(
         kind: "opportunity",
         title: "Aktif ofis daveti",
         message: `${pendingInvites} davet kodu kullanıma açık.`,
-        href: "/account?tab=ofis",
+        href: "/account?tab=ekip",
         dedupeKey: `invite:pending:${tenantId}`,
       });
     }

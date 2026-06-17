@@ -31,12 +31,15 @@ import {
   getDealStageBadge,
   getListingBadge,
   getYetkiStatus,
+  hasActivePortfolioFilters,
   isMockPortfolio,
   matchesPortfolioFilters,
   matchesPortfolioQuery,
   METRIC_CARD,
+  sortPortfolioItems,
   type KindFilter,
   type ListingFilter,
+  type PortfolioSortKey,
 } from "@/components/features/portfolios/portfolio-ui-helpers";
 import { Button } from "@/components/ui/button";
 import { isDemoDataEnabledClient } from "@/lib/demo-mode";
@@ -93,6 +96,7 @@ export function PortfoliosView({
   const router = useRouter();
   const [listingFilter, setListingFilter] = useState<ListingFilter>("ALL");
   const [kindFilter, setKindFilter] = useState<KindFilter>("ALL");
+  const [sortKey, setSortKey] = useState<PortfolioSortKey>("activity_desc");
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<AuthorizedPortfolioItem[]>(portfolios);
 
@@ -155,15 +159,23 @@ export function PortfoliosView({
 
   const metrics = useMemo(() => computePortfolioMetrics(items), [items]);
 
-  const filtered = useMemo(
-    () =>
-      items.filter(
-        (item) =>
-          matchesPortfolioQuery(item, query) &&
-          matchesPortfolioFilters(item, listingFilter, kindFilter),
-      ),
-    [items, query, listingFilter, kindFilter],
-  );
+  const filtered = useMemo(() => {
+    const matches = items.filter(
+      (item) =>
+        matchesPortfolioQuery(item, query) &&
+        matchesPortfolioFilters(item, listingFilter, kindFilter),
+    );
+    return sortPortfolioItems(matches, sortKey);
+  }, [items, query, listingFilter, kindFilter, sortKey]);
+
+  const filtersActive = hasActivePortfolioFilters(query, listingFilter, kindFilter);
+
+  function clearPortfolioFilters() {
+    setQuery("");
+    setListingFilter("ALL");
+    setKindFilter("ALL");
+    setSortKey("activity_desc");
+  }
 
   async function handlePortfolioSubmit(values: PortfolioFormValues) {
     setIsSaving(true);
@@ -363,11 +375,43 @@ export function PortfoliosView({
                     </button>
                   ))}
                 </div>
+                <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+                  <label htmlFor="portfolio-sort" className="sr-only">
+                    Sıralama
+                  </label>
+                  <select
+                    id="portfolio-sort"
+                    value={sortKey}
+                    onChange={(e) =>
+                      setSortKey(e.target.value as PortfolioSortKey)
+                    }
+                    className="h-9 rounded-xl border border-border/60 bg-parsel-elevated px-3 text-xs font-medium text-foreground outline-none focus:border-primary/30"
+                  >
+                    <option value="activity_desc">Son aktivite</option>
+                    <option value="price_desc">Fiyat (yüksek)</option>
+                    <option value="price_asc">Fiyat (düşük)</option>
+                    <option value="yetki_asc">Yetki süresi</option>
+                    <option value="title_asc">Başlık (A-Z)</option>
+                  </select>
+                  {filtersActive ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-9 rounded-xl border-border/60 text-xs"
+                      onClick={clearPortfolioFilters}
+                    >
+                      Filtreleri temizle
+                    </Button>
+                  ) : null}
+                </div>
               </div>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
               {filtered.length} portföy listeleniyor
               {query.trim() ? ` · “${query.trim()}” araması` : ""}
+              {listingFilter !== "ALL" ? ` · ${listingFilter.toLocaleLowerCase("tr-TR")}` : ""}
+              {kindFilter !== "ALL" ? ` · ${kindFilter}` : ""}
               {items.some((item) => isMockPortfolio(item.id)) && isDemoDataEnabledClient()
                 ? " · demo kayıtları gösteriliyor"
                 : ""}
@@ -385,6 +429,16 @@ export function PortfoliosView({
             <p className="mt-2 text-sm text-muted-foreground">
               Arama veya filtreyi değiştirmeyi deneyin.
             </p>
+            {filtersActive ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-4"
+                onClick={clearPortfolioFilters}
+              >
+                Filtreleri temizle
+              </Button>
+            ) : null}
           </div>
         ) : (
           <>

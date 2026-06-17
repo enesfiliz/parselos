@@ -101,7 +101,7 @@ export function HeroShowcase() {
 
           <RevealOnMount delay={320}>
             <p className="mt-6 text-xs font-medium leading-relaxed text-muted-foreground">
-              KDV dahil · 2 ücretsiz portföy · iyzico güvenli ödeme
+              KDV dahil · 2 ücretsiz portföy
             </p>
           </RevealOnMount>
         </div>

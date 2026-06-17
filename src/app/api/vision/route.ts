@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 const GEMINI_MODEL = "gemini-3.5-flash";
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
 const VISION_PROMPT =
   'Sen kıdemli bir gayrimenkul avukatısın. Belgeyi oku ve SADECE şu JSON formatında yanıt ver: { "belge_turu": "", "sahip_bilgisi": "", "onemli_detaylar": "", "risk_analizi": "" }. Kod bloğu kullanma.';
@@ -98,6 +99,10 @@ function parseVisionPayload(content: string): TapuVisionSonucu {
   };
 }
 
+function isProviderConfigError(message: string) {
+  return message.includes("GEMINI_API_KEY");
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -107,6 +112,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Geçerli bir görsel dosyası gönderilmedi. 'image' alanı zorunludur." },
         { status: 400 },
+      );
+    }
+
+    if (image.size > MAX_IMAGE_BYTES) {
+      return NextResponse.json(
+        { error: "Görsel boyutu en fazla 8 MB olabilir." },
+        { status: 413 },
       );
     }
 
@@ -153,9 +165,14 @@ export async function POST(request: Request) {
         ? error.message
         : "Görsel analizi sırasında beklenmeyen bir hata oluştu.";
 
-    const status = message.includes("GEMINI_API_KEY")
-      ? 500
-      : message.includes("JSON") || message.includes("Gemini")
+    if (isProviderConfigError(message)) {
+      return NextResponse.json(
+        { error: "Belge analizi şu anda kullanılamıyor." },
+        { status: 503 },
+      );
+    }
+
+    const status = message.includes("JSON") || message.includes("Gemini")
         ? 502
         : message.includes("Desteklenmeyen")
           ? 400

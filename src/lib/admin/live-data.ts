@@ -21,9 +21,15 @@ export type LiveAdminMetrics = {
   activeAgents7d: number;
   totalTenants: number;
   paidTenants: number;
+  brokerOfficeTenants: number;
   totalDeals: number;
+  activeDeals: number;
+  totalClients: number;
   totalProperties: number;
   fsboLeads: number;
+  pendingLicenses: number;
+  proTenants: number;
+  premiumTenants: number;
 };
 
 function mapPlan(planType: TenantPlanType | null | undefined): LiveAdminSubscriber["plan"] {
@@ -123,9 +129,15 @@ export async function fetchLiveAdminMetrics(): Promise<LiveAdminMetrics> {
     activeAgents7d,
     totalTenants,
     paidTenants,
+    brokerOfficeTenants,
     totalDeals,
+    activeDeals,
+    totalClients,
     totalProperties,
     fsboLeads,
+    pendingLicenses,
+    proTenants,
+    premiumTenants,
   ] = await Promise.all([
     prisma.agent.count(),
     prisma.agent.count({ where: { lastActiveAt: { gte: sevenDaysAgo } } }),
@@ -133,9 +145,21 @@ export async function fetchLiveAdminMetrics(): Promise<LiveAdminMetrics> {
     prisma.tenant.count({
       where: { planType: { in: ["PRO", "PREMIUM"] }, status: { not: "CANCELLED" } },
     }),
+    prisma.tenant.count({
+      where: { planType: "PREMIUM", organizationType: "BROKERLIK" },
+    }),
     prisma.deal.count(),
+    prisma.deal.count({
+      where: { stage: { notIn: ["WON", "LOST"] } },
+    }),
+    prisma.client.count(),
     prisma.property.count(),
     prisma.fsboLead.count(),
+    prisma.agent.count({ where: { licenseStatus: "PENDING" } }),
+    prisma.tenant.count({ where: { planType: "PRO", status: { not: "CANCELLED" } } }),
+    prisma.tenant.count({
+      where: { planType: "PREMIUM", status: { not: "CANCELLED" } },
+    }),
   ]);
 
   return {
@@ -143,9 +167,15 @@ export async function fetchLiveAdminMetrics(): Promise<LiveAdminMetrics> {
     activeAgents7d,
     totalTenants,
     paidTenants,
+    brokerOfficeTenants,
     totalDeals,
+    activeDeals,
+    totalClients,
     totalProperties,
     fsboLeads,
+    pendingLicenses,
+    proTenants,
+    premiumTenants,
   };
 }
 

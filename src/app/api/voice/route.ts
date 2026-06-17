@@ -35,6 +35,7 @@ import {
 const WHISPER_MODEL = "whisper-large-v3";
 const LLM_MODEL = "llama-3.1-8b-instant";
 const MIN_AUDIO_BYTES = 800;
+const MAX_AUDIO_BYTES = 15 * 1024 * 1024;
 
 export const runtime = "nodejs";
 
@@ -127,6 +128,16 @@ export async function POST(request: Request) {
           code: "validation" as const,
         },
         { status: 400 },
+      );
+    }
+
+    if (audio.size > MAX_AUDIO_BYTES) {
+      return NextResponse.json(
+        {
+          error: "Ses kaydı en fazla 15 MB olabilir.",
+          code: "validation" as const,
+        },
+        { status: 413 },
       );
     }
 

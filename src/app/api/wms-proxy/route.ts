@@ -1,14 +1,46 @@
 import { NextResponse } from "next/server";
 
 import {
+  INTELLIGENCE_WMS_LAYERS,
   WMS_UPSTREAM_BASE,
   type WmsServiceId,
 } from "@/lib/radar/wms-services";
 
 const ALLOWED_SERVICES = new Set<WmsServiceId>(["amd", "abi"]);
+const MAX_TILE_SIZE = 1024;
+const MIN_TILE_SIZE = 64;
+const WEB_MERCATOR_LIMIT = 20_037_508.342789244;
 
 function isServiceId(value: string | null): value is WmsServiceId {
   return value !== null && ALLOWED_SERVICES.has(value as WmsServiceId);
+}
+
+function isAllowedLayer(service: WmsServiceId, layers: string) {
+  return INTELLIGENCE_WMS_LAYERS.some(
+    (layer) => layer.service === service && layer.layers === layers,
+  );
+}
+
+function parseTileSize(value: string) {
+  const size = Number(value);
+  if (!Number.isInteger(size) || size < MIN_TILE_SIZE || size > MAX_TILE_SIZE) {
+    return null;
+  }
+  return String(size);
+}
+
+function isValidWebMercatorBbox(parts: number[]) {
+  const [minX, minY, maxX, maxY] = parts;
+  return (
+    minX < maxX &&
+    minY < maxY &&
+    parts.every(
+      (value) =>
+        Number.isFinite(value) &&
+        value >= -WEB_MERCATOR_LIMIT &&
+        value <= WEB_MERCATOR_LIMIT,
+    )
+  );
 }
 
 export async function GET(request: Request) {
@@ -26,9 +58,25 @@ export async function GET(request: Request) {
     );
   }
 
+  if (!isAllowedLayer(service, layers)) {
+    return NextResponse.json(
+      { error: "Desteklenmeyen katman." },
+      { status: 400 },
+    );
+  }
+
   const bboxParts = bbox.split(",").map((part) => Number(part.trim()));
-  if (bboxParts.length !== 4 || bboxParts.some((value) => Number.isNaN(value))) {
+  if (bboxParts.length !== 4 || !isValidWebMercatorBbox(bboxParts)) {
     return NextResponse.json({ error: "Geçersiz bbox." }, { status: 400 });
+  }
+
+  const tileWidth = parseTileSize(width);
+  const tileHeight = parseTileSize(height);
+  if (!tileWidth || !tileHeight) {
+    return NextResponse.json(
+      { error: "Geçersiz görüntü boyutu." },
+      { status: 400 },
+    );
   }
 
   const upstreamBase = WMS_UPSTREAM_BASE[service];
@@ -39,8 +87,8 @@ export async function GET(request: Request) {
   upstreamUrl.searchParams.set("LAYERS", layers);
   upstreamUrl.searchParams.set("CRS", "EPSG:3857");
   upstreamUrl.searchParams.set("BBOX", bbox);
-  upstreamUrl.searchParams.set("WIDTH", width);
-  upstreamUrl.searchParams.set("HEIGHT", height);
+  upstreamUrl.searchParams.set("WIDTH", tileWidth);
+  upstreamUrl.searchParams.set("HEIGHT", tileHeight);
   upstreamUrl.searchParams.set("FORMAT", "image/png");
   upstreamUrl.searchParams.set("STYLES", "");
   upstreamUrl.searchParams.set("TRANSPARENT", "TRUE");

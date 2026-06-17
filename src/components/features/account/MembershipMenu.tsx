@@ -169,8 +169,8 @@ export function MembershipMenu({ className }: { className?: string }) {
     const metricsLink: MenuLink[] = summary?.capabilities.canViewBrokerMetrics
       ? [
           {
-            href: "/account?tab=metrikler",
-            label: "Ofis Metrikleri",
+            href: "/ofis-operasyonu",
+            label: "Ofis İzleme",
             description: "Ekip performansı ve pipeline",
             icon: BarChart3,
             accent: "text-primary",

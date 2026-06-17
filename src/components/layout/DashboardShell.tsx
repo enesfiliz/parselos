@@ -12,12 +12,22 @@ const ParselCopilot = dynamic(
   { ssr: false },
 );
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function DashboardShell({
+  children,
+  showBrokerOfficeNav = false,
+}: {
+  children: React.ReactNode;
+  showBrokerOfficeNav?: boolean;
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-parsel-canvas text-foreground antialiased">
-      <Sidebar mobileOpen={mobileOpen} onMobileOpenChange={setMobileOpen} />
+      <Sidebar
+        mobileOpen={mobileOpen}
+        onMobileOpenChange={setMobileOpen}
+        showBrokerOfficeNav={showBrokerOfficeNav}
+      />
 
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <div

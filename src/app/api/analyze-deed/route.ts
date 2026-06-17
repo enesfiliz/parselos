@@ -5,6 +5,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const GEMINI_MODEL = "gemini-1.5-flash";
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
 const SYSTEM_PROMPT =
   "Sen Seviye 5 lisanslı, analitik bir gayrimenkul yatırım uzmanısın. Ekli tapu veya ekspertiz görselini incele. Sadece metinleri okumakla kalma; bölgenin niteliğine (arsa/tarla vb.) ve hisse durumuna bakarak derin bir yatırım analizi yap.";
@@ -142,6 +143,10 @@ function parseAnalysis(content: string): DeedAnalysis {
   return normalizePayload(JSON.parse(extractJsonContent(content)));
 }
 
+function isProviderConfigError(message: string) {
+  return message.includes("GEMINI") || message.includes("GOOGLE");
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -151,6 +156,13 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Geçerli bir görsel gönderilmedi. 'image' alanı zorunludur." },
         { status: 400 },
+      );
+    }
+
+    if (image.size > MAX_IMAGE_BYTES) {
+      return NextResponse.json(
+        { error: "Görsel boyutu en fazla 8 MB olabilir." },
+        { status: 413 },
       );
     }
 
@@ -221,9 +233,14 @@ export async function POST(request: Request) {
         ? error.message
         : "TapuAI analizi sırasında beklenmeyen bir hata oluştu.";
 
-    const status = message.includes("GEMINI") || message.includes("GOOGLE")
-      ? 500
-      : message.includes("Desteklenmeyen")
+    if (isProviderConfigError(message)) {
+      return NextResponse.json(
+        { error: "Belge analizi şu anda kullanılamıyor." },
+        { status: 503 },
+      );
+    }
+
+    const status = message.includes("Desteklenmeyen")
         ? 400
         : message.includes("JSON")
           ? 502

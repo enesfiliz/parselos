@@ -1,4 +1,4 @@
-import { Activity, ArrowUpRight, Users } from "lucide-react";
+import { Activity, ArrowUpRight, Building2, CreditCard, Shield, Users } from "lucide-react";
 
 import { AdminSparkline } from "@/components/admin/AdminSparkline";
 import type {
@@ -43,17 +43,25 @@ function buildMetricCards(metrics: LiveAdminMetrics) {
       id: "tenants",
       label: "Ofis / Kiracı",
       value: metrics.totalTenants.toLocaleString("tr-TR"),
-      change: `${metrics.paidTenants} ücretli paket`,
+      change: `${metrics.paidTenants} ücretli · ${metrics.brokerOfficeTenants} broker ofis`,
       changePositive: metrics.paidTenants > 0,
-      sparkline: [metrics.totalTenants, metrics.paidTenants, metrics.totalTenants],
+      sparkline: [metrics.totalTenants, metrics.brokerOfficeTenants, metrics.paidTenants],
     },
     {
       id: "deals",
-      label: "Aktif Fırsat",
+      label: "Fırsatlar",
       value: metrics.totalDeals.toLocaleString("tr-TR"),
-      change: "CRM kanban kayıtları",
-      changePositive: true,
-      sparkline: [metrics.totalDeals, metrics.totalProperties, metrics.totalDeals],
+      change: `${metrics.activeDeals} aktif pipeline`,
+      changePositive: metrics.activeDeals > 0,
+      sparkline: [metrics.totalDeals, metrics.activeDeals, metrics.totalDeals],
+    },
+    {
+      id: "clients",
+      label: "Müşteri Kaydı",
+      value: metrics.totalClients.toLocaleString("tr-TR"),
+      change: `${metrics.totalProperties} portföy/ilan`,
+      changePositive: metrics.totalClients > 0,
+      sparkline: [metrics.totalClients, metrics.totalProperties, metrics.totalClients],
     },
     {
       id: "fsbo",
@@ -62,6 +70,30 @@ function buildMetricCards(metrics: LiveAdminMetrics) {
       change: "Radar havuzu",
       changePositive: metrics.fsboLeads > 0,
       sparkline: [metrics.fsboLeads, metrics.fsboLeads, metrics.fsboLeads],
+    },
+    {
+      id: "licenses",
+      label: "TTYB İnceleme",
+      value: metrics.pendingLicenses.toLocaleString("tr-TR"),
+      change: "bekleyen yetki belgesi",
+      changePositive: metrics.pendingLicenses === 0,
+      sparkline: [metrics.pendingLicenses, metrics.pendingLicenses, 0],
+    },
+    {
+      id: "pro",
+      label: "Pro Paket",
+      value: metrics.proTenants.toLocaleString("tr-TR"),
+      change: "aktif abonelik",
+      changePositive: metrics.proTenants > 0,
+      sparkline: [metrics.proTenants, metrics.proTenants, metrics.proTenants],
+    },
+    {
+      id: "premium",
+      label: "Broker Ofis",
+      value: metrics.premiumTenants.toLocaleString("tr-TR"),
+      change: `${metrics.brokerOfficeTenants} BROKERLIK kurulumu`,
+      changePositive: metrics.premiumTenants > 0,
+      sparkline: [metrics.premiumTenants, metrics.brokerOfficeTenants, metrics.premiumTenants],
     },
   ];
 }
@@ -108,26 +140,29 @@ export function AdminCommandCenterView({
   const activityLogs = buildActivityLogs(metrics, recent);
 
   return (
-    <div className="mx-auto max-w-[1600px] space-y-8">
+    <div className="mx-auto max-w-[1680px] space-y-8">
       <header className="space-y-2">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-emerald-400/80">
-              God Mode
+              Superadmin
             </p>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-4xl">
               Komuta Merkezi
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              ParselOS SaaS — canlı veritabanı özeti
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              ParselOS SaaS — danışman, ofis, abonelik, pipeline ve uyumluluk metrikleri.
+              Tüm veriler canlı PostgreSQL üzerinden okunur.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-emerald-500/15 bg-emerald-500/5 px-3 py-1.5 text-xs text-emerald-300/90">
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-40" />
-              <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
-            </span>
-            Canlı PostgreSQL
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 rounded-full border border-emerald-500/15 bg-emerald-500/5 px-3 py-1.5 text-xs text-emerald-300/90">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-40" />
+                <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+              </span>
+              Canlı PostgreSQL
+            </div>
           </div>
         </div>
       </header>
@@ -157,6 +192,71 @@ export function AdminCommandCenterView({
             </p>
           </article>
         ))}
+      </section>
+
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <article className="rounded-2xl border border-emerald-500/10 bg-parsel-elevated p-5">
+          <div className="mb-3 flex items-center gap-2 text-emerald-400">
+            <Building2 className="size-4" strokeWidth={1.75} />
+            <h2 className="text-sm font-semibold text-foreground">Ofis dağılımı</h2>
+          </div>
+          <dl className="space-y-2 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Toplam kiracı</dt>
+              <dd className="font-semibold tabular-nums text-foreground">{metrics.totalTenants}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Broker ofis kurulumu</dt>
+              <dd className="font-semibold tabular-nums text-foreground">{metrics.brokerOfficeTenants}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Ücretli abonelik</dt>
+              <dd className="font-semibold tabular-nums text-foreground">{metrics.paidTenants}</dd>
+            </div>
+          </dl>
+        </article>
+        <article className="rounded-2xl border border-emerald-500/10 bg-parsel-elevated p-5">
+          <div className="mb-3 flex items-center gap-2 text-emerald-400">
+            <CreditCard className="size-4" strokeWidth={1.75} />
+            <h2 className="text-sm font-semibold text-foreground">Paket kırılımı</h2>
+          </div>
+          <dl className="space-y-2 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Pro</dt>
+              <dd className="font-semibold tabular-nums text-foreground">{metrics.proTenants}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Premium / Broker</dt>
+              <dd className="font-semibold tabular-nums text-foreground">{metrics.premiumTenants}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Ücretsiz tahmini</dt>
+              <dd className="font-semibold tabular-nums text-foreground">
+                {Math.max(metrics.totalTenants - metrics.paidTenants, 0)}
+              </dd>
+            </div>
+          </dl>
+        </article>
+        <article className="rounded-2xl border border-emerald-500/10 bg-parsel-elevated p-5">
+          <div className="mb-3 flex items-center gap-2 text-emerald-400">
+            <Shield className="size-4" strokeWidth={1.75} />
+            <h2 className="text-sm font-semibold text-foreground">Uyumluluk</h2>
+          </div>
+          <dl className="space-y-2 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">TTYB incelemede</dt>
+              <dd className="font-semibold tabular-nums text-foreground">{metrics.pendingLicenses}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Aktif fırsat</dt>
+              <dd className="font-semibold tabular-nums text-foreground">{metrics.activeDeals}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">FSBO havuzu</dt>
+              <dd className="font-semibold tabular-nums text-foreground">{metrics.fsboLeads}</dd>
+            </div>
+          </dl>
+        </article>
       </section>
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">

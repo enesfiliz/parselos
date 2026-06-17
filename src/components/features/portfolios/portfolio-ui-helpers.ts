@@ -5,6 +5,12 @@ export const METRIC_CARD =
 
 export type ListingFilter = "ALL" | "SATILIK" | "KIRALIK";
 export type KindFilter = "ALL" | AuthorizedPortfolioItem["propertyKind"];
+export type PortfolioSortKey =
+  | "activity_desc"
+  | "price_desc"
+  | "price_asc"
+  | "yetki_asc"
+  | "title_asc";
 
 export function isMockPortfolio(id: string) {
   return id.startsWith("portfolio-mock-");
@@ -120,6 +126,49 @@ export function matchesPortfolioFilters(
   if (listingFilter !== "ALL" && item.listingType !== listingFilter) return false;
   if (kindFilter !== "ALL" && item.propertyKind !== kindFilter) return false;
   return true;
+}
+
+function parsePriceValue(item: AuthorizedPortfolioItem) {
+  const digits = item.priceFormatted.replace(/[^\d]/g, "");
+  const value = Number(digits);
+  return Number.isFinite(value) ? value : 0;
+}
+
+export function sortPortfolioItems(
+  items: AuthorizedPortfolioItem[],
+  sortKey: PortfolioSortKey,
+) {
+  const sorted = [...items];
+  sorted.sort((a, b) => {
+    switch (sortKey) {
+      case "price_desc":
+        return parsePriceValue(b) - parsePriceValue(a);
+      case "price_asc":
+        return parsePriceValue(a) - parsePriceValue(b);
+      case "yetki_asc":
+        return a.yetkiRemainingDays - b.yetkiRemainingDays;
+      case "title_asc":
+        return a.title.localeCompare(b.title, "tr-TR");
+      case "activity_desc":
+      default:
+        return (
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+    }
+  });
+  return sorted;
+}
+
+export function hasActivePortfolioFilters(
+  query: string,
+  listingFilter: ListingFilter,
+  kindFilter: KindFilter,
+) {
+  return (
+    query.trim().length > 0 ||
+    listingFilter !== "ALL" ||
+    kindFilter !== "ALL"
+  );
 }
 
 export function formatPortfolioLastActivity(isoDate: string) {

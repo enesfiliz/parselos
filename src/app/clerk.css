@@ -242,3 +242,20 @@
   font-family: var(--font-outfit), system-ui, sans-serif !important;
   font-weight: 600 !important;
 }
+
+.parsel-clerk-security-only .cl-navbar,
+.parsel-clerk-security-only .cl-navbarMobileMenuRow,
+.parsel-clerk-security-only .cl-navbarButtons {
+  display: none !important;
+}
+
+.parsel-clerk-security-only .cl-navbar + .cl-scrollBox,
+.parsel-clerk-security-only .cl-main {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.parsel-clerk-security-only .cl-navbarButton,
+.parsel-clerk-security-only .cl-navbarButton[data-active="true"] {
+  user-select: none;
+}

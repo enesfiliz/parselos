@@ -35,12 +35,17 @@ const KIND_META: Record<
 
 export function NotificationCenter() {
   const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((item) => !item.read).length;
+  const visibleNotifications =
+    filter === "unread"
+      ? notifications.filter((item) => !item.read)
+      : notifications;
 
   const loadNotifications = useCallback(async () => {
     setLoading(true);
@@ -153,19 +158,43 @@ export function NotificationCenter() {
           aria-label="Bildirim merkezi"
           className="absolute right-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-1.5rem))] animate-in fade-in slide-in-from-top-2 overflow-hidden rounded-xl border border-border/50 bg-parsel-panel shadow-2xl duration-200 md:w-80"
         >
-          <div className="flex items-center justify-between border-b border-border/50 px-4 py-3">
-            <h2 className="text-sm font-semibold text-foreground/90">Bildirimler</h2>
-            {unreadCount > 0 ? (
-              <button
-                type="button"
-                onClick={() => void markAllRead()}
-                className="text-[10px] text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Tümünü okundu işaretle
-              </button>
-            ) : (
-              <span className="text-[10px] text-muted-foreground">Güncel</span>
-            )}
+          <div className="border-b border-border/50 px-4 py-3">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-foreground/90">Bildirimler</h2>
+              {unreadCount > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => void markAllRead()}
+                  className="text-[10px] text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Tümünü okundu işaretle
+                </button>
+              ) : (
+                <span className="text-[10px] text-muted-foreground">Güncel</span>
+              )}
+            </div>
+            <div className="mt-2 flex gap-1 rounded-lg bg-parsel-elevated/80 p-1">
+              {(
+                [
+                  { id: "all", label: "Tümü" },
+                  { id: "unread", label: `Okunmamış (${unreadCount})` },
+                ] as const
+              ).map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setFilter(item.id)}
+                  className={cn(
+                    "flex-1 rounded-md px-2 py-1.5 text-[10px] font-medium transition-colors",
+                    filter === item.id
+                      ? "bg-parsel-panel text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {loading ? (
@@ -175,13 +204,13 @@ export function NotificationCenter() {
             </div>
           ) : error ? (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">{error}</p>
-          ) : notifications.length === 0 ? (
+          ) : visibleNotifications.length === 0 ? (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              Henüz bildirim yok.
+              {filter === "unread" ? "Okunmamış bildirim yok." : "Henüz bildirim yok."}
             </p>
           ) : (
             <ul className="flex max-h-80 flex-col overflow-y-auto">
-              {notifications.map((notification) => {
+              {visibleNotifications.map((notification) => {
                 const meta = KIND_META[notification.kind];
                 const Icon = meta.icon;
                 const content = (

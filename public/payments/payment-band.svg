@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 40" role="img" aria-hidden="true">
+  <g fill="none" fill-rule="evenodd">
+    <!-- iyzico chevron -->
+    <path fill="#1E64FF" d="M6 8 18 20 6 32V8Z"/>
+    <text x="24" y="25" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="15" font-weight="700" fill="#4DA3FF">iyzico</text>
+    <text x="88" y="25" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="11" font-weight="500" class="payment-band-sub">ile Öde</text>
+    <!-- Mastercard -->
+    <circle cx="168" cy="20" r="11" fill="#EB001B"/>
+    <circle cx="182" cy="20" r="11" fill="#F79E1B" fill-opacity=".95"/>
+    <!-- Visa -->
+    <text x="208" y="26" font-family="Georgia,serif" font-size="17" font-weight="700" font-style="italic" fill="#1A1F71" class="payment-band-visa">VISA</text>
+    <!-- Amex -->
+    <rect x="268" y="8" width="52" height="24" rx="3" fill="#2E77BC"/>
+    <text x="294" y="17" text-anchor="middle" font-family="system-ui,sans-serif" font-size="5.5" font-weight="700" fill="#fff">AMERICAN</text>
+    <text x="294" y="24" text-anchor="middle" font-family="system-ui,sans-serif" font-size="5.5" font-weight="700" fill="#fff">EXPRESS</text>
+    <!-- Troy -->
+    <text x="340" y="26" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#4B5563" class="payment-band-troy">troy</text>
+    <path fill="#38BDF8" d="M358 20a6 6 0 1 1 0 .01"/>
+    <path fill="#38BDF8" d="M358 14v12" stroke="#38BDF8" stroke-width="1.5"/>
+  </g>
+</svg>

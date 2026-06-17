@@ -1,26 +1,23 @@
 "use client";
 
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { UserProfile } from "@clerk/nextjs";
 import {
   BadgeCheck,
-  BarChart3,
   Building2,
-  CreditCard,
   KeyRound,
-  LayoutDashboard,
   Loader2,
   Save,
-  Shield,
   UserRound,
-  Users,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { useParselTheme } from "@/components/providers/ThemeProvider";
-import { BrokerMetricsPanel } from "@/components/features/account/BrokerMetricsPanel";
-import { OfficeAssignmentPanel } from "@/components/features/account/OfficeAssignmentPanel";
+import {
+  AccountSectionNav,
+  type AccountTabId,
+} from "@/components/features/account/AccountSectionNav";
 import {
   LicenseBadge,
   PlanBadge,
@@ -31,7 +28,6 @@ import { BillingView } from "@/components/features/billing/BillingView";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AGENT_ROLE_ACCENT,
   AGENT_ROLE_DESCRIPTIONS,
@@ -43,7 +39,6 @@ import {
   canManageOfficeInvites,
   canManageTeam,
   canSelectAgentRoleType,
-  canViewBrokerMetrics,
   isBrokerOfficeTenant,
   memberRoleLabel,
 } from "@/lib/account/permissions";
@@ -92,34 +87,17 @@ type ProfileData = {
 
 type AccountSettingsViewProps = { initialData: ProfileData };
 
-type TabConfig = {
-  id: string;
-  label: string;
-  icon: typeof LayoutDashboard;
-  brokerOnly?: boolean;
-};
-
-const BASE_TABS: TabConfig[] = [
-  { id: "genel", label: "Genel", icon: LayoutDashboard },
-  { id: "profil", label: "Profil", icon: UserRound },
-  { id: "kurum", label: "Kurum & Yetki", icon: Building2 },
-  { id: "ekip", label: "Ekip", icon: Users },
-  { id: "metrikler", label: "Ofis Metrikleri", icon: BarChart3, brokerOnly: true },
-  { id: "abonelik", label: "Abonelik", icon: CreditCard },
-  { id: "guvenlik", label: "Güvenlik", icon: Shield },
-];
-
-type TabId =
-  | "genel"
-  | "profil"
-  | "kurum"
-  | "ekip"
-  | "metrikler"
-  | "abonelik"
-  | "guvenlik";
-
 const selectClassName =
   "h-10 w-full rounded-xl border border-border bg-card px-3 text-sm font-medium text-foreground outline-none focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/25 dark:bg-background/80";
+
+const VALID_TABS: AccountTabId[] = [
+  "genel",
+  "profil",
+  "kurum",
+  "ekip",
+  "abonelik",
+  "guvenlik",
+];
 
 export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
   const router = useRouter();
@@ -127,10 +105,6 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
   const { resolvedTheme } = useParselTheme();
   const clerkAppearance = getClerkAppearance(resolvedTheme);
 
-  const showBrokerMetrics = canViewBrokerMetrics(
-    initialData.agent,
-    initialData.tenant,
-  );
   const manageTeam = canManageTeam(initialData.agent, initialData.tenant);
   const selectAgentRole = canSelectAgentRoleType(
     initialData.agent,
@@ -144,12 +118,26 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
     initialData.tenant,
   );
 
-  const tabs = BASE_TABS.filter(
-    (tab) => !tab.brokerOnly || showBrokerMetrics,
-  );
+  const tabFromUrl = (searchParams.get("tab") as AccountTabId | null) ?? "genel";
 
-  const tabFromUrl = (searchParams.get("tab") as TabId | null) ?? "genel";
-  const activeTab: TabId = tabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : "genel";
+  useEffect(() => {
+    if (searchParams.get("tab") === "metrikler") {
+      router.replace("/ofis-operasyonu");
+    }
+  }, [router, searchParams]);
+
+  const activeTab: AccountTabId = VALID_TABS.includes(tabFromUrl)
+    ? tabFromUrl
+    : "genel";
+
+  useEffect(() => {
+    if (activeTab !== "guvenlik") return;
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash;
+    if (!hash.includes("security")) {
+      window.location.hash = "#/security";
+    }
+  }, [activeTab]);
   const [saving, setSaving] = useState(false);
   const [verifyingLicense, setVerifyingLicense] = useState(false);
 
@@ -174,10 +162,9 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
   });
 
   const onTabChange = useCallback(
-    (value: string) => {
-      const tab = value as TabId;
+    (value: AccountTabId) => {
       const params = new URLSearchParams(searchParams.toString());
-      params.set("tab", tab);
+      params.set("tab", value);
       router.replace(`/account?${params.toString()}`, { scroll: false });
     },
     [router, searchParams],
@@ -267,12 +254,11 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
             <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-primary">
               ParselOS Üyelik
             </p>
-            <h1 className="font-outfit text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-              Hesap & Ofis Yönetimi
+            <h1 className="font-outfit text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              Hesabım
             </h1>
             <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-              Profilinizi, yetki belgenizi, ekip yapınızı ve ofis metriklerinizi
-              tek merkezden yönetin.
+              Profilinizi, ofis bilgilerinizi, ekibinizi ve aboneliğinizi yönetin.
             </p>
             <div className="flex flex-wrap gap-2 pt-1">
               <RoleBadge role={form.roleType} />
@@ -297,39 +283,9 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
         </div>
       </header>
 
-      <Tabs value={activeTab} onValueChange={onTabChange} className="gap-6">
-        <div className="md:hidden">
-          <label htmlFor="account-tab-select" className="sr-only">
-            Bölüm seçin
-          </label>
-          <select
-            id="account-tab-select"
-            value={activeTab}
-            onChange={(event) => onTabChange(event.target.value)}
-            className={selectClassName}
-          >
-            {tabs.map(({ id, label }) => (
-              <option key={id} value={id}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <TabsList className="hidden h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-muted/60 p-1.5 md:flex">
-          {tabs.map(({ id, label, icon: Icon }) => (
-            <TabsTrigger
-              key={id}
-              value={id}
-              className="gap-2 rounded-xl px-4 py-2.5 data-active:bg-card data-active:shadow-sm"
-            >
-              <Icon className="size-4" strokeWidth={1.75} />
-              {label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <TabsContent value="genel" className="space-y-4">
+      <AccountSectionNav activeTab={activeTab} onTabChange={onTabChange}>
+        {activeTab === "genel" ? (
+        <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
             <OverviewCard
               title="Üyelik Durumu"
@@ -371,9 +327,11 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
               </Button>
             </div>
           ) : null}
-        </TabsContent>
+        </div>
+        ) : null}
 
-        <TabsContent value="profil" className="space-y-6">
+        {activeTab === "profil" ? (
+        <div className="space-y-6">
           <CardSection title="Kişisel Bilgiler" icon={UserRound}>
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Ad">
@@ -458,9 +416,11 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
           )}
 
           <SaveBar saving={saving} onSave={handleSave} />
-        </TabsContent>
+        </div>
+        ) : null}
 
-        <TabsContent value="kurum" className="space-y-6">
+        {activeTab === "kurum" ? (
+        <div className="space-y-6">
           <CardSection title="Yetki Belgesi (TTYB)" icon={KeyRound}>
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -590,9 +550,10 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
           </CardSection>
 
           <SaveBar saving={saving} onSave={handleSave} />
-        </TabsContent>
+        </div>
+        ) : null}
 
-        <TabsContent value="ekip">
+        {activeTab === "ekip" ? (
           <TeamPanel
             currentAgentId={initialData.agent.id}
             agent={{
@@ -603,22 +564,17 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
             tenant={initialData.tenant}
             canManageInvites={manageOfficeInvites}
           />
-        </TabsContent>
+        ) : null}
 
-        <TabsContent value="metrikler" className="space-y-6">
-          <BrokerMetricsPanel />
-          {manageTeam ? <OfficeAssignmentPanel /> : null}
-        </TabsContent>
-
-        <TabsContent value="abonelik">
+        {activeTab === "abonelik" ? (
           <BillingView
             embedded
             currentPlan={initialData.tenant.planType}
             currentStatus={initialData.tenant.status}
           />
-        </TabsContent>
+        ) : null}
 
-        <TabsContent value="guvenlik">
+        {activeTab === "guvenlik" ? (
           <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
             <div className="border-b border-border bg-card px-6 py-4">
               <h2 className="font-outfit text-lg font-semibold">Hesap Güvenliği</h2>
@@ -626,30 +582,28 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
                 Şifre, iki adımlı doğrulama ve oturum yönetimi
               </p>
             </div>
-            <div className="parsel-clerk-profile bg-card">
-              {activeTab === "guvenlik" ? (
-                <UserProfile
-                  routing="hash"
-                  appearance={{
-                    ...clerkAppearance,
-                    elements: {
-                      ...clerkAppearance.elements,
-                      rootBox: "w-full bg-card",
-                      card: "shadow-none border-0 rounded-none bg-card",
-                      cardBox: "bg-card",
-                      navbar: "border-r border-border bg-card",
-                      pageScrollBox: "bg-card",
-                      scrollBox: "bg-card",
-                      page: "bg-card",
-                      profilePage: "bg-card",
-                    },
-                  }}
-                />
-              ) : null}
+            <div className="parsel-clerk-profile parsel-clerk-security-only bg-card">
+              <UserProfile
+                routing="hash"
+                appearance={{
+                  ...clerkAppearance,
+                  elements: {
+                    ...clerkAppearance.elements,
+                    rootBox: "w-full bg-card",
+                    card: "shadow-none border-0 rounded-none bg-card",
+                    cardBox: "bg-card",
+                    navbar: "hidden",
+                    pageScrollBox: "bg-card",
+                    scrollBox: "bg-card",
+                    page: "bg-card",
+                    profilePage: "bg-card",
+                  },
+                }}
+              />
             </div>
           </section>
-        </TabsContent>
-      </Tabs>
+        ) : null}
+      </AccountSectionNav>
     </div>
   );
 }

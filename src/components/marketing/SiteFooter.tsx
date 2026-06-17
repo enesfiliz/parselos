@@ -65,7 +65,7 @@ export function SiteFooter() {
 
         <div className="mt-10 flex flex-col gap-2 border-t border-border/40 pt-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <span>ParselOS © {new Date().getFullYear()}. Tüm hakları saklıdır.</span>
-          <span>Ödeme altyapısı: iyzico · Dijital hizmet teslimi</span>
+          <span>Dijital hizmet teslimi · Güvenli ödeme</span>
         </div>
       </div>
     </footer>

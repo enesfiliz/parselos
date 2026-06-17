@@ -13,6 +13,7 @@ import { toast } from "sonner";
 
 import { PlanBadge } from "@/components/features/account/RoleBadge";
 import { getSubscriptionStatusBadge, METRIC_CARD } from "@/components/features/billing/billing-ui-helpers";
+import { PaymentBadges } from "@/components/marketing/PaymentBadges";
 import { Button } from "@/components/ui/button";
 import { formatOfficePricingNote, PLAN_CATALOG } from "@/lib/billing/plan-catalog";
 import { BILLING_PLANS, type BillablePlan } from "@/lib/billing/plans";
@@ -162,10 +163,12 @@ export function BillingView({
             ) : null}
           </div>
 
-          <div className="grid gap-2 text-xs text-muted-foreground sm:min-w-[220px]">
+          <div className="flex flex-col gap-4 sm:min-w-[240px]">
+            <PaymentBadges size="compact" className="justify-start" />
+            <div className="grid gap-2 text-xs text-muted-foreground">
             <p className="inline-flex items-center gap-2">
               <ShieldCheck className="size-3.5 shrink-0 text-primary" />
-              iyzico güvenli ödeme altyapısı
+              256-bit SSL ile güvenli ödeme
             </p>
             <p className="inline-flex items-center gap-2">
               <FileText className="size-3.5 shrink-0 text-primary" />
@@ -175,6 +178,7 @@ export function BillingView({
               <CreditCard className="size-3.5 shrink-0 text-primary" />
               Paket değişikliği anında yansır
             </p>
+            </div>
           </div>
         </div>
       </section>
@@ -183,7 +187,7 @@ export function BillingView({
         <div>
           <h2 className="text-base font-semibold text-foreground">Plan karşılaştırması</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            İhtiyacınıza uygun paketi seçin; ödeme iyzico üzerinden tamamlanır.
+            İhtiyacınıza uygun paketi seçin; ödeme güvenli ödeme ekranında tamamlanır.
           </p>
         </div>
 
@@ -265,7 +269,7 @@ export function BillingView({
                     {loadingPlan === planKey ? (
                       <>
                         <Loader2 className="size-4 animate-spin" />
-                        iyzico&apos;ya yönlendiriliyor…
+                        Ödeme ekranına yönlendiriliyor…
                       </>
                     ) : isCurrent ? (
                       "Mevcut paket"
@@ -284,15 +288,11 @@ export function BillingView({
         </div>
       </section>
 
-      <section className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel px-5 py-4 text-center shadow-parsel-sm sm:px-6">
-        <p className="text-sm text-muted-foreground">
-          Ödeme altyapısı{" "}
-          <span className="font-medium text-foreground">iyzico</span> ile güvence altındadır.
+      <section className="parsel-surface flex flex-col items-center gap-4 rounded-2xl border border-border/60 bg-parsel-panel px-5 py-5 text-center shadow-parsel-sm sm:px-6">
+        <PaymentBadges />
+        <p className="max-w-xl text-sm text-muted-foreground">
           Tüm fiyatlar KDV dahildir. TTBS onaylı danışman rozeti Danışman ve Ofis paketlerinde
-          aktiftir.
-        </p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Ödeme sonrası fatura bilgileriniz hesap e-postanıza iletilir.
+          aktiftir. Ödeme sonrası fatura bilgileriniz hesap e-postanıza iletilir.
         </p>
       </section>
 

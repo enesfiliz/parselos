@@ -509,7 +509,7 @@ export function PricingSection() {
 
         <div className="mt-10 flex flex-col items-center gap-4 border-t border-border/40 pt-8">
           <p className="text-center text-sm text-muted-foreground">
-            KDV dahil fiyatlandırma · iyzico güvenli ödeme · dijital hizmet anında teslim
+            KDV dahil fiyatlandırma · dijital hizmet anında teslim
           </p>
           <PaymentBadges />
         </div>
@@ -614,8 +614,11 @@ export function FinalCtaSection() {
               <FinalCtaActions />
             </ClerkLoaded>
             <p className="mx-auto mt-6 text-xs font-medium text-muted-foreground">
-              KDV dahil · 2 ücretsiz portföy · iyzico güvenli ödeme
+              KDV dahil · 2 ücretsiz portföy
             </p>
+            <div className="mx-auto mt-4 flex justify-center">
+              <PaymentBadges size="compact" />
+            </div>
           </div>
         </div>
       </RevealOnScroll>

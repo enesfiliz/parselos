@@ -14,7 +14,7 @@ import {
 
   dashboardFooterNavItems,
 
-  dashboardNavGroups,
+  getDashboardNavGroups,
 
   isNavItemActive,
 
@@ -33,6 +33,8 @@ type SidebarNavProps = {
   onNavigate?: () => void;
 
   className?: string;
+
+  showBrokerOfficeNav?: boolean;
 
 };
 
@@ -124,11 +126,13 @@ function NavLink({
 
 
 
-export function SidebarNav({ onNavigate, className }: SidebarNavProps) {
+export function SidebarNav({ onNavigate, className, showBrokerOfficeNav = false }: SidebarNavProps) {
 
   const pathname = usePathname();
 
   const isMobileSheet = Boolean(onNavigate);
+
+  const dashboardNavGroups = getDashboardNavGroups({ showBrokerOfficeNav });
 
 
 
