@@ -3,6 +3,7 @@ import { clientsForAgentWhere } from "@/lib/clients/server-queries";
 import { prisma } from "@/lib/prisma";
 import { MOCK_DEALS } from "@/lib/data/mock-deals";
 import { MOCK_FSBO_PREVIEW_LEADS } from "@/lib/fsbo/mock-fsbo-preview-leads";
+import { isDemoDataEnabled } from "@/lib/demo-mode";
 import { serializeFsboLead } from "@/lib/fsbo/serialize-lead";
 import {
   classifyLeadPropertyType,
@@ -481,7 +482,7 @@ function buildActivityFeed(input: {
 }
 
 function isDemoCommandCenterEnabled() {
-  return process.env.PARSELOS_DEMO_DATA === "1";
+  return isDemoDataEnabled();
 }
 
 function emptyCommandCenterData(): CommandCenterData {

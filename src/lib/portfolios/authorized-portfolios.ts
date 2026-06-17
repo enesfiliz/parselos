@@ -1,6 +1,7 @@
 import "server-only";
 
 import { requireCurrentAgent } from "@/lib/auth/agent";
+import { isDemoDataEnabled } from "@/lib/demo-mode";
 import { formatFullTRY } from "@/lib/types/deal";
 
 import { findAuthorizedPropertyForAgent, listAuthorizedPropertiesForAgent } from "./portfolio-access";
@@ -120,7 +121,7 @@ const MOCK_PORTFOLIOS: AuthorizedPortfolioItem[] = [
 export type { AuthorizedPortfolioItem } from "./portfolio-types";
 
 function isPortfolioDemoDataEnabled() {
-  return process.env.PARSELOS_DEMO_DATA === "1";
+  return isDemoDataEnabled();
 }
 
 export async function getAuthorizedPortfolios(): Promise<AuthorizedPortfolioItem[]> {

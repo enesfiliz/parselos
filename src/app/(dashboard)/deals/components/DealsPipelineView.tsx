@@ -5,7 +5,9 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { DealsKanbanBoard } from "@/components/features/deals/DealsKanbanBoard";
+import { DealsEmptyState } from "@/components/features/deals/DealsEmptyState";
 import { MOCK_DEALS } from "@/lib/data/mock-deals";
+import { isDemoDataEnabled } from "@/lib/demo-mode";
 import {
   formatFullTRY,
   sumDealsBudget,
@@ -19,9 +21,10 @@ type DealsPipelineViewProps = {
 
 export function DealsPipelineView({
   initialDeals = [],
-  preferMock = true,
+  preferMock = false,
 }: DealsPipelineViewProps) {
-  const useMock = preferMock || initialDeals.length === 0;
+  const useMock =
+    isDemoDataEnabled() && (preferMock || initialDeals.length === 0);
 
   const pipelineDeals = useMemo(() => {
     if (useMock) return MOCK_DEALS;
@@ -79,15 +82,21 @@ export function DealsPipelineView({
 
       {useMock ? (
         <p className="text-[11px] text-muted-foreground">
-          Önizleme modu: {pipelineDeals.length} örnek fırsat yüklendi.
+          Demo modu: {pipelineDeals.length} örnek fırsat gösteriliyor.
         </p>
       ) : null}
 
-      <DealsKanbanBoard
-        initialDeals={pipelineDeals}
-        useMock={useMock}
-        onDealsChange={setLiveDeals}
-      />
+      {!useMock && pipelineDeals.length === 0 ? (
+        <DealsEmptyState
+          onCreateDeal={() => toast.info("Yeni fırsat formu yakında.")}
+        />
+      ) : (
+        <DealsKanbanBoard
+          initialDeals={pipelineDeals}
+          useMock={useMock}
+          onDealsChange={setLiveDeals}
+        />
+      )}
     </div>
   );
 }

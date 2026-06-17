@@ -2,6 +2,7 @@ import "server-only";
 
 import type { AppointmentType, CalendarAppointment } from "@/lib/calendar/appointments";
 import { APPOINTMENT_TYPE_META, toDateKey } from "@/lib/calendar/appointments";
+import { isDemoDataEnabled } from "@/lib/demo-mode";
 import { MOCK_DEALS } from "@/lib/data/mock-deals";
 import { agentOwnershipFilter } from "@/lib/auth/agent";
 import { getAuthorizedPortfolios } from "@/lib/portfolios/authorized-portfolios";
@@ -116,9 +117,6 @@ function parseAppointmentDate(value: string): string {
   return toDateKey(new Date());
 }
 
-function isDemoDataEnabled() {
-  return process.env.PARSELOS_DEMO_DATA === "1";
-}
 
 function mapMockPendingDeals() {
   return MOCK_DEALS.filter((deal) =>

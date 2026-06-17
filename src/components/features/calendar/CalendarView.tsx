@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { isDemoDataEnabledClient } from "@/lib/demo-mode";
 import { MOCK_CLIENTS } from "@/lib/data/mock-clients";
 import {
   APPOINTMENT_TYPE_META,
@@ -239,7 +240,9 @@ export function CalendarView() {
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState(todayKey);
-  const [appointments, setAppointments] = useState(createMockAppointments);
+  const [appointments, setAppointments] = useState<CalendarAppointment[]>(() =>
+    isDemoDataEnabledClient() ? createMockAppointments() : [],
+  );
   const [modalOpen, setModalOpen] = useState(false);
 
   const grid = useMemo(
