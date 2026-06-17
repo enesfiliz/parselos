@@ -22,6 +22,11 @@ import {
 } from "../src/lib/radar/source-health.ts";
 import { buildVoiceClientIdempotencyKey } from "../src/lib/voice-crm/idempotency-keys.ts";
 import {
+  mergeVoicePayload,
+  mergeVoiceTranscript,
+} from "../src/lib/voice-crm/merge-voice-payload.ts";
+import { isDemoDataEnabled } from "../src/lib/demo-mode.ts";
+import {
   isVoiceProcessingStale,
   resolveVoiceClaimDecision,
   VOICE_PROCESSING_STALE_MS,
@@ -299,4 +304,51 @@ test("radar storage keys are user scoped", () => {
 test("unsafe radar health URLs are rejected", () => {
   assert.equal(isSafeRadarHealthUrl("http://localhost/duyuru"), false);
   assert.equal(isAllowlistedOfficialHost("www.sogut.bel.tr"), true);
+});
+
+test("voice payload merge appends notes without duplicate client", () => {
+  const merged = mergeVoicePayload(
+    {
+      musteri_adi: "Ayşe",
+      butce: "5M",
+      lokasyon: "İzmit",
+      mulk_tipi: "konut",
+      notlar: "İlk görüşme",
+    },
+    {
+      musteri_adi: "",
+      butce: "",
+      lokasyon: "",
+      mulk_tipi: "",
+      notlar: "Telefon görüşmesi",
+      telefon: "5321234567",
+    },
+  );
+  assert.equal(merged.musteri_adi, "Ayşe");
+  assert.equal(merged.telefon, "5321234567");
+  assert.match(merged.notlar, /İlk görüşme/);
+  assert.match(merged.notlar, /Telefon görüşmesi/);
+});
+
+test("voice transcript merge preserves timeline", () => {
+  const merged = mergeVoiceTranscript("İlk kayıt", "Ek bilgi");
+  assert.match(merged, /İlk kayıt/);
+  assert.match(merged, /---/);
+  assert.match(merged, /Ek bilgi/);
+});
+
+test("demo data is opt-in only", () => {
+  const previous = process.env.PARSELOS_DEMO_DATA;
+  delete process.env.PARSELOS_DEMO_DATA;
+  assert.equal(isDemoDataEnabled(), false);
+  process.env.PARSELOS_DEMO_DATA = "1";
+  assert.equal(isDemoDataEnabled(), true);
+  if (previous === undefined) delete process.env.PARSELOS_DEMO_DATA;
+  else process.env.PARSELOS_DEMO_DATA = previous;
+});
+
+test("apply-actions supports append_info flow", () => {
+  const source = readTracked("src/lib/voice-crm/apply-actions.ts");
+  assert.match(source, /append_info/);
+  assert.match(source, /unarchive/);
 });

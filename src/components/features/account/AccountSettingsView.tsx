@@ -298,7 +298,25 @@ export function AccountSettingsView({ initialData }: AccountSettingsViewProps) {
       </header>
 
       <Tabs value={activeTab} onValueChange={onTabChange} className="gap-6">
-        <TabsList className="h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-muted/60 p-1.5">
+        <div className="md:hidden">
+          <label htmlFor="account-tab-select" className="sr-only">
+            Bölüm seçin
+          </label>
+          <select
+            id="account-tab-select"
+            value={activeTab}
+            onChange={(event) => onTabChange(event.target.value)}
+            className={selectClassName}
+          >
+            {tabs.map(({ id, label }) => (
+              <option key={id} value={id}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <TabsList className="hidden h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-muted/60 p-1.5 md:flex">
           {tabs.map(({ id, label, icon: Icon }) => (
             <TabsTrigger
               key={id}
