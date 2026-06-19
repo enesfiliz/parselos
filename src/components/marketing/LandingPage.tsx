@@ -27,7 +27,7 @@ export function LandingPage() {
             className="inline-flex shrink-0 text-foreground transition-opacity hover:opacity-90"
             aria-label="ParselOS"
           >
-            <Logo className="h-10 w-auto max-w-[180px] sm:h-11" />
+            <Logo priority className="h-8 w-auto max-w-[142px] sm:h-9 sm:max-w-[150px]" />
           </Link>
           <nav className="hidden flex-1 items-center justify-center gap-1 md:flex">
             <a href="#features" className="landing-nav-link">

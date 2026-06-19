@@ -35,7 +35,7 @@ import { cn } from "@/lib/utils";
 
 const FIELD_LABEL = "mb-1.5 block text-xs font-medium text-muted-foreground";
 const FIELD_INPUT =
-  "w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground transition-all focus:border-[#b38c56] focus:outline-none focus:ring-1 focus:ring-[#b38c56]";
+  "w-full rounded-lg border border-border/70 bg-parsel-elevated px-3 py-2.5 text-sm text-foreground transition-all focus:border-primary/35 focus:outline-none focus:ring-2 focus:ring-primary/15";
 
 function dotColorForTypes(types: AppointmentType[]) {
   if (types.includes("deed")) return "bg-emerald-400";
@@ -48,7 +48,7 @@ function EventCard({ event }: { event: CalendarAppointment }) {
   const meta = APPOINTMENT_TYPE_META[event.type];
 
   return (
-    <article className="group flex flex-col gap-3 rounded-xl border border-border/50 bg-parsel-panel p-3 transition-all hover:border-border hover:shadow-lg md:flex-row md:items-center md:justify-between md:p-4">
+    <article className="parsel-surface group flex flex-col gap-3 rounded-xl border border-border/60 bg-parsel-panel p-3 shadow-parsel-sm transition-all hover:border-primary/20 hover:shadow-parsel-md md:flex-row md:items-center md:justify-between md:p-4">
       <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <div className="flex shrink-0 items-center gap-3">
           <span className="text-xl font-bold tabular-nums tracking-tight text-foreground/90 md:text-2xl">
@@ -223,7 +223,7 @@ function NewAppointmentModal({
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-parsel-gold px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-[#9a784a]"
+            className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Randevuyu Kaydet
           </button>
@@ -278,32 +278,33 @@ export function CalendarView() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="mb-4 flex flex-col gap-4 border-b border-border/50 pb-4 md:mb-6 md:pb-5 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-parsel-gold">
-            <CalendarDays className="h-4 w-4" strokeWidth={1.75} />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] md:text-[10px]">
-              Saha Operasyonları
-            </span>
+    <div className="min-h-full bg-parsel-canvas">
+      <div className="mx-auto w-full max-w-6xl space-y-6">
+        <header className="parsel-page-hero flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-primary">
+              <CalendarDays className="h-4 w-4" strokeWidth={1.75} />
+              <span className="parsel-section-label text-primary">
+                Saha Operasyonları
+              </span>
+            </div>
+            <h1 className="parsel-page-title text-foreground">
+              Saha Operasyonları ve Ajanda
+            </h1>
           </div>
-          <h1 className="font-outfit text-xl font-semibold tracking-tight text-foreground/90 md:text-2xl">
-            Saha Operasyonları ve Ajanda
-          </h1>
-        </div>
 
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-parsel-gold px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-[#9a784a] lg:w-auto lg:self-auto"
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-parsel-sm transition-colors hover:bg-primary/90 lg:w-auto lg:self-auto"
         >
           <Plus className="h-4 w-4" strokeWidth={2} />
           Yeni Randevu
         </button>
-      </header>
+        </header>
 
       <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-12">
-        <aside className="h-fit rounded-2xl border border-border/50 bg-parsel-panel p-4 md:p-6 lg:col-span-4">
+        <aside className="parsel-surface h-fit rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm md:p-6 lg:col-span-4">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold capitalize text-foreground/90">
               {formatMonthYear(viewYear, viewMonth)}
@@ -312,7 +313,7 @@ export function CalendarView() {
               <button
                 type="button"
                 onClick={() => shiftMonth(-1)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground/80"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 text-muted-foreground transition-colors hover:border-primary/25 hover:bg-primary/10 hover:text-primary"
                 aria-label="Önceki ay"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -320,7 +321,7 @@ export function CalendarView() {
               <button
                 type="button"
                 onClick={() => shiftMonth(1)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground/80"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 text-muted-foreground transition-colors hover:border-primary/25 hover:bg-primary/10 hover:text-primary"
                 aria-label="Sonraki ay"
               >
                 <ChevronRight className="h-4 w-4" />
@@ -362,9 +363,9 @@ export function CalendarView() {
                   className={cn(
                     "relative flex aspect-square flex-col items-center justify-center rounded-lg border text-sm transition-all",
                     isSelected
-                      ? "border-[#b38c56]/50 bg-parsel-gold/10 text-[#d4b07a]"
-                      : "border-transparent bg-background text-foreground/70 hover:border-border",
-                    isToday && !isSelected && "ring-1 ring-white/15",
+                      ? "border-primary/35 bg-primary/10 text-primary"
+                      : "border-transparent bg-parsel-elevated text-foreground/70 hover:border-border",
+                    isToday && !isSelected && "ring-1 ring-primary/20",
                   )}
                 >
                   <span className="font-medium tabular-nums">
@@ -392,14 +393,14 @@ export function CalendarView() {
             })}
           </div>
 
-          <p className="mt-5 rounded-xl border border-border/50 bg-background px-4 py-3 text-center text-xs text-muted-foreground">
+          <p className="mt-5 rounded-xl border border-border/60 bg-parsel-elevated px-4 py-3 text-center text-xs text-muted-foreground">
             Bu Haftaki Toplam Randevu:{" "}
             <span className="font-semibold text-parsel-gold">{weekTotal}</span>
           </p>
         </aside>
 
         <section className="flex flex-col gap-4 lg:col-span-8">
-          <div className="rounded-xl border border-border/50 bg-parsel-panel px-5 py-4">
+          <div className="parsel-surface rounded-xl border border-border/60 bg-parsel-panel px-5 py-4 shadow-parsel-sm">
             <h2 className="text-sm font-semibold text-foreground/90">
               {formatSelectedDayLabel(selectedDate)}
             </h2>
@@ -409,14 +410,14 @@ export function CalendarView() {
           </div>
 
           {selectedEvents.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-parsel-panel px-6 py-16 text-center">
+            <div className="parsel-surface rounded-2xl border border-dashed border-border/60 bg-parsel-panel px-6 py-16 text-center shadow-parsel-sm">
               <p className="text-sm text-foreground/45">
                 Bu gün için planlanmış randevu yok.
               </p>
               <button
                 type="button"
                 onClick={() => setModalOpen(true)}
-                className="mt-4 text-xs font-medium text-parsel-gold hover:text-[#d4b07a]"
+                className="mt-4 text-xs font-semibold text-primary hover:text-primary/80"
               >
                 + Yeni randevu ekle
               </button>
@@ -427,6 +428,8 @@ export function CalendarView() {
             ))
           )}
         </section>
+      </div>
+
       </div>
 
       <NewAppointmentModal

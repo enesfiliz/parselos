@@ -19,7 +19,7 @@ import {
   SignUpShineButton,
 } from "@/components/marketing/LandingAuthButtons";
 import { PaymentBadges } from "@/components/marketing/PaymentBadges";
-import { RevealOnScroll } from "@/components/marketing/landing-motion";
+import { RevealOnScroll, ScaleOnScroll, HoverLift, StaggerContainer, StaggerItem, GlowOnHover } from "@/components/marketing/landing-motion";
 import { formatOfficePricingNote } from "@/lib/billing/plan-catalog";
 import { LANDING_PRICING_PLANS } from "@/lib/billing/plan-catalog";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,7 @@ const FEATURE_MODULES = [
   {
     id: "portfoy",
     title: "Portföy yönetimi",
-    benefit: "Aktif ilanları, durumları ve vitrin akışını tek merkezden yönetin.",
+    benefit: "Yetki, vitrin, danışman ve takip durumunu dağılmadan aynı portföy kartında yönetin.",
     icon: Briefcase,
     tag: "Portföy",
     accent: "primary",
@@ -42,7 +42,7 @@ const FEATURE_MODULES = [
   {
     id: "musteri-firsat",
     title: "Müşteri & fırsat kanbanı",
-    benefit: "Talep, bütçe ve fırsat pipeline'ını kanban disipliniyle izleyin.",
+    benefit: "Talep, bütçe, gösterim ve teklif adımlarını danışman bazında görünür tutun.",
     icon: Target,
     tag: "CRM",
     accent: "gold",
@@ -50,7 +50,7 @@ const FEATURE_MODULES = [
   {
     id: "imar",
     title: "İmar Radarı",
-    benefit: "Ada/parsel bazında imar ve askı değişikliklerini erken yakalayın.",
+    benefit: "Ada/parsel notlarını, askı süreçlerini ve kontrol gerektiren sinyalleri erken işaretleyin.",
     icon: Radar,
     tag: "Parsel",
     accent: "primary",
@@ -58,7 +58,7 @@ const FEATURE_MODULES = [
   {
     id: "sesli-crm",
     title: "Sesli CRM",
-    benefit: "Saha görüşmesini müşteri notuna ve takip görevine dönüştürün.",
+    benefit: "Sahada konuşulanı müşteri notuna, hatırlatmaya ve sonraki aksiyona dönüştürün.",
     icon: Mic,
     tag: "Saha",
     accent: "gold",
@@ -66,7 +66,7 @@ const FEATURE_MODULES = [
   {
     id: "parselai",
     title: "ParselAI",
-    benefit: "Ofis verinizle bağlamlı AI asistan; özet, aksiyon ve takip önerileri.",
+    benefit: "Ofis bağlamını bilen asistanla özet, aksiyon ve takip önerilerini hızlandırın.",
     icon: Bot,
     tag: "AI",
     accent: "primary",
@@ -74,7 +74,7 @@ const FEATURE_MODULES = [
   {
     id: "ofis",
     title: "Broker/ofis kontrolü",
-    benefit: "Danışman, portföy ve operasyon görünürlüğünü ofis düzeyinde yönetin.",
+    benefit: "Danışman performansı, yetki akışı ve portföy sorumluluğunu ofis düzeyinde yönetin.",
     icon: Building2,
     tag: "Ofis",
     accent: "gold",
@@ -263,26 +263,30 @@ function FeatureModuleCard({
 
   return (
     <RevealOnScroll delay={delay}>
-      <article className={MODULE_CARD}>
-        <div className="flex items-start justify-between gap-3">
-          <span
-            className={cn(
-              "inline-flex size-11 shrink-0 items-center justify-center rounded-xl border transition-all duration-300 group-hover:scale-[1.03]",
-              iconAccentClass,
-            )}
-          >
-            <Icon className="size-5" strokeWidth={1.5} aria-hidden />
-          </span>
-          <span className="rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors group-hover:border-primary/20 group-hover:text-foreground/80">
-            {tag}
-          </span>
-        </div>
-        <h3 className="font-outfit mt-5 text-lg font-semibold tracking-tight text-foreground">
-          {title}
-        </h3>
-        <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{benefit}</p>
-        <FeatureModuleVisual moduleId={id} />
-      </article>
+      <HoverLift>
+        <GlowOnHover glowColor={accent === "gold" ? "gold" : "primary"}>
+          <article className={cn(MODULE_CARD, "transition-all duration-300")}>
+            <div className="flex items-start justify-between gap-3">
+              <span
+                className={cn(
+                  "inline-flex size-11 shrink-0 items-center justify-center rounded-xl border transition-all duration-300 group-hover:scale-[1.1]",
+                  iconAccentClass,
+                )}
+              >
+                <Icon className="size-5" strokeWidth={1.5} aria-hidden />
+              </span>
+              <span className="rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-all group-hover:border-primary/20 group-hover:text-foreground/80">
+                {tag}
+              </span>
+            </div>
+            <h3 className="font-outfit mt-5 text-lg font-semibold tracking-tight text-foreground">
+              {title}
+            </h3>
+            <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{benefit}</p>
+            <FeatureModuleVisual moduleId={id} />
+          </article>
+        </GlowOnHover>
+      </HoverLift>
     </RevealOnScroll>
   );
 }
@@ -301,37 +305,39 @@ function WorkflowStepCard({
   isLast?: boolean;
 }) {
   return (
-    <article className={cn(WORKFLOW_CARD, "md:pt-8")}>
-      <div className="flex items-start gap-3 md:block">
-        <span
-          className={cn(
-            "landing-workflow-step-index relative z-10 inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-parsel-panel font-mono text-xs font-semibold text-primary md:absolute md:left-1/2 md:top-0 md:-translate-x-1/2",
-          )}
-        >
-          {step}
-        </span>
-        <div className="min-w-0 flex-1 md:mt-10">
-          <div className="mb-3 flex items-center justify-between gap-3 md:justify-center">
-            <span className="inline-flex size-9 items-center justify-center rounded-lg border border-border/50 bg-parsel-sunken/80 text-primary md:hidden">
-              <Icon className="size-4" strokeWidth={1.75} aria-hidden />
-            </span>
-            {!isLast ? (
-              <ArrowRight
-                className="size-4 text-muted-foreground/40 md:hidden"
-                strokeWidth={1.75}
-                aria-hidden
-              />
-            ) : null}
+    <HoverLift>
+      <article className={cn(WORKFLOW_CARD, "md:pt-8 transition-all duration-300")}>
+        <div className="flex items-start gap-3 md:block">
+          <span
+            className={cn(
+              "landing-workflow-step-index relative z-10 inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-parsel-panel font-mono text-xs font-semibold text-primary transition-all md:absolute md:left-1/2 md:top-0 md:-translate-x-1/2 group-hover:scale-110 group-hover:shadow-[0_0_12px_-3px_rgba(74,107,47,0.3)]",
+            )}
+          >
+            {step}
+          </span>
+          <div className="min-w-0 flex-1 md:mt-10">
+            <div className="mb-3 flex items-center justify-between gap-3 md:justify-center">
+              <span className="inline-flex size-9 items-center justify-center rounded-lg border border-border/50 bg-parsel-sunken/80 text-primary transition-all md:hidden group-hover:bg-primary/10">
+                <Icon className="size-4" strokeWidth={1.75} aria-hidden />
+              </span>
+              {!isLast ? (
+                <ArrowRight
+                  className="size-4 text-muted-foreground/40 md:hidden"
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
+              ) : null}
+            </div>
+            <h3 className="font-outfit text-base font-semibold text-foreground sm:text-lg md:text-center">
+              {title}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-center">
+              {description}
+            </p>
           </div>
-          <h3 className="font-outfit text-base font-semibold text-foreground sm:text-lg md:text-center">
-            {title}
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-center">
-            {description}
-          </p>
         </div>
-      </div>
-    </article>
+      </article>
+    </HoverLift>
   );
 }
 
@@ -339,7 +345,7 @@ export function WorkflowSection() {
   return (
     <section
       id="workflow"
-      className="relative scroll-mt-28 border-y border-border/40 bg-parsel-sunken/35 px-6 py-20 sm:px-8 lg:px-12 lg:py-24"
+      className="relative scroll-mt-28 border-y border-border/40 bg-parsel-sunken/35 px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24"
     >
       <div className="pointer-events-none absolute inset-0 opacity-[0.08]" aria-hidden>
         <div className="landing-parcel-field absolute inset-0" />
@@ -351,20 +357,20 @@ export function WorkflowSection() {
             align="start"
             eyebrow="Operasyon akışı"
             eyebrowClassName="text-parsel-gold"
-            title="Sahadan AI aksiyonuna operasyon şeması"
-            description="Saha bilgisini yakalayın, CRM'e dönüştürün, portföy ve imar sinyalleriyle eşleştirin, ParselAI ile aksiyon üretin."
+            title="Sahadan ofis kontrolüne net akış"
+            description="Saha bilgisini yakalayın, CRM'e dönüştürün, portföy ve imar sinyalleriyle eşleştirin, broker kontrolü için aksiyon haline getirin."
           />
         </RevealOnScroll>
 
-        <div className="landing-workflow-timeline mt-10 md:mt-14">
+        <StaggerContainer className="landing-workflow-timeline mt-10 md:mt-14">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5">
             {WORKFLOW_STEPS.map((item, index) => (
-              <RevealOnScroll key={item.step} delay={index * 60}>
+              <StaggerItem key={item.step}>
                 <WorkflowStepCard {...item} isLast={index === WORKFLOW_STEPS.length - 1} />
-              </RevealOnScroll>
+              </StaggerItem>
             ))}
           </div>
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );
@@ -374,7 +380,7 @@ export function FeaturesSection() {
   return (
     <section
       id="features"
-      className="relative scroll-mt-28 overflow-hidden px-6 py-20 sm:px-8 lg:px-12 lg:py-28"
+      className="relative scroll-mt-28 overflow-hidden px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-28"
     >
       <div className="pointer-events-none absolute inset-0 opacity-[0.12]" aria-hidden>
         <div className="landing-parcel-field absolute inset-0" />
@@ -384,16 +390,18 @@ export function FeaturesSection() {
         <RevealOnScroll>
           <SectionIntro
             eyebrow="Ürün modülleri"
-            title="Parsel zekâsı olan premium CRM modülleri"
-            description="Portföyden imar radarına, sesli CRM'den ParselAI'ya — gayrimenkul operasyonunuz için entegre işletim sistemi."
+            title="Gayrimenkul operasyonu için uzman modüller"
+            description="Portföyden imar radarına, sesli CRM'den ParselAI'ya kadar günlük danışman ve broker akışını aynı sistemde toplayın."
           />
         </RevealOnScroll>
 
-        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
-          {FEATURE_MODULES.map((module, index) => (
-            <FeatureModuleCard key={module.id} {...module} delay={index * 50} />
+        <StaggerContainer className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+          {FEATURE_MODULES.map((module) => (
+            <StaggerItem key={module.id}>
+              <FeatureModuleCard {...module} delay={0} />
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );
@@ -407,79 +415,83 @@ function PricingCard({
   const isFree = plan.planType === "FREE";
 
   return (
-    <article
-      className={cn(
-        "parsel-surface relative flex flex-col overflow-hidden rounded-2xl border bg-parsel-panel shadow-parsel-sm",
-        plan.highlighted
-          ? "border-primary/25 shadow-parsel-md landing-pricing-featured"
-          : "border-border/60",
-      )}
-    >
-      {plan.badge ? (
-        <span className="absolute right-5 top-5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
-          {plan.badge}
-        </span>
-      ) : null}
+    <ScaleOnScroll>
+      <GlowOnHover glowColor={plan.highlighted ? "primary" : "gold"}>
+        <article
+          className={cn(
+            "parsel-surface relative flex flex-col overflow-hidden rounded-2xl border bg-parsel-panel shadow-parsel-sm transition-all duration-300",
+            plan.highlighted
+              ? "border-primary/25 shadow-parsel-md landing-pricing-featured"
+              : "border-border/60 hover:border-primary/15",
+          )}
+        >
+          {plan.badge ? (
+            <span className="absolute right-5 top-5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+              {plan.badge}
+            </span>
+          ) : null}
 
-      <div className="border-b border-border/60 p-6 pt-8 sm:p-8">
-        <p className="parsel-section-label text-muted-foreground">{plan.marketingName}</p>
-        <p className="font-outfit mt-3 text-4xl font-semibold tracking-tight text-foreground">
-          {plan.priceLabel}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">{plan.periodLabel}</p>
+          <div className="border-b border-border/60 p-6 pt-8 sm:p-8">
+            <p className="parsel-section-label text-muted-foreground">{plan.marketingName}</p>
+            <p className="font-outfit mt-3 text-4xl font-semibold tracking-tight text-foreground">
+              {plan.priceLabel}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{plan.periodLabel}</p>
 
-        {isFree ? (
-          <p className="mt-4 inline-flex rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary">
-            2 ücretsiz portföy ile başlayın
-          </p>
-        ) : null}
+            {isFree ? (
+              <p className="mt-4 inline-flex rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary">
+                2 ücretsiz portföy ile başlayın
+              </p>
+            ) : null}
 
-        {plan.annualNote ? (
-          <p className="mt-3 text-xs font-medium text-muted-foreground">{plan.annualNote}</p>
-        ) : null}
-        {formatOfficePricingNote(plan) ? (
-          <p className="mt-1 text-xs text-muted-foreground">
-            {formatOfficePricingNote(plan)}
-          </p>
-        ) : null}
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{plan.tagline}</p>
-      </div>
+            {plan.annualNote ? (
+              <p className="mt-3 text-xs font-medium text-muted-foreground">{plan.annualNote}</p>
+            ) : null}
+            {formatOfficePricingNote(plan) ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {formatOfficePricingNote(plan)}
+              </p>
+            ) : null}
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{plan.tagline}</p>
+          </div>
 
-      <ul className="flex flex-1 flex-col gap-2.5 p-6 sm:gap-3 sm:p-8">
-        {plan.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-3 text-sm text-foreground/90">
-            <Check
-              className={cn(
-                "mt-0.5 size-4 shrink-0",
-                plan.highlighted ? "text-primary" : "text-muted-foreground",
-              )}
-              strokeWidth={1.5}
-            />
-            <span className="leading-relaxed">{feature}</span>
-          </li>
-        ))}
-      </ul>
+          <ul className="flex flex-1 flex-col gap-2.5 p-6 sm:gap-3 sm:p-8">
+            {plan.features.map((feature) => (
+              <li key={feature} className="flex items-start gap-3 text-sm text-foreground/90">
+                <Check
+                  className={cn(
+                    "mt-0.5 size-4 shrink-0",
+                    plan.highlighted ? "text-primary" : "text-muted-foreground",
+                  )}
+                  strokeWidth={1.5}
+                />
+                <span className="leading-relaxed">{feature}</span>
+              </li>
+            ))}
+          </ul>
 
-      <div className="p-6 pt-0 sm:p-8">
-        {isFree ? (
-          <SignUpShineButton className="flex h-12 w-full items-center justify-center rounded-xl border border-border/60 bg-parsel-elevated text-sm font-semibold text-foreground shadow-none hover:bg-accent">
-            {plan.cta}
-          </SignUpShineButton>
-        ) : (
-          <Link
-            href="/sign-up"
-            className={cn(
-              "flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold transition-colors",
-              plan.highlighted
-                ? "bg-primary text-primary-foreground shadow-parsel-sm hover:bg-primary/90"
-                : "border border-border/60 bg-parsel-elevated text-foreground hover:bg-accent",
+          <div className="p-6 pt-0 sm:p-8">
+            {isFree ? (
+              <SignUpShineButton className="flex h-12 w-full items-center justify-center rounded-xl border border-border/60 bg-parsel-elevated text-sm font-semibold text-foreground shadow-none transition-all hover:bg-accent hover:-translate-y-0.5">
+                {plan.cta}
+              </SignUpShineButton>
+            ) : (
+              <Link
+                href="/sign-up"
+                className={cn(
+                  "flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold transition-all",
+                  plan.highlighted
+                    ? "bg-primary text-primary-foreground shadow-parsel-sm hover:bg-primary/90 hover:-translate-y-0.5"
+                    : "border border-border/60 bg-parsel-elevated text-foreground hover:bg-accent hover:-translate-y-0.5",
+                )}
+              >
+                {plan.cta}
+              </Link>
             )}
-          >
-            {plan.cta}
-          </Link>
-        )}
-      </div>
-    </article>
+          </div>
+        </article>
+      </GlowOnHover>
+    </ScaleOnScroll>
   );
 }
 
@@ -487,7 +499,7 @@ export function PricingSection() {
   return (
     <section
       id="pricing"
-      className="relative scroll-mt-28 border-t border-border/50 bg-parsel-sunken/50 px-6 py-20 sm:px-8 lg:px-12 lg:py-28"
+      className="relative scroll-mt-28 border-t border-border/50 bg-parsel-sunken/50 px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-28"
     >
       <div className="mx-auto max-w-[1400px]">
         <RevealOnScroll>
@@ -499,13 +511,13 @@ export function PricingSection() {
           />
         </RevealOnScroll>
 
-        <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
-          {LANDING_PRICING_PLANS.map((plan, index) => (
-            <RevealOnScroll key={plan.id} delay={index * 60}>
+        <StaggerContainer className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
+          {LANDING_PRICING_PLANS.map((plan) => (
+            <StaggerItem key={plan.id}>
               <PricingCard plan={plan} />
-            </RevealOnScroll>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
 
         <div className="mt-10 flex flex-col items-center gap-4 border-t border-border/40 pt-8">
           <p className="text-center text-sm text-muted-foreground">
@@ -541,32 +553,46 @@ function FinalCtaActions() {
 
 export function TrustSection() {
   return (
-    <section className="relative border-y border-border/40 px-6 py-16 sm:px-8 lg:px-12 lg:py-20">
+    <section className="relative border-y border-border/40 px-5 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
       <div className="pointer-events-none absolute inset-0 opacity-[0.06]" aria-hidden>
         <div className="landing-parcel-field absolute inset-0" />
       </div>
 
-      <div className="relative mx-auto max-w-[1100px]">
+      <div className="relative mx-auto max-w-[1180px]">
         <RevealOnScroll>
-          <div className="landing-trust-panel overflow-hidden rounded-3xl border border-border/60 p-6 shadow-parsel-md sm:p-8 lg:p-10">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-10">
+          <div className="landing-trust-panel overflow-hidden rounded-2xl border border-border/60 p-6 shadow-parsel-md sm:p-8 lg:p-10">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
               <div>
-                <p className="parsel-section-label text-parsel-gold">Konumlandırma</p>
+                <p className="parsel-section-label text-parsel-gold">Güven ve kontrol</p>
                 <h2 className="font-outfit mt-4 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                  Sadece liste tutan CRM değil
+                  Ofisin operasyon hafızası dağılmasın
                 </h2>
                 <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-                  ParselOS; broker disiplini, imar farkındalığı ve saha hızını aynı operasyon
-                  düzeninde birleştirir. Portföy, müşteri, parsel ve saha notları tek akışta
-                  ilerler.
+                  ParselOS; müşteri, portföy, parsel ve saha notlarını aynı akışta tutar. Broker
+                  için görünürlük, danışman için hızlı takip, müşteri için tutarlı hizmet üretir.
                 </p>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {[
+                    ["Danışman", "Günlük takipler, saha notları ve müşteri geçmişi tek yerde."],
+                    ["Broker", "Portföy sorumluluğu, yetki akışı ve ekip görünürlüğü kontrol altında."],
+                  ].map(([title, body]) => (
+                    <div
+                      key={title}
+                      className="rounded-xl border border-border/55 bg-parsel-panel/70 p-4"
+                    >
+                      <p className="font-outfit text-sm font-semibold text-foreground">{title}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <ul className="space-y-3">
+              <ul className="grid gap-3">
                 {[
-                  "Broker disiplini + imar farkındalığı + saha hızı",
-                  "Portföy, müşteri ve parsel verisi aynı panelde",
-                  "Sesli not ve ParselAI ile aksiyon üretimi",
+                  "Rol ve ekip yapısına göre operasyon görünürlüğü",
+                  "Portföy, müşteri ve parsel geçmişini aynı bağlamda okuma",
+                  "Sahadan gelen notları takip ve görev akışına dönüştürme",
+                  "İmar/parsel sinyallerinde resmi teyit sınırını net tutma",
                 ].map((item) => (
                   <li
                     key={item}
@@ -593,9 +619,9 @@ export function TrustSection() {
 
 export function FinalCtaSection() {
   return (
-    <section className="px-6 pb-20 sm:px-8 lg:px-12 lg:pb-28">
+    <section className="px-5 pb-16 sm:px-8 sm:pb-20 lg:px-12 lg:pb-28">
       <RevealOnScroll>
-        <div className="relative mx-auto max-w-3xl overflow-hidden rounded-3xl border border-border/60 bg-parsel-panel px-6 py-12 text-center shadow-parsel-lg sm:px-10 sm:py-14">
+        <div className="relative mx-auto max-w-3xl overflow-hidden rounded-2xl sm:rounded-3xl border border-border/60 bg-parsel-panel px-5 py-10 text-center shadow-parsel-lg sm:px-10 sm:py-12 lg:py-14">
           <div className="pointer-events-none absolute inset-0 opacity-15" aria-hidden>
             <div className="landing-parcel-field absolute inset-0" />
           </div>

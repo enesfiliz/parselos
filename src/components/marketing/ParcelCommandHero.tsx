@@ -21,21 +21,21 @@ const SUB_PANEL_CARD =
   "hero-command-panel-sub rounded-xl border border-border/50 bg-parsel-elevated";
 
 const HERO_KPIS = [
-  { label: "Aktif müşteri", value: "24", icon: Users },
-  { label: "Açık portföy", value: "18", icon: Briefcase },
-  { label: "Takip bekleyen", value: "6", icon: Activity },
-  { label: "İmar uyarısı", value: "3", icon: Radar, accent: true },
+  { label: "Portföy", value: "Atandı", icon: Briefcase },
+  { label: "Müşteri", value: "Takipte", icon: Users },
+  { label: "Saha notu", value: "İşlendi", icon: Activity },
+  { label: "Parsel", value: "İzlemede", icon: Radar, accent: true },
 ] as const;
 
 const PIPELINE_ROWS = [
-  { stage: "Lead", width: "100%", volume: "₺12.4M" },
-  { stage: "Gösterim", width: "72%", volume: "₺8.1M" },
-  { stage: "Teklif", width: "38%", volume: "₺3.2M", gold: true },
+  { stage: "Talep", width: "100%", volume: "Yeni" },
+  { stage: "Gösterim", width: "72%", volume: "Planlandı" },
+  { stage: "Teklif", width: "38%", volume: "Hazır", gold: true },
 ] as const;
 
 const ACTIVITY_ROWS = [
-  { icon: Mic, text: "Sesli not — Kadıköy 3+1 görüşmesi işlendi" },
-  { icon: Bot, text: "ParselAI — 3 portföy eşleşmesi önerildi" },
+  { icon: Mic, text: "Sesli saha notu müşteri profiline aktarıldı" },
+  { icon: Bot, text: "ParselAI takip aksiyonlarını hazırladı" },
 ] as const;
 
 const PANEL_EVENTS = [
@@ -43,7 +43,7 @@ const PANEL_EVENTS = [
     id: "portfolio",
     icon: Briefcase,
     title: "Portföy kartı güncellendi",
-    body: "Moda 3+1 · Aktif vitrin · ₺6.2M",
+    body: "Yetki durumu, vitrin ve danışman takibi güncellendi",
     placement: "left",
     accent: "primary",
   },
@@ -51,7 +51,7 @@ const PANEL_EVENTS = [
     id: "imar",
     icon: Radar,
     title: "İmar uyarısı",
-    body: "126 Ada 58 Parsel · Konut · Askı izlemede",
+    body: "126 Ada 58 Parsel · Konut · Askı süreci izlemede",
     placement: "right",
     accent: "gold",
   },
@@ -59,7 +59,7 @@ const PANEL_EVENTS = [
     id: "voice",
     icon: Mic,
     title: "Sesli CRM notu",
-    body: "Saha görüşmesi → müşteri profiline aktarıldı",
+    body: "Saha görüşmesi müşteri profiline aktarıldı",
     placement: "bottom",
     accent: "primary",
   },
@@ -67,7 +67,7 @@ const PANEL_EVENTS = [
     id: "parselai",
     icon: Bot,
     title: "ParselAI önerisi",
-    body: "3 müşteri için portföy eşleşmesi hazır",
+    body: "Uygun müşteriler için takip listesi hazır",
     placement: "bottom",
     accent: "gold",
   },
@@ -79,7 +79,7 @@ function LiveStatusBadge() {
   return (
     <span className="landing-live-badge inline-flex shrink-0 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
       <span className="landing-live-badge-dot size-1.5 rounded-full bg-primary" aria-hidden />
-      Canlı
+      Örnek görünüm
     </span>
   );
 }
@@ -89,7 +89,7 @@ function DashboardPreviewChrome() {
     <div className="mb-4 flex items-center gap-2.5 rounded-lg border border-border/50 bg-parsel-elevated px-3 py-2">
       <span className="size-1.5 shrink-0 rounded-full bg-primary/70" aria-hidden />
       <span className="truncate font-mono text-[11px] text-muted-foreground">
-        Komuta Merkezi · Canlı önizleme
+        Broker Komuta Merkezi · operasyon önizlemesi
       </span>
     </div>
   );
@@ -151,7 +151,7 @@ function CommandCenterPanel({ showAtlasInline = false }: { showAtlasInline?: boo
             Komuta Merkezi
           </p>
           <p className="font-outfit mt-1 text-lg font-semibold tracking-tight text-foreground sm:text-xl">
-            Operasyon özeti
+            Günlük operasyon özeti
           </p>
         </div>
         <LiveStatusBadge />
@@ -405,7 +405,7 @@ function DesktopCommandDeck() {
         <div className={cn(PANEL_CARD, "hero-command-panel-sub p-3 opacity-65 shadow-parsel-sm")} aria-hidden>
           <p className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
             <FileText className="size-3" strokeWidth={1.75} />
-            Tapu AI tarama
+            Evrak ve tapu kontrolü
           </p>
           <div className="mt-2 h-1.5 w-3/4 rounded-full bg-border/80" />
           <div className="mt-1.5 h-1.5 w-1/2 rounded-full bg-border/60" />

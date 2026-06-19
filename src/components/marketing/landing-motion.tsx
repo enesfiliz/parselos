@@ -1,12 +1,14 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { useRef, useState, type MouseEvent, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
+const EASE_IN_OUT = [0.4, 0, 0.2, 1] as const;
+const EASE_BOUNCE = [0.34, 1.56, 0.64, 1] as const;
 
 export function NoiseTexture() {
   return (
@@ -173,5 +175,212 @@ export function ShineButton({
         aria-hidden
       />
     </Link>
+  );
+}
+
+export function ParallaxScroll({
+  children,
+  offset = 50,
+  className,
+}: {
+  children: ReactNode;
+  offset?: number;
+  className?: string;
+}) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [offset, -offset]);
+
+  return (
+    <motion.div ref={ref} style={{ y }} className={className}>
+      {children}
+    </motion.div>
+  );
+}
+
+export function ScaleOnScroll({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, scale: 0.92 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{
+        duration: 0.6,
+        delay: delay / 1000,
+        ease: EASE_OUT,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function HoverLift({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      className={className}
+      whileHover={{ y: -4 }}
+      transition={{
+        type: "spring",
+        stiffness: 400,
+        damping: 30,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function StaggerContainer({
+  children,
+  className,
+  delayMultiplier = 50,
+}: {
+  children: ReactNode;
+  className?: string;
+  delayMultiplier?: number;
+}) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <motion.div
+      className={className}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: delayMultiplier / 1000,
+            delayChildren: 0,
+          },
+        },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function StaggerItem({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: 0.5,
+            ease: EASE_OUT,
+          },
+        },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function RotateOnScroll({
+  children,
+  className,
+  rotation = 5,
+}: {
+  children: ReactNode;
+  className?: string;
+  rotation?: number;
+}) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const rotate = useTransform(scrollYProgress, [0, 1], [-rotation, rotation]);
+
+  return (
+    <motion.div ref={ref} style={{ rotate }} className={className}>
+      {children}
+    </motion.div>
+  );
+}
+
+export function GlowOnHover({
+  children,
+  className,
+  glowColor = "primary",
+}: {
+  children: ReactNode;
+  className?: string;
+  glowColor?: "primary" | "gold";
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  const glowClass =
+    glowColor === "gold"
+      ? "shadow-[0_0_20px_-5px_rgba(197,163,110,0.3)]"
+      : "shadow-[0_0_20px_-5px_rgba(74,107,47,0.3)]";
+
+  return (
+    <motion.div
+      className={className}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      animate={
+        isHovered
+          ? {
+              boxShadow: `0 0 30px -8px ${glowColor === "gold" ? "rgba(197,163,110,0.4)" : "rgba(74,107,47,0.4)"}`,
+            }
+          : {}
+      }
+      transition={{
+        duration: 0.3,
+        ease: "easeOut",
+      }}
+    >
+      {children}
+    </motion.div>
   );
 }

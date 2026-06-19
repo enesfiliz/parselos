@@ -42,7 +42,7 @@ export function getDashboardNavGroups(options?: {
   const groups: DashboardNavGroup[] = [
     {
       label: "Komuta",
-      items: [{ label: "Dashboard", href: "/dashboard", icon: LayoutDashboard }],
+      items: [{ label: "Komuta Merkezi", href: "/dashboard", icon: LayoutDashboard }],
     },
   ];
 

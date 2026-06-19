@@ -1,9 +1,5 @@
-import { Loader2 } from "lucide-react";
+import { PageLoader } from "@/components/ui/PageLoader";
 
 export function DealsLoadingState() {
-  return (
-    <div className="flex min-h-[50vh] items-center justify-center bg-background">
-      <Loader2 className="size-6 animate-spin text-parsel-gold" />
-    </div>
-  );
+  return <PageLoader className="bg-background" />;
 }

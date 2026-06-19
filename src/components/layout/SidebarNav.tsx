@@ -154,7 +154,7 @@ export function SidebarNav({ onNavigate, className, showBrokerOfficeNav = false 
 
         >
 
-          <Logo className="h-[2.375rem] w-auto max-w-[148px]" />
+          <Logo className="h-8 w-auto max-w-[118px]" />
 
         </Link>
 

@@ -6,7 +6,7 @@ import { formatCompactTRY } from "@/lib/types/deal";
 import { cn } from "@/lib/utils";
 
 const WIDGET_CARD =
-  "rounded-2xl border border-border/50 bg-parsel-panel p-3 md:p-4";
+  "parsel-surface rounded-xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm md:p-5";
 
 const STAGE_FILL: Record<
   DealStageId,
@@ -51,7 +51,7 @@ export function PipelineFunnelWidget({
         <h2 className="text-sm font-medium tracking-wide text-foreground/70">
           Pipeline Funnel Analizi
         </h2>
-        <p className="text-[11px] text-foreground/35 md:text-[10px]">
+        <p className="text-[11px] text-muted-foreground md:text-[10px]">
           Aşama bazlı hacim ve müşteri yoğunluğu
         </p>
       </div>

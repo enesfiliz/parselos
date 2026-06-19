@@ -12,7 +12,7 @@ import type { ActivityFeedItem } from "@/lib/dashboard-command-center";
 import { cn } from "@/lib/utils";
 
 const WIDGET_CARD =
-  "rounded-2xl border border-border/50 bg-parsel-panel p-3 md:p-4";
+  "parsel-surface rounded-xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm md:p-5";
 
 const ICONS = {
   note: FileText,
@@ -45,7 +45,7 @@ export function ActivityFeedWidget({
         <h2 className="text-sm font-medium tracking-wide text-foreground/70">
           Son Aktiviteler
         </h2>
-        <p className="text-[11px] text-foreground/35 md:text-[10px]">Canlı sistem akışı</p>
+        <p className="text-[11px] text-muted-foreground md:text-[10px]">Operasyon akışı</p>
       </div>
 
       <ul className="custom-scrollbar flex max-h-[200px] flex-col gap-2 overflow-y-auto pr-1">

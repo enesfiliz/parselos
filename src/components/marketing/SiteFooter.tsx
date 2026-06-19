@@ -13,9 +13,9 @@ const LEGAL_LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border/50 bg-parsel-sunken/40 px-6 py-14 lg:px-12">
+    <footer className="border-t border-border/50 bg-parsel-sunken/40 px-5 py-10 sm:px-8 sm:py-12 lg:px-12 lg:py-14">
       <div className="mx-auto max-w-[1400px]">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 md:gap-10">
           <div className="lg:col-span-2">
             <span className="mb-4 flex items-center gap-2.5 text-foreground">
               <AppIcon className="size-6" />

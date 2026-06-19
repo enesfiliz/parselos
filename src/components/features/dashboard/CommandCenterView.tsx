@@ -4,10 +4,12 @@ import {
   ArrowRight,
   BarChart3,
   Briefcase,
+  CalendarDays,
   LayoutDashboard,
   Mic,
   Radar,
   ScanLine,
+  ShieldCheck,
   TrendingDown,
   TrendingUp,
   Users,
@@ -32,10 +34,16 @@ export type CommandCenterUser = {
 };
 
 const WIDGET_CARD =
-  "parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-md md:p-5";
+  "parsel-surface rounded-xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm md:p-5";
 
 const METRIC_CARD =
-  "parsel-surface flex min-h-[96px] min-w-0 flex-col justify-between rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm transition-all duration-300 hover:border-border hover:shadow-parsel-md md:h-[104px]";
+  "parsel-surface flex min-h-[104px] min-w-0 flex-col justify-between rounded-xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm transition-all duration-300 hover:border-primary/20 hover:shadow-parsel-md md:h-[112px]";
+
+const OPERATION_SIGNALS = [
+  { label: "Portföy", value: "Yetki ve vitrin takibi", icon: Briefcase },
+  { label: "Müşteri", value: "Talep ve görüşme akışı", icon: Users },
+  { label: "Parsel", value: "İmar sinyali ve resmi teyit", icon: Radar },
+] as const;
 
 function formatToday() {
   return new Intl.DateTimeFormat("tr-TR", {
@@ -90,10 +98,10 @@ function PipelineMetricCard({ metrics }: { metrics: CommandCenterTopMetrics }) {
   return (
     <article className={METRIC_CARD}>
       <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-xs font-medium tracking-wide text-foreground/45">
+        <p className="truncate text-xs font-semibold tracking-wide text-muted-foreground">
           Toplam Pipeline Hacmi
         </p>
-        <BarChart3 className="h-4 w-4 shrink-0 text-foreground/25" strokeWidth={1.75} />
+        <BarChart3 className="h-4 w-4 shrink-0 text-primary/70" strokeWidth={1.75} />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -133,10 +141,10 @@ function CountMetricCard({
   return (
     <article className={METRIC_CARD}>
       <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-xs font-medium tracking-wide text-foreground/45">
+        <p className="truncate text-xs font-semibold tracking-wide text-muted-foreground">
           {label}
         </p>
-        <Icon className="h-4 w-4 shrink-0 text-foreground/25" strokeWidth={1.75} />
+        <Icon className="h-4 w-4 shrink-0 text-primary/60" strokeWidth={1.75} />
       </div>
 
       <div className="flex items-end gap-2">
@@ -307,6 +315,80 @@ function ProductQuickActions() {
   );
 }
 
+function CommandHero({
+  greetingName,
+  searchIndex,
+}: {
+  greetingName: string | null;
+  searchIndex: CommandCenterData["searchIndex"];
+}) {
+  return (
+    <section className="dashboard-command-hero relative overflow-hidden rounded-2xl border border-border/60 bg-parsel-panel px-5 py-5 shadow-parsel-md md:px-6 md:py-6 lg:px-7">
+      <div className="pointer-events-none absolute inset-0 opacity-60" aria-hidden>
+        <div className="landing-parcel-field absolute inset-0" />
+      </div>
+      <div className="pointer-events-none absolute -right-24 -top-28 h-64 w-64 rounded-full bg-primary/10 blur-3xl dark:bg-primary/15" aria-hidden />
+
+      <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.42fr)] lg:items-end">
+        <div className="min-w-0">
+          <div className="mb-4 flex flex-wrap items-center gap-2 text-parsel-gold">
+            <span className="inline-flex items-center gap-2 rounded-full border border-parsel-gold/25 bg-parsel-gold/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-parsel-gold">
+              <LayoutDashboard className="size-3.5" strokeWidth={2} />
+              Broker komuta merkezi
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-parsel-panel/75 px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
+              <CalendarDays className="size-3.5" strokeWidth={1.75} />
+              {formatToday()}
+            </span>
+          </div>
+
+          <h1 className="font-outfit max-w-3xl text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+            {greetingName
+              ? `Hoş geldin, ${greetingName}. Bugünkü ofis akışı hazır.`
+              : "Bugünkü ofis akışı hazır."}
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
+            Müşteri takibi, portföy sorumluluğu, parsel sinyalleri ve saha notlarını aynı
+            operasyon ekranında toparlayın.
+          </p>
+        </div>
+
+        <div className="relative z-10">
+          <DashboardGlobalSearch index={searchIndex} className="w-full" />
+          <div className="mt-3 flex items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+            <ShieldCheck className="size-4 shrink-0 text-primary" strokeWidth={1.75} />
+            <span className="leading-relaxed">
+              Broker görünümü ekip, portföy ve takip disiplinini aynı bağlamda okur.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative mt-5 grid gap-3 md:grid-cols-3">
+        {OPERATION_SIGNALS.map((signal) => {
+          const Icon = signal.icon;
+          return (
+            <div
+              key={signal.label}
+              className="rounded-xl border border-border/55 bg-parsel-elevated/80 p-3.5 backdrop-blur-sm"
+            >
+              <div className="flex items-center gap-2">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
+                  <Icon className="size-4" strokeWidth={1.75} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground">{signal.label}</p>
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">{signal.value}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function FsboRadarPanel({ listings }: { listings: FsboCouponListing[] }) {
   return (
     <section className={cn(WIDGET_CARD, "flex flex-col")}>
@@ -375,24 +457,7 @@ export function CommandCenterView({
 
   return (
     <div className="flex w-full flex-col gap-4 md:gap-6">
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0">
-          <div className="mb-2 flex items-center gap-2 text-parsel-gold">
-            <LayoutDashboard className="size-4" strokeWidth={2} />
-            <span className="parsel-section-label text-parsel-gold">
-              Komuta merkezi
-            </span>
-          </div>
-          <h1 className="parsel-page-title text-foreground">
-            {greetingName ? `Hoş geldin, ${greetingName}` : "Hoş geldin"}
-          </h1>
-          <p className="mt-2 text-sm font-medium text-muted-foreground">{formatToday()}</p>
-          <p className="mt-1 max-w-xl text-xs leading-relaxed text-foreground/45">
-            Müşteri takibi, portföy, parsel verisi ve saha notları — günlük operasyon özeti
-          </p>
-        </div>
-        <DashboardGlobalSearch index={searchIndex} className="lg:max-w-sm" />
-      </header>
+      <CommandHero greetingName={greetingName} searchIndex={searchIndex} />
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <PipelineMetricCard metrics={metrics} />

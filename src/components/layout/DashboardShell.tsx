@@ -31,7 +31,7 @@ export function DashboardShell({
 
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(84,114,54,0.08),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(84,114,54,0.12),transparent)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(84,114,54,0.08),transparent_62%),linear-gradient(180deg,rgba(179,140,86,0.035),transparent_34%)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(84,114,54,0.14),transparent_62%),linear-gradient(180deg,rgba(179,140,86,0.045),transparent_34%)]"
           aria-hidden
         />
 

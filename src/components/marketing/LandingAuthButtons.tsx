@@ -14,7 +14,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const SHINE_BUTTON_CLASS =
-  "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl px-10 text-sm font-semibold bg-primary text-primary-foreground shadow-sm transition-colors duration-300 hover:bg-primary/90";
+  "landing-btn-shine relative inline-flex h-11 sm:h-12 items-center justify-center overflow-hidden rounded-xl px-6 sm:px-10 text-sm font-semibold bg-primary text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 active:scale-95";
 
 const OUTLINE_BUTTON_CLASS =
   "inline-flex h-12 items-center justify-center rounded-xl border border-border bg-parsel-panel px-8 text-sm font-medium text-muted-foreground shadow-sm transition-colors hover:border-primary/25 hover:bg-accent hover:text-foreground";
@@ -69,10 +69,10 @@ function LoadedNavActions() {
 }
 
 export const HERO_GOLD_BUTTON_CLASS =
-  "landing-btn-shine relative inline-flex h-12 items-center justify-center overflow-hidden rounded-xl bg-primary px-8 font-outfit text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90";
+  "landing-btn-shine relative inline-flex h-11 sm:h-12 items-center justify-center overflow-hidden rounded-xl bg-primary px-6 sm:px-8 font-outfit text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 active:scale-95";
 
 const HERO_DEMO_BUTTON_CLASS =
-  "inline-flex h-12 items-center justify-center rounded-xl border border-border bg-parsel-panel px-8 font-outfit text-sm font-medium text-foreground shadow-sm transition-colors hover:border-primary/25 hover:bg-accent";
+  "inline-flex h-11 sm:h-12 items-center justify-center rounded-xl border border-border bg-parsel-panel px-6 sm:px-8 font-outfit text-sm font-medium text-foreground shadow-sm transition-all duration-200 hover:border-primary/25 hover:bg-accent active:scale-95";
 
 function LoadedHeroActions({ align }: { align: "center" | "start" }) {
   const { isSignedIn } = useAuth();

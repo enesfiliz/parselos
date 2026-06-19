@@ -1,10 +1,12 @@
 import { clerkClient, clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 
 import { getSafeInternalRedirect } from "@/lib/auth/redirect-url";
 import { isProFeaturePlan } from "@/lib/billing/plans";
 import type { TenantPlanType } from "@prisma/client";
 
+// Clerk auth() depends on request headers propagated by this proxy.
+// Keep every route that calls auth() directly or through a layout in config.matcher.
 const isPublicRoute = createRouteMatcher([
   "/",
   "/gizlilik-politikasi",
@@ -52,6 +54,7 @@ const isDashboardRoute = createRouteMatcher([
   "/account(.*)",
   "/invite(.*)",
   "/admin(.*)",
+  "/ofis-operasyonu(.*)",
 ]);
 
 const isProFeatureRoute = createRouteMatcher([
@@ -105,7 +108,7 @@ function redirectFromAuthPage(request: Request) {
   return NextResponse.redirect(new URL(redirectTarget, request.url));
 }
 
-export default clerkMiddleware(async (auth, request) => {
+const clerkProxy = clerkMiddleware(async (auth, request) => {
   const { userId } = await auth();
 
   if (userId && isAuthPage(request)) {
@@ -140,35 +143,40 @@ export default clerkMiddleware(async (auth, request) => {
   }
 });
 
+export function proxy(request: NextRequest, event: NextFetchEvent) {
+  return clerkProxy(request, event);
+}
+
 export const config = {
   matcher: [
-    // Clerk auth() — bu rotalar matcher'da olmazsa login/sign-up patlar
-    "/login(.*)",
-    "/sign-in(.*)",
-    "/sign-up(.*)",
-    "/admin(.*)",
-    "/arsiv(.*)",
-    "/account(.*)",
-    "/invite(.*)",
-    "/billing(.*)",
-    "/calculators(.*)",
-    "/calendar(.*)",
-    "/customers(.*)",
-    "/dashboard(.*)",
-    "/deals(.*)",
-    "/ekspertiz(.*)",
-    "/finans(.*)",
-    "/fsbo-radar(.*)",
-    "/hesaplayicilar(.*)",
-    "/ilan-asistani(.*)",
-    "/imar-radari(.*)",
-    "/musteriler(.*)",
-    "/portfolios(.*)",
-    "/properties(.*)",
-    "/radar(.*)",
-    "/sesli-crm(.*)",
-    "/tapu-ai(.*)",
+    // Clerk auth() - bu rotalar matcher'da olmazsa login/sign-up patlar
+    "/login/:path*",
+    "/sign-in/:path*",
+    "/sign-up/:path*",
+    "/admin/:path*",
+    "/arsiv/:path*",
+    "/account/:path*",
+    "/invite/:path*",
+    "/billing/:path*",
+    "/calculators/:path*",
+    "/calendar/:path*",
+    "/customers/:path*",
+    "/dashboard/:path*",
+    "/deals/:path*",
+    "/ekspertiz/:path*",
+    "/finans/:path*",
+    "/fsbo-radar/:path*",
+    "/hesaplayicilar/:path*",
+    "/ilan-asistani/:path*",
+    "/imar-radari/:path*",
+    "/musteriler/:path*",
+    "/ofis-operasyonu/:path*",
+    "/portfolios/:path*",
+    "/properties/:path*",
+    "/radar/:path*",
+    "/sesli-crm/:path*",
+    "/tapu-ai/:path*",
     "/api/((?!health|webhook|webhooks|billing/callback|bot-sync|cron/fsbo-sync).*)",
-    "/trpc(.*)",
+    "/trpc/:path*",
   ],
 };

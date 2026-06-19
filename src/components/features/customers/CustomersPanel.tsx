@@ -313,12 +313,12 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
   return (
     <div className="min-h-full bg-parsel-canvas">
       <div className="mx-auto w-full max-w-6xl space-y-6">
-        <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <header className="parsel-page-hero flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <p className="parsel-section-label text-primary">Müşteri merkezi</p>
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="parsel-page-title text-foreground">Müşteriler</h1>
-              <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-panel px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
+              <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
                 {customers.length} kayıt
               </span>
             </div>
@@ -356,7 +356,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
           </article>
         </section>
 
-        <section className="parsel-surface rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm sm:p-5">
+        <section className="parsel-page-toolbar rounded-2xl p-4 sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="relative min-w-0 flex-1">
               <Search

@@ -264,7 +264,32 @@
   }
 
   .landing-nav-link {
-    @apply rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground;
+    @apply rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-accent hover:text-foreground;
+  }
+
+  /* Enhanced button interactions */
+  .landing-btn-shine {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .landing-btn-shine:active {
+    transform: scale(0.98);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .landing-btn-shine {
+      transition: transform 120ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  /* Smooth card transitions */
+  .landing-feature-card {
+    transition: all 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .landing-feature-card:hover {
+    transform: translateY(-3px);
   }
 
   .hero-premium-stage::before {
@@ -299,6 +324,46 @@
   }
 
   .hero-command-panel-sub {
+    box-shadow: var(--parsel-shadow-sm);
+  }
+
+  .dashboard-command-hero {
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--parsel-panel) 94%, var(--primary) 6%),
+        var(--parsel-panel) 52%,
+        color-mix(in srgb, var(--parsel-panel) 90%, var(--parsel-gold) 10%)
+      );
+  }
+
+  html:not(.dark) .dashboard-command-hero {
+    box-shadow: var(--parsel-shadow-lg);
+  }
+
+  .parsel-page-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--parsel-panel-border);
+    border-radius: 1.25rem;
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--parsel-panel) 95%, var(--primary) 5%),
+        var(--parsel-panel) 54%,
+        color-mix(in srgb, var(--parsel-panel) 91%, var(--parsel-gold) 9%)
+      );
+    box-shadow: var(--parsel-shadow-md);
+  }
+
+  .parsel-page-hero > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .parsel-page-toolbar {
+    border: 1px solid var(--parsel-panel-border);
+    background: color-mix(in srgb, var(--parsel-panel) 92%, var(--parsel-elevated) 8%);
     box-shadow: var(--parsel-shadow-sm);
   }
 
@@ -386,26 +451,36 @@
 }
 
 .landing-aurora-blob {
-  animation: landing-aurora-breathe 10s ease-in-out infinite;
+  animation: landing-aurora-breathe 8s ease-in-out infinite;
 }
 
 .landing-aurora-blob-gold {
-  animation: landing-aurora-breathe 12s ease-in-out infinite;
-  animation-delay: -5s;
+  animation: landing-aurora-breathe 10s ease-in-out infinite;
+  animation-delay: -4s;
 }
 
 .landing-capsule-float {
-  animation: landing-capsule-float 6.5s ease-in-out infinite;
+  animation: landing-capsule-float 5s ease-in-out infinite;
 }
 
 .landing-capsule-float-2 {
-  animation: landing-capsule-float 5.5s ease-in-out infinite;
-  animation-delay: -2s;
+  animation: landing-capsule-float 4.5s ease-in-out infinite;
+  animation-delay: -1.5s;
 }
 
 .landing-capsule-float-3 {
-  animation: landing-capsule-float 7.5s ease-in-out infinite;
-  animation-delay: -4s;
+  animation: landing-capsule-float 5.5s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-aurora-blob,
+  .landing-aurora-blob-gold,
+  .landing-capsule-float,
+  .landing-capsule-float-2,
+  .landing-capsule-float-3 {
+    animation: none;
+  }
 }
 
 @keyframes radar-parcel-pulse {
@@ -501,7 +576,13 @@
 }
 
 .landing-radar-sweep {
-  animation: landing-radar-spin 6s linear infinite;
+  animation: landing-radar-spin 5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-radar-sweep {
+    animation: none;
+  }
 }
 
 @keyframes landing-fsbo-ping {
@@ -517,7 +598,14 @@
 }
 
 .landing-fsbo-ping {
-  animation: landing-fsbo-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  animation: landing-fsbo-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-fsbo-ping {
+    animation: none;
+    opacity: 0.3;
+  }
 }
 
 @keyframes landing-pipeline-grow {
@@ -534,15 +622,22 @@
 
 .landing-pipeline-bar {
   transform-origin: left;
-  animation: landing-pipeline-grow 2.4s ease-in-out infinite;
+  animation: landing-pipeline-grow 2s ease-in-out infinite;
 }
 
 .landing-pipeline-bar-2 {
-  animation-delay: 0.4s;
+  animation-delay: 0.3s;
 }
 
 .landing-pipeline-bar-3 {
-  animation-delay: 0.8s;
+  animation-delay: 0.6s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-pipeline-bar {
+    animation: none;
+    opacity: 0.8;
+  }
 }
 
 @keyframes landing-match-pulse {
@@ -556,39 +651,52 @@
 }
 
 .landing-match-line {
-  animation: landing-match-pulse 2.8s ease-in-out infinite;
+  animation: landing-match-pulse 2.2s ease-in-out infinite;
 }
 
 .landing-match-line-2 {
-  animation-delay: 0.6s;
+  animation-delay: 0.4s;
 }
 
 .landing-match-line-3 {
-  animation-delay: 1.2s;
+  animation-delay: 0.8s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-match-line {
+    animation: none;
+    opacity: 0.5;
+  }
 }
 
 .group:hover .landing-card-anim-fast .landing-tapu-scan-line {
-  animation-duration: 2s;
+  animation-duration: 1.8s;
 }
 
 .group:hover .landing-card-anim-fast .landing-radar-sweep {
-  animation-duration: 3s;
+  animation-duration: 2.5s;
 }
 
 .group:hover .landing-card-anim-fast .landing-fsbo-ping {
-  animation-duration: 1.2s;
+  animation-duration: 1s;
 }
 
 .group:hover .landing-card-anim-fast .landing-pipeline-bar {
-  animation-duration: 1.4s;
+  animation-duration: 1.2s;
 }
 
 .group:hover .landing-card-anim-fast .landing-match-line {
-  animation-duration: 1.6s;
+  animation-duration: 1.4s;
 }
 
 .landing-dashboard-float {
-  animation: landing-float 7s ease-in-out infinite;
+  animation: landing-float 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-dashboard-float {
+    animation: none;
+  }
 }
 
 @keyframes landing-btn-shine-sweep {
@@ -1544,4 +1652,118 @@ html:not(.dark) .landing-hero-gradient-text {
 
 .parsel-pill-shimmer {
   animation: parsel-pill-shimmer 3s ease-in-out infinite;
+}
+
+/* ── Radar loader (site-wide) ───────────────────────────────────────────── */
+.parsel-radar-loader {
+  --radar-size: 56px;
+  --radar-ring: color-mix(in oklab, var(--border) 85%, var(--foreground) 15%);
+  --radar-ring-dashed: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+  --radar-sweep: var(--primary);
+  --radar-sweep-glow: color-mix(in oklab, var(--primary) 75%, transparent);
+  --radar-shadow: color-mix(in oklab, var(--foreground) 18%, transparent);
+  --radar-inset: color-mix(in oklab, var(--foreground) 12%, transparent);
+
+  position: relative;
+  width: var(--radar-size);
+  height: var(--radar-size);
+  margin-inline: auto;
+  background: transparent;
+  border-radius: 50%;
+  box-shadow:
+    calc(var(--radar-size) * 0.12) calc(var(--radar-size) * 0.12)
+      calc(var(--radar-size) * 0.32) var(--radar-shadow);
+  border: 1px solid var(--radar-ring);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.parsel-radar-loader--sm {
+  --radar-size: 40px;
+}
+
+.parsel-radar-loader--lg {
+  --radar-size: 72px;
+}
+
+.parsel-radar-loader::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--radar-size) * 0.133);
+  background: transparent;
+  border: 1px dashed var(--radar-ring-dashed);
+  border-radius: 50%;
+  box-shadow:
+    inset calc(var(--radar-size) * -0.033) calc(var(--radar-size) * -0.033)
+      calc(var(--radar-size) * 0.16) var(--radar-inset),
+    inset calc(var(--radar-size) * 0.033) calc(var(--radar-size) * 0.033)
+      calc(var(--radar-size) * 0.22) var(--radar-inset);
+}
+
+.parsel-radar-loader::after {
+  content: "";
+  position: absolute;
+  width: calc(var(--radar-size) * 0.333);
+  height: calc(var(--radar-size) * 0.333);
+  border-radius: 50%;
+  border: 1px dashed var(--radar-ring-dashed);
+  box-shadow:
+    inset calc(var(--radar-size) * -0.033) calc(var(--radar-size) * -0.033)
+      calc(var(--radar-size) * 0.16) var(--radar-inset),
+    inset calc(var(--radar-size) * 0.033) calc(var(--radar-size) * 0.033)
+      calc(var(--radar-size) * 0.22) var(--radar-inset);
+}
+
+.parsel-radar-loader > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  background: transparent;
+  transform-origin: top left;
+  animation: parsel-radar-sweep 2s linear infinite;
+  border-top: 1px dashed color-mix(in oklab, var(--foreground) 35%, transparent);
+}
+
+.parsel-radar-loader > span::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--radar-sweep);
+  transform-origin: top left;
+  transform: rotate(-55deg);
+  filter: blur(calc(var(--radar-size) * 0.16))
+    drop-shadow(
+      calc(var(--radar-size) * 0.08) calc(var(--radar-size) * 0.08)
+        calc(var(--radar-size) * 0.12) var(--radar-sweep-glow)
+    );
+}
+
+.dark .parsel-radar-loader {
+  --radar-shadow: rgba(0, 0, 0, 0.55);
+  --radar-inset: rgba(0, 0, 0, 0.25);
+  --radar-ring: #333333;
+  --radar-ring-dashed: #444444;
+  --radar-sweep: seagreen;
+  --radar-sweep-glow: seagreen;
+}
+
+.dark .parsel-radar-loader > span {
+  border-top-color: rgba(255, 255, 255, 0.65);
+}
+
+@keyframes parsel-radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

@@ -52,6 +52,9 @@ export function Header({ onMenuClick }: HeaderProps) {
             <h1 className="min-w-0 truncate font-outfit text-sm font-bold tracking-tight text-foreground sm:text-lg">
               {pageTitle}
             </h1>
+            <span className="hidden rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-1 text-[11px] font-semibold text-muted-foreground lg:inline-flex">
+              Canlı operasyon paneli
+            </span>
           </nav>
         </div>
 
