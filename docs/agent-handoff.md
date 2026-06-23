@@ -20,6 +20,12 @@
 
 - tsc PASS | lint PASS (0 errors) | test:hotfix 35/35 | build PASS
 
+## Production
+
+- URL: https://parselos.com
+- First sprint deploy: `dpl_GBxYrEnT9HyAyCxCpbEvNvfi2d7b` (commits through `65ae0c8`)
+- Voice dashboard: `dpl_*` via `5a75d15`
+
 ## Staging / Preview
 
 - Preview URL: https://parselos-molrpcv1n-parselos-team.vercel.app
