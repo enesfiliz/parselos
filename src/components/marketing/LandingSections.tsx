@@ -20,7 +20,6 @@ import {
 } from "@/components/marketing/LandingAuthButtons";
 import { PaymentBadges } from "@/components/marketing/PaymentBadges";
 import { RevealOnScroll, ScaleOnScroll, HoverLift, StaggerContainer, StaggerItem, GlowOnHover } from "@/components/marketing/landing-motion";
-import { formatOfficePricingNote } from "@/lib/billing/plan-catalog";
 import { LANDING_PRICING_PLANS } from "@/lib/billing/plan-catalog";
 import { cn } from "@/lib/utils";
 
@@ -413,58 +412,97 @@ function PricingCard({
   plan: (typeof LANDING_PRICING_PLANS)[number];
 }) {
   const isFree = plan.planType === "FREE";
+  const annualHighlight =
+    plan.planType === "PRO"
+      ? "Yıllık ödeme: ₺459/ay · %16 avantaj"
+      : plan.planType === "PREMIUM"
+        ? "5 danışman dahil · ek koltuk ₺349/ay"
+        : "Süresiz ücretsiz başlangıç";
+  const planTone =
+    plan.planType === "PREMIUM"
+      ? "Ofis ekipleri için"
+      : plan.planType === "PRO"
+        ? "Aktif danışmanlar için"
+        : "Ürünü denemek için";
+  const periodDetail = isFree
+    ? plan.periodLabel
+    : plan.periodLabel.replace(/^\/ ay\s*·\s*/, "");
 
   return (
     <ScaleOnScroll>
       <GlowOnHover glowColor={plan.highlighted ? "primary" : "gold"}>
         <article
           className={cn(
-            "parsel-surface relative flex flex-col overflow-hidden rounded-2xl border bg-parsel-panel shadow-parsel-sm transition-all duration-300",
+            "parsel-surface relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border bg-parsel-panel shadow-parsel-sm transition-all duration-300",
             plan.highlighted
-              ? "border-primary/25 shadow-parsel-md landing-pricing-featured"
-              : "border-border/60 hover:border-primary/15",
+              ? "border-primary/35 shadow-parsel-lg landing-pricing-featured lg:-translate-y-3"
+              : "border-border/60 hover:-translate-y-1 hover:border-primary/20 hover:shadow-parsel-md",
           )}
         >
           {plan.badge ? (
-            <span className="absolute right-5 top-5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <span className="absolute right-5 top-5 z-10 rounded-full border border-primary/25 bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary-foreground shadow-parsel-sm">
               {plan.badge}
             </span>
           ) : null}
 
-          <div className="border-b border-border/60 p-6 pt-8 sm:p-8">
-            <p className="parsel-section-label text-muted-foreground">{plan.marketingName}</p>
-            <p className="font-outfit mt-3 text-4xl font-semibold tracking-tight text-foreground">
-              {plan.priceLabel}
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">{plan.periodLabel}</p>
+          <div className="flex min-h-[270px] flex-col border-b border-border/60 p-6 pt-8 sm:p-8">
+            <div>
+              <p className="font-outfit text-xl font-bold tracking-tight text-foreground">
+                {plan.marketingName}
+              </p>
+              <p className="mt-1 text-sm font-medium text-muted-foreground">{planTone}</p>
+            </div>
+
+            <div className="mt-7">
+              <div className="flex items-end gap-2">
+                <p className="font-outfit text-5xl font-bold tracking-tight text-foreground sm:text-6xl">
+                  {plan.priceLabel}
+                </p>
+                {!isFree ? (
+                  <p className="pb-2 text-sm font-semibold text-muted-foreground">/ ay</p>
+                ) : null}
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">{periodDetail}</p>
+            </div>
 
             {isFree ? (
-              <p className="mt-4 inline-flex rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary">
+              <p className="mt-6 inline-flex rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary">
                 2 ücretsiz portföy ile başlayın
               </p>
             ) : null}
 
-            {plan.annualNote ? (
-              <p className="mt-3 text-xs font-medium text-muted-foreground">{plan.annualNote}</p>
-            ) : null}
-            {formatOfficePricingNote(plan) ? (
-              <p className="mt-1 text-xs text-muted-foreground">
-                {formatOfficePricingNote(plan)}
-              </p>
-            ) : null}
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{plan.tagline}</p>
+            <div
+              className={cn(
+                "mt-6 rounded-2xl border px-4 py-3 text-sm",
+                plan.highlighted
+                  ? "border-primary/25 bg-primary/10 text-primary"
+                  : "border-border/60 bg-parsel-elevated text-muted-foreground",
+              )}
+            >
+              <p className="font-semibold">{annualHighlight}</p>
+              {plan.planType === "PRO" ? (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Yıllıkta aylık liste fiyatına göre daha düşük birim maliyet.
+                </p>
+              ) : null}
+            </div>
+
+            <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{plan.tagline}</p>
           </div>
 
-          <ul className="flex flex-1 flex-col gap-2.5 p-6 sm:gap-3 sm:p-8">
+          <ul className="flex flex-1 flex-col gap-3 p-6 sm:p-8">
             {plan.features.map((feature) => (
               <li key={feature} className="flex items-start gap-3 text-sm text-foreground/90">
-                <Check
+                <span
                   className={cn(
-                    "mt-0.5 size-4 shrink-0",
-                    plan.highlighted ? "text-primary" : "text-muted-foreground",
+                    "mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full",
+                    plan.highlighted
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-parsel-elevated text-primary",
                   )}
-                  strokeWidth={1.5}
-                />
+                >
+                  <Check className="size-3.5" strokeWidth={2} />
+                </span>
                 <span className="leading-relaxed">{feature}</span>
               </li>
             ))}
@@ -472,20 +510,21 @@ function PricingCard({
 
           <div className="p-6 pt-0 sm:p-8">
             {isFree ? (
-              <SignUpShineButton className="flex h-12 w-full items-center justify-center rounded-xl border border-border/60 bg-parsel-elevated text-sm font-semibold text-foreground shadow-none transition-all hover:bg-accent hover:-translate-y-0.5">
+              <SignUpShineButton className="flex h-12 w-full items-center justify-center rounded-xl border border-border/60 bg-parsel-elevated text-sm font-semibold text-foreground shadow-none transition-all hover:-translate-y-0.5 hover:bg-accent">
                 {plan.cta}
               </SignUpShineButton>
             ) : (
               <Link
                 href="/sign-up"
                 className={cn(
-                  "flex h-12 w-full items-center justify-center rounded-xl text-sm font-semibold transition-all",
+                  "group flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all",
                   plan.highlighted
                     ? "bg-primary text-primary-foreground shadow-parsel-sm hover:bg-primary/90 hover:-translate-y-0.5"
                     : "border border-border/60 bg-parsel-elevated text-foreground hover:bg-accent hover:-translate-y-0.5",
                 )}
               >
                 {plan.cta}
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" strokeWidth={1.8} />
               </Link>
             )}
           </div>
@@ -511,7 +550,21 @@ export function PricingSection() {
           />
         </RevealOnScroll>
 
-        <StaggerContainer className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
+        <RevealOnScroll delay={0.08}>
+          <div className="mx-auto mt-8 flex max-w-3xl flex-col items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/10 px-5 py-4 text-center shadow-parsel-sm sm:flex-row sm:text-left">
+            <div>
+              <p className="text-sm font-semibold text-primary">Yıllık ödeme avantajı</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Danışman paketinde yıllık ödeme ile aylık birim maliyet ₺459 seviyesine iner.
+              </p>
+            </div>
+            <span className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-primary-foreground">
+              %16 avantaj
+            </span>
+          </div>
+        </RevealOnScroll>
+
+        <StaggerContainer className="mt-14 grid grid-cols-1 gap-5 lg:grid-cols-3 lg:items-stretch lg:gap-6">
           {LANDING_PRICING_PLANS.map((plan) => (
             <StaggerItem key={plan.id}>
               <PricingCard plan={plan} />

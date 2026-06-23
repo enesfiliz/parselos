@@ -6,13 +6,13 @@ import Link from "next/link";
 import { SignUpShineButton } from "@/components/marketing/LandingAuthButtons";
 import { HeroCinematicBackdrop } from "@/components/marketing/HeroCinematicBackdrop";
 import { ParcelCommandHero } from "@/components/marketing/ParcelCommandHero";
-import { RevealOnMount, ParallaxScroll, HoverLift } from "@/components/marketing/landing-motion";
+import { RevealOnMount } from "@/components/marketing/landing-motion";
 
 const TRUST_SIGNALS = [
-  "Danışman bazlı takip",
-  "Broker ofis görünümü",
-  "İmar ve parsel farkındalığı",
-  "Sesli saha notu",
+  "Broker operasyon ritmi",
+  "Portföy ve müşteri akışı",
+  "Parsel grafiği ve imar sinyali",
+  "Sesli saha takibi",
 ] as const;
 
 const HERO_SECONDARY_CTA_CLASS =
@@ -47,20 +47,23 @@ export function HeroShowcase() {
     <section className="relative isolate min-h-[100svh] overflow-hidden bg-parsel-canvas pb-12 pt-24 sm:pb-16 sm:pt-28 lg:pb-20 lg:pt-32">
       <HeroCinematicBackdrop />
 
-      <div className="hero-premium-stage relative z-10 mx-auto grid max-w-[1360px] items-center gap-10 px-5 sm:gap-12 sm:px-6 lg:min-h-[calc(100svh-8rem)] lg:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)] lg:items-center lg:gap-8 lg:px-10 xl:max-w-[1420px] xl:gap-10 xl:px-12">
-        <div className="relative flex flex-col items-start text-left lg:max-w-xl lg:pr-4 xl:max-w-2xl">
+      <div className="hero-premium-stage relative z-10 mx-auto grid max-w-[1400px] items-center gap-10 px-5 sm:gap-12 sm:px-6 lg:min-h-[calc(100svh-7.25rem)] lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] lg:items-center lg:gap-8 lg:px-10 xl:gap-12 xl:px-12">
+        <div className="relative flex flex-col items-start text-left lg:max-w-[34rem] lg:pr-2 xl:max-w-[40rem]">
           <RevealOnMount delay={0}>
-            <h1 className="font-outfit max-w-2xl text-[1.95rem] font-bold leading-[1.15] tracking-tight text-foreground sm:text-[2.5rem] lg:text-[3rem] xl:text-[3.25rem]">
-              Broker ofisleri için{" "}
-              <span className="landing-hero-gradient-text">portföy, müşteri ve parsel</span>{" "}
-              operasyonu tek merkezde.
+            <p className="mb-4 inline-flex rounded-full border border-primary/18 bg-primary/8 px-3 py-1.5 text-xs font-semibold text-primary shadow-parsel-sm backdrop-blur-sm">
+              ParselOS gayrimenkul CRM platformu
+            </p>
+            <h1 className="font-outfit max-w-3xl text-[2.35rem] font-bold leading-[1.05] tracking-tight text-foreground sm:text-[3.25rem] lg:text-[3.65rem] xl:text-[4.2rem]">
+              Gayrimenkul operasyonunu{" "}
+              <span className="landing-hero-gradient-text">yerçekimsiz bir komuta alanına</span>{" "}
+              taşıyın.
             </h1>
           </RevealOnMount>
 
           <RevealOnMount delay={90}>
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-5 sm:text-base lg:text-lg">
-              ParselOS, gayrimenkul danışmanlarının saha notlarını, müşteri taleplerini, portföy
-              süreçlerini ve imar takibini broker disipliniyle birleştiren operasyon platformudur.
+            <p className="mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base lg:text-lg">
+              Portföyler, müşteri talepleri, saha notları ve parsel sinyalleri tek ekranda
+              birleşir. Broker ofisleri için sakin, hızlı ve güven veren bir operasyon akışı.
             </p>
           </RevealOnMount>
 
@@ -104,12 +107,6 @@ export function HeroShowcase() {
       <div className="hero-bottom-fade pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 sm:h-32" aria-hidden />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" aria-hidden />
 
-      <div className="landing-scroll-hint pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center" aria-hidden>
-        <span className="flex flex-col items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/70">
-          Keşfet
-          <span className="landing-scroll-hint-chevron block h-6 w-px bg-gradient-to-b from-muted-foreground/50 to-transparent" />
-        </span>
-      </div>
     </section>
   );
 }

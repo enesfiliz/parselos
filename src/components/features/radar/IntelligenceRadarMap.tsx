@@ -183,13 +183,14 @@ export function IntelligenceRadarMap({
 
   useEffect(() => {
     if (!initialView) return;
-    queueMicrotask(() => {
+    const id = window.setTimeout(() => {
       setViewState({
         longitude: initialView.longitude,
         latitude: initialView.latitude,
         zoom: initialView.zoom,
       });
-    });
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [initialView?.label, initialView?.longitude, initialView?.latitude, initialView?.zoom, initialView]);
 
   const origin = "";

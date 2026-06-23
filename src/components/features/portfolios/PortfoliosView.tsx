@@ -116,7 +116,8 @@ export function PortfoliosView({
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    queueMicrotask(() => setItems(portfolios));
+    const id = window.setTimeout(() => setItems(portfolios), 0);
+    return () => window.clearTimeout(id);
   }, [portfolios]);
 
   const openCreateSheet = useCallback(() => {
@@ -150,10 +151,11 @@ export function PortfoliosView({
 
   useEffect(() => {
     if (openSheetOnMount) {
-      queueMicrotask(() => {
+      const id = window.setTimeout(() => {
         openCreateSheet();
         router.replace("/portfolios");
-      });
+      }, 0);
+      return () => window.clearTimeout(id);
     }
   }, [openSheetOnMount, openCreateSheet, router]);
 

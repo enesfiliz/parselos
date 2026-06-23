@@ -2,7 +2,6 @@ import {
   Activity,
   Bot,
   Briefcase,
-  FileText,
   Mic,
   Radar,
   Users,
@@ -11,11 +10,8 @@ import {
 import { RevealOnMount } from "@/components/marketing/landing-motion";
 import { cn } from "@/lib/utils";
 
-const PANEL_CARD =
-  "parsel-surface rounded-2xl border border-border/60 bg-parsel-panel";
-
 const MAIN_PANEL_CARD =
-  "hero-command-panel-main parsel-surface rounded-2xl border border-border/60 bg-parsel-panel";
+  "hero-command-panel-main parsel-surface rounded-2xl border border-border/60 bg-parsel-panel/96";
 
 const SUB_PANEL_CARD =
   "hero-command-panel-sub rounded-xl border border-border/50 bg-parsel-elevated";
@@ -73,13 +69,11 @@ const PANEL_EVENTS = [
   },
 ] as const;
 
-const DESKTOP_FLOAT_EVENTS = PANEL_EVENTS.filter((event) => event.id !== "parselai");
-
 function LiveStatusBadge() {
   return (
     <span className="landing-live-badge inline-flex shrink-0 items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
       <span className="landing-live-badge-dot size-1.5 rounded-full bg-primary" aria-hidden />
-      Örnek görünüm
+      Canlı önizleme
     </span>
   );
 }
@@ -89,7 +83,7 @@ function DashboardPreviewChrome() {
     <div className="mb-4 flex items-center gap-2.5 rounded-lg border border-border/50 bg-parsel-elevated px-3 py-2">
       <span className="size-1.5 shrink-0 rounded-full bg-primary/70" aria-hidden />
       <span className="truncate font-mono text-[11px] text-muted-foreground">
-        Broker Komuta Merkezi · operasyon önizlemesi
+        ParselOS / broker komuta alanı
       </span>
     </div>
   );
@@ -111,7 +105,8 @@ function ParcelAtlasCanvas({ compact = false }: { compact?: boolean }) {
         <span className="hero-atlas-block hero-atlas-block-c" />
         <span className="hero-atlas-highlight" />
       </div>
-      <div className={cn("hero-atlas-radar landing-radar-sweep absolute inset-0", compact ? "opacity-20" : "opacity-30")}
+      <div
+        className={cn("hero-atlas-radar absolute inset-0", compact ? "opacity-20" : "opacity-30")}
         style={{
           background:
             "conic-gradient(from 200deg at 68% 42%, transparent 0deg, color-mix(in srgb, var(--primary) 40%, transparent) 36deg, transparent 70deg)",
@@ -207,7 +202,7 @@ function CommandCenterPanel({ showAtlasInline = false }: { showAtlasInline?: boo
             Pipeline
           </p>
           <div className="mt-3 space-y-2.5">
-            {PIPELINE_ROWS.map((row, index) => {
+            {PIPELINE_ROWS.map((row) => {
               const isGold = "gold" in row && row.gold;
               return (
               <div key={row.stage} className="space-y-1">
@@ -227,9 +222,6 @@ function CommandCenterPanel({ showAtlasInline = false }: { showAtlasInline?: boo
                     className={cn(
                       "h-full rounded-full",
                       isGold ? "bg-parsel-gold/70" : "bg-primary/35",
-                      index === 0 && "landing-pipeline-bar",
-                      index === 1 && "landing-pipeline-bar landing-pipeline-bar-2",
-                      index === 2 && "landing-pipeline-bar landing-pipeline-bar-3",
                     )}
                     style={{ width: row.width }}
                   />
@@ -274,12 +266,8 @@ function ProductSignalGrid() {
           <div
             key={signal.id}
             className={cn(
-              "landing-hero-float-card rounded-xl border bg-parsel-panel/95 p-2.5 shadow-parsel-sm backdrop-blur-sm",
+              "rounded-xl border bg-parsel-panel/95 p-2.5 shadow-parsel-sm backdrop-blur-sm",
               isGold ? "border-parsel-gold/25" : "border-primary/20",
-              signal.id === "portfolio" && "landing-glass-float",
-              signal.id === "imar" && "landing-glass-float-alt",
-              signal.id === "voice" && "landing-glass-float-slow",
-              signal.id === "parselai" && "landing-capsule-float",
             )}
           >
             <div className="flex items-start gap-2">
@@ -309,36 +297,17 @@ function ProductSignalGrid() {
 
 function PanelEventRail({
   event,
-  inline = false,
 }: {
   event: (typeof PANEL_EVENTS)[number];
-  inline?: boolean;
 }) {
   const Icon = event.icon;
   const isGold = event.accent === "gold";
 
-  if (inline) {
-    return (
-      <div className="flex items-start gap-2 rounded-xl border border-border/60 bg-parsel-panel px-3 py-2.5 shadow-parsel-sm">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-primary/15 bg-primary/10">
-          <Icon className="size-3.5 text-primary" strokeWidth={1.75} aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold text-foreground">{event.title}</p>
-          <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{event.body}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       className={cn(
-        "hero-panel-event z-30 flex max-w-[220px] items-start gap-2.5 rounded-xl border bg-parsel-panel px-3.5 py-3 shadow-parsel-md backdrop-blur-sm",
+        "flex items-start gap-2 rounded-xl border bg-parsel-panel/96 px-3 py-2.5 shadow-parsel-sm backdrop-blur-sm",
         isGold ? "border-parsel-gold/25" : "border-border/60",
-        event.placement === "left" && "hero-panel-event-left",
-        event.placement === "right" && "hero-panel-event-right",
-        event.placement === "bottom" && "hero-panel-event-bottom",
       )}
     >
       <span
@@ -359,30 +328,6 @@ function PanelEventRail({
   );
 }
 
-function BackLayerCard() {
-  return (
-    <div
-      className={cn(
-        PANEL_CARD,
-        "hero-command-layer-back pointer-events-none absolute inset-x-4 top-6 hidden p-4 opacity-45 shadow-parsel-sm lg:block",
-      )}
-      aria-hidden
-    >
-      <p className="parsel-section-label text-muted-foreground">İmar takip</p>
-      <ul className="mt-3 space-y-2">
-        {["126/58 Konut", "84/12 Ticari", "210/4 Askıda"].map((item) => (
-          <li
-            key={item}
-            className="rounded-lg border border-border/40 bg-parsel-elevated px-2.5 py-2 text-[10px] text-muted-foreground"
-          >
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 function MobileCommandDeck() {
   return (
     <div className="relative">
@@ -394,29 +339,22 @@ function MobileCommandDeck() {
 
 function DesktopCommandDeck() {
   return (
-    <div className="hero-command-deck relative mx-auto w-full max-w-[560px] lg:max-w-none">
-      <div className="hero-command-atlas-wrap pointer-events-none absolute -right-1 -top-8 z-0 hidden w-[56%] lg:block xl:-right-2 xl:-top-10 xl:w-[58%]">
+    <div className="hero-command-deck relative mx-auto w-full max-w-[720px] lg:max-w-none">
+      <div className="hero-command-atlas-wrap pointer-events-none absolute -right-6 -top-10 z-0 hidden w-[58%] lg:block xl:-right-8 xl:-top-12">
         <ParcelAtlasCanvas />
       </div>
 
-      <BackLayerCard />
-
-      <div className="hero-command-layer-mid pointer-events-none absolute -left-2 top-14 z-10 hidden w-[40%] lg:block xl:-left-4 xl:top-16 xl:w-[42%]">
-        <div className={cn(PANEL_CARD, "hero-command-panel-sub p-3 opacity-65 shadow-parsel-sm")} aria-hidden>
-          <p className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-            <FileText className="size-3" strokeWidth={1.75} />
-            Evrak ve tapu kontrolü
-          </p>
-          <div className="mt-2 h-1.5 w-3/4 rounded-full bg-border/80" />
-          <div className="mt-1.5 h-1.5 w-1/2 rounded-full bg-border/60" />
+      <div className="hero-command-stage-shell relative z-10 overflow-hidden rounded-[2rem] border border-border/60 bg-parsel-panel/55 p-3 shadow-parsel-lg backdrop-blur-xl">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,color-mix(in_srgb,var(--primary)_13%,transparent),transparent_36%),radial-gradient(circle_at_18%_92%,color-mix(in_srgb,var(--parsel-gold)_10%,transparent),transparent_34%)]" />
+        <div className="relative grid gap-3 xl:grid-cols-[minmax(0,1fr)_14rem]">
+          <CommandCenterPanel />
+          <aside className="hidden flex-col gap-2.5 xl:flex">
+            <ParcelAtlasCanvas compact />
+            {PANEL_EVENTS.slice(0, 3).map((event) => (
+              <PanelEventRail key={event.id} event={event} />
+            ))}
+          </aside>
         </div>
-      </div>
-
-      <div className="hero-command-layer-front landing-command-front relative z-20 pb-4 pt-2 lg:pt-6 lg:pb-6 xl:pt-8">
-        <CommandCenterPanel />
-        {DESKTOP_FLOAT_EVENTS.map((event) => (
-          <PanelEventRail key={event.id} event={event} />
-        ))}
       </div>
     </div>
   );
@@ -425,7 +363,7 @@ function DesktopCommandDeck() {
 export function ParcelCommandHero() {
   return (
     <RevealOnMount delay={180} className="relative w-full">
-      <div className="hero-command-glow pointer-events-none absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/6 via-transparent to-parsel-gold/6 blur-2xl lg:-inset-6" />
+      <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/8 via-transparent to-parsel-gold/8 blur-2xl lg:-inset-6" />
       <div className="lg:hidden">
         <MobileCommandDeck />
       </div>

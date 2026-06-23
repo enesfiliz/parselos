@@ -114,7 +114,7 @@ export function ImarRadariView() {
     if (!isLoaded || !storageUserId) return;
 
     const saved = loadImarRadarConfig(storageUserId);
-    queueMicrotask(() => {
+    const id = window.setTimeout(() => {
       setRegion(saved.region);
       setKeywords(saved.keywords);
       setIsTrackingEnabled(loadTrackingEnabled(storageUserId));
@@ -122,7 +122,8 @@ export function ImarRadariView() {
       setTrackingMeta(loadTrackingMeta(storageUserId));
       setTrackedRegions(loadTrackedRegions(storageUserId));
       setConfigReady(true);
-    });
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [isLoaded, storageUserId]);
 
   const fetchRadar = useCallback(async () => {

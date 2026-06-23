@@ -57,7 +57,7 @@ export function FsboRadarView({
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    queueMicrotask(() => {
+    const id = window.setTimeout(() => {
       setAllLeads(initialLeads);
       setSelectedId((current) => {
         if (current && initialLeads.some((lead) => lead.id === current)) {
@@ -65,7 +65,8 @@ export function FsboRadarView({
         }
         return initialLeads[0]?.id ?? null;
       });
-    });
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [initialLeads]);
 
   const filteredLeads = useMemo(

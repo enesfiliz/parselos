@@ -112,7 +112,10 @@ export function PortfolioAddDrawer({
         ? portfolioToFormValues(portfolio)
         : EMPTY_PORTFOLIO_FORM;
     reset(values);
-    queueMicrotask(() => setPreviewUrl(values.coverImageUrl || null));
+    const previewTimer = window.setTimeout(
+      () => setPreviewUrl(values.coverImageUrl || null),
+      0,
+    );
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onOpenChange(false);
@@ -123,6 +126,7 @@ export function PortfolioAddDrawer({
     return () => {
       document.body.style.overflow = "";
       document.removeEventListener("keydown", onKeyDown);
+      window.clearTimeout(previewTimer);
     };
   }, [mode, onOpenChange, open, portfolio, reset]);
 

@@ -118,16 +118,18 @@ export function MembershipMenu({ className }: { className?: string }) {
   useEffect(() => {
     if (!isLoaded || !user || fetchedRef.current) return;
     fetchedRef.current = true;
-    queueMicrotask(() => {
+    const id = window.setTimeout(() => {
       void loadSummary();
-    });
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [isLoaded, user, loadSummary]);
 
   useEffect(() => {
     if (open && !summary && !summaryError) {
-      queueMicrotask(() => {
+      const id = window.setTimeout(() => {
         void loadSummary();
-      });
+      }, 0);
+      return () => window.clearTimeout(id);
     }
   }, [open, summary, summaryError, loadSummary]);
 

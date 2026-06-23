@@ -35,10 +35,11 @@ export function IntelligenceRadarMapLoader() {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    queueMicrotask(() => {
+    const id = window.setTimeout(() => {
       setConfig(loadIntelligenceRadarConfig());
       setHydrated(true);
-    });
+    }, 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   const persist = useCallback((next: IntelligenceRadarConfig) => {

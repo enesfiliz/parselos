@@ -7,8 +7,6 @@ import { useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
-const EASE_IN_OUT = [0.4, 0, 0.2, 1] as const;
-const EASE_BOUNCE = [0.34, 1.56, 0.64, 1] as const;
 
 export function NoiseTexture() {
   return (
@@ -358,10 +356,6 @@ export function GlowOnHover({
   glowColor?: "primary" | "gold";
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const glowClass =
-    glowColor === "gold"
-      ? "shadow-[0_0_20px_-5px_rgba(197,163,110,0.3)]"
-      : "shadow-[0_0_20px_-5px_rgba(74,107,47,0.3)]";
 
   return (
     <motion.div

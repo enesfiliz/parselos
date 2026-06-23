@@ -21,13 +21,13 @@ export function LandingPage() {
       <NoiseTexture />
 
       <LandingHeader>
-        <div className="mx-auto flex h-[4.25rem] max-w-[1400px] items-center justify-between gap-4 px-6 sm:px-8 lg:px-12">
+        <div className="mx-auto flex h-[4.25rem] max-w-[1400px] items-center justify-between gap-3 px-4 sm:gap-4 sm:px-8 lg:px-12">
           <Link
             href="/"
             className="inline-flex shrink-0 text-foreground transition-opacity hover:opacity-90"
             aria-label="ParselOS"
           >
-            <Logo priority className="h-8 w-auto max-w-[142px] sm:h-9 sm:max-w-[150px]" />
+            <Logo priority className="h-8 w-auto max-w-[124px] sm:h-9 sm:max-w-[150px]" />
           </Link>
           <nav className="hidden flex-1 items-center justify-center gap-1 md:flex">
             <a href="#features" className="landing-nav-link">
@@ -40,7 +40,7 @@ export function LandingPage() {
               Fiyatlandırma
             </a>
           </nav>
-          <div className="flex shrink-0 items-center gap-1.5 rounded-xl border border-border/50 bg-parsel-panel/55 px-1.5 py-1 shadow-parsel-sm backdrop-blur-sm sm:gap-2 sm:px-2">
+          <div className="flex shrink-0 items-center gap-1 rounded-xl border border-border/50 bg-parsel-panel/55 px-1 py-1 shadow-parsel-sm backdrop-blur-sm sm:gap-2 sm:px-2">
             <ThemeToggle className="hover:bg-accent/80" />
             <span className="hidden h-5 w-px bg-border/60 sm:block" aria-hidden />
             <LandingNavAuth />
