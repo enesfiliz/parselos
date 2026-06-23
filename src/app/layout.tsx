@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { ThemeInitScript } from "@/components/providers/ThemeInitScript";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./clerk.css";
@@ -35,6 +36,9 @@ export default function RootLayout({
       className="h-full antialiased"
       suppressHydrationWarning
     >
+      <head>
+        <ThemeInitScript />
+      </head>
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground antialiased">
         <ThemeProvider>
           {children}

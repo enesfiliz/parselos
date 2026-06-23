@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 
-import { useParselTheme } from "@/components/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
 
 export type LogoProps = {
@@ -17,10 +16,8 @@ export function Logo({
   priority = false,
   markOnly = false,
 }: LogoProps) {
-  const { resolvedTheme } = useParselTheme();
   const src = markOnly ? "/brand/icon-mark.png" : "/brand/logo-horizontal.png";
   const darkSrc = markOnly ? "/brand/icon-mark.png" : "/brand/logo-horizontal-light.png";
-  const activeSrc = resolvedTheme === "dark" ? darkSrc : src;
   const dimensions = markOnly
     ? { width: 1024, height: 1051 }
     : { width: 1420, height: 318 };
@@ -32,7 +29,7 @@ export function Logo({
       role="img"
     >
       <Image
-        src={activeSrc}
+        src={src}
         alt=""
         width={dimensions.width}
         height={dimensions.height}
@@ -40,7 +37,19 @@ export function Logo({
         sizes={markOnly ? "40px" : "180px"}
         unoptimized
         fetchPriority={priority ? "high" : undefined}
-        className="block h-full w-auto object-contain"
+        className="block h-full w-auto object-contain dark:hidden"
+        draggable={false}
+      />
+      <Image
+        src={darkSrc}
+        alt=""
+        width={dimensions.width}
+        height={dimensions.height}
+        loading={priority ? "eager" : undefined}
+        sizes={markOnly ? "40px" : "180px"}
+        unoptimized
+        fetchPriority={priority ? "high" : undefined}
+        className="hidden h-full w-auto object-contain dark:block"
         draggable={false}
       />
     </span>

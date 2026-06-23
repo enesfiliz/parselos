@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { EmptyState, PageHeader, PageShell } from "@/components/ui/page-shell";
 import { isDemoDataEnabledClient } from "@/lib/demo-mode";
 import { MOCK_CLIENTS } from "@/lib/data/mock-clients";
 import {
@@ -98,36 +99,62 @@ function NewAppointmentModal({
   onOpenChange,
   defaultDate,
   onCreate,
+  useDemo,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultDate: string;
   onCreate: (appointment: CalendarAppointment) => void;
+  useDemo: boolean;
 }) {
   const [clientId, setClientId] = useState(MOCK_CLIENTS[0]?.id ?? "");
   const [propertyId, setPropertyId] = useState(MOCK_PORTFOLIO_OPTIONS[0]?.id ?? "");
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [propertyTitle, setPropertyTitle] = useState("");
   const [date, setDate] = useState(defaultDate);
   const [time, setTime] = useState("14:00");
   const [type, setType] = useState<AppointmentType>("showing");
 
   useEffect(() => {
-    if (open) queueMicrotask(() => setDate(defaultDate));
+    if (!open) return;
+    const id = window.setTimeout(() => setDate(defaultDate), 0);
+    return () => window.clearTimeout(id);
   }, [open, defaultDate]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const client = MOCK_CLIENTS.find((item) => item.id === clientId);
-    const property = MOCK_PORTFOLIO_OPTIONS.find((item) => item.id === propertyId);
-    if (!client || !property) return;
+
+    if (useDemo) {
+      const client = MOCK_CLIENTS.find((item) => item.id === clientId);
+      const property = MOCK_PORTFOLIO_OPTIONS.find((item) => item.id === propertyId);
+      if (!client || !property) return;
+
+      onCreate({
+        id: `apt-${Date.now()}`,
+        date,
+        time,
+        type,
+        clientName: client.adSoyad,
+        clientPhone: client.telefon?.replace(/\D/g, "") ?? "",
+        propertyTitle: property.title,
+      });
+      onOpenChange(false);
+      return;
+    }
+
+    const trimmedName = clientName.trim();
+    const trimmedProperty = propertyTitle.trim();
+    if (!trimmedName || !trimmedProperty) return;
 
     onCreate({
       id: `apt-${Date.now()}`,
       date,
       time,
       type,
-      clientName: client.adSoyad,
-      clientPhone: client.telefon?.replace(/\D/g, "") ?? "",
-      propertyTitle: property.title,
+      clientName: trimmedName,
+      clientPhone: clientPhone.replace(/\D/g, ""),
+      propertyTitle: trimmedProperty,
     });
     onOpenChange(false);
   }
@@ -140,41 +167,91 @@ function NewAppointmentModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="apt-client" className={FIELD_LABEL}>
-              Müşteri
-            </label>
-            <select
-              id="apt-client"
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              className={FIELD_INPUT}
-            >
-              {MOCK_CLIENTS.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.adSoyad}
-                </option>
-              ))}
-            </select>
-          </div>
+          {useDemo ? (
+            <>
+              <div>
+                <label htmlFor="apt-client" className={FIELD_LABEL}>
+                  Müşteri
+                </label>
+                <select
+                  id="apt-client"
+                  value={clientId}
+                  onChange={(e) => setClientId(e.target.value)}
+                  className={FIELD_INPUT}
+                >
+                  {MOCK_CLIENTS.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.adSoyad}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <div>
-            <label htmlFor="apt-property" className={FIELD_LABEL}>
-              İlgili Fırsat / Portföy
-            </label>
-            <select
-              id="apt-property"
-              value={propertyId}
-              onChange={(e) => setPropertyId(e.target.value)}
-              className={FIELD_INPUT}
-            >
-              {MOCK_PORTFOLIO_OPTIONS.map((property) => (
-                <option key={property.id} value={property.id}>
-                  {property.title}
-                </option>
-              ))}
-            </select>
-          </div>
+              <div>
+                <label htmlFor="apt-property" className={FIELD_LABEL}>
+                  İlgili Fırsat / Portföy
+                </label>
+                <select
+                  id="apt-property"
+                  value={propertyId}
+                  onChange={(e) => setPropertyId(e.target.value)}
+                  className={FIELD_INPUT}
+                >
+                  {MOCK_PORTFOLIO_OPTIONS.map((property) => (
+                    <option key={property.id} value={property.id}>
+                      {property.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <label htmlFor="apt-client-name" className={FIELD_LABEL}>
+                  Müşteri adı
+                </label>
+                <input
+                  id="apt-client-name"
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className={FIELD_INPUT}
+                  placeholder="Örn. Ayşe Yılmaz"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="apt-client-phone" className={FIELD_LABEL}>
+                  Telefon (isteğe bağlı)
+                </label>
+                <input
+                  id="apt-client-phone"
+                  type="tel"
+                  value={clientPhone}
+                  onChange={(e) => setClientPhone(e.target.value)}
+                  className={FIELD_INPUT}
+                  placeholder="05xx xxx xx xx"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="apt-property-title" className={FIELD_LABEL}>
+                  İlgili portföy veya fırsat
+                </label>
+                <input
+                  id="apt-property-title"
+                  type="text"
+                  value={propertyTitle}
+                  onChange={(e) => setPropertyTitle(e.target.value)}
+                  className={FIELD_INPUT}
+                  placeholder="Örn. Kadıköy 3+1 satılık"
+                  required
+                />
+              </div>
+            </>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -236,12 +313,13 @@ function NewAppointmentModal({
 export function CalendarView() {
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
+  const useDemo = isDemoDataEnabledClient();
 
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState(todayKey);
   const [appointments, setAppointments] = useState<CalendarAppointment[]>(() =>
-    isDemoDataEnabledClient() ? createMockAppointments() : [],
+    useDemo ? createMockAppointments() : [],
   );
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -278,30 +356,22 @@ export function CalendarView() {
   }
 
   return (
-    <div className="min-h-full bg-parsel-canvas">
-      <div className="mx-auto w-full max-w-6xl space-y-6">
-        <header className="parsel-page-hero flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-primary">
-              <CalendarDays className="h-4 w-4" strokeWidth={1.75} />
-              <span className="parsel-section-label text-primary">
-                Saha Operasyonları
-              </span>
-            </div>
-            <h1 className="parsel-page-title text-foreground">
-              Saha Operasyonları ve Ajanda
-            </h1>
-          </div>
-
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-parsel-sm transition-colors hover:bg-primary/90 lg:w-auto lg:self-auto"
-        >
-          <Plus className="h-4 w-4" strokeWidth={2} />
-          Yeni Randevu
-        </button>
-        </header>
+    <PageShell className="mx-auto space-y-6">
+      <PageHeader
+        eyebrow="Saha Operasyonları"
+        eyebrowIcon={CalendarDays}
+        title="Saha Operasyonları ve Ajanda"
+        actions={
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-parsel-sm transition-colors hover:bg-primary/90 lg:w-auto"
+          >
+            <Plus className="h-4 w-4" strokeWidth={2} />
+            Yeni Randevu
+          </button>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-12">
         <aside className="parsel-surface h-fit rounded-2xl border border-border/60 bg-parsel-panel p-4 shadow-parsel-sm md:p-6 lg:col-span-4">
@@ -410,18 +480,18 @@ export function CalendarView() {
           </div>
 
           {selectedEvents.length === 0 ? (
-            <div className="parsel-surface rounded-2xl border border-dashed border-border/60 bg-parsel-panel px-6 py-16 text-center shadow-parsel-sm">
-              <p className="text-sm text-foreground/45">
-                Bu gün için planlanmış randevu yok.
-              </p>
-              <button
-                type="button"
-                onClick={() => setModalOpen(true)}
-                className="mt-4 text-xs font-semibold text-primary hover:text-primary/80"
-              >
-                + Yeni randevu ekle
-              </button>
-            </div>
+            <EmptyState
+              title="Bu gün için planlanmış randevu yok."
+              action={
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(true)}
+                  className="text-xs font-semibold text-primary hover:text-primary/80"
+                >
+                  + Yeni randevu ekle
+                </button>
+              }
+            />
           ) : (
             selectedEvents.map((event) => (
               <EventCard key={event.id} event={event} />
@@ -430,14 +500,13 @@ export function CalendarView() {
         </section>
       </div>
 
-      </div>
-
       <NewAppointmentModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         defaultDate={selectedDate}
         onCreate={handleCreate}
+        useDemo={useDemo}
       />
-    </div>
+    </PageShell>
   );
 }

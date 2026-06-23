@@ -42,3 +42,6 @@ export function applyParselTheme(theme: ParselColorScheme) {
   document.documentElement.classList.toggle("dark", theme === "dark");
   document.documentElement.style.colorScheme = theme;
 }
+
+/** Blocking script for root layout — prevents theme flash before hydration. */
+export const PARSEL_THEME_INIT_SCRIPT = `(function(){try{var s=localStorage.getItem("${PARSEL_THEME_STORAGE_KEY}");var t=s==="dark"||s==="light"?s:"light";document.documentElement.classList.toggle("dark",t==="dark");document.documentElement.style.colorScheme=t;}catch(e){}})();`;
