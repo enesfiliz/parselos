@@ -81,13 +81,12 @@ export function DealDetailSheet({
   }, [onDealChange]);
 
   useEffect(() => {
-    queueMicrotask(() => setLocalDeal(deal));
+    const id = window.setTimeout(() => setLocalDeal(deal), 0);
+    return () => window.clearTimeout(id);
   }, [deal]);
 
   function syncDealToParent(next: DealCardData) {
-    queueMicrotask(() => {
-      onDealChangeRef.current(next);
-    });
+    onDealChangeRef.current(next);
   }
 
   function update(partial: Partial<DealCardData>) {

@@ -187,9 +187,10 @@ export function DealsKanbanBoard({
     }
     if (saveTimersRef.current.size > 0) return;
 
-    queueMicrotask(() => {
+    const id = window.setTimeout(() => {
       setDeals(useMock ? loadPersistedMockDeals(initialDeals) : initialDeals);
-    });
+    }, 0);
+    return () => window.clearTimeout(id);
   }, [initialDeals, useMock, isDraggingBoard]);
 
   useEffect(() => {

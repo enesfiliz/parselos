@@ -10,7 +10,8 @@ export function ParselAiFab() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    queueMicrotask(() => setMounted(true));
+    const id = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   if (!mounted) return null;

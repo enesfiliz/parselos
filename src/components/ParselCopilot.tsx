@@ -20,7 +20,8 @@ export function ParselCopilot() {
   const toggle = useCallback(() => setOpen((current) => !current), []);
 
   useEffect(() => {
-    queueMicrotask(() => setMounted(true));
+    const id = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   useEffect(() => {

@@ -437,7 +437,10 @@ function InlineEdit({
   const ref = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (!editing) queueMicrotask(() => setDraft(value));
+    if (!editing) {
+      const id = window.setTimeout(() => setDraft(value), 0);
+      return () => window.clearTimeout(id);
+    }
   }, [value, editing]);
 
   useEffect(() => {
@@ -945,9 +948,16 @@ export default function DealsPage() {
   }, [commit]);
 
   useEffect(() => {
-    queueMicrotask(() => {
-      reloadDeals().finally(() => setLoading(false));
-    });
+    let cancelled = false;
+    const id = window.setTimeout(() => {
+      reloadDeals().finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    }, 0);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(id);
+    };
   }, [reloadDeals]);
 
   const selected = deals.find((d) => d.id === selectedId) ?? null;
@@ -972,14 +982,14 @@ export default function DealsPage() {
 
   useEffect(() => {
     if (!selectedDealId || !sheetOpen) {
-      queueMicrotask(() => {
+      const id = window.setTimeout(() => {
         setNotes([]);
         setFsboMatches([]);
-      });
-      return;
+      }, 0);
+      return () => window.clearTimeout(id);
     }
 
-    queueMicrotask(() => setFsboLoading(true));
+    const fsboLoadingId = window.setTimeout(() => setFsboLoading(true), 0);
     getFsboMatchesForDeal(selectedDealId)
       .then((res) => {
         if (res.success) {
@@ -995,7 +1005,7 @@ export default function DealsPage() {
       })
       .finally(() => setFsboLoading(false));
 
-    queueMicrotask(() => setNotesLoading(true));
+    const notesLoadingId = window.setTimeout(() => setNotesLoading(true), 0);
     getDealNotes(selectedDealId)
       .then((res) => {
         if (res.success) {
@@ -1010,6 +1020,11 @@ export default function DealsPage() {
         toast.error("Notlar yüklenemedi.");
       })
       .finally(() => setNotesLoading(false));
+
+    return () => {
+      window.clearTimeout(fsboLoadingId);
+      window.clearTimeout(notesLoadingId);
+    };
   }, [selectedDealId, sheetOpen]);
 
   async function persistDeal(nextDeal: DealCardData) {

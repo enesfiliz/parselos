@@ -46,7 +46,11 @@ export function DealDocumentsPanel({ dealId }: DealDocumentsPanelProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    queueMicrotask(() => setDocuments(getInitialDealDocuments(dealId)));
+    const id = window.setTimeout(
+      () => setDocuments(getInitialDealDocuments(dealId)),
+      0,
+    );
+    return () => window.clearTimeout(id);
   }, [dealId]);
 
   const addFiles = useCallback(
