@@ -13,6 +13,7 @@ import { DEFAULT_IMAR_REGION } from "@/lib/radar/imar-radar-config";
 import { resolveDealBudgetTL } from "@/lib/types/deal";
 import type { DealStageId } from "@/lib/types/deal";
 import type { Prisma } from "@prisma/client";
+import { countActionableVoiceLogsForCurrentAgent } from "@/lib/voice-crm/server-queries";
 
 const COUPON_MIN_PCT_BELOW = 15;
 const MONTHLY_COMMISSION_TARGET_TL = 1_500_000;
@@ -120,6 +121,7 @@ export type CommandCenterData = {
   searchIndex: DashboardSearchItem[];
   imarWatchItems: ImarWatchItem[];
   fsboCouponListings: FsboCouponListing[];
+  pendingVoiceLogs: number;
 };
 
 const DEFAULT_IMAR_WATCH: ImarWatchItem[] = [
@@ -508,6 +510,7 @@ function emptyCommandCenterData(): CommandCenterData {
     searchIndex: [],
     imarWatchItems: [],
     fsboCouponListings: [],
+    pendingVoiceLogs: 0,
   };
 }
 
@@ -526,6 +529,7 @@ function mockCommandCenterData(): CommandCenterData {
     searchIndex: mockSearchIndex(),
     imarWatchItems: DEFAULT_IMAR_WATCH,
     fsboCouponListings: mockFsboCoupons(),
+    pendingVoiceLogs: 0,
   };
 }
 
@@ -538,6 +542,10 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
   const lastMonth = monthRange(-1);
 
   try {
+    const pendingVoiceLogsPromise = countActionableVoiceLogsForCurrentAgent().catch(
+      () => 0,
+    );
+
     const [
       activeDeals,
       funnelDeals,
@@ -554,6 +562,7 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
       recentClients,
       searchClients,
       searchDeals,
+      pendingVoiceLogs,
     ] = await Promise.all([
       prisma.deal.findMany({
         where: { agentId, stage: { notIn: ["WON", "LOST"] } },
@@ -649,6 +658,7 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
         take: 30,
         include: { client: true, property: true },
       }),
+      pendingVoiceLogsPromise,
     ]);
 
     const pipelineHacmi = activeDeals.reduce(
@@ -708,10 +718,12 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
       pipelineHacmi > 0 ||
       aktifMusteriSayisi > 0 ||
       funnelDeals.length > 0 ||
-      activityFeed.length > 0;
+      activityFeed.length > 0 ||
+      pendingVoiceLogs > 0;
 
     if (!hasLiveData) {
-      return resolveCommandCenterFallback();
+      const fallback = resolveCommandCenterFallback();
+      return { ...fallback, pendingVoiceLogs };
     }
 
     return {
@@ -731,6 +743,7 @@ export async function getCommandCenterData(): Promise<CommandCenterData> {
       searchIndex,
       imarWatchItems,
       fsboCouponListings,
+      pendingVoiceLogs,
     };
   } catch {
     return resolveCommandCenterFallback();

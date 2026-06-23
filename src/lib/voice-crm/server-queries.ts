@@ -14,6 +14,21 @@ export type VoiceLogsLoadResult = {
   error: string | null;
 };
 
+function isActionableVoiceLog(log: VoiceCrmLog) {
+  if (log.status === "pending" || log.status === "processing") return true;
+  if (log.status === "processed" && !log.client_id && !log.applied_action) {
+    return true;
+  }
+  return false;
+}
+
+/** CRM incelemesi veya işlem bekleyen sesli kayıt sayısı */
+export async function countActionableVoiceLogsForCurrentAgent(): Promise<number> {
+  const result = await loadVoiceLogsForCurrentAgent();
+  if (result.error) return 0;
+  return result.logs.filter(isActionableVoiceLog).length;
+}
+
 export async function loadVoiceLogsForCurrentAgent(): Promise<VoiceLogsLoadResult> {
   const agent = await requireCurrentAgent();
   const config = getVoiceCrmConfigStatus();

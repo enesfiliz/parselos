@@ -72,6 +72,7 @@ export default async function DashboardPage() {
       searchIndex={data.searchIndex}
       imarWatchItems={data.imarWatchItems}
       fsboCouponListings={data.fsboCouponListings}
+      pendingVoiceLogs={data.pendingVoiceLogs}
     />
   );
 }

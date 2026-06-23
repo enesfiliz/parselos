@@ -225,7 +225,7 @@ const QUICK_LINKS = [
   },
 ] as const;
 
-function SesliCrmQuickCard() {
+function SesliCrmQuickCard({ pendingCount }: { pendingCount: number }) {
   return (
     <Link
       href="/sesli-crm"
@@ -238,11 +238,18 @@ function SesliCrmQuickCard() {
         <div className="min-w-0">
           <p className="parsel-section-label text-primary">Sesli CRM</p>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Saha görüşmesini müşteri notuna dönüştür
+            {pendingCount > 0
+              ? `${pendingCount} kayıt inceleme veya işlem bekliyor`
+              : "Saha görüşmesini müşteri notuna dönüştür"}
           </p>
         </div>
-        <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary transition-colors group-hover:border-primary/30 group-hover:bg-primary/15">
+        <span className="relative inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary transition-colors group-hover:border-primary/30 group-hover:bg-primary/15">
           <Mic className="size-4" strokeWidth={2} />
+          {pendingCount > 0 ? (
+            <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
+              {pendingCount > 9 ? "9+" : pendingCount}
+            </span>
+          ) : null}
         </span>
       </div>
       <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-colors group-hover:text-primary/90">
@@ -289,7 +296,7 @@ function QuickLinkCard({
   );
 }
 
-function ProductQuickActions() {
+function ProductQuickActions({ pendingVoiceLogs }: { pendingVoiceLogs: number }) {
   return (
     <section>
       <div className="mb-3">
@@ -303,7 +310,7 @@ function ProductQuickActions() {
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
         <div className="md:col-span-2 lg:col-span-5">
-          <SesliCrmQuickCard />
+          <SesliCrmQuickCard pendingCount={pendingVoiceLogs} />
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:col-span-2 lg:col-span-7">
           {QUICK_LINKS.map((item) => (
@@ -450,6 +457,7 @@ export function CommandCenterView({
   searchIndex,
   imarWatchItems,
   fsboCouponListings,
+  pendingVoiceLogs,
 }: {
   user: CommandCenterUser;
 } & CommandCenterData) {
@@ -482,7 +490,7 @@ export function CommandCenterView({
         />
       </section>
 
-      <ProductQuickActions />
+      <ProductQuickActions pendingVoiceLogs={pendingVoiceLogs} />
 
       <section className="grid grid-cols-1 gap-3 lg:grid-cols-12 lg:items-start">
         <div className="lg:col-span-8">
