@@ -22,7 +22,7 @@
 
 - URL: https://parselos.com
 - Prior deploys: `dpl_GBxYrEnT9HyAyCxCpbEvNvfi2d7b`, voice widget `5a75d15`
-- Latest sprint batch: pending deploy after commit
+- Latest sprint batch: `dpl_CcJne9La7wEQ2zGwpLjConcjXXnQ` (`310be79`)
 
 ## Constraints (unchanged)
 
