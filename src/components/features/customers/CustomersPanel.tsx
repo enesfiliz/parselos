@@ -19,6 +19,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { PageHeader, PageShell } from "@/components/ui/page-shell";
 import {
   Dialog,
   DialogContent,
@@ -311,22 +312,18 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
   }
 
   return (
-    <div className="min-h-full bg-parsel-canvas">
-      <div className="mx-auto w-full max-w-6xl space-y-6">
-        <header className="parsel-page-hero flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-3">
-            <p className="parsel-section-label text-primary">Müşteri merkezi</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="parsel-page-title text-foreground">Müşteriler</h1>
-              <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
-                {customers.length} kayıt
-              </span>
-            </div>
-            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Talep, bütçe, bölge ve fırsat takibini tek merkezden yönetin. Arama,
-              WhatsApp ve profil inceleme aynı ekranda.
-            </p>
-          </div>
+    <PageShell className="mx-auto space-y-6">
+      <PageHeader
+        eyebrow="Müşteri merkezi"
+        eyebrowIcon={UserRound}
+        title="Müşteriler"
+        titleAddon={
+          <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
+            {customers.length} kayıt
+          </span>
+        }
+        description="Talep, bütçe, bölge ve fırsat takibini tek merkezden yönetin. Arama, WhatsApp ve profil inceleme aynı ekranda."
+        actions={
           <Button
             type="button"
             onClick={openCreateDialog}
@@ -335,7 +332,8 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
             <Plus className="size-4" strokeWidth={2} />
             Yeni Müşteri
           </Button>
-        </header>
+        }
+      />
 
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <article className={METRIC_CARD}>
@@ -469,7 +467,6 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
             </ul>
           </>
         )}
-      </div>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent
@@ -699,7 +696,7 @@ export function CustomersPanel({ initialCustomers }: CustomersPanelProps) {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }
 

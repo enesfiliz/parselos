@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { useChat } from "@ai-sdk/react";
 import {
@@ -8,7 +10,7 @@ import {
   isToolUIPart,
   type UIMessage,
 } from "ai";
-import { AlertCircle, ArrowUp, Settings2, X } from "lucide-react";
+import { AlertCircle, ArrowUp, CalendarDays, Settings2, X } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -31,6 +33,7 @@ import {
   type ParselAiProfile,
 } from "@/lib/copilot/parsel-ai-profile";
 import { COPILOT_QUICK_PROMPTS } from "@/lib/copilot/quick-prompts";
+import { resolveParselAiPageContext } from "@/lib/copilot/page-context";
 import { cn } from "@/lib/utils";
 
 const PLACEHOLDER = "ParselAI'ya sorun veya komut yazın...";
@@ -65,6 +68,63 @@ function ParselAiActivityIndicator() {
         <span className="size-1 animate-pulse rounded-full bg-primary/40 [animation-delay:150ms]" />
         <span className="size-1 animate-pulse rounded-full bg-primary/30 [animation-delay:300ms]" />
       </span>
+    </div>
+  );
+}
+
+function ToolConfirmationCard({
+  part,
+}: {
+  part: Extract<UIMessage["parts"][number], { type: string }>;
+}) {
+  if (!isToolUIPart(part) || part.state !== "output-available") return null;
+  if (getToolName(part) !== "scheduleAppointment") return null;
+
+  const output = part.output as {
+    requiresUserConfirmation?: boolean;
+    customerName?: string;
+    date?: string;
+    appointmentTypeLabel?: string;
+    calendarPath?: string;
+    message?: string;
+  };
+
+  if (!output?.requiresUserConfirmation) return null;
+
+  return (
+    <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-3">
+      <p className="text-xs font-medium tracking-widest text-primary/80 uppercase">
+        Onay gerekli
+      </p>
+      <ul className="mt-2 space-y-1 text-sm text-foreground">
+        {output.customerName ? (
+          <li>
+            <span className="text-muted-foreground">Müşteri:</span> {output.customerName}
+          </li>
+        ) : null}
+        {output.date ? (
+          <li>
+            <span className="text-muted-foreground">Tarih:</span> {output.date}
+          </li>
+        ) : null}
+        {output.appointmentTypeLabel ? (
+          <li>
+            <span className="text-muted-foreground">Tür:</span> {output.appointmentTypeLabel}
+          </li>
+        ) : null}
+      </ul>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Bu işlem henüz kaydedilmedi. Devam etmek için takvimi açın.
+      </p>
+      {output.calendarPath ? (
+        <Link
+          href={output.calendarPath}
+          className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          <CalendarDays className="size-4" strokeWidth={1.75} />
+          Takvimde tamamla
+        </Link>
+      ) : null}
     </div>
   );
 }
@@ -118,6 +178,9 @@ function AssistantMessage({
             ))}
           </div>
         ) : null}
+        {doneTools.map((part, index) => (
+          <ToolConfirmationCard key={`confirm-${index}`} part={part} />
+        ))}
         {text ? <CopilotMarkdown content={text} /> : null}
       </div>
     </div>
@@ -136,6 +199,7 @@ function ParselCopilotPanelContent({
   onClose,
   userId,
 }: ParselCopilotPanelContentProps) {
+  const pathname = usePathname();
   const initialProfile = loadParselAiProfile(userId);
   const [input, setInput] = useState("");
   const [profile, setProfile] = useState<ParselAiProfile>(initialProfile);
@@ -149,9 +213,9 @@ function ParselCopilotPanelContent({
     () =>
       new DefaultChatTransport({
         api: "/api/chat",
-        body: { parselAiProfile: profile },
+        body: { parselAiProfile: profile, pathname },
       }),
-    [profile],
+    [profile, pathname],
   );
 
   const { messages, sendMessage, status, error } = useChat({ transport });
@@ -274,7 +338,7 @@ function ParselCopilotPanelContent({
                 ParselAI
               </span>
               <span className="block truncate text-[11px] text-muted-foreground">
-                Emlak operasyon asistanı
+                {resolveParselAiPageContext(pathname).pageTitle}
               </span>
             </div>
           </div>

@@ -1,80 +1,38 @@
 # ParselOS Product Completion Sprint — Agent Handoff
 
 **Branch:** `main`  
-**Base commit:** `c596e21`  
-**Started:** 2026-06-19  
-**Status:** W0 complete, W1 partial (page-shell), W10 partial (calendar mock guard). Build PASS.
+**Status:** Sprint batch complete — PageShell, calendar API, ParselAI context, voice review polish. Build PASS.
 
 ## Completed this session
 
-- ThemeInitScript restored + Logo hydration-safe dark/light
-- Sentry example routes removed
-- PageShell / PageHeader / EmptyState primitives
-- Calendar: no MOCK_CLIENTS in production; manual fields when demo off
-- Plan catalog: removed fake "En popüler" badge
-- React effect cleanup (deals, kanban, copilot) — stale closure guards
-- landing-motion lint cleanup
-- eslint: ignore ponytail vendor tree
+- **PageShell adoption:** customers, portfolios, deals, sesli-crm, calendar
+- **Calendar:** production client/deal API selects with manual fallback; `?date=` deep link; Suspense boundary
+- **ParselAI:** page context in system prompt; pathname in transport; appointment preview-only + confirmation card
+- **Voice CRM:** contextual action hints in review panel
+- **Cleanup:** removed unused copilot in-memory appointment store
 
 ## Tests (latest)
 
-- tsc PASS | lint PASS (0 errors) | test:hotfix 35/35 | build PASS
+- `npx tsc --noEmit` — PASS
+- `npm run lint` — PASS
+- `npm run test:hotfix` — 35/35
+- `npm run build` — PASS
 
 ## Production
 
 - URL: https://parselos.com
-- First sprint deploy: `dpl_GBxYrEnT9HyAyCxCpbEvNvfi2d7b` (commits through `65ae0c8`)
-- Voice dashboard: `dpl_*` via `5a75d15`
+- Prior deploys: `dpl_GBxYrEnT9HyAyCxCpbEvNvfi2d7b`, voice widget `5a75d15`
+- Latest sprint batch: pending deploy after commit
 
-## Staging / Preview
+## Constraints (unchanged)
 
-- Preview URL: https://parselos-molrpcv1n-parselos-team.vercel.app
-- Deployment: `dpl_HRPxnjxgKSwBkhSHq5AqyAKjNfXF` (READY)
-- Production NOT deployed (per sprint constraint)
+- No payment/iyzico backend changes
+- No destructive migrations
+- `ponytail/` vendor tree — do not commit
 
+## Remaining (lower priority)
 
-- Voice CRM review UX depth
-- ParselAI context grounding audit
-- Dashboard voice-pending widget (needs API)
-- Broader PageShell adoption
+- PageShell on secondary routes (fsbo, imar, billing, account)
 - Full panel route audit
-- Preview smoke authenticated paths
-
-
-| ID | Workstream | Owner | File scope | Status |
-|----|------------|-------|------------|--------|
-| W0 | Release safety + Sentry/theme fixes | Lead | `layout.tsx`, `ThemeInitScript`, `Logo`, sentry routes | in_progress |
-| W1 | Design system primitives | DS | `src/components/ui/page-shell*` | pending |
-| W2 | Dashboard command center | DS | `CommandCenterView`, `dashboard/` | pending |
-| W3 | Deals/Kanban mobile | Deals | `DealsKanbanBoard`, `deals/` | partial (local diff) |
-| W4 | Voice CRM UX | Voice | `SesliCrmView`, `voice-crm/` | pending |
-| W5 | ParselAI copilot | AI | `ParselCopilot`, `/api/chat` | partial (local diff) |
-| W6 | Portfolios/customers | Ops | `PortfoliosView`, `customers/` | partial (local diff) |
-| W7 | Account/office/notifications | Account | `account/`, `NotificationCenter` | partial (local diff) |
-| W8 | Radar reliability + copy | Radar | `imar-radari/`, `radar/` | partial (local diff) |
-| W9 | Plan/pricing UI | Billing | `plan-catalog`, `BillingView` | partial (local diff) |
-| W10 | Security + mock guard | Security | `demo-mode`, `mock-deals` | pending |
-| W11 | Testing + preview | Release | tests, vercel preview | pending |
-
-## Constraints (hard stop)
-
-- NO production deploy
-- NO production migration
-- NO payment/iyzico backend changes
-- NO destructive migration / data deletion
-- Preserve all existing user working-tree changes
-
-## Baseline (2026-06-19)
-
-- `npx tsc --noEmit` — PASS
-- `npm run test:hotfix` — 35/35 PASS
-- Uncommitted: ~30 files + `ThemeInitScript.tsx` + `ponytail/` (do not commit ponytail vendor tree)
-
-## Next actions
-
-1. Complete W0 (theme/sentry) commit
-2. Audit existing local diffs — integrate don't revert
-3. Add/reuse PageShell pattern
-4. P0 mock production guard
-5. Dashboard real-data widgets
-6. lint + build + preview deploy
+- Clerk `@clerk/ui` structural CSS warning
+- Authenticated smoke tests

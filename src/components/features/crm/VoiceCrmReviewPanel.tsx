@@ -256,6 +256,15 @@ export function VoiceCrmReviewPanel({
       ) : null}
 
       <div className="sticky bottom-0 z-10 -mx-1 border-t border-border/60 bg-parsel-panel/95 px-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-sm sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        {!isProcessed ? (
+          <p className="mb-2 text-xs text-muted-foreground">
+            {selectedClientId
+              ? "Seçili müşteriyle eşleştirme veya güncelleme yapabilirsiniz."
+              : candidates.length > 0
+                ? "Önce olası eşleşmelerden birini seçin veya yeni müşteri oluşturun."
+                : "Yeni müşteri oluşturun veya yalnızca not olarak saklayın."}
+          </p>
+        ) : null}
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         {!isProcessed ? (
           <>

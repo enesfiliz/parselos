@@ -1,5 +1,11 @@
+import { Suspense } from "react";
+
 import { CalendarView } from "@/components/features/calendar/CalendarView";
 
 export default function CalendarPage() {
-  return <CalendarView />;
+  return (
+    <Suspense fallback={null}>
+      <CalendarView />
+    </Suspense>
+  );
 }

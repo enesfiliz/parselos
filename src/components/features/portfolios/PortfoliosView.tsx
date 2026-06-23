@@ -42,6 +42,7 @@ import {
   type PortfolioSortKey,
 } from "@/components/features/portfolios/portfolio-ui-helpers";
 import { Button } from "@/components/ui/button";
+import { PageHeader, PageShell } from "@/components/ui/page-shell";
 import { isDemoDataEnabledClient } from "@/lib/demo-mode";
 import { propertyKindLabel } from "@/lib/portfolios/portfolio-form";
 import type { PortfolioFormValues } from "@/lib/portfolios/portfolio-form";
@@ -277,23 +278,19 @@ export function PortfoliosView({
   const isFilterEmpty = !isTrulyEmpty && filtered.length === 0;
 
   return (
-    <div className="min-h-full bg-parsel-canvas">
-      <div className="mx-auto w-full max-w-6xl space-y-6">
-        <header className="parsel-page-hero flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-3">
-            <p className="parsel-section-label text-primary">Portföy merkezi</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="parsel-page-title text-foreground">Yetkili Portföyler</h1>
-              <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
-                {items.length} kayıt
-              </span>
-            </div>
-            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Yetkili mülklerinizi tek vitrinde yönetin. Tür, bölge, fiyat, imar ve yetki
-              durumunu anlık takip edin.
-            </p>
-          </div>
-          {!isTrulyEmpty ? (
+    <PageShell className="mx-auto space-y-6">
+      <PageHeader
+        eyebrow="Portföy merkezi"
+        eyebrowIcon={Briefcase}
+        title="Yetkili Portföyler"
+        titleAddon={
+          <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-elevated px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
+            {items.length} kayıt
+          </span>
+        }
+        description="Yetkili mülklerinizi tek vitrinde yönetin. Tür, bölge, fiyat, imar ve yetki durumunu anlık takip edin."
+        actions={
+          !isTrulyEmpty ? (
             <Button
               type="button"
               onClick={openCreateSheet}
@@ -303,8 +300,9 @@ export function PortfoliosView({
               <Plus className="size-4" strokeWidth={2} />
               Portföy Ekle
             </Button>
-          ) : null}
-        </header>
+          ) : null
+        }
+      />
 
         {!isTrulyEmpty ? (
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -485,7 +483,6 @@ export function PortfoliosView({
             </ul>
           </>
         )}
-      </div>
 
       <PortfolioAddDrawer
         open={formOpen}
@@ -522,7 +519,7 @@ export function PortfoliosView({
           {isDeleting ? "Siliniyor..." : "Kaydediliyor..."}
         </div>
       ) : null}
-    </div>
+    </PageShell>
   );
 }
 

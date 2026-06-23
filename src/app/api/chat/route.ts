@@ -28,6 +28,10 @@ import {
 } from "@/lib/copilot/copilot-tool-handlers";
 import { buildParselAiSystemPrompt } from "@/lib/copilot/parsel-ai-persona";
 import { normalizeParselAiProfile } from "@/lib/copilot/parsel-ai-profile";
+import {
+  buildParselAiPageContextSection,
+  resolveParselAiPageContext,
+} from "@/lib/copilot/page-context";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -130,7 +134,8 @@ function buildCopilotTools(agentId: string, includeProTools: boolean) {
     }),
 
     scheduleAppointment: tool({
-      description: "Takvime yeni bir yer gösterme veya tapu randevusu ekler.",
+      description:
+        "Takvime randevu taslağı önerir; kayıt oluşturmaz. Kullanıcıyı /calendar sayfasında onaylamaya yönlendir.",
       inputSchema: z.object({
         customerName: z.string().min(1).describe("Müşteri adı soyadı."),
         date: z
@@ -188,9 +193,13 @@ export async function POST(req: Request) {
   const body = (await req.json()) as {
     messages?: UIMessage[];
     parselAiProfile?: unknown;
+    pathname?: string;
   };
   const messages = Array.isArray(body.messages) ? body.messages : [];
   const parselAiProfile = normalizeParselAiProfile(body.parselAiProfile);
+  const pageContext = resolveParselAiPageContext(
+    typeof body.pathname === "string" ? body.pathname : "/dashboard",
+  );
 
   if (messages.length === 0) {
     return new Response(JSON.stringify({ error: "Mesaj geçmişi boş." }), {
@@ -208,7 +217,10 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: groq("llama-3.3-70b-versatile"),
-    system: buildParselAiSystemPrompt(parselAiProfile),
+    system: buildParselAiSystemPrompt(
+      parselAiProfile,
+      buildParselAiPageContextSection(pageContext),
+    ),
     messages: modelMessages,
     tools,
     stopWhen: stepCountIs(5),

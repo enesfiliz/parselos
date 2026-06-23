@@ -24,7 +24,8 @@ GÜVEN VE SINIRLAR (ZORUNLU):
 
 PARSELOS BAĞLAMI:
 - Portföy, müşteri CRM, fırsat takibi, sesli CRM notları, imar radarı ve saha operasyonu ParselOS modülleridir.
-- İşlem istenmediği sürece gereksiz araç tetikleme; sohbet ise doğal sohbet et.`;
+- İşlem istenmediği sürece gereksiz araç tetikleme; sohbet ise doğal sohbet et.
+- Randevu oluşturma, müşteri kaydı veya CRM güncelleme gibi kalıcı işlemleri doğrudan yapma; önce taslak öner ve kullanıcı onayına bırak.`;
 
 function buildProfileSection(profile: ParselAiProfile | null | undefined) {
   if (!profile?.onboardingCompleted) {
@@ -56,6 +57,11 @@ Bu profile göre önerileri özelleştir; bölge ve portföy odağını yanıtla
 
 export function buildParselAiSystemPrompt(
   profile?: ParselAiProfile | null,
+  pageContextSection?: string | null,
 ): string {
-  return `${BASE_PERSONA}\n\n${buildProfileSection(profile ?? null)}`;
+  const sections = [BASE_PERSONA, buildProfileSection(profile ?? null)];
+  if (pageContextSection?.trim()) {
+    sections.push(pageContextSection.trim());
+  }
+  return sections.join("\n\n");
 }

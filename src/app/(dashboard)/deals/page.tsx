@@ -66,6 +66,7 @@ import { DealsEmptyState } from "@/components/features/deals/DealsEmptyState";
 import { DealsLoadingState } from "@/components/features/deals/DealsLoadingState";
 import { DealKanbanCard } from "@/components/features/deals/kanban/DealKanbanCard";
 import { DealKanbanColumn } from "@/components/features/deals/kanban/DealKanbanColumn";
+import { PageHeader, PageShell } from "@/components/ui/page-shell";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { resolvePropertyType } from "@/lib/deals/deal-display-helpers";
 import { formatFsboMatchPercent } from "@/lib/deals/match-score";
@@ -1351,52 +1352,42 @@ export default function DealsPage() {
   }
 
   return (
-    <div className="min-h-full space-y-4 bg-background md:space-y-6">
-      <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-parsel-gold">
-            <Kanban className="size-4" strokeWidth={1.5} />
-            <span className="text-xs font-semibold uppercase tracking-[0.22em]">
-              Fırsat Yönetimi
-            </span>
-          </div>
-          <h1 className="font-outfit text-xl font-semibold tracking-tight text-foreground md:text-2xl lg:text-3xl">
-            Fırsat Pipeline
-          </h1>
-          <p className="mt-1 max-w-xl text-sm font-normal text-muted-foreground">
-            Canlı müşteri ve FSBO Radarı entegrasyonu — veritabanından gerçek
-            zamanlı pipeline.
-          </p>
-        </div>
+    <PageShell className="space-y-4 md:space-y-6" maxWidth="full">
+      <PageHeader
+        eyebrow="Fırsat Yönetimi"
+        eyebrowIcon={Kanban}
+        title="Fırsat Pipeline"
+        description="Canlı müşteri ve FSBO Radarı entegrasyonu — veritabanından gerçek zamanlı pipeline."
+        actions={
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+            <button
+              type="button"
+              onClick={handleAddDeal}
+              disabled={creatingDeal}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-parsel-gold px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:brightness-110 disabled:cursor-wait disabled:opacity-70 sm:w-auto"
+            >
+              {creatingDeal ? (
+                <Loader2 className="size-4 animate-spin" strokeWidth={2} />
+              ) : (
+                <Plus className="size-4" strokeWidth={2} />
+              )}
+              Fırsat Ekle
+            </button>
 
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-          <button
-            type="button"
-            onClick={handleAddDeal}
-            disabled={creatingDeal}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-parsel-gold px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:brightness-110 disabled:cursor-wait disabled:opacity-70 sm:w-auto"
-          >
-            {creatingDeal ? (
-              <Loader2 className="size-4 animate-spin" strokeWidth={2} />
-            ) : (
-              <Plus className="size-4" strokeWidth={2} />
-            )}
-            Fırsat Ekle
-          </button>
-
-          <div className="inline-flex w-full items-center gap-2 rounded-xl border border-border/50 bg-parsel-panel px-4 py-2.5 sm:w-auto">
-            <TrendingUp className="size-4 text-parsel-gold" strokeWidth={1.5} />
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground md:text-[10px]">
-                Toplam Hacim
-              </p>
-              <p className="text-lg font-bold text-parsel-gold md:text-xl">
-                {formatFullTRY(totalVolume)}
-              </p>
+            <div className="inline-flex w-full items-center gap-2 rounded-xl border border-border/50 bg-parsel-panel px-4 py-2.5 sm:w-auto">
+              <TrendingUp className="size-4 text-parsel-gold" strokeWidth={1.5} />
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground md:text-[10px]">
+                  Toplam Hacim
+                </p>
+                <p className="text-lg font-bold text-parsel-gold md:text-xl">
+                  {formatFullTRY(totalVolume)}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       {deals.length === 0 ? (
         <DealsEmptyState onCreateDeal={handleAddDeal} />
@@ -1828,6 +1819,6 @@ export default function DealsPage() {
           ) : null}
         </SheetContent>
       </Sheet>
-    </div>
+    </PageShell>
   );
 }

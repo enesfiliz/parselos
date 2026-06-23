@@ -34,6 +34,7 @@ type PageHeaderProps = {
   eyebrow?: string;
   eyebrowIcon?: LucideIcon;
   title: string;
+  titleAddon?: ReactNode;
   description?: string;
   actions?: ReactNode;
   className?: string;
@@ -43,6 +44,7 @@ export function PageHeader({
   eyebrow,
   eyebrowIcon: EyebrowIcon,
   title,
+  titleAddon,
   description,
   actions,
   className,
@@ -63,7 +65,10 @@ export function PageHeader({
             <span className="parsel-section-label text-primary">{eyebrow}</span>
           </div>
         ) : null}
-        <h1 className="parsel-page-title text-foreground">{title}</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="parsel-page-title text-foreground">{title}</h1>
+          {titleAddon}
+        </div>
         {description ? (
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
             {description}

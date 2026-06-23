@@ -17,6 +17,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { PageHeader, PageShell } from "@/components/ui/page-shell";
 import { VoiceRecorder } from "@/components/features/crm/VoiceRecorder";
 import { VoiceCrmReviewPanel } from "@/components/features/crm/VoiceCrmReviewPanel";
 import type { RecorderState } from "@/components/features/crm/VoiceRecorder";
@@ -405,21 +406,18 @@ export function SesliCrmView({
   }
 
   return (
-    <div className="min-h-full bg-parsel-canvas">
-      <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6">
-        <header className="space-y-3">
-          <p className="parsel-section-label text-primary">Saha operasyonu</p>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="parsel-page-title text-foreground">Sesli CRM</h1>
-            <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-panel px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
-              {logs.length} kayıt
-            </span>
-          </div>
-          <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Saha görüşmesini CRM notuna dönüştürün. Ses kaydı transkripte çevrilir; müşteri,
-            bütçe ve bölge alanları otomatik ayrıştırılır.
-          </p>
-        </header>
+    <PageShell className="mx-auto space-y-6 px-4 py-6 sm:px-0">
+      <PageHeader
+        eyebrow="Saha operasyonu"
+        eyebrowIcon={Mic}
+        title="Sesli CRM"
+        titleAddon={
+          <span className="inline-flex items-center rounded-full border border-border/60 bg-parsel-panel px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-parsel-sm">
+            {logs.length} kayıt
+          </span>
+        }
+        description="Saha görüşmesini CRM notuna dönüştürün. Ses kaydı transkripte çevrilir; müşteri, bütçe ve bölge alanları otomatik ayrıştırılır."
+      />
 
         <ConfigStatusPanel status={configStatus} />
 
@@ -658,7 +656,6 @@ export function SesliCrmView({
             </ul>
           )}
         </section>
-      </div>
-    </div>
+    </PageShell>
   );
 }

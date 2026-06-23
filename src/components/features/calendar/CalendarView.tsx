@@ -7,6 +7,7 @@ import {
   MapPin,
   Plus,
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import {
@@ -15,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { getDeals } from "@/app/actions/deals";
 import { EmptyState, PageHeader, PageShell } from "@/components/ui/page-shell";
 import { isDemoDataEnabledClient } from "@/lib/demo-mode";
 import { MOCK_CLIENTS } from "@/lib/data/mock-clients";
@@ -37,6 +39,17 @@ import { cn } from "@/lib/utils";
 const FIELD_LABEL = "mb-1.5 block text-xs font-medium text-muted-foreground";
 const FIELD_INPUT =
   "w-full rounded-lg border border-border/70 bg-parsel-elevated px-3 py-2.5 text-sm text-foreground transition-all focus:border-primary/35 focus:outline-none focus:ring-2 focus:ring-primary/15";
+
+type ClientOption = {
+  id: string;
+  adSoyad: string;
+  telefon: string | null;
+};
+
+type DealOption = {
+  id: string;
+  label: string;
+};
 
 function dotColorForTypes(types: AppointmentType[]) {
   if (types.includes("deed")) return "bg-emerald-400";
@@ -112,6 +125,11 @@ function NewAppointmentModal({
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [propertyTitle, setPropertyTitle] = useState("");
+  const [selectedClientId, setSelectedClientId] = useState("");
+  const [selectedDealId, setSelectedDealId] = useState("");
+  const [clientOptions, setClientOptions] = useState<ClientOption[]>([]);
+  const [dealOptions, setDealOptions] = useState<DealOption[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
   const [date, setDate] = useState(defaultDate);
   const [time, setTime] = useState("14:00");
   const [type, setType] = useState<AppointmentType>("showing");
@@ -121,6 +139,57 @@ function NewAppointmentModal({
     const id = window.setTimeout(() => setDate(defaultDate), 0);
     return () => window.clearTimeout(id);
   }, [open, defaultDate]);
+
+  useEffect(() => {
+    if (!open || useDemo) return;
+
+    let cancelled = false;
+    const loadingId = window.setTimeout(() => setLoadingOptions(true), 0);
+
+    Promise.all([
+      fetch("/api/clients").then((response) => response.json()),
+      getDeals(),
+    ])
+      .then(([clientsJson, dealsResult]) => {
+        if (cancelled) return;
+
+        const clients = (clientsJson.data ?? []) as ClientOption[];
+        const deals =
+          dealsResult.success && dealsResult.data
+            ? dealsResult.data.map((deal) => ({
+                id: deal.id,
+                label: `${deal.client.adSoyad} — ${deal.property?.ilanBasligi ?? "Fırsat"}`,
+              }))
+            : [];
+
+        setClientOptions(clients);
+        setDealOptions(deals);
+        setSelectedClientId(clients[0]?.id ?? "");
+        setSelectedDealId(deals[0]?.id ?? "");
+
+        if (clients[0]) {
+          setClientName(clients[0].adSoyad);
+          setClientPhone(clients[0].telefon ?? "");
+        }
+        if (deals[0]) {
+          setPropertyTitle(deals[0].label);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setClientOptions([]);
+          setDealOptions([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingOptions(false);
+      });
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(loadingId);
+    };
+  }, [open, useDemo]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -147,13 +216,15 @@ function NewAppointmentModal({
     const trimmedProperty = propertyTitle.trim();
     if (!trimmedName || !trimmedProperty) return;
 
+    const selectedClient = clientOptions.find((item) => item.id === selectedClientId);
+
     onCreate({
       id: `apt-${Date.now()}`,
       date,
       time,
       type,
       clientName: trimmedName,
-      clientPhone: clientPhone.replace(/\D/g, ""),
+      clientPhone: (selectedClient?.telefon ?? clientPhone).replace(/\D/g, ""),
       propertyTitle: trimmedProperty,
     });
     onOpenChange(false);
@@ -204,6 +275,76 @@ function NewAppointmentModal({
                   ))}
                 </select>
               </div>
+            </>
+          ) : clientOptions.length > 0 ? (
+            <>
+              <div>
+                <label htmlFor="apt-client-select" className={FIELD_LABEL}>
+                  Müşteri
+                </label>
+                <select
+                  id="apt-client-select"
+                  value={selectedClientId}
+                  onChange={(e) => {
+                    const nextId = e.target.value;
+                    setSelectedClientId(nextId);
+                    const client = clientOptions.find((item) => item.id === nextId);
+                    if (client) {
+                      setClientName(client.adSoyad);
+                      setClientPhone(client.telefon ?? "");
+                    }
+                  }}
+                  className={FIELD_INPUT}
+                  disabled={loadingOptions}
+                >
+                  {clientOptions.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.adSoyad}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {dealOptions.length > 0 ? (
+                <div>
+                  <label htmlFor="apt-deal-select" className={FIELD_LABEL}>
+                    İlgili fırsat
+                  </label>
+                  <select
+                    id="apt-deal-select"
+                    value={selectedDealId}
+                    onChange={(e) => {
+                      const nextId = e.target.value;
+                      setSelectedDealId(nextId);
+                      const deal = dealOptions.find((item) => item.id === nextId);
+                      if (deal) setPropertyTitle(deal.label);
+                    }}
+                    className={FIELD_INPUT}
+                    disabled={loadingOptions}
+                  >
+                    {dealOptions.map((deal) => (
+                      <option key={deal.id} value={deal.id}>
+                        {deal.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label htmlFor="apt-property-title-api" className={FIELD_LABEL}>
+                    İlgili portföy veya fırsat
+                  </label>
+                  <input
+                    id="apt-property-title-api"
+                    type="text"
+                    value={propertyTitle}
+                    onChange={(e) => setPropertyTitle(e.target.value)}
+                    className={FIELD_INPUT}
+                    placeholder="Örn. Kadıköy 3+1 satılık"
+                    required
+                  />
+                </div>
+              )}
             </>
           ) : (
             <>
@@ -311,13 +452,27 @@ function NewAppointmentModal({
 }
 
 export function CalendarView() {
+  const searchParams = useSearchParams();
+  const queryDate = searchParams.get("date");
   const today = useMemo(() => new Date(), []);
   const todayKey = toDateKey(today);
   const useDemo = isDemoDataEnabledClient();
 
-  const [viewYear, setViewYear] = useState(today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(today.getMonth());
-  const [selectedDate, setSelectedDate] = useState(todayKey);
+  const [viewYear, setViewYear] = useState(() => {
+    if (queryDate && /^\d{4}-\d{2}-\d{2}$/.test(queryDate)) {
+      return Number(queryDate.slice(0, 4));
+    }
+    return today.getFullYear();
+  });
+  const [viewMonth, setViewMonth] = useState(() => {
+    if (queryDate && /^\d{4}-\d{2}-\d{2}$/.test(queryDate)) {
+      return Number(queryDate.slice(5, 7)) - 1;
+    }
+    return today.getMonth();
+  });
+  const [selectedDate, setSelectedDate] = useState(
+    queryDate && /^\d{4}-\d{2}-\d{2}$/.test(queryDate) ? queryDate : todayKey,
+  );
   const [appointments, setAppointments] = useState<CalendarAppointment[]>(() =>
     useDemo ? createMockAppointments() : [],
   );

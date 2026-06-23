@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { AppointmentType, CalendarAppointment } from "@/lib/calendar/appointments";
+import type { AppointmentType } from "@/lib/calendar/appointments";
 import { APPOINTMENT_TYPE_META, toDateKey } from "@/lib/calendar/appointments";
 import { isDemoDataEnabled } from "@/lib/demo-mode";
 import { MOCK_DEALS } from "@/lib/data/mock-deals";
@@ -36,8 +36,6 @@ const PLAN_LIMITS: Record<
     aiCredits: 2000,
   },
 };
-
-const copilotScheduledAppointments: CalendarAppointment[] = [];
 
 function formatTRY(amount: number) {
   return new Intl.NumberFormat("tr-TR", {
@@ -521,7 +519,7 @@ export function analyzePropertyForAgent(
 }
 
 export function scheduleAppointmentForAgent(
-  agentId: string,
+  _agentId: string,
   customerName: string,
   date: string,
   appointmentType: string,
@@ -529,31 +527,24 @@ export function scheduleAppointmentForAgent(
   const normalizedType = normalizeAppointmentType(appointmentType);
   const dateKey = parseAppointmentDate(date);
   const typeMeta = APPOINTMENT_TYPE_META[normalizedType];
-
-  const appointment: CalendarAppointment = {
-    id: `copilot-apt-${agentId.slice(0, 8)}-${Date.now()}`,
-    date: dateKey,
-    time: "10:00",
-    type: normalizedType,
-    clientName: customerName.trim(),
-    clientPhone: "",
-    propertyTitle: `${typeMeta.label} — ${customerName.trim()}`,
-  };
-
-  copilotScheduledAppointments.unshift(appointment);
+  const trimmedName = customerName.trim();
 
   return {
     success: true,
-    appointmentId: appointment.id,
-    customerName: appointment.clientName,
-    date: appointment.date,
-    time: appointment.time,
+    previewOnly: true,
+    requiresUserConfirmation: true,
+    customerName: trimmedName,
+    date: dateKey,
+    time: "10:00",
     appointmentType: normalizedType,
     appointmentTypeLabel: typeMeta.label,
-    message: `${appointment.clientName} için ${appointment.date} tarihinde ${typeMeta.label} randevusu planlandı.`,
+    calendarPath: `/calendar?date=${dateKey}`,
+    message: `${trimmedName} için ${dateKey} tarihinde ${typeMeta.label} randevu taslağı hazır. Kaydı tamamlamak için takvimi açın.`,
+    markdown:
+      `**Randevu taslağı**\n\n` +
+      `- Müşteri: ${trimmedName}\n` +
+      `- Tarih: ${dateKey}\n` +
+      `- Tür: ${typeMeta.label}\n\n` +
+      `Bu işlem henüz kaydedilmedi. [Takvimde tamamla](/calendar?date=${dateKey})`,
   };
-}
-
-export function listCopilotScheduledAppointments() {
-  return [...copilotScheduledAppointments];
 }
