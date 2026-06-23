@@ -20,7 +20,12 @@
 
 - tsc PASS | lint PASS (0 errors) | test:hotfix 35/35 | build PASS
 
-## Remaining (next session)
+## Staging / Preview
+
+- Preview URL: https://parselos-molrpcv1n-parselos-team.vercel.app
+- Deployment: `dpl_HRPxnjxgKSwBkhSHq5AqyAKjNfXF` (READY)
+- Production NOT deployed (per sprint constraint)
+
 
 - Voice CRM review UX depth
 - ParselAI context grounding audit
