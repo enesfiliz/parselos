@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { TapuHarciHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("tapu-harci-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Satış bedeli üzerinden alıcı ve satıcının tapu harcı paylarını (%2 + %2) ve döner sermaye bedeli dahil genel toplamı hesaplayın.",
-  alternates: {
-    canonical: "https://parselos.com/araclar/tapu-harci-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "tapu-harci-hesaplama",
+  "Satış bedeli üzerinden alıcı ve satıcının tapu harcı paylarını (%2 + %2) ve döner sermaye bedeli dahil genel toplamı hesaplayın.",
+);
 
 export default function TapuHarciHesaplamaPage() {
   return (

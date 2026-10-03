@@ -18,6 +18,9 @@ import {
   calculateEnflasyon,
   calculateEvAlmaMaliyeti,
   calculateGunSayisi,
+  calculateIhbarTazminati,
+  calculateInsaatMaliyeti,
+  calculateIsverenMaliyeti,
   calculateKdvCikar,
   calculateKdvEkle,
   calculateKidemTazminati,
@@ -1564,6 +1567,191 @@ export function VerasetIntikalHesaplayici() {
           />
         ) : (
           <BosDurum mesaj="Sonucu görmek için miras payınızı girin." />
+        )
+      }
+    />
+  );
+}
+
+export function IhbarTazminatiHesaplayici() {
+  const [brut, setBrut] = useState("45000");
+  const [yil, setYil] = useState("2");
+  const [ay, setAy] = useState("6");
+  const [oran, setOran] = useState("20");
+  const [damga, setDamga] = useState("7,59");
+
+  const sonuc = useMemo(() => {
+    const b = parseSayiTr(brut);
+    if (!b) return null;
+    return calculateIhbarTazminati(
+      b,
+      parseSayiTr(yil, true) ?? 0,
+      parseSayiTr(ay, true) ?? 0,
+      parseSayiTr(oran, true) ?? 0,
+      parseSayiTr(damga, true) ?? 0,
+    );
+  }, [brut, yil, ay, oran, damga]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi
+            label="Aylık brüt ücret"
+            deger={brut}
+            onDeger={setBrut}
+            prefix="₺"
+            hint="İhbar tazminatı giydirilmiş brüt ücret üzerinden hesaplanır."
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <SayiGirisi label="Kıdem (yıl)" deger={yil} onDeger={setYil} suffix="yıl" sifirOlabilir />
+            <SayiGirisi label="Kıdem (ay)" deger={ay} onDeger={setAy} suffix="ay" sifirOlabilir />
+          </div>
+          <SayiGirisi
+            label="Ortalama gelir vergisi oranı"
+            deger={oran}
+            onDeger={setOran}
+            suffix="%"
+            hint="İhbar tazminatı gelir vergisine tabidir; diliminize göre ortalama bir oran girin."
+          />
+          <SayiGirisi label="Damga vergisi" deger={damga} onDeger={setDamga} suffix="‰" sifirOlabilir />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="İhbar tazminatı"
+            satirlar={[
+              { etiket: "Yasal ihbar süresi", deger: `${sonuc.ihbarHafta} hafta (${sonuc.ihbarGun} gün)` },
+              { etiket: "Brüt tazminat", deger: formatTRYKesirli(sonuc.brutTazminat) },
+              { etiket: "Gelir vergisi (tahmini)", deger: formatTRYKesirli(sonuc.gelirVergisi) },
+              { etiket: "Damga vergisi", deger: formatTRYKesirli(sonuc.damgaVergisi) },
+              { etiket: "Net tazminat", deger: formatTRYKesirli(sonuc.netTazminat), vurgulu: true },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için brüt ücret ve kıdem süresini girin." />
+        )
+      }
+    />
+  );
+}
+
+export function IsverenMaliyetiHesaplayici() {
+  const [brut, setBrut] = useState("45000");
+  const [sgk, setSgk] = useState("20,5");
+  const [iskur, setIskur] = useState("2");
+  const [indirim, setIndirim] = useState(true);
+
+  const sonuc = useMemo(() => {
+    const b = parseSayiTr(brut);
+    if (!b) return null;
+    return calculateIsverenMaliyeti(
+      b,
+      parseSayiTr(sgk, true) ?? 0,
+      parseSayiTr(iskur, true) ?? 0,
+      indirim,
+    );
+  }, [brut, sgk, iskur, indirim]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi label="Aylık brüt ücret" deger={brut} onDeger={setBrut} prefix="₺" hint="Çalışanın prime esas kazancı." />
+          <div className="grid grid-cols-2 gap-4">
+            <SayiGirisi label="SGK işveren hissesi" deger={sgk} onDeger={setSgk} suffix="%" hint="Standart işveren oranı %20,5'tir." />
+            <SayiGirisi label="İŞKUR payı" deger={iskur} onDeger={setIskur} suffix="%" hint="İşsizlik sigortası işveren payı %2'dir." />
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setIndirim(true)}
+              className={`min-h-11 flex-1 rounded-lg border px-4 text-sm font-medium transition-colors ${indirim ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}
+            >
+              5 puan indirim var
+            </button>
+            <button
+              type="button"
+              onClick={() => setIndirim(false)}
+              className={`min-h-11 flex-1 rounded-lg border px-4 text-sm font-medium transition-colors ${!indirim ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}
+            >
+              İndirim yok
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            5 puanlık SGK indirimi, şartları sağlayan işverenlerde işveren
+            hissesinden düşülür.
+          </p>
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="İşvereye aylık maliyet"
+            satirlar={[
+              { etiket: "Brüt ücret", deger: formatTRY(sonuc.toplamMaliyet - sonuc.sgkIsvemPayi - sonuc.iskurPayi) },
+              { etiket: "SGK işveren payı", deger: formatTRY(sonuc.sgkIsvemPayi) },
+              { etiket: "İŞKUR payı", deger: formatTRY(sonuc.iskurPayi) },
+              { etiket: "Toplam maliyet", deger: formatTRYKesirli(sonuc.toplamMaliyet), vurgulu: true },
+              { etiket: "Brütün üzerindeki yük", deger: formatYuzde(sonuc.brutunUzerindeYuzde, 1) },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için brüt ücreti girin." />
+        )
+      }
+    />
+  );
+}
+
+export function InsaatMaliyetiHesaplayici() {
+  const [alan, setAlan] = useState("150");
+  const [birim, setBirim] = useState("15000");
+  const [pay, setPay] = useState("10");
+
+  const sonuc = useMemo(() => {
+    const a = parseSayiTr(alan);
+    const b = parseSayiTr(birim);
+    if (!a || !b) return null;
+    return calculateInsaatMaliyeti(a, b, parseSayiTr(pay, true) ?? 0);
+  }, [alan, birim, pay]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi label="Brüt inşaat alanı" deger={alan} onDeger={setAlan} suffix="m²" hint="Toplam inşaat alanı (ortak alanlar dahil)." />
+          <SayiGirisi
+            label="m² birim maliyeti"
+            deger={birim}
+            onDeger={setBirim}
+            prefix="₺"
+            hint="Bölgenize ve yapı kalitenize göre güncel birim maliyeti girin; 2026 için güncel metraj rakamı şartnameye göre çok değişir."
+          />
+          <SayiGirisi
+            label="Sürpriz payı"
+            deger={pay}
+            onDeger={setPay}
+            suffix="%"
+            sifirOlabilir
+            hint="Fiyat artışları ve öngörülmeyen işler için tampon bütçe; %10 yaygın bir başlangıçtır."
+          />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="Yaklaşık inşaat maliyeti"
+            satirlar={[
+              { etiket: "Baz maliyet", deger: formatTRY(sonuc.bazMaliyet) },
+              { etiket: "Sürpriz payı", deger: formatTRY(sonuc.surprizPayi) },
+              { etiket: "Toplam maliyet", deger: formatTRY(sonuc.toplamMaliyet), vurgulu: true },
+              { etiket: "Toplam m² maliyeti", deger: `${formatTRY(sonuc.m2ToplamMaliyet)} / m²` },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için alan ve birim maliyeti girin." />
         )
       }
     />

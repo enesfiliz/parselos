@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { M2BirimFiyatHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("m2-birim-fiyat-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Konut veya iş yeri için metrekare birim fiyatı hesaplama: toplam bedeli alana bölün, ilanları aynı ölçekte karşılaştırın. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/m2-birim-fiyat-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "m2-birim-fiyat-hesaplama",
+  "Konut veya iş yeri için metrekare birim fiyatı hesaplama: toplam bedeli alana bölün, ilanları aynı ölçekte karşılaştırın. Ücretsiz, üyeliksiz.",
+);
 
 export default function M2BirimFiyatPage() {
   return (

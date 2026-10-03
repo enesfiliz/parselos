@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 
 import { LegalDocument } from "@/components/legal/LegalDocument";
+import { OG_IMAGE } from "@/components/tools/arac-metadata";
 import { KVKK_SECTIONS } from "@/lib/legal/documents";
 
 export const metadata: Metadata = {
   title: "KVKK Aydınlatma Metni",
+  alternates: { canonical: "https://parselos.com/kvkk" },
+  openGraph: { url: "https://parselos.com/kvkk", images: [OG_IMAGE] },
 };
 
 export default function KvkkPage() {

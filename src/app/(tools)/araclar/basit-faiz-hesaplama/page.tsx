@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { BasitFaizHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("basit-faiz-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Basit faiz hesaplama: ana para, yıllık oran ve vadeyi girin; faizi ana paraya eklemeden vade sonu getiriyi ve toplam tutarı görün. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/basit-faiz-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "basit-faiz-hesaplama",
+  "Basit faiz hesaplama: ana para, yıllık oran ve vadeyi girin; faizi ana paraya eklemeden vade sonu getiriyi ve toplam tutarı görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function BasitFaizPage() {
   return (

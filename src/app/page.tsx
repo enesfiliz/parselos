@@ -4,22 +4,43 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/marketing/SiteFooter";
 import { Logo } from "@/components/ui/Logo";
 import { AdSenseScript, ReklamAlani } from "@/components/tools/ReklamAlani";
+import { OG_IMAGE } from "@/components/tools/arac-metadata";
 import { ARACLAR } from "@/components/tools/tools-config";
 
 export const metadata: Metadata = {
   title: "Ücretsiz Hesap Araçları — KDV, Yüzde, Kredi, Emlak",
   description:
     "Türkiye'nin ücretsiz hesap masası: KDV, yüzde, kredi taksiti, bileşik faiz, emlak komisyonu, kira artışı ve tapu harcı hesapları. Üyelik yok, ücret yok, sınır yok.",
+  alternates: { canonical: "https://parselos.com/" },
+  openGraph: { url: "https://parselos.com/", images: [OG_IMAGE] },
+  twitter: { card: "summary_large_image", images: [OG_IMAGE] },
 };
 
 export default function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "ParselOS Hesap",
-    url: "https://parselos.com/",
-    description:
-      "Günlük ve gayrimenkul hesapları için ücretsiz, üyeliksiz hesap araçları.",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: "ParselOS",
+        url: "https://parselos.com/",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://parselos.com/brand/icon-192.png",
+        },
+        description:
+          "Emlak ve günlük hayat için ücretsiz hesap araçları sunan ParselOS Hesap portalı.",
+      },
+      {
+        "@type": "WebSite",
+        name: "ParselOS Hesap",
+        url: "https://parselos.com/",
+        inLanguage: "tr-TR",
+        publisher: { "@type": "Organization", name: "ParselOS" },
+        description:
+          "Günlük ve gayrimenkul hesapları için ücretsiz, üyeliksiz hesap araçları.",
+      },
+    ],
   };
 
   return (

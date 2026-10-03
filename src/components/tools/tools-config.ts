@@ -225,6 +225,30 @@ export const ARACLAR: AracTanimi[] = [
       "Nakit miras payınızdan istisnayı düşüp tahmini veraset vergisini yaklaşık hesaplayın.",
     kategori: "gayrimenkul",
   },
+  {
+    slug: "ihbar-tazminati-hesaplama",
+    baslik: "İhbar Tazminatı Hesaplama",
+    kisaAd: "İhbar Tazminatı",
+    kisaAciklama:
+      "Kıdem süresine göre ihbar süresini, brüt ve net ihbar tazminatını hesaplayın.",
+    kategori: "gunluk",
+  },
+  {
+    slug: "isveren-maliyeti-hesaplama",
+    baslik: "Çalışanın İşverene Maliyeti Hesaplama",
+    kisaAd: "İşveren Maliyeti",
+    kisaAciklama:
+      "Brüt maaşa SGK işveren ve İŞKUR paylarını ekleyip çalışanın toplam aylık maliyetini görün.",
+    kategori: "gunluk",
+  },
+  {
+    slug: "insaat-maliyeti-hesaplama",
+    baslik: "İnşaat Maliyeti Hesaplama",
+    kisaAd: "İnşaat Maliyeti",
+    kisaAciklama:
+      "Brüt alan ve m² birim maliyetinden toplam inşaat maliyetini ve sürpriz payı ile birlikte m² başı maliyeti hesaplayın.",
+    kategori: "gayrimenkul",
+  },
 ];
 
 export function aracBilgisi(slug: string): AracTanimi {

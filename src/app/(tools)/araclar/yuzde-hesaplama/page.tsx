@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { YuzdeHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("yuzde-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Yüzde hesaplama: bir sayının yüzdesini, zam veya indirim sonrası değeri ve iki sayının birbirine oranını saniyeler içinde bulun. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/yuzde-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "yuzde-hesaplama",
+  "Yüzde hesaplama: bir sayının yüzdesini, zam veya indirim sonrası değeri ve iki sayının birbirine oranını saniyeler içinde bulun. Ücretsiz, üyeliksiz.",
+);
 
 export default function YuzdeHesaplamaPage() {
   return (

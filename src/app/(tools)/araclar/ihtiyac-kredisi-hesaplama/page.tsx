@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { IhtiyacKredisiHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("ihtiyac-kredisi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "İhtiyaç kredisi taksit hesaplama: kredi tutarı, vade ve aylık faiz oranıyla aylık taksiti, toplam geri ödemeyi ve faiz yükünü ücretsiz hesaplayın.",
-  alternates: {
-    canonical: "https://parselos.com/araclar/ihtiyac-kredisi-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "ihtiyac-kredisi-hesaplama",
+  "İhtiyaç kredisi taksit hesaplama: kredi tutarı, vade ve aylık faiz oranıyla aylık taksiti, toplam geri ödemeyi ve faiz yükünü ücretsiz hesaplayın.",
+);
 
 export default function IhtiyacKredisiHesaplamaPage() {
   return (

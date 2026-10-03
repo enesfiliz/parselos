@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { OG_IMAGE } from "@/components/tools/arac-metadata";
 import { ARACLAR } from "@/components/tools/tools-config";
 
 export const metadata: Metadata = {
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
   description:
     "ParselOS Hesap neden var? Emlak ve günlük hayat için ücretsiz hesaplama araçlarını kim yapıyor, site nasıl ayakta duruyor — kısa ve dürüst cevap.",
   alternates: { canonical: "https://parselos.com/hakkinda" },
+  openGraph: { url: "https://parselos.com/hakkinda", images: [OG_IMAGE] },
 };
 
 export default function HakkindaPage() {

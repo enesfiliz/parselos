@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KiraGetirisiHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("kira-getirisi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Gayrimenkulün yıllık brüt kira getiri oranını ve kendini kaç yılda amorti ettiğini hesaplayın. Konut ve iş yeri yatırımları için formüller ve örnekler.",
-  alternates: {
-    canonical: "https://parselos.com/araclar/kira-getirisi-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "kira-getirisi-hesaplama",
+  "Gayrimenkulün yıllık brüt kira getiri oranını ve kendini kaç yılda amorti ettiğini hesaplayın. Konut ve iş yeri yatırımları için formüller ve örnekler.",
+);
 
 export default function KiraGetirisiHesaplamaPage() {
   return (

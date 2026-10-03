@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KiraArtisHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("kira-artisi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Yenileme döneminde uygulanabilecek kira artışını ve yeni kirayı hesaplayın. Konut ve iş yeri kiralarında yasal üst sınır, stopaj ve yıllık fark.",
-  alternates: {
-    canonical: "https://parselos.com/araclar/kira-artisi-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "kira-artisi-hesaplama",
+  "Yenileme döneminde uygulanabilecek kira artışını ve yeni kirayı hesaplayın. Konut ve iş yeri kiralarında yasal üst sınır, stopaj ve yıllık fark.",
+);
 
 export default function KiraArtisiHesaplamaPage() {
   return (

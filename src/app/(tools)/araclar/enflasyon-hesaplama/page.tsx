@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { EnflasyonHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("enflasyon-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Enflasyon hesaplama: yıllık ortalama TÜFE ve süre girin; geçmiş tutarın bugünkü karşılığını ve bugünkü paranın alım gücü kaybını görün. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/enflasyon-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "enflasyon-hesaplama",
+  "Enflasyon hesaplama: yıllık ortalama TÜFE ve süre girin; geçmiş tutarın bugünkü karşılığını ve bugünkü paranın alım gücü kaybını görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function EnflasyonPage() {
   return (

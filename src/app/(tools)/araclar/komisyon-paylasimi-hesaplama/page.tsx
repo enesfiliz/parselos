@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KomisyonPaylasimHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("komisyon-paylasimi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Satış veya kiralama komisyonunda ofis-danışman paylarını ve iki aracılı (portföyü düzenleyen ofis) işlemlerde dağılımı hesaplayın.",
-  alternates: {
-    canonical: "https://parselos.com/araclar/komisyon-paylasimi-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "komisyon-paylasimi-hesaplama",
+  "Satış veya kiralama komisyonunda ofis-danışman paylarını ve iki aracılı (portföyü düzenleyen ofis) işlemlerde dağılımı hesaplayın.",
+);
 
 export default function KomisyonPaylasimiHesaplamaPage() {
   return (

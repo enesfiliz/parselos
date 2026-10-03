@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { EvAlmaMaliyetiHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("ev-alma-maliyeti-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Ev alma maliyeti hesaplama: satış bedelini girin; tapu harcı, alıcı komisyonu (KDV dahil), DASK ve diğer giderlerle toplam maliyeti görün. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/ev-alma-maliyeti-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "ev-alma-maliyeti-hesaplama",
+  "Ev alma maliyeti hesaplama: satış bedelini girin; tapu harcı, alıcı komisyonu (KDV dahil), DASK ve diğer giderlerle toplam maliyeti görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function EvAlmaMaliyetiPage() {
   return (

@@ -38,6 +38,29 @@ export function AracSayfasi({
           acceptedAnswer: { "@type": "Answer", text: s.cevap },
         })),
       },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Ana Sayfa",
+            item: "https://parselos.com/",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Hesap Araçları",
+            item: "https://parselos.com/araclar",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: arac.baslik,
+            item: `https://parselos.com/araclar/${arac.slug}`,
+          },
+        ],
+      },
     ],
   };
 

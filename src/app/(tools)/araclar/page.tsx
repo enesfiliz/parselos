@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { OG_IMAGE } from "@/components/tools/arac-metadata";
 import { ARACLAR } from "@/components/tools/tools-config";
 
 export const metadata: Metadata = {
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
   description:
     "KDV, yüzde, kredi taksiti, bileşik faiz gibi günlük hesaplar; komisyon, kira, tapu harcı ve imar gibi emlak hesapları — ücretsiz, üyeliksiz, sınırsız.",
   alternates: { canonical: "https://parselos.com/araclar" },
+  openGraph: { url: "https://parselos.com/araclar", images: [OG_IMAGE] },
 };
 
 function AracKartlari({ liste }: { liste: typeof ARACLAR }) {
@@ -35,14 +37,35 @@ function AracKartlari({ liste }: { liste: typeof ARACLAR }) {
 export default function AraclarPage() {
   const itemListJsonLd = {
     "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "ParselOS Hesap Araçları",
-    itemListElement: ARACLAR.map((a, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: a.baslik,
-      url: `https://parselos.com/araclar/${a.slug}`,
-    })),
+    "@graph": [
+      {
+        "@type": "ItemList",
+        name: "ParselOS Hesap Araçları",
+        itemListElement: ARACLAR.map((a, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: a.baslik,
+          url: `https://parselos.com/araclar/${a.slug}`,
+        })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Ana Sayfa",
+            item: "https://parselos.com/",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Hesap Araçları",
+            item: "https://parselos.com/araclar",
+          },
+        ],
+      },
+    ],
   };
 
   const gunluk = ARACLAR.filter((a) => a.kategori === "gunluk");

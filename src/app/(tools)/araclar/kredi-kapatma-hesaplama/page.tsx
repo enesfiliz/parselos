@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KrediKapatmaHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("kredi-kapatma-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Kredi kapatma hesaplama: kalan ana para, taksit sayısı ve tutarını girin; erken kapama cezası dahil bugünkü kapatma tutarını ve kapanan faizi görün. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/kredi-kapatma-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "kredi-kapatma-hesaplama",
+  "Kredi kapatma hesaplama: kalan ana para, taksit sayısı ve tutarını girin; erken kapama cezası dahil bugünkü kapatma tutarını ve kapanan faizi görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function KrediKapatmaPage() {
   return (

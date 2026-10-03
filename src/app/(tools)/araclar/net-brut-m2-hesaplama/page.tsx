@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { NetBrutHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("net-brut-m2-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Brüt metrekareden ortak alan ve duvar kaybını düşerek tahmini net alanı hesaplayın. Daire fiyatını net m² üzerinden doğru karşılaştırın.",
-  alternates: { canonical: "https://parselos.com/araclar/net-brut-m2-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "net-brut-m2-hesaplama",
+  "Brüt metrekareden ortak alan ve duvar kaybını düşerek tahmini net alanı hesaplayın. Daire fiyatını net m² üzerinden doğru karşılaştırın.",
+);
 
 export default function NetBrutM2HesaplamaPage() {
   return (

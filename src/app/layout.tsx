@@ -7,12 +7,41 @@ import "./clerk.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://parselos.com"),
   title: {
     default: "ParselOS",
     template: "%s · ParselOS",
   },
   description:
     "ParselOS — emlak ve günlük hayat için ücretsiz hesap araçları ve gayrimenkul profesyonellerine yönelik operasyon platformu.",
+  applicationName: "ParselOS Hesap",
+  openGraph: {
+    type: "website",
+    siteName: "ParselOS Hesap",
+    locale: "tr_TR",
+    images: [
+      {
+        url: "/og-hesap-araclari.png",
+        width: 1200,
+        height: 630,
+        alt: "ParselOS Hesap — 30 ücretsiz hesap aracı",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     shortcut: [{ url: "/favicon.ico" }],
     icon: [

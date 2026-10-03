@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { GunSayisiHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("gun-sayisi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Gün sayısı hesaplama: iki tarih arasındaki toplam gün, hafta sonlarını düşmüş iş günü sayısı ve yıl/ay/gün dökümü. Kira sözleşmesi, ihbar ve vadeler için ücretsiz araç.",
-  alternates: { canonical: "https://parselos.com/araclar/gun-sayisi-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "gun-sayisi-hesaplama",
+  "Gün sayısı hesaplama: iki tarih arasındaki toplam gün, hafta sonlarını düşmüş iş günü sayısı ve yıl/ay/gün dökümü. Kira sözleşmesi, ihbar ve vadeler için ücretsiz araç.",
+);
 
 export default function GunSayisiPage() {
   return (

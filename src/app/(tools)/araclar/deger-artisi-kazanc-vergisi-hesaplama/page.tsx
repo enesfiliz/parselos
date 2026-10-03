@@ -1,20 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { DegerArtisiHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("deger-artisi-kazanc-vergisi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Değer artışı kazancı vergisi hesaplama: alış bedelini güncelleyip satış bedelinden çıkarın, istisna sonrası kazancı ve yaklaşık vergiyi görün. Ücretsiz, üyeliksiz.",
-  alternates: {
-    canonical:
-      "https://parselos.com/araclar/deger-artisi-kazanc-vergisi-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "deger-artisi-kazanc-vergisi-hesaplama",
+  "Değer artışı kazancı vergisi hesaplama: alış bedelini güncelleyip satış bedelinden çıkarın, istisna sonrası kazancı ve yaklaşık vergiyi görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function DegerArtisiPage() {
   return (

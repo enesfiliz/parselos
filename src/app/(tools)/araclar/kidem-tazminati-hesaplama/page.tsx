@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KidemTazminatiHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("kidem-tazminati-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Kıdem tazminatı hesaplama: brüt ücret, kıdem süresi ve güncel tavanı girin; brüt tazminat, damga vergisi ve net ödemeyi görün. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/kidem-tazminati-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "kidem-tazminati-hesaplama",
+  "Kıdem tazminatı hesaplama: brüt ücret, kıdem süresi ve güncel tavanı girin; brüt tazminat, damga vergisi ve net ödemeyi görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function KidemTazminatiPage() {
   return (

@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { DaskHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("dask-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "DASK (zorunlu deprem sigortası) primi hesaplama: konut alanı ve güncel metrekare baz bedeliyle sigorta bedelini ve yaklaşık yıllık primi bulun.",
-  alternates: { canonical: "https://parselos.com/araclar/dask-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "dask-hesaplama",
+  "DASK (zorunlu deprem sigortası) primi hesaplama: konut alanı ve güncel metrekare baz bedeliyle sigorta bedelini ve yaklaşık yıllık primi bulun.",
+);
 
 export default function DaskPage() {
   return (

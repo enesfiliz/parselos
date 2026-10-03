@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KomisyonHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("komisyon-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Satış bedeline göre emlak komisyonunu KDV dahil hesaplayın. Taşınmaz Ticareti Yönetmeliği'ne göre %4 hizmet bedeli üst sınırı, alıcı ve satıcı payları ve örnek hesaplamalar.",
-  alternates: { canonical: "https://parselos.com/araclar/komisyon-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "komisyon-hesaplama",
+  "Satış bedeline göre emlak komisyonunu KDV dahil hesaplayın. Taşınmaz Ticareti Yönetmeliği'ne göre %4 hizmet bedeli üst sınırı, alıcı ve satıcı payları ve örnek hesaplamalar.",
+);
 
 export default function KomisyonHesaplamaPage() {
   return (

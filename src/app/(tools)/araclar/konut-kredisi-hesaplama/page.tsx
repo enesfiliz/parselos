@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KonutKredisiHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("konut-kredisi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Kredi tutarı, vade ve aylık faiz oranıyla konut kredisi aylık taksitini, toplam geri ödemeyi ve faiz yükünü hesaplayın.",
-  alternates: {
-    canonical: "https://parselos.com/araclar/konut-kredisi-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "konut-kredisi-hesaplama",
+  "Kredi tutarı, vade ve aylık faiz oranıyla konut kredisi aylık taksitini, toplam geri ödemeyi ve faiz yükünü hesaplayın.",
+);
 
 export default function KonutKredisiHesaplamaPage() {
   return (

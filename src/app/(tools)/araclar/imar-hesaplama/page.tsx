@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { ImarHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("imar-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Arsa metrekaresi üzerinden TAKS ve KAKS (emsal) katsayılarıyla taban oturumu ve toplam inşaat alanını hesaplayın. Arsa değerlemede emsal hesabı.",
-  alternates: { canonical: "https://parselos.com/araclar/imar-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "imar-hesaplama",
+  "Arsa metrekaresi üzerinden TAKS ve KAKS (emsal) katsayılarıyla taban oturumu ve toplam inşaat alanını hesaplayın. Arsa değerlemede emsal hesabı.",
+);
 
 export default function ImarHesaplamaPage() {
   return (

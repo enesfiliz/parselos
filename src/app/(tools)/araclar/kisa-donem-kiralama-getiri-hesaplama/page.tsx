@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KisaDonemGetiriHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("kisa-donem-kiralama-getiri-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Kısa dönem (günlük) kiralama getirisi hesaplama: gecelik fiyat, doluluk oranı ve giderlerle aylık net geliri görün. Ücretsiz, üyeliksiz.",
-  alternates: {
-    canonical: "https://parselos.com/araclar/kisa-donem-kiralama-getiri-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "kisa-donem-kiralama-getiri-hesaplama",
+  "Kısa dönem (günlük) kiralama getirisi hesaplama: gecelik fiyat, doluluk oranı ve giderlerle aylık net geliri görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function KisaDonemGetiriPage() {
   return (

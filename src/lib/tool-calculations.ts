@@ -665,6 +665,110 @@ export function calculateVerasetIntikal(
   };
 }
 
+export type IhbarTazminatiSonucu = {
+  ihbarHafta: number;
+  ihbarGun: number;
+  brutTazminat: number;
+  gelirVergisi: number;
+  damgaVergisi: number;
+  netTazminat: number;
+};
+
+/**
+ * İhbar tazminatı (4857): kıdem süresine göre 2/4/6/8 haftalık bildirim
+ * süresi × günlük brüt ücret. Kıdemin aksine gelir vergisi ve damgaya
+ * tabidir; vergi, girilen ortalama oranla yaklaşık hesaplanır.
+ */
+export function calculateIhbarTazminati(
+  brutAylikUcret: number,
+  kiyemYil: number,
+  kiyemAy: number,
+  ortalamaVergiOraniYuzde: number,
+  damgaBinde: number,
+): IhbarTazminatiSonucu | null {
+  if (brutAylikUcret <= 0) return null;
+  const toplamAy = kiyemYil * 12 + kiyemAy;
+  if (toplamAy <= 0) return null;
+  const ihbarHafta =
+    toplamAy < 6 ? 2 : toplamAy < 18 ? 4 : toplamAy < 36 ? 6 : 8;
+  const ihbarGun = ihbarHafta * 7;
+  const brutTazminat = (brutAylikUcret / 30) * ihbarGun;
+  const oran = Math.min(Math.max(ortalamaVergiOraniYuzde, 0), 100);
+  const gelirVergisi = brutTazminat * (oran / 100);
+  const damgaVergisi = brutTazminat * (Math.max(damgaBinde, 0) / 1000);
+  return {
+    ihbarHafta,
+    ihbarGun,
+    brutTazminat,
+    gelirVergisi,
+    damgaVergisi,
+    netTazminat: brutTazminat - gelirVergisi - damgaVergisi,
+  };
+}
+
+export type IsverenMaliyetiSonucu = {
+  sgkIsvemPayi: number;
+  iskurPayi: number;
+  toplamMaliyet: number;
+  brutunUzerindeYuzde: number;
+};
+
+/**
+ * Çalışanın işverene aylık maliyeti: brüt ücrete SGK işveren hissesi ve
+ * İŞKUR payı eklenir; 5 puanlık indirim seçilirse SGK payı düşülür.
+ */
+export function calculateIsverenMaliyeti(
+  brutAylikUcret: number,
+  sgkIsvemOraniYuzde: number,
+  iskurOraniYuzde: number,
+  besPuanIndirim: boolean,
+): IsverenMaliyetiSonucu | null {
+  if (brutAylikUcret <= 0) return null;
+  const sgkOran = Math.max(
+    sgkIsvemOraniYuzde - (besPuanIndirim ? 5 : 0),
+    0,
+  );
+  const sgkIsvemPayi = brutAylikUcret * (sgkOran / 100);
+  const iskurPayi = brutAylikUcret * (Math.max(iskurOraniYuzde, 0) / 100);
+  const toplamMaliyet = brutAylikUcret + sgkIsvemPayi + iskurPayi;
+  return {
+    sgkIsvemPayi,
+    iskurPayi,
+    toplamMaliyet,
+    brutunUzerindeYuzde: ((toplamMaliyet - brutAylikUcret) / brutAylikUcret) * 100,
+  };
+}
+
+export type InsaatMaliyetiSonucu = {
+  bazMaliyet: number;
+  surprizPayi: number;
+  toplamMaliyet: number;
+  m2ToplamMaliyet: number;
+};
+
+/**
+ * Yaklaşık inşaat maliyeti: brüt alan × m² birim maliyeti; üstüne
+ * sürpriz/alternatif payı (default %10) eklenir. Birim maliyet girilen
+ * varsayımdır, güncel metraj/keşif yerine kullanılmaz.
+ */
+export function calculateInsaatMaliyeti(
+  brutAlanM2: number,
+  m2BirimMaliyet: number,
+  surprizPayiYuzde: number,
+): InsaatMaliyetiSonucu | null {
+  if (brutAlanM2 <= 0 || m2BirimMaliyet <= 0) return null;
+  const bazMaliyet = brutAlanM2 * m2BirimMaliyet;
+  const surprizPayi =
+    bazMaliyet * (Math.max(surprizPayiYuzde, 0) / 100);
+  const toplamMaliyet = bazMaliyet + surprizPayi;
+  return {
+    bazMaliyet,
+    surprizPayi,
+    toplamMaliyet,
+    m2ToplamMaliyet: toplamMaliyet / brutAlanM2,
+  };
+}
+
 export const formatTRY = (value: number): string =>
   new Intl.NumberFormat("tr-TR", {
     style: "currency",

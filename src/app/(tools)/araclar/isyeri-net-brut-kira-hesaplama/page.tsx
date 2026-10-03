@@ -1,20 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { NetIcinBrutKiraHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("isyeri-net-brut-kira-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Mal sahibinin istediği net iş yeri kirasına karşılık sözleşmeye yazılması gereken brüt kirayı ve stopaj yükünü hesaplayın.",
-  alternates: {
-    canonical:
-      "https://parselos.com/araclar/isyeri-net-brut-kira-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "isyeri-net-brut-kira-hesaplama",
+  "Mal sahibinin istediği net iş yeri kirasına karşılık sözleşmeye yazılması gereken brüt kirayı ve stopaj yükünü hesaplayın.",
+);
 
 export default function IsyeriNetBrutKiraHesaplamaPage() {
   return (

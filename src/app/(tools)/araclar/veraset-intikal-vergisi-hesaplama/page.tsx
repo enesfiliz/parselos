@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { VerasetIntikalHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("veraset-intikal-vergisi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Veraset ve intikal vergisi hesaplama: nakit miras payınızdan yıllık istisnayı düşüp artan oranlı tarifeye göre tahmini vergiyi görün. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/veraset-intikal-vergisi-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "veraset-intikal-vergisi-hesaplama",
+  "Veraset ve intikal vergisi hesaplama: nakit miras payınızdan yıllık istisnayı düşüp artan oranlı tarifeye göre tahmini vergiyi görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function VerasetIntikalPage() {
   return (

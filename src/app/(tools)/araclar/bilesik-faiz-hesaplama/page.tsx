@@ -1,19 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { BilesikFaizHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("bilesik-faiz-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Bileşik faiz hesaplama: ana para, yıllık oran ve süre ile birikimin faiz faiz nasıl büyüdüğünü; dönem sonu toplam değeri ve getiriyle görün.",
-  alternates: {
-    canonical: "https://parselos.com/araclar/bilesik-faiz-hesaplama",
-  },
-};
+export const metadata = aracMetadata(
+  "bilesik-faiz-hesaplama",
+  "Bileşik faiz hesaplama: ana para, yıllık oran ve süre ile birikimin faiz faiz nasıl büyüdüğünü; dönem sonu toplam değeri ve getiriyle görün.",
+);
 
 export default function BilesikFaizHesaplamaPage() {
   return (

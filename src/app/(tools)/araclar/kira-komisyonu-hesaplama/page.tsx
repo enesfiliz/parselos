@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KiraKomisyonHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("kira-komisyonu-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Kiralama komisyonu hesaplama: yasal tavana göre (en fazla bir aylık kira) hizmet bedelini ve KDV dahil toplamı bulun. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/kira-komisyonu-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "kira-komisyonu-hesaplama",
+  "Kiralama komisyonu hesaplama: yasal tavana göre (en fazla bir aylık kira) hizmet bedelini ve KDV dahil toplamı bulun. Ücretsiz, üyeliksiz.",
+);
 
 export default function KiraKomisyonuPage() {
   return (

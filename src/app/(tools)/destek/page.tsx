@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { OG_IMAGE } from "@/components/tools/arac-metadata";
 import { ReklamAlani } from "@/components/tools/ReklamAlani";
 
 export const metadata: Metadata = {
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
   description:
     "ParselOS Hesap araçları tamamen ücretsiz. Beğendiğiniz araçları bize destek olarak da sürdürülebilir kılabilirsiniz.",
   alternates: { canonical: "https://parselos.com/destek" },
+  openGraph: { url: "https://parselos.com/destek", images: [OG_IMAGE] },
 };
 
 const destekUrl = process.env.NEXT_PUBLIC_SUPPORT_URL as string | undefined;

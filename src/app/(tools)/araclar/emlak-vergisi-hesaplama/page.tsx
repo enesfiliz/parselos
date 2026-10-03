@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { EmlakVergisiHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("emlak-vergisi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Emlak vergisi hesaplama: belediyedeki rayiç bedeli ve güncel vergi oranını girin, yıllık emlak vergisini ve iki taksit tutarını saniyeler içinde görün. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/emlak-vergisi-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "emlak-vergisi-hesaplama",
+  "Emlak vergisi hesaplama: belediyedeki rayiç bedeli ve güncel vergi oranını girin, yıllık emlak vergisini ve iki taksit tutarını saniyeler içinde görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function EmlakVergisiPage() {
   return (

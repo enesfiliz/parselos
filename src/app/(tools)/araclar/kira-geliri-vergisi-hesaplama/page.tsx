@@ -1,17 +1,14 @@
-import type { Metadata } from "next";
-
 import { AracSayfasi } from "@/components/tools/AracSayfasi";
+import { aracMetadata } from "@/components/tools/arac-metadata";
 import { KiraGeliriVergisiHesaplayici } from "@/components/tools/ToolCalculators";
 import { aracBilgisi } from "@/components/tools/tools-config";
 
 const arac = aracBilgisi("kira-geliri-vergisi-hesaplama");
 
-export const metadata: Metadata = {
-  title: arac.baslik,
-  description:
-    "Kira geliri vergisi hesaplama: yıllık brüt kiradan istisnayı ve gideri (götürü %15 veya gerçek gider) düşüp tahmini gelir vergisini görün. Ücretsiz, üyeliksiz.",
-  alternates: { canonical: "https://parselos.com/araclar/kira-geliri-vergisi-hesaplama" },
-};
+export const metadata = aracMetadata(
+  "kira-geliri-vergisi-hesaplama",
+  "Kira geliri vergisi hesaplama: yıllık brüt kiradan istisnayı ve gideri (götürü %15 veya gerçek gider) düşüp tahmini gelir vergisini görün. Ücretsiz, üyeliksiz.",
+);
 
 export default function KiraGeliriVergisiPage() {
   return (
