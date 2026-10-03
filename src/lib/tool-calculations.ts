@@ -576,6 +576,95 @@ export function calculateEvAlmaMaliyeti(
   };
 }
 
+export type KrediKapatmaSonucu = {
+  kalanToplamOdeme: number;
+  kapatmaTutari: number;
+  kapananTutar: number;
+};
+
+/**
+ * Kalan tüketici kredisini bugünden kapatma: kalan ana paraya erken
+ * kapama cezası eklenir; planlanan toplam ödemeden fark = kapanan tutar.
+ */
+export function calculateKrediKapatma(
+  kalanAnaPara: number,
+  kalanTaksitSayisi: number,
+  aylikTaksit: number,
+  cezaOraniYuzde: number,
+): KrediKapatmaSonucu | null {
+  if (kalanAnaPara <= 0 || kalanTaksitSayisi <= 0 || aylikTaksit <= 0) {
+    return null;
+  }
+  const kalanToplamOdeme = aylikTaksit * kalanTaksitSayisi;
+  const kapatmaTutari =
+    kalanAnaPara + kalanAnaPara * (Math.max(cezaOraniYuzde, 0) / 100);
+  return {
+    kalanToplamOdeme,
+    kapatmaTutari,
+    kapananTutar: kalanToplamOdeme - kapatmaTutari,
+  };
+}
+
+export type EnflasyonSonucu = {
+  guncelDeger: number;
+  degerArtisi: number;
+  alimGucu: number;
+  alimGucuKaybi: number;
+};
+
+/**
+ * Yıllık ortalama enflasyonla değeri iki yönlü çevirir: geçmiş tutarın
+ * bugünkü karşılığı ve bugünkü paranın süre sonundaki satın alma gücü.
+ */
+export function calculateEnflasyon(
+  tutar: number,
+  yillikEnflasyonYuzde: number,
+  yil: number,
+): EnflasyonSonucu | null {
+  if (tutar <= 0 || yillikEnflasyonYuzde < 0 || yil <= 0) return null;
+  const carpan = Math.pow(1 + yillikEnflasyonYuzde / 100, yil);
+  const guncelDeger = tutar * carpan;
+  const alimGucu = tutar / carpan;
+  return {
+    guncelDeger,
+    degerArtisi: guncelDeger - tutar,
+    alimGucu,
+    alimGucuKaybi: tutar - alimGucu,
+  };
+}
+
+export type VerasetIntikalSonucu = {
+  istisnaSonrasiMatrah: number;
+  tahminiVergi: number;
+  netTutar: number;
+  vergiYuzdesi: number;
+};
+
+/**
+ * Veraset ve intikal vergisi (para ve benzeri miras payı, yaklaşık):
+ * miras payından yıllık istisna düşülür, kalan matrah artan oranlı
+ * tarifede (%10–%30) vergilendirilir; araç ortalama oranla yaklaşık üretir.
+ */
+export function calculateVerasetIntikal(
+  mirasPayi: number,
+  istisnaTutari: number,
+  ortalamaVergiOraniYuzde: number,
+): VerasetIntikalSonucu | null {
+  if (mirasPayi <= 0) return null;
+  const istisnaSonrasiMatrah = Math.max(
+    mirasPayi - Math.max(istisnaTutari, 0),
+    0,
+  );
+  const oran = Math.min(Math.max(ortalamaVergiOraniYuzde, 0), 100);
+  const tahminiVergi = istisnaSonrasiMatrah * (oran / 100);
+  return {
+    istisnaSonrasiMatrah,
+    tahminiVergi,
+    netTutar: mirasPayi - tahminiVergi,
+    vergiYuzdesi: (tahminiVergi / mirasPayi) * 100,
+  };
+}
+
 export const formatTRY = (value: number): string =>
   new Intl.NumberFormat("tr-TR", {
     style: "currency",

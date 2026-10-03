@@ -201,6 +201,30 @@ export const ARACLAR: AracTanimi[] = [
       "Satış bedeline tapu harcı, komisyon, DASK ve diğer giderleri ekleyip toplam maliyeti görün.",
     kategori: "gayrimenkul",
   },
+  {
+    slug: "kredi-kapatma-hesaplama",
+    baslik: "Kredi Kapatma (Erken Kapama) Hesaplama",
+    kisaAd: "Kredi Kapatma",
+    kisaAciklama:
+      "Kalan krediyi bugün kapatmanın tutarını ve erken kapanan faizi hesaplayın.",
+    kategori: "gunluk",
+  },
+  {
+    slug: "enflasyon-hesaplama",
+    baslik: "Enflasyon Hesaplama (Değer / Alım Gücü)",
+    kisaAd: "Enflasyon",
+    kisaAciklama:
+      "TÜFE ile geçmiş tutarın bugünkü karşısını ve bugünkü paranın alım gücü kaybını görün.",
+    kategori: "gunluk",
+  },
+  {
+    slug: "veraset-intikal-vergisi-hesaplama",
+    baslik: "Veraset ve İntikal Vergisi Hesaplama",
+    kisaAd: "Miras Vergisi",
+    kisaAciklama:
+      "Nakit miras payınızdan istisnayı düşüp tahmini veraset vergisini yaklaşık hesaplayın.",
+    kategori: "gayrimenkul",
+  },
 ];
 
 export function aracBilgisi(slug: string): AracTanimi {

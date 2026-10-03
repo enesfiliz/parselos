@@ -15,6 +15,7 @@ import {
   calculateDaskYaklasik,
   calculateDegerArtisi,
   calculateEmlakVergisi,
+  calculateEnflasyon,
   calculateEvAlmaMaliyeti,
   calculateGunSayisi,
   calculateKdvCikar,
@@ -26,8 +27,10 @@ import {
   calculateKiraGeliriVergisi,
   calculateKiraKomisyonu,
   calculateKiraStopaji,
+  calculateKrediKapatma,
   calculateM2Fiyati,
   calculateNetIcinBrutKira,
+  calculateVerasetIntikal,
   calculateYuzde,
   calculateYuzdeKac,
   formatTRY,
@@ -1390,6 +1393,177 @@ export function EvAlmaMaliyetiHesaplayici() {
           />
         ) : (
           <BosDurum mesaj="Sonucu görmek için satış bedelini girin." />
+        )
+      }
+    />
+  );
+}
+
+export function KrediKapatmaHesaplayici() {
+  const [anaPara, setAnaPara] = useState("150000");
+  const [taksitSayisi, setTaksitSayisi] = useState("24");
+  const [taksit, setTaksit] = useState("7500");
+  const [ceza, setCeza] = useState("1");
+
+  const sonuc = useMemo(() => {
+    const a = parseSayiTr(anaPara);
+    const s = parseSayiTr(taksitSayisi);
+    const t = parseSayiTr(taksit);
+    if (!a || !s || !t) return null;
+    return calculateKrediKapatma(a, s, t, parseSayiTr(ceza, true) ?? 0);
+  }, [anaPara, taksitSayisi, taksit, ceza]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi
+            label="Kalan ana para borcu"
+            deger={anaPara}
+            onDeger={setAnaPara}
+            prefix="₺"
+            hint="Bankadan öğrenilecek, işlenen faiz hariç kalan anapara tutarı."
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <SayiGirisi label="Kalan taksit" deger={taksitSayisi} onDeger={setTaksitSayisi} suffix="adet" />
+            <SayiGirisi label="Aylık taksit" deger={taksit} onDeger={setTaksit} prefix="₺" />
+          </div>
+          <SayiGirisi
+            label="Erken kapama cezası oranı"
+            deger={ceza}
+            onDeger={setCeza}
+            suffix="%"
+            sifirOlabilir
+            hint="Yasal üst sınır, kalan vade 24 ay ve kısaysa kalan ana paranın %1'i, 24 aydan uzunsa %2'sidir. Bankanızın uyguladığı oranı girin."
+          />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="Kapatma tablosu"
+            satirlar={[
+              { etiket: "Planlanan toplam ödeme", deger: formatTRY(sonuc.kalanToplamOdeme) },
+              { etiket: "Bugün kapatma tutarı", deger: formatTRYKesirli(sonuc.kapatmaTutari), vurgulu: true },
+              {
+                etiket: sonuc.kapananTutar >= 0 ? "Erken kapanan (kâr)" : "Eksi kalır (geç kalmışsınız)",
+                deger: formatTRY(Math.abs(sonuc.kapananTutar)),
+              },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için kalan ana parayı, taksit sayısını ve tutarını girin." />
+        )
+      }
+    />
+  );
+}
+
+export function EnflasyonHesaplayici() {
+  const [tutar, setTutar] = useState("100000");
+  const [enflasyon, setEnflasyon] = useState("45");
+  const [yil, setYil] = useState("5");
+
+  const sonuc = useMemo(() => {
+    const t = parseSayiTr(tutar);
+    const e = parseSayiTr(enflasyon, true);
+    const y = parseSayiTr(yil);
+    if (!t || e === null || !y) return null;
+    return calculateEnflasyon(t, e, y);
+  }, [tutar, enflasyon, yil]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi label="Tutar" deger={tutar} onDeger={setTutar} prefix="₺" hint="Ölçmek istediğiniz para miktarı." />
+          <div className="grid grid-cols-2 gap-4">
+            <SayiGirisi
+              label="Yıllık ortalama enflasyon"
+              deger={enflasyon}
+              onDeger={setEnflasyon}
+              suffix="%"
+              hint="TÜFE yıllık ortalaması; güncel resmî veriyi girin."
+            />
+            <SayiGirisi label="Süre" deger={yil} onDeger={setYil} suffix="yıl" hint="Ondalık girebilirsiniz (ör. 2,5)." />
+          </div>
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="Enflasyon etkisi"
+            satirlar={[
+              { etiket: "Bu tutarın bugünkü karşılığı (geçmişten)", deger: formatTRY(sonuc.guncelDeger), vurgulu: true },
+              { etiket: "Gerekli artış", deger: formatTRY(sonuc.degerArtisi) },
+              { etiket: "Bugünkü paranın süre sonu alım gücü", deger: formatTRY(sonuc.alimGucu) },
+              { etiket: "Alım gücü kaybı", deger: formatTRY(sonuc.alimGucuKaybi) },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için tutar, enflasyon ve süreyi girin." />
+        )
+      }
+    />
+  );
+}
+
+export function VerasetIntikalHesaplayici() {
+  const [pay, setPay] = useState("1000000");
+  const [istisna, setIstisna] = useState("0");
+  const [oran, setOran] = useState("15");
+
+  const sonuc = useMemo(() => {
+    const p = parseSayiTr(pay);
+    if (!p) return null;
+    return calculateVerasetIntikal(
+      p,
+      parseSayiTr(istisna, true) ?? 0,
+      parseSayiTr(oran, true) ?? 0,
+    );
+  }, [pay, istisna, oran]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi
+            label="Payınıza düşen miras (para ve benzeri)"
+            deger={pay}
+            onDeger={setPay}
+            prefix="₺"
+            hint="Nakit, banka hesabı, altın gibi taşınır miras payınız. Her yasal mirasçı için ayrı istisna uygulanır."
+          />
+          <SayiGirisi
+            label="Yıllık istisna tutarı"
+            deger={istisna}
+            onDeger={setIstisna}
+            prefix="₺"
+            sifirOlabilir
+            hint="İlgili yılın veraset ve intikal vergisi istisnasını girin; bilmiyorsanız 0 bırakıp matrahı tam görün."
+          />
+          <SayiGirisi
+            label="Ortalama vergi oranı"
+            deger={oran}
+            onDeger={setOran}
+            suffix="%"
+            hint="Tarife artan oranlıdır (%10'dan %30'a). Matrahınıza göre ortalama bir oran girin."
+          />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="Yaklaşık veraset vergisi"
+            satirlar={[
+              { etiket: "İstisna sonrası matrah", deger: formatTRY(sonuc.istisnaSonrasiMatrah) },
+              { etiket: "Tahmini vergi", deger: formatTRYKesirli(sonuc.tahminiVergi), vurgulu: true },
+              { etiket: "Vergiden sonra kalan", deger: formatTRY(sonuc.netTutar) },
+              { etiket: "Miras payına oranı", deger: formatYuzde(sonuc.vergiYuzdesi, 1) },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için miras payınızı girin." />
         )
       }
     />
