@@ -20,7 +20,7 @@ export function Logo({
   const darkSrc = markOnly ? "/brand/icon-mark.png" : "/brand/logo-horizontal-light.png";
   const dimensions = markOnly
     ? { width: 1024, height: 1051 }
-    : { width: 1420, height: 318 };
+    : { width: 1420, height: 257 };
 
   return (
     <span

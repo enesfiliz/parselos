@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AppIcon } from "@/components/ui/AppIcon";
+import { Logo } from "@/components/ui/Logo";
 
 const ARAC_LINKLERI = [
   { href: "/araclar/komisyon-hesaplama", label: "Komisyon Hesaplama" },
@@ -26,7 +26,7 @@ export function SiteFooter() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 md:gap-10">
           <div>
             <span className="mb-4 flex items-center gap-2 text-foreground">
-              <AppIcon className="size-[18px] shrink-0" />
+              <Logo markOnly className="h-[18px] w-auto" />
               <span className="font-outfit text-lg font-bold">ParselOS Hesap</span>
             </span>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
