@@ -177,6 +177,30 @@ export const ARACLAR: AracTanimi[] = [
       "İki tarih arasındaki toplam gün, iş günü ve yıl-ay-gün dökümünü görün.",
     kategori: "gunluk",
   },
+  {
+    slug: "kira-geliri-vergisi-hesaplama",
+    baslik: "Kira Geliri Vergisi Hesaplama",
+    kisaAd: "Kira Geliri Vergisi",
+    kisaAciklama:
+      "Mesken kira gelirimde istisna ve gider sonrası ne kadar gelir vergisi çıkar yaklaşık hesaplayın.",
+    kategori: "gayrimenkul",
+  },
+  {
+    slug: "kidem-tazminati-hesaplama",
+    baslik: "Kıdem Tazminatı Hesaplama",
+    kisaAd: "Kıdem Tazminatı",
+    kisaAciklama:
+      "Brüt ücret ve kıdem süresine göre tavan dahil brüt ve net kıdem tazminatını hesaplayın.",
+    kategori: "gunluk",
+  },
+  {
+    slug: "ev-alma-maliyeti-hesaplama",
+    baslik: "Ev Alma Maliyeti Hesaplama",
+    kisaAd: "Ev Alma Maliyeti",
+    kisaAciklama:
+      "Satış bedeline tapu harcı, komisyon, DASK ve diğer giderleri ekleyip toplam maliyeti görün.",
+    kategori: "gayrimenkul",
+  },
 ];
 
 export function aracBilgisi(slug: string): AracTanimi {

@@ -458,6 +458,124 @@ export function calculateGunSayisi(
   return { toplamGun, isGunleri: toplamGun - haftaSonu, yil, ay, gun };
 }
 
+export type KiraGeliriVergisiSonucu = {
+  istisnaSonrasi: number;
+  giderTutari: number;
+  vergiMatrahi: number;
+  tahminiVergi: number;
+  gelirYuzdesi: number;
+};
+
+/**
+ * Mesken kira geliri vergisi (yaklaşık): gelir → istisna → gider yöntemi →
+ * tarife. Götürü giderde matrahın %15'i düşülür; gerçek gider tutarı
+ * girilirse o esas alınır. Tarife artan oranlıdır (~%15–%40); araç
+ * ortalama oranla yaklaşık üretir.
+ */
+export function calculateKiraGeliriVergisi(
+  yillikBrutKira: number,
+  istisnaTutari: number,
+  goturuGider: boolean,
+  gercekGiderTutari: number,
+  ortalamaVergiOraniYuzde: number,
+): KiraGeliriVergisiSonucu | null {
+  if (yillikBrutKira <= 0) return null;
+  const istisnaSonrasi = Math.max(
+    yillikBrutKira - Math.max(istisnaTutari, 0),
+    0,
+  );
+  const gider = goturuGider
+    ? istisnaSonrasi * 0.15
+    : Math.min(Math.max(gercekGiderTutari, 0), istisnaSonrasi);
+  const vergiMatrahi = istisnaSonrasi - gider;
+  const oran = Math.min(Math.max(ortalamaVergiOraniYuzde, 0), 100);
+  const tahminiVergi = vergiMatrahi * (oran / 100);
+  return {
+    istisnaSonrasi,
+    giderTutari: gider,
+    vergiMatrahi,
+    tahminiVergi,
+    gelirYuzdesi: (tahminiVergi / yillikBrutKira) * 100,
+  };
+}
+
+export type KidemTazminatiSonucu = {
+  esasAlinanAylik: number;
+  toplamAy: number;
+  brutTazminat: number;
+  damgaVergisi: number;
+  netTazminat: number;
+};
+
+/**
+ * Kıdem tazminatı: her tam yıla 30 günlük brüt ücret; kalan ayar oranında
+ * işler. Aylık brüt, girilen tavanı aşamaz. Gelir vergisinden müstesnadır;
+ * yalnız damga vergisi düşülür (binde, girilebilir).
+ */
+export function calculateKidemTazminati(
+  brutAylikUcret: number,
+  kiyemYil: number,
+  kiyemAy: number,
+  tavanAylik: number,
+  damgaBinde: number,
+): KidemTazminatiSonucu | null {
+  if (brutAylikUcret <= 0) return null;
+  const toplamAy = kiyemYil * 12 + kiyemAy;
+  if (toplamAy <= 0) return null;
+  const esasAlinanAylik =
+    tavanAylik > 0 ? Math.min(brutAylikUcret, tavanAylik) : brutAylikUcret;
+  const brutTazminat = esasAlinanAylik * (toplamAy / 12);
+  const damgaVergisi = brutTazminat * (Math.max(damgaBinde, 0) / 1000);
+  return {
+    esasAlinanAylik,
+    toplamAy,
+    brutTazminat,
+    damgaVergisi,
+    netTazminat: brutTazminat - damgaVergisi,
+  };
+}
+
+export type EvAlmaMaliyetiSonucu = {
+  tapuHarci: number;
+  komisyon: number;
+  komisyonKdv: number;
+  yanMaliyetler: number;
+  genelToplam: number;
+  bedelYuzdesi: number;
+};
+
+/**
+ * Peşin ev alımında alıcının toplam maliyeti: satış bedeline tapu harcı,
+ * kendi komisyon payı (KDV dahil), DASK ve diğer yan giderler eklenir.
+ */
+export function calculateEvAlmaMaliyeti(
+  satisBedeli: number,
+  aliciTapuHarciOraniYuzde: number,
+  aliciKomisyonOraniYuzde: number,
+  kdvOraniYuzde: number,
+  daskYillik: number,
+  digerMaliyetler: number,
+): EvAlmaMaliyetiSonucu | null {
+  if (satisBedeli <= 0) return null;
+  const tapuHarci = satisBedeli * (Math.max(aliciTapuHarciOraniYuzde, 0) / 100);
+  const komisyon = satisBedeli * (Math.max(aliciKomisyonOraniYuzde, 0) / 100);
+  const komisyonKdv = komisyon * (Math.max(kdvOraniYuzde, 0) / 100);
+  const yanMaliyetler =
+    tapuHarci +
+    komisyon +
+    komisyonKdv +
+    Math.max(daskYillik, 0) +
+    Math.max(digerMaliyetler, 0);
+  return {
+    tapuHarci,
+    komisyon,
+    komisyonKdv,
+    yanMaliyetler,
+    genelToplam: satisBedeli + yanMaliyetler,
+    bedelYuzdesi: (yanMaliyetler / satisBedeli) * 100,
+  };
+}
+
 export const formatTRY = (value: number): string =>
   new Intl.NumberFormat("tr-TR", {
     style: "currency",

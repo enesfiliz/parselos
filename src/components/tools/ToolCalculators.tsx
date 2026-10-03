@@ -15,12 +15,15 @@ import {
   calculateDaskYaklasik,
   calculateDegerArtisi,
   calculateEmlakVergisi,
+  calculateEvAlmaMaliyeti,
   calculateGunSayisi,
   calculateKdvCikar,
   calculateKdvEkle,
+  calculateKidemTazminati,
   calculateKisaDonemGetiri,
   calculateKomisyonOranli,
   calculateKomisyonPaylasimi,
+  calculateKiraGeliriVergisi,
   calculateKiraKomisyonu,
   calculateKiraStopaji,
   calculateM2Fiyati,
@@ -1155,6 +1158,238 @@ export function GunSayisiHesaplayici() {
           />
         ) : (
           <BosDurum mesaj="Bitiş tarihi başlangıçtan sonra olmalı." />
+        )
+      }
+    />
+  );
+}
+
+export function KiraGeliriVergisiHesaplayici() {
+  const [kira, setKira] = useState("120000");
+  const [istisna, setIstisna] = useState("28000");
+  const [goturu, setGoturu] = useState(true);
+  const [gercekGider, setGercekGider] = useState("0");
+  const [oran, setOran] = useState("20");
+
+  const sonuc = useMemo(() => {
+    const k = parseSayiTr(kira);
+    if (!k) return null;
+    return calculateKiraGeliriVergisi(
+      k,
+      parseSayiTr(istisna, true) ?? 0,
+      goturu,
+      parseSayiTr(gercekGider, true) ?? 0,
+      parseSayiTr(oran, true) ?? 0,
+    );
+  }, [kira, istisna, goturu, gercekGider, oran]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi label="Yıllık brüt kira geliri" deger={kira} onDeger={setKira} prefix="₺" hint="Mesken kiralarından bir yılda tahsil edilen toplam tutar." />
+          <SayiGirisi
+            label="İstisna tutarı"
+            deger={istisna}
+            onDeger={setIstisna}
+            prefix="₺"
+            sifirOlabilir
+            hint="Mesken kira geliri için yıllık istisna; beyannamede düşülür. İstisna değişirse güncelleyin."
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setGoturu(true)}
+              className={`min-h-11 flex-1 rounded-lg border px-4 text-sm font-medium transition-colors ${goturu ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}
+            >
+              Götürü gider (%15)
+            </button>
+            <button
+              type="button"
+              onClick={() => setGoturu(false)}
+              className={`min-h-11 flex-1 rounded-lg border px-4 text-sm font-medium transition-colors ${!goturu ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}
+            >
+              Gerçek gider
+            </button>
+          </div>
+          {!goturu ? (
+            <SayiGirisi
+              label="Gerçek gider tutarı"
+              deger={gercekGider}
+              onDeger={setGercekGider}
+              prefix="₺"
+              sifirOlabilir
+              hint="Amortisman, bakım, aidat, faiz gibi belgelenebilir giderlerin toplamı."
+            />
+          ) : null}
+          <SayiGirisi
+            label="Ortalama vergi oranı"
+            deger={oran}
+            onDeger={setOran}
+            suffix="%"
+            hint="Tarife artan oranlıdır (%15–%40). Matrahınızın büyüklüğüne göre ortalama bir oran girin."
+          />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="Yaklaşık vergi"
+            satirlar={[
+              { etiket: "İstisna sonrası gelir", deger: formatTRY(sonuc.istisnaSonrasi) },
+              { etiket: goturu ? "Götürü gider (%15)" : "Gerçek gider", deger: formatTRY(sonuc.giderTutari) },
+              { etiket: "Vergi matrahı", deger: formatTRY(sonuc.vergiMatrahi) },
+              { etiket: "Tahmini gelir vergisi", deger: formatTRYKesirli(sonuc.tahminiVergi), vurgulu: true },
+              { etiket: "Kira gelirine oranı", deger: formatYuzde(sonuc.gelirYuzdesi, 1) },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için yıllık brüt kira gelirini girin." />
+        )
+      }
+    />
+  );
+}
+
+export function KidemTazminatiHesaplayici() {
+  const [brut, setBrut] = useState("45000");
+  const [yil, setYil] = useState("5");
+  const [ay, setAy] = useState("6");
+  const [tavan, setTavan] = useState("35000");
+  const [damga, setDamga] = useState("7,59");
+
+  const sonuc = useMemo(() => {
+    const b = parseSayiTr(brut);
+    if (!b) return null;
+    return calculateKidemTazminati(
+      b,
+      parseSayiTr(yil, true) ?? 0,
+      parseSayiTr(ay, true) ?? 0,
+      parseSayiTr(tavan, true) ?? 0,
+      parseSayiTr(damga, true) ?? 0,
+    );
+  }, [brut, yil, ay, tavan, damga]);
+
+  const tavanUygulandi =
+    sonuc !== null && (parseSayiTr(tavan, true) ?? 0) > 0 && sonuc.esasAlinanAylik < (parseSayiTr(brut) ?? 0);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi
+            label="Aylık brüt ücret"
+            deger={brut}
+            onDeger={setBrut}
+            prefix="₺"
+            hint="Son bir yıl içindeki en yüksek aylık brüt kazanca giydirilmiş ücret esas alınır."
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <SayiGirisi label="Kıdem (yıl)" deger={yil} onDeger={setYil} suffix="yıl" sifirOlabilir />
+            <SayiGirisi label="Kıdem (ay)" deger={ay} onDeger={setAy} suffix="ay" sifirOlabilir />
+          </div>
+          <SayiGirisi
+            label="Kıdem tazminatı tavanı"
+            deger={tavan}
+            onDeger={setTavan}
+            prefix="₺"
+            sifirOlabilir
+            hint="Güncel tavanı girin; 0 girerseniz tavan uygulanmaz. Brüt ücret tavandaki küçük değişimlerden etkilenir."
+          />
+          <SayiGirisi label="Damga vergisi" deger={damga} onDeger={setDamga} suffix="‰" sifirOlabilir hint="Kıdem tazminatından yalnızca damga vergisi kesilir; gelir vergisi kesilmez." />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="Kıdem tazminatı"
+            satirlar={[
+              { etiket: tavanUygulandi ? "Esas alınan aylık (tavan)" : "Esas alınan aylık", deger: formatTRY(sonuc.esasAlinanAylik) },
+              { etiket: "Kıdem süresi", deger: `${sonuc.toplamAy} ay` },
+              { etiket: "Brüt tazminat", deger: formatTRYKesirli(sonuc.brutTazminat) },
+              { etiket: "Damga vergisi", deger: formatTRYKesirli(sonuc.damgaVergisi) },
+              { etiket: "Net tazminat", deger: formatTRYKesirli(sonuc.netTazminat), vurgulu: true },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için brüt ücret ve kıdem süresini girin." />
+        )
+      }
+    />
+  );
+}
+
+export function EvAlmaMaliyetiHesaplayici() {
+  const [bedel, setBedel] = useState("2500000");
+  const [tapuOran, setTapuOran] = useState("2");
+  const [komisyonOran, setKomisyonOran] = useState("2");
+  const [kdv, setKdv] = useState("20");
+  const [dask, setDask] = useState("3000");
+  const [diger, setDiger] = useState("15000");
+
+  const sonuc = useMemo(() => {
+    const b = parseSayiTr(bedel);
+    if (!b) return null;
+    return calculateEvAlmaMaliyeti(
+      b,
+      parseSayiTr(tapuOran, true) ?? 0,
+      parseSayiTr(komisyonOran, true) ?? 0,
+      parseSayiTr(kdv, true) ?? 0,
+      parseSayiTr(dask, true) ?? 0,
+      parseSayiTr(diger, true) ?? 0,
+    );
+  }, [bedel, tapuOran, komisyonOran, kdv, dask, diger]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi label="Satış bedeli" deger={bedel} onDeger={setBedel} prefix="₺" hint="Gerçek satış bedeli; tapu harcı bu bedel üzerinden hesaplanır." />
+          <div className="grid grid-cols-2 gap-4">
+            <SayiGirisi
+              label="Alıcının tapu harcı oranı"
+              deger={tapuOran}
+              onDeger={setTapuOran}
+              suffix="%"
+              hint="Kural olarak harç, alıcı ve satıcıya eşit paylaştırılır; toplam %4."
+            />
+            <SayiGirisi
+              label="Alıcının komisyon oranı"
+              deger={komisyonOran}
+              onDeger={setKomisyonOran}
+              suffix="%"
+              hint="Yasal üst sınır alıcıdan %2 + KDV."
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <SayiGirisi label="Komisyon KDV oranı" deger={kdv} onDeger={setKdv} suffix="%" sifirOlabilir />
+            <SayiGirisi label="Yıllık DASK primi" deger={dask} onDeger={setDask} prefix="₺" sifirOlabilir />
+          </div>
+          <SayiGirisi
+            label="Diğer maliyetler"
+            deger={diger}
+            onDeger={setDiger}
+            prefix="₺"
+            sifirOlabilir
+            hint="Emlakçı dışı nakliye, tadilat, ekspertiz, noter gibi giderleriniz."
+          />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="Alım maliyeti"
+            satirlar={[
+              { etiket: "Tapu harcı (alıcı payı)", deger: formatTRY(sonuc.tapuHarci) },
+              { etiket: "Komisyon + KDV", deger: formatTRY(sonuc.komisyon + sonuc.komisyonKdv) },
+              { etiket: "DASK + diğer giderler", deger: formatTRY((parseSayiTr(dask, true) ?? 0) + (parseSayiTr(diger, true) ?? 0)) },
+              { etiket: "Toplam yan maliyet", deger: formatTRY(sonuc.yanMaliyetler) },
+              { etiket: "Satış bedeliyle genel toplam", deger: formatTRY(sonuc.genelToplam), vurgulu: true },
+              { etiket: "Yan maliyetin bedele oranı", deger: formatYuzde(sonuc.bedelYuzdesi, 1) },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için satış bedelini girin." />
         )
       }
     />
