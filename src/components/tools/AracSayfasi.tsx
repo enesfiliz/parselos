@@ -126,14 +126,15 @@ export function AracSayfasi({
           Bu hesapları her gün mü yapıyorsunuz?
         </p>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-          Bu hesapları her gün yeniden kurmak yerine portföy, müşteri ve
-          komisyon takibini tek yerde yürütün.
+          ParselOS, emlak profesyonelleri için portföy, müşteri ve komisyon
+          takibini tek yerde yürüten ayrı bir üründür; bu araçlar ise herkes
+          için açıktır.
         </p>
         <Link
-          href="/"
+          href="/hakkinda"
           className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground"
         >
-          ParselOS&apos;u inceleyin
+          Hakkında sayfasını okuyun
         </Link>
         <p className="mt-4 text-xs text-muted-foreground">
           Araçlar işinize yarıyorsa{" "}

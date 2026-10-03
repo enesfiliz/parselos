@@ -78,6 +78,14 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
+                <Link
+                  href="/hakkinda"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Hakkında
+                </Link>
+              </li>
+              <li>
                 <a
                   href="mailto:destek@parselos.com"
                   className="text-sm text-muted-foreground transition-colors hover:text-foreground"

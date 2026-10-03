@@ -29,10 +29,10 @@ export default function ToolsLayout({
               Destek
             </Link>
             <Link
-              href="/"
+              href="/hakkinda"
               className="hidden min-h-11 items-center px-2 font-medium text-muted-foreground hover:text-foreground sm:inline-flex"
             >
-              ParselOS
+              Hakkında
             </Link>
           </nav>
         </div>

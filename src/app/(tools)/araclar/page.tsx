@@ -82,15 +82,14 @@ export default function AraclarPage() {
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Alışverişte indirim hesaplamak isteyen bir tüketiciden, müşteri
           görüşmesinde komisyon konuşan bir emlak danışmanına kadar herkes için.
-          Günlük operasyonunu (portföy, müşteri ve komisyon takibi) tek yerde
-          yürütmek için{" "}
+          Bu araçların kim tarafından ve neden yapıldığını{" "}
           <Link
-            href="/"
+            href="/hakkinda"
             className="font-medium text-foreground underline-offset-4 hover:underline"
           >
-            ParselOS&apos;u
+            Hakkında
           </Link>{" "}
-          keşfedin. Hesaplamalar yasal bilgi yerine geçmez; kritik
+          sayfasında anlattık. Hesaplamalar yasal bilgi yerine geçmez; kritik
           işlemlerinizi mesleki müşavirinizle teyit edin.
         </p>
       </section>

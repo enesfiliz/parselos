@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: "%s · ParselOS",
   },
   description:
-    "Gayrimenkul CRM platformu — ekspertiz, müşteri yönetimi ve yapay zeka destekli operasyonlar.",
+    "ParselOS — emlak ve günlük hayat için ücretsiz hesap araçları ve gayrimenkul profesyonellerine yönelik operasyon platformu.",
   icons: {
     shortcut: [{ url: "/favicon.ico" }],
     icon: [
