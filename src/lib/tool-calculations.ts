@@ -769,6 +769,84 @@ export function calculateInsaatMaliyeti(
   };
 }
 
+export type YillikIzinSonucu = {
+  hakEdilenGun: number;
+  kullanimDisiMi: boolean;
+};
+
+/**
+ * 4857 sayılı İş Kanunu yıllık ücretli izin süreleri: 1 yıldan az kıdemde
+ * hak doğmaz; 1–5 yıl (5 dahil) 14 gün, 5–15 yıl 20 gün, 15 yıl ve üzeri
+ * 30 gün. 18 yaş ve küçüklere ile 50 yaş ve büyüklere 20 günden az verilemez.
+ */
+export function calculateYillikIzin(
+  kiyemYil: number,
+  yas: number,
+): YillikIzinSonucu | null {
+  if (kiyemYil < 0 || yas <= 0) return null;
+  if (kiyemYil < 1) return { hakEdilenGun: 0, kullanimDisiMi: true };
+  let gun = kiyemYil <= 5 ? 14 : kiyemYil < 15 ? 20 : 30;
+  if (yas <= 18 || yas >= 50) gun = Math.max(gun, 20);
+  return { hakEdilenGun: gun, kullanimDisiMi: false };
+}
+
+export type MaasZamSonucu = {
+  yeniMaas: number;
+  aylikFark: number;
+  yillikFark: number;
+  gercekArtisYuzde: number;
+};
+
+/**
+ * Maaş zammı: yeni maaş ve aylık/yıllık fark; enflasyon girilirse zam
+ * oranının enflasyon karşısındaki gerçek (reel) artışı hesaplanır.
+ */
+export function calculateMaasZam(
+  mevcutMaas: number,
+  zamOraniYuzde: number,
+  enflasyonOraniYuzde: number,
+): MaasZamSonucu | null {
+  if (mevcutMaas <= 0) return null;
+  const yeniMaas = mevcutMaas * (1 + Math.max(zamOraniYuzde, 0) / 100);
+  const aylikFark = yeniMaas - mevcutMaas;
+  const z = Math.max(zamOraniYuzde, 0) / 100;
+  const e = Math.max(enflasyonOraniYuzde, 0) / 100;
+  const gercekArtisYuzde = 1 + e > 0 ? ((1 + z) / (1 + e) - 1) * 100 : 0;
+  return {
+    yeniMaas,
+    aylikFark,
+    yillikFark: aylikFark * 12,
+    gercekArtisYuzde,
+  };
+}
+
+export type AracDegerKaybiSonucu = {
+  degerKaybi: number;
+  degerYuzdesi: number;
+  onarimOraniYuzde: number;
+};
+
+/**
+ * Kaza sonrası araç değer kaybı: kaza öncesi piyasa değerinden kaza sonrası
+ * değer düşüldüğünde kalan kayıp; onarım bedelinin piyasa değerine oranı da
+ * talepte yol gösterici olarak gösterilir.
+ */
+export function calculateAracDegerKaybi(
+  kazaOncesiDeger: number,
+  kazaSonrasiDeger: number,
+  onarimTutari: number,
+): AracDegerKaybiSonucu | null {
+  if (kazaOncesiDeger <= 0 || kazaSonrasiDeger < 0 || onarimTutari < 0)
+    return null;
+  if (kazaSonrasiDeger > kazaOncesiDeger) return null;
+  const degerKaybi = kazaOncesiDeger - kazaSonrasiDeger;
+  return {
+    degerKaybi,
+    degerYuzdesi: (degerKaybi / kazaOncesiDeger) * 100,
+    onarimOraniYuzde: (Math.max(onarimTutari, 0) / kazaOncesiDeger) * 100,
+  };
+}
+
 export const formatTRY = (value: number): string =>
   new Intl.NumberFormat("tr-TR", {
     style: "currency",

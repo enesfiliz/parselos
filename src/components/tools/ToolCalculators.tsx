@@ -10,6 +10,7 @@ import {
 } from "@/lib/calculations";
 import {
   calculateAmortismanV2,
+  calculateAracDegerKaybi,
   calculateBasitFaiz,
   calculateBilesikFaiz,
   calculateDaskYaklasik,
@@ -32,8 +33,10 @@ import {
   calculateKiraStopaji,
   calculateKrediKapatma,
   calculateM2Fiyati,
+  calculateMaasZam,
   calculateNetIcinBrutKira,
   calculateVerasetIntikal,
+  calculateYillikIzin,
   calculateYuzde,
   calculateYuzdeKac,
   formatTRY,
@@ -1752,6 +1755,194 @@ export function InsaatMaliyetiHesaplayici() {
           />
         ) : (
           <BosDurum mesaj="Sonucu görmek için alan ve birim maliyeti girin." />
+        )
+      }
+    />
+  );
+}
+
+export function YillikIzinHesaplayici() {
+  const [yil, setYil] = useState("6");
+  const [yas, setYas] = useState("35");
+
+  const sonuc = useMemo(() => {
+    const y = parseSayiTr(yil, true);
+    const a = parseSayiTr(yas);
+    if (y === null || !a) return null;
+    return calculateYillikIzin(y, a);
+  }, [yil, yas]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi
+            label="Kıdem süresi"
+            deger={yil}
+            onDeger={setYil}
+            suffix="yıl"
+            sifirOlabilir
+            hint="İşyerindeki toplam çalışılan süre (deneme süresi dahil)."
+          />
+          <SayiGirisi
+            label="Yaşınız"
+            deger={yas}
+            onDeger={setYas}
+            suffix="yaş"
+            hint="18 yaş ve altı ile 50 yaş ve üstünde izin 20 günden az olamaz."
+          />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          sonuc.kullanimDisiMi ? (
+            <SonucKutusu
+              baslik="Yıllık izin"
+              satirlar={[
+                {
+                  etiket: "Yasal durum",
+                  deger: "1 yıl şartı henüz dolmadı",
+                },
+                {
+                  etiket: "Hak edilen izin",
+                  deger: "0 gün",
+                  vurgulu: true,
+                },
+              ]}
+            />
+          ) : (
+            <SonucKutusu
+              baslik="Yıllık izin"
+              satirlar={[
+                {
+                  etiket: "Hak edilen ücretli izin",
+                  deger: `${sonuc.hakEdilenGun} gün`,
+                  vurgulu: true,
+                },
+              ]}
+            />
+          )
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için kıdem sürenizi ve yaşınızı girin." />
+        )
+      }
+    />
+  );
+}
+
+export function MaasZamHesaplayici() {
+  const [maas, setMaas] = useState("45000");
+  const [zam, setZam] = useState("30");
+  const [enflasyon, setEnflasyon] = useState("35");
+
+  const sonuc = useMemo(() => {
+    const m = parseSayiTr(maas);
+    if (!m) return null;
+    return calculateMaasZam(
+      m,
+      parseSayiTr(zam, true) ?? 0,
+      parseSayiTr(enflasyon, true) ?? 0,
+    );
+  }, [maas, zam, enflasyon]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi label="Mevcut aylık maaş" deger={maas} onDeger={setMaas} prefix="₺" />
+          <SayiGirisi
+            label="Zam oranı"
+            deger={zam}
+            onDeger={setZam}
+            suffix="%"
+            sifirOlabilir
+            hint="Yapılacak veya teklif edilen maaş zammı oranı."
+          />
+          <SayiGirisi
+            label="Yıllık enflasyon (isteğe bağlı)"
+            deger={enflasyon}
+            onDeger={setEnflasyon}
+            suffix="%"
+            sifirOlabilir
+            hint="Zammın enflasyon karşısında erimeyen kısmını görmek için girin."
+          />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="Zam sonrası maaş"
+            satirlar={[
+              { etiket: "Yeni maaş", deger: formatTRYKesirli(sonuc.yeniMaas), vurgulu: true },
+              { etiket: "Aylık artış", deger: formatTRYKesirli(sonuc.aylikFark) },
+              { etiket: "Yıllık artış", deger: formatTRYKesirli(sonuc.yillikFark) },
+              {
+                etiket: "Enflasyon sonrası gerçek artış",
+                deger: formatYuzde(sonuc.gercekArtisYuzde, 1),
+              },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Sonucu görmek için mevcut maaşı girin." />
+        )
+      }
+    />
+  );
+}
+
+export function AracDegerKaybiHesaplayici() {
+  const [oncesi, setOncesi] = useState("900000");
+  const [sonrasi, setSonrasi] = useState("790000");
+  const [onarim, setOnarim] = useState("85000");
+
+  const sonuc = useMemo(() => {
+    const o = parseSayiTr(oncesi);
+    const s = parseSayiTr(sonrasi, true);
+    if (!o || s === null) return null;
+    return calculateAracDegerKaybi(o, s, parseSayiTr(onarim, true) ?? 0);
+  }, [oncesi, sonrasi, onarim]);
+
+  return (
+    <AracDuzen
+      girisler={
+        <>
+          <SayiGirisi
+            label="Kaza öncesi piyasa değeri"
+            deger={oncesi}
+            onDeger={setOncesi}
+            prefix="₺"
+            hint="Hasar tarihinden önceki ikinci el piyasa değeri."
+          />
+          <SayiGirisi
+            label="Kaza sonrası tahmini değer"
+            deger={sonrasi}
+            onDeger={setSonrasi}
+            prefix="₺"
+            sifirOlabilir
+            hint="Aynı donanımdaki hasarsız bir aracın değerinden, hasar kayıtlı araç için biçilen değer düşülmeli."
+          />
+          <SayiGirisi
+            label="Onarım tutarı"
+            deger={onarim}
+            onDeger={setOnarim}
+            prefix="₺"
+            sifirOlabilir
+            hint="Hasar dosyasındaki toplam onarım bedeli."
+          />
+        </>
+      }
+      sonuc={
+        sonuc ? (
+          <SonucKutusu
+            baslik="Değer kaybı"
+            satirlar={[
+              { etiket: "Araç değer kaybı", deger: formatTRYKesirli(sonuc.degerKaybi), vurgulu: true },
+              { etiket: "Değere oranı", deger: formatYuzde(sonuc.degerYuzdesi, 1) },
+              { etiket: "Onarım / piyasa değeri", deger: formatYuzde(sonuc.onarimOraniYuzde, 1) },
+            ]}
+          />
+        ) : (
+          <BosDurum mesaj="Kaza sonrası değer, kaza öncesi değerden büyük olamaz. Değerleri kontrol edin." />
         )
       }
     />

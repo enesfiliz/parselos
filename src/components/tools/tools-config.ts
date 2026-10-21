@@ -249,6 +249,30 @@ export const ARACLAR: AracTanimi[] = [
       "Brüt alan ve m² birim maliyetinden toplam inşaat maliyetini ve sürpriz payı ile birlikte m² başı maliyeti hesaplayın.",
     kategori: "gayrimenkul",
   },
+  {
+    slug: "yillik-izin-hesaplama",
+    baslik: "Yıllık Ücretli İzin Hesaplama",
+    kisaAd: "Yıllık İzin",
+    kisaAciklama:
+      "Kıdem sürenize ve yaşınıza göre yasal olarak hak ettiğiniz ücretli izin gününü öğrenin.",
+    kategori: "gunluk",
+  },
+  {
+    slug: "maas-zam-hesaplama",
+    baslik: "Maaş Zam Hesaplama",
+    kisaAd: "Maaş Zammı",
+    kisaAciklama:
+      "Zam oranına göre yeni maaşı, aylık-yıllık farkı ve enflasyon karşısında gerçek artışı hesaplayın.",
+    kategori: "gunluk",
+  },
+  {
+    slug: "arac-deger-kaybi-hesaplama",
+    baslik: "Araç Değer Kaybı Hesaplama",
+    kisaAd: "Araç Değer Kaybı",
+    kisaAciklama:
+      "Kaza sonrası düşen piyasa değerinden araç değer kaybını ve tazminat talebinize esas oranları görün.",
+    kategori: "gunluk",
+  },
 ];
 
 export function aracBilgisi(slug: string): AracTanimi {
